@@ -14,7 +14,8 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "@neondatabase/serverless": "^1.0.2",
-    "@neondatabase/auth": "latest"
+    "@neondatabase/auth": "latest",
+    "@neondatabase/auth-ui": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",
