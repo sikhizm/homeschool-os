@@ -1,0 +1,3 @@
+import Link from 'next/link';
+const phases=['Foundation and responsive app','Private family profiles and authentication','Curriculum skills and prerequisites','Yearly, monthly, weekly and daily plans','Activity library and printables','Assessments and portfolios','Parent-reviewed AI suggestions','Progress reports'];
+export default function Roadmap(){return <><header><Link href="/">← Homeschool OS</Link></header><main><h1>Development roadmap</h1><div className="grid">{phases.map((p,i)=><section className="card" key={p}><span className="tag">PHASE {String(i+1).padStart(2,'0')}</span><h3>{p}</h3><p className="muted">{i===0?'Foundation in progress':'Planned'}</p></section>)}</div></main></>}
