@@ -16,7 +16,7 @@ export default async function CurriculumPage({searchParams}:{searchParams:Promis
  const available=curriculumForStage(stage);
  const visible=subject?available.filter(c=>c.subject===subject):available;
  const byId=new Map(competencies.map(c=>[c.id,c]));
- const references=new Map(curriculumSources.map(source=>[source.id,source]));
+ const references=new Map<string, {title:string;url:string}>(curriculumSources.map(source=>[source.id,source]));
  return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>CURRICULUM PATHWAYS</span></header>
  <main className="family-dashboard">
   <div className="dashboard-welcome"><div><span className="tag">PHASE 03 · CURRICULUM</span><h1>Competency pathways</h1><p className="muted">Browse developmental suggestions, see prerequisite foundations and turn one into a parent-reviewed learning goal.</p></div></div>
