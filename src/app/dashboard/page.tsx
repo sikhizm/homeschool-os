@@ -4,13 +4,15 @@ import { redirect } from 'next/navigation';
 import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
+import { competencies } from '@/lib/curriculum/library';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ goal?: string; subject?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string }> }) {
   const params = await searchParams;
-  const suggestion = typeof params.goal === 'string' && params.goal.length <= 200 ? params.goal : '';
-  const suggestedSubject = typeof params.subject === 'string' && params.subject.length <= 80 ? params.subject : '';
+  const competency = competencies.find(item => item.id === params.competency);
+  const suggestion = competency?.outcome ?? '';
+  const suggestedSubject = competency?.subject ?? '';
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -57,6 +59,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
           <span className="daily-badge">✧ Around 60 minutes, together</span>
         </div>
+        <p><Link href="/curriculum">Browse curriculum pathways →</Link></p>
         <LearningWorkspace
           learners={learners.map((l) => ({
             id: String(l.id),
