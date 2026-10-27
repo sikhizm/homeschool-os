@@ -1,3 +1,18 @@
-import Link from 'next/link';
-const modules=[['Family profiles','Private learner accounts','02'],['Curriculum map','Skills and prerequisites','03'],['Learning planner','Yearly and daily plans','04'],['Activities','Hands-on lessons and printables','05'],['Progress journal','Evidence and observations','06'],['AI assistance','Parent-reviewed suggestions','07']];
-export default function Home(){return <><header><strong>✦ Homeschool OS</strong></header><main><span className="tag">PHASE 01 · FOUNDATION</span><h1>Learning that grows with your family.</h1><p className="muted">A parent-guided space for academic foundations, creativity, inquiry, and real-world learning.</p><section className="card" style={{margin:'28px 0'}}><h2>Welcome to Homeschool OS</h2><p>Our first milestone is a clean, privacy-first application foundation. No child profiles or private records are stored yet.</p><Link href="/roadmap">View development roadmap →</Link></section><h2>Planned modules</h2><div className="grid">{modules.map(([name,detail,phase])=><article className="card" key={name}><span className="tag">PHASE {phase}</span><h3>{name}</h3><p className="muted">{detail}</p></article>)}</div></main></>}
+import { redirect } from 'next/navigation';
+import { auth } from '@/lib/auth/server';
+
+export const dynamic = 'force-dynamic';
+
+/**
+ * Homeschool OS is a private, parent-led workspace.
+ * Keep the public entry point free of family and learner records.
+ */
+export default async function Home() {
+  const { data: session } = await auth.getSession();
+
+  if (session?.user) {
+    redirect('/dashboard');
+  }
+
+  redirect('/auth/sign-in');
+}
