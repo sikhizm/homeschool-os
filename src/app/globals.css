@@ -18,3 +18,12 @@ body{margin:0;background:#f6f8f5;color:var(--ink);font-family:Arial,Helvetica,sa
 .auth-footer a{color:var(--accent);font-weight:700;text-decoration:none}.auth-footer a:hover{text-decoration:underline}
 .auth-card [role=alert]{color:#a02c2c;font-size:14px}
 @media(max-width:720px){.grid{grid-template-columns:1fr}main{padding:16px}.auth-shell{padding:18px 14px}.auth-card{border-radius:18px}}
+
+/* Neon Auth UI nests its controls inside flex/grid wrappers. Normalize those
+   wrappers to a single-column layout rather than styling inputs in isolation. */
+.auth-card form{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important;width:100%!important;max-width:100%!important;min-width:0!important}
+.auth-card form :is(div,fieldset){display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;flex:none!important;grid-template-columns:minmax(0,1fr)!important}
+.auth-card form :is(label,input,button){box-sizing:border-box!important;max-width:100%!important;min-width:0!important}
+.auth-card form label{width:100%!important;margin:0!important}
+.auth-card form input:not([type=checkbox]){width:100%!important;flex:none!important;margin:8px 0 10px!important}
+.auth-card form button,.auth-card form button[type=submit]{width:100%!important;max-width:100%!important;min-width:0!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;flex:none!important}
