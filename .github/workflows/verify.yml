@@ -1,0 +1,40 @@
+name: Verify learning workspace
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npx playwright install --with-deps chromium
+      - name: Browser workflow with isolated PostgreSQL fixtures
+        run: |
+          CHROMIUM_PATH="$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" npm run test:ui
+      - name: Isolated production build (no production credentials)
+        env:
+          NEON_AUTH_BASE_URL: http://127.0.0.1:4987
+          NEXT_TELEMETRY_DISABLED: '1'
+        run: |
+          export NEON_AUTH_COOKIE_SECRET="$(openssl rand -hex 32)"
+          npm run build
+          npm start -- --hostname 127.0.0.1 --port 3000 > /tmp/homeschool-server.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then break; fi
+            sleep 1
+          done
+          npm run test:smoke

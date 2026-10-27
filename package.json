@@ -7,25 +7,37 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:ui": "tsx --test tests/workspace.browser.ts",
+    "db:inspect": "node scripts/database.mjs inspect",
+    "db:migrate": "node scripts/database.mjs migrate",
+    "test:smoke": "node scripts/smoke.mjs"
   },
   "dependencies": {
+    "@neondatabase/auth": "latest",
+    "@neondatabase/auth-ui": "latest",
+    "@neondatabase/serverless": "^1.0.2",
     "next": "^16.0.0",
     "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "@neondatabase/serverless": "^1.0.2",
-    "@neondatabase/auth": "latest",
-    "@neondatabase/auth-ui": "latest"
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.12",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "typescript": "^5.8",
+    "esbuild": "^0.28.2",
     "eslint": "^9",
     "eslint-config-next": "^16.0.0",
+    "playwright": "^1.64.1",
     "tailwindcss": "^4",
-    "@tailwindcss/postcss": "^4",
-    "@eslint/eslintrc": "^3"
+    "tsx": "^4.23.15",
+    "typescript": "^5.8"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }
