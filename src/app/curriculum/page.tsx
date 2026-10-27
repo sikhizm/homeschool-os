@@ -86,7 +86,7 @@ export default async function CurriculumPage() {
               {pathway.strands.map((strand) => (
                 <article className="card" key={strand.title}>
                   <h3>{strand.title}</h3>
-                  <ul>{strand.examples.map((example) => <li key={example}>{example}</li>)}</ul>
+                  <ul>{strand.examples.map((example) => <li key={example}>{example} <Link href={`/dashboard?goal=${encodeURIComponent(example)}&subject=${encodeURIComponent(strand.title)}`}>Use as a goal →</Link></li>)}</ul>
                 </article>
               ))}
             </div>

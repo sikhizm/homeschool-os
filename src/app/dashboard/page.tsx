@@ -7,7 +7,10 @@ import LearningWorkspace from './learning-workspace';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ goal?: string; subject?: string }> }) {
+  const params = await searchParams;
+  const suggestion = typeof params.goal === 'string' && params.goal.length <= 200 ? params.goal : '';
+  const suggestedSubject = typeof params.subject === 'string' && params.subject.length <= 80 ? params.subject : '';
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -62,6 +65,8 @@ export default async function Dashboard() {
           }))}
           canEdit={family.role === 'owner'}
           initialDate={initialDate}
+          suggestedGoal={suggestion}
+          suggestedSubject={suggestedSubject}
         />
         {family.role === 'owner' && (
           <details className="workspace-panel add-learner-panel">
