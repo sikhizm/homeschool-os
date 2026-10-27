@@ -27,3 +27,25 @@ body{margin:0;background:#f6f8f5;color:var(--ink);font-family:Arial,Helvetica,sa
 .auth-card form label{width:100%!important;margin:0!important}
 .auth-card form input:not([type=checkbox]){width:100%!important;flex:none!important;margin:8px 0 10px!important}
 .auth-card form button,.auth-card form button[type=submit]{width:100%!important;max-width:100%!important;min-width:0!important;white-space:normal!important;overflow:visible!important;text-overflow:clip!important;flex:none!important}
+
+/* Parent-only learner dashboard */
+.family-dashboard{max-width:1080px;padding-top:48px;padding-bottom:72px}
+.family-dashboard h1{font-size:clamp(30px,4vw,42px);letter-spacing:-.04em;margin:12px 0}
+.family-dashboard>.muted{font-size:16px;line-height:1.6;margin-bottom:36px}
+.dashboard-section{margin-top:32px}
+.dashboard-section h2{font-size:22px;letter-spacing:-.02em;margin-bottom:18px}
+.learner-count{display:inline-block;background:#e1efe7;color:#126248;border-radius:999px;font-size:13px;padding:4px 10px;vertical-align:middle;margin-left:7px}
+.learner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px}
+.learner-card,.learner-empty,.create-learner{background:white;border:1px solid #dce8e0;border-radius:18px;padding:24px}
+.learner-card h3{margin:10px 0 6px;font-size:20px}.learner-card p{margin:0;color:#667d73}
+.learner-avatar{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#e1efe7;color:#126248;font-weight:800;font-size:22px}
+.learner-empty{border-style:dashed;color:#425e50}.learner-empty p{margin-bottom:0;line-height:1.5}
+.create-learner{max-width:680px}.create-learner h2{margin-top:0}.create-learner>.muted{margin-bottom:22px}
+.learner-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px;align-items:end}
+.learner-field{min-width:0}.learner-field label{display:block;font-weight:700;font-size:14px;margin-bottom:8px}
+.learner-field input,.learner-field select{width:100%;min-width:0;min-height:46px;border-radius:10px;border:1px solid #cbdcd1;background:white;color:#203b32;padding:11px 12px;font-size:15px}
+.learner-field input:focus,.learner-field select:focus{outline:2px solid #92c7a6;outline-offset:1px}
+.learner-form button{grid-column:1/-1;border:0;background:#16664b;border-radius:10px;color:white;min-height:46px;padding:12px 18px;font-weight:700;cursor:pointer}
+.learner-form button:disabled{opacity:.65;cursor:wait}
+.learner-error{grid-column:1/-1;color:#ad3232;margin:0}
+@media(max-width:600px){.learner-form{grid-template-columns:1fr}.family-dashboard{padding-top:28px}}
