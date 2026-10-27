@@ -22,4 +22,4 @@ A parent-guided family learning platform combining CBSE alignment, globally info
 Do not commit children's personal information, assessment results, credentials, or photographs to this repository. Require authentication and appropriate data access controls before storing learner records.
 
 ## Status
-Phase 01 — Foundation planned.
+Private learner dashboard with subjects, individual goals and a daily learning planner. See [development and rollout instructions](docs/LEARNING_MANAGEMENT.md).
