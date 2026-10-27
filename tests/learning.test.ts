@@ -86,7 +86,7 @@ test('additive migration is repeatable and preserves existing learner rows (UUID
         before.rows,
       );
       assert.deepEqual(
-        (await db.query('SELECT count(*)::int n FROM learning_goals')).rows,
+        (await db.query('SELECT count(*)::int n FROM learner_objectives')).rows,
         [{ n: 0 }],
       );
     } finally {

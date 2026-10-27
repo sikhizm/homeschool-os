@@ -34,7 +34,7 @@ export async function loadWorkspace(
   const [subjects, goals, activities] = await Promise.all([
     sql`SELECT s.id::text, s.name, s.approach, s.archived FROM learning_subjects s JOIN learners l ON l.id=s.learner_id
       WHERE l.id::text=${learnerId} AND EXISTS (SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${userId}) ORDER BY s.created_at, s.id`,
-    sql`SELECT g.id::text, g.subject_id::text, g.title, g.progress, g.evidence, g.target_date::text FROM learning_goals g JOIN learners l ON l.id=g.learner_id
+    sql`SELECT g.id::text, g.subject_id::text, g.title, g.progress, g.evidence, g.target_date::text FROM learner_objectives g JOIN learners l ON l.id=g.learner_id
       WHERE l.id::text=${learnerId} AND EXISTS (SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${userId}) ORDER BY g.created_at, g.id`,
     sql`SELECT a.id::text, a.subject_id::text, a.goal_id::text, a.title, a.minutes, a.completed, a.reflection, a.position, a.learning_date::text FROM learning_activities a JOIN learners l ON l.id=a.learner_id
       WHERE l.id::text=${learnerId} AND a.learning_date=${date}::date AND EXISTS (SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${userId}) ORDER BY a.position, a.created_at, a.id`,
@@ -69,14 +69,14 @@ export async function executeCommand(
       break;
     case 'goal.create':
       rows =
-        await sql`INSERT INTO learning_goals (learner_id,subject_id,title,target_date)
+        await sql`INSERT INTO learner_objectives (learner_id,subject_id,title,target_date)
         SELECT l.id,s.id,${c.title},${c.targetDate}::date FROM learners l JOIN learning_subjects s ON s.learner_id=l.id
         WHERE l.id::text=${learnerId} AND s.id=${c.subjectId}::uuid AND NOT s.archived
         AND EXISTS (SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${userId} AND fm.role='owner') RETURNING id`;
       break;
     case 'goal.update':
       rows =
-        await sql`UPDATE learning_goals g SET title=${c.title},progress=${c.progress},evidence=${c.evidence},target_date=${c.targetDate}::date,updated_at=now()
+        await sql`UPDATE learner_objectives g SET title=${c.title},progress=${c.progress},evidence=${c.evidence},target_date=${c.targetDate}::date,updated_at=now()
         FROM learners l WHERE g.learner_id=l.id AND l.id::text=${learnerId} AND g.id=${c.id}::uuid
         AND EXISTS (SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${userId} AND fm.role='owner') RETURNING g.id`;
       break;
@@ -87,7 +87,7 @@ export async function executeCommand(
           COALESCE((SELECT max(position)+1 FROM learning_activities WHERE learner_id=l.id AND learning_date=${c.date}::date),0)
         FROM learners l WHERE l.id::text=${learnerId}
         AND (${c.subjectId}::uuid IS NULL OR EXISTS (SELECT 1 FROM learning_subjects s WHERE s.id=${c.subjectId}::uuid AND s.learner_id=l.id AND NOT s.archived))
-        AND (${c.goalId}::uuid IS NULL OR EXISTS (SELECT 1 FROM learning_goals g WHERE g.id=${c.goalId}::uuid AND g.learner_id=l.id AND g.subject_id=${c.subjectId}::uuid))
+        AND (${c.goalId}::uuid IS NULL OR EXISTS (SELECT 1 FROM learner_objectives g WHERE g.id=${c.goalId}::uuid AND g.learner_id=l.id AND g.subject_id=${c.subjectId}::uuid))
         AND EXISTS (SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${userId} AND fm.role='owner') RETURNING id`;
       break;
     case 'activity.update':

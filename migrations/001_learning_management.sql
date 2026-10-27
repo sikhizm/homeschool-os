@@ -17,7 +17,7 @@ BEGIN
     created_at timestamptz NOT NULL DEFAULT now(),
     UNIQUE (id, learner_id)
   )', learner_type);
-  EXECUTE format('CREATE TABLE IF NOT EXISTS public.learning_goals (
+  EXECUTE format('CREATE TABLE IF NOT EXISTS public.learner_objectives (
     id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
     learner_id %s NOT NULL REFERENCES public.learners(id),
     subject_id uuid NOT NULL,
@@ -49,17 +49,17 @@ BEGIN
     created_at timestamptz NOT NULL DEFAULT now(),
     CHECK (goal_id IS NULL OR subject_id IS NOT NULL),
     FOREIGN KEY (subject_id, learner_id) REFERENCES public.learning_subjects(id, learner_id),
-    FOREIGN KEY (goal_id, learner_id, subject_id) REFERENCES public.learning_goals(id, learner_id, subject_id)
+    FOREIGN KEY (goal_id, learner_id, subject_id) REFERENCES public.learner_objectives(id, learner_id, subject_id)
   )', learner_type);
 END $$;
 CREATE UNIQUE INDEX IF NOT EXISTS learning_subject_name ON public.learning_subjects (learner_id, lower(name));
-CREATE INDEX IF NOT EXISTS learning_goal_learner ON public.learning_goals (learner_id);
+CREATE INDEX IF NOT EXISTS learning_goal_learner ON public.learner_objectives (learner_id);
 CREATE INDEX IF NOT EXISTS learning_day ON public.learning_activities (learner_id, learning_date, position);
 ALTER TABLE public.learning_subjects ENABLE ROW LEVEL SECURITY;
-ALTER TABLE public.learning_goals ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.learner_objectives ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.learning_activities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.learning_plan_starters ENABLE ROW LEVEL SECURITY;
-REVOKE ALL ON public.learning_subjects, public.learning_goals, public.learning_activities, public.learning_plan_starters FROM PUBLIC;
+REVOKE ALL ON public.learning_subjects, public.learner_objectives, public.learning_activities, public.learning_plan_starters FROM PUBLIC;
 -- No browser-facing grants or RLS policies: untrusted roles have no direct access.
 -- The trusted server connection must own these tables or have BYPASSRLS.
 -- No browser-facing grants. App queries require authenticated family membership;

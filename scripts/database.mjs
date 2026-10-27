@@ -16,7 +16,7 @@ try {
   const schema =
     await client.query(`SELECT table_name, column_name, data_type, udt_name, is_nullable
     FROM information_schema.columns WHERE table_schema='public'
-    AND table_name IN ('families','family_members','learners','learning_subjects','learning_goals','learning_activities','learning_plan_starters')
+    AND table_name IN ('families','family_members','learners','learning_subjects','learner_objectives','learning_activities','learning_plan_starters')
     ORDER BY table_name, ordinal_position`);
   console.table(schema.rows);
   if (mode === 'migrate') {
@@ -44,7 +44,7 @@ try {
       );
     const policies =
       await client.query(`SELECT c.relname, c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
-      WHERE n.nspname='public' AND c.relname IN ('learning_subjects','learning_goals','learning_activities','learning_plan_starters')`);
+      WHERE n.nspname='public' AND c.relname IN ('learning_subjects','learner_objectives','learning_activities','learning_plan_starters')`);
     if (
       policies.rows.length !== 4 ||
       policies.rows.some((row) => !row.relrowsecurity)
