@@ -98,3 +98,8 @@ const reports=await fetch(root+'/reports',{redirect:'manual'});
 assert.ok([307,308].includes(reports.status));
 assert.ok(reports.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/reports: private route redirects unauthenticated visitors');
+
+const globalCurriculum=await fetch(root+'/global-curriculum',{redirect:'manual'});
+assert.ok([307,308].includes(globalCurriculum.status));
+assert.ok(globalCurriculum.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/global-curriculum: private route redirects unauthenticated visitors');
