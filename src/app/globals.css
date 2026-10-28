@@ -1037,3 +1037,115 @@ summary:focus-visible {
  .report-page h2,.report-page h3{break-after:avoid}
  .report-page p{color:#222!important}
 }
+
+
+/* =======================================================
+   HOMESCHOOL OS / EXPERIENCE REFRESH
+   Warm editorial learning experience, accessible controls.
+   ======================================================= */
+:root{
+  --ink:#203E37;--muted:#647970;--accent:#286F57;
+  --line:#E4E9E1;--canvas:#F8F9F4;--shadow:0 10px 34px rgba(42,70,52,.055);
+}
+body{background:var(--canvas);font-family:Arial,Helvetica,sans-serif;color:var(--ink);line-height:1.5}
+.app-nav-wrap{position:sticky;top:0;z-index:50;background:rgba(255,254,250,.97);border-bottom:1px solid #e8eae3;backdrop-filter:blur(14px)}
+.app-nav-inner{max-width:1460px;margin:auto;min-height:82px;padding:12px clamp(18px,3vw,42px);display:flex;align-items:center;gap:30px}
+.app-brand{display:flex;align-items:center;gap:11px;text-decoration:none;flex-shrink:0;color:#234E40}
+.brand-mark{width:44px;height:44px;display:grid;place-items:center;background:#DDEDDC;border-radius:15px;color:#236847;font-size:25px}
+.brand-copy{display:grid;gap:0;line-height:1.15}
+.brand-copy strong{font-size:17px;letter-spacing:-.045em}
+.brand-copy strong span{color:#D88C55;margin-left:2px}
+.brand-copy small{font-size:10px;letter-spacing:.025em;color:#7B8C83;margin-top:5px}
+.app-primary-nav{display:flex;justify-content:center;align-items:center;gap:4px;flex:1}
+.app-nav-link{display:flex;align-items:center;gap:8px;padding:11px 13px;text-decoration:none;border-radius:13px;font-size:13px;font-weight:700;color:#6D7D73;transition:background .2s,transform .2s,color .2s;white-space:nowrap}
+.app-nav-icon{font-size:19px;line-height:1;color:#6F967D;font-weight:500}
+.app-nav-link:hover,.app-nav-link:focus-visible{background:#EDF4EA;color:#275E49}
+.app-nav-link.is-active{background:#E4EFE5;color:#27684F}
+.app-nav-cta{background:#2A7257;color:white;text-decoration:none;border-radius:12px;padding:11px 16px;font-weight:700;font-size:12px;white-space:nowrap;box-shadow:0 5px 12px rgba(36,105,79,.13)}
+.app-nav-cta:hover{background:#20573F}
+.app-nav-link:focus-visible,.app-nav-cta:focus-visible,.quick-start-card:focus-visible,.hero-actions a:focus-visible{outline:3px solid #E5A36A;outline-offset:3px}
+.workspace-header{display:none}
+.family-dashboard{max-width:1240px;padding:34px 30px 95px}
+.family-dashboard h1{font-size:clamp(32px,3.6vw,48px);letter-spacing:-.055em;line-height:1.13;font-weight:750}
+.family-dashboard h2{letter-spacing:-.035em}
+.dashboard-welcome{margin-bottom:24px}
+.dashboard-welcome h1{letter-spacing:-.055em}
+.dashboard-welcome .muted{color:#6A7B72;max-width:680px}
+.tag,.eyebrow{letter-spacing:.10em;color:#387B5E}
+.workspace-panel,.card{border:1px solid #E7EAE3;background:#FFFEFB;border-radius:21px;box-shadow:var(--shadow)}
+.workspace-panel{padding:clamp(20px,2.5vw,32px)}
+.card{padding:clamp(18px,2vw,26px)}
+.workspace-panel h2{font-size:clamp(20px,2.2vw,27px);margin-top:0;color:#244B3D}
+.workspace-panel h3{color:#2C5445}
+.workspace-panel p{color:#52675E}
+.workspace-field{gap:8px}
+.workspace-field span{font-size:12px;font-weight:700;color:#536F60}
+input,select,textarea{font-family:inherit}
+.workspace-panel input,.workspace-panel select,.workspace-panel textarea,.lesson-studio input,.lesson-studio select,.lesson-studio textarea{border:1px solid #D9E3D9;border-radius:12px;background:#fff;padding:12px 13px;min-height:43px;color:#24463B}
+.workspace-panel input:focus-visible,.workspace-panel select:focus-visible,.workspace-panel textarea:focus-visible{outline:3px solid #B4D7C6;outline-offset:1px;border-color:#418A6E}
+button{cursor:pointer;transition:filter .18s,transform .18s}
+button:hover:not(:disabled){filter:brightness(.97)}
+button:active:not(:disabled){transform:translateY(1px)}
+.workspace-panel button[type=submit],.learning-workspace button[type=submit]{border-radius:12px;padding:12px 17px;font-weight:700}
+.learning-hero{position:relative;overflow:hidden;min-height:290px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-radius:28px;background:linear-gradient(112deg,#E9F2E7 0%,#EEF4E9 53%,#F8F1DF 100%);border:1px solid #D9E8DB;padding:38px clamp(28px,4.5vw,64px);margin:4px 0 38px}
+.learning-hero:before{content:'';position:absolute;width:350px;height:350px;background:#F9EDCF;border-radius:50%;right:-130px;top:-170px;opacity:.5}
+.learning-hero-content{z-index:1;position:relative;max-width:560px}
+.hero-kicker{font-size:11px;letter-spacing:.14em;font-weight:800;color:#3E846A}
+.learning-hero h2{font-size:clamp(34px,4.2vw,58px);line-height:1.06;letter-spacing:-.06em;color:#204838;margin:16px 0}
+.learning-hero h2 em{font-style:normal;color:#CB8554}
+.learning-hero p{max-width:470px;color:#5B7868;font-size:15px;line-height:1.65}
+.learning-art{width:min(34vw,340px);min-width:220px;max-height:268px;flex-shrink:0;position:relative;z-index:1}
+.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:23px}
+.hero-actions a{font-size:13px;font-weight:750;border-radius:13px;padding:12px 18px;text-decoration:none;display:inline-flex;gap:15px;align-items:center}
+.hero-action-primary{background:#256B52;color:#fff;box-shadow:0 8px 14px rgba(37,107,82,.13)}
+.hero-action-secondary{background:#fffdf8;color:#3D6D55;border:1px solid #DFE8DA}
+.quick-start{margin:0 0 36px}
+.quick-start-heading{display:flex;justify-content:space-between;align-items:end;gap:18px;margin-bottom:17px}
+.quick-start-heading h2{font-size:clamp(22px,2.4vw,31px);margin:5px 0 0}
+.quick-start-heading p{font-size:13px;color:#75897D}
+.quick-start-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+.quick-start-card{text-decoration:none;color:#294B3D;position:relative;min-height:161px;border-radius:20px;padding:22px;display:flex;flex-direction:column;align-items:flex-start;gap:4px;transition:transform .2s,box-shadow .2s;border:1px solid rgba(77,107,81,.075)}
+.quick-start-card:hover{transform:translateY(-4px);box-shadow:0 16px 30px rgba(34,73,51,.095)}
+.tint-peach{background:#F9EDE3}.tint-sage{background:#E6F1E8}.tint-lilac{background:#EDE9F5}.tint-butter{background:#F8F0D9}
+.quick-start-icon{width:45px;height:45px;border-radius:14px;background:rgba(255,255,255,.68);display:grid;place-items:center;font-size:24px;color:#3F7A63;margin-bottom:10px}
+.quick-start-card strong{font-size:17px;letter-spacing:-.025em}
+.quick-start-card>span:not(.quick-start-icon):not(.quick-start-arrow){font-size:12px;color:#6E8175}
+.quick-start-arrow{position:absolute;right:18px;top:20px;font-size:22px;color:#648571}
+.learner-picker button{border-radius:17px;min-height:75px}
+.metric-grid>div{border-radius:20px;box-shadow:var(--shadow);min-height:112px}
+.learning-workspace .workspace-panel{border-radius:21px}
+.learning-workspace .workspace-panel h3{letter-spacing:-.02em}
+.learning-workspace .section-heading{padding-top:5px}
+.subject-grid{gap:17px}
+.subject-grid>.workspace-panel{border-radius:20px}
+.portfolio-record,.report-day{border-radius:15px}
+.portfolio-record{box-shadow:0 3px 12px rgba(29,67,40,.03)}
+.lesson-choice{border-radius:14px;padding:15px}
+.lesson-choice-active{background:#E6F2E7;border-color:#4C9271}
+.lesson-print-sheet{background:#FFFDF8}
+@media(max-width:1140px){.app-nav-inner{gap:15px}.app-nav-link{padding:10px 9px;font-size:12px}.app-nav-cta{display:none}}
+@media(max-width:860px){
+ .app-nav-inner{flex-wrap:wrap;gap:10px;padding:11px 17px}
+ .app-brand{width:100%}
+ .app-primary-nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:3px;scrollbar-width:thin}
+ .app-nav-link{padding:9px 13px}
+ .family-dashboard{padding:23px 18px 75px}
+ .quick-start-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .learning-art{width:230px;min-width:180px}
+ .learning-hero{padding:27px;min-height:270px}
+}
+@media(max-width:620px){
+ .app-nav-link{flex-direction:column;gap:3px;font-size:11px;min-width:66px;padding:9px 7px}
+ .app-nav-icon{font-size:20px}
+ .brand-copy small{font-size:10px}
+ .learning-hero{flex-direction:column;align-items:flex-start;padding:26px 24px 8px;min-height:0}
+ .learning-art{align-self:center;width:240px;height:145px;margin-top:-20px;object-fit:contain}
+ .quick-start-heading{align-items:flex-start;flex-direction:column;gap:2px}
+ .quick-start-grid{gap:11px}
+ .quick-start-card{padding:16px;min-height:149px}
+ .quick-start-card strong{font-size:15px}
+ .quick-start-icon{width:39px;height:39px;font-size:20px}
+ .dashboard-welcome{align-items:flex-start}
+}
+@media print{.app-nav-wrap,.learning-hero,.quick-start{display:none!important}}
+@media(prefers-reduced-motion:reduce){.quick-start-card,.app-nav-link,button{transition:none!important}}
