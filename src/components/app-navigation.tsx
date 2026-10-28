@@ -6,12 +6,12 @@ import { usePathname } from 'next/navigation';
 const sections = [
  { href:'/dashboard',label:'Home',glyph:'⌂',hint:'Family overview' },
  { href:'/planning',label:'Planner',glyph:'▦',hint:'Your learning rhythm' },
- { href:'/curriculum',label:'Explore',glyph:'✳',hint:'Curriculum pathways' },
+ { href:'/global-curriculum',label:'Explore',glyph:'✳',hint:'Global learning pathways' },
  { href:'/lessons',label:'Activities',glyph:'✎',hint:'Lessons & printables' },
  { href:'/portfolio',label:'Journey',glyph:'❋',hint:'Learning portfolios' },
  { href:'/reports',label:'Insights',glyph:'◫',hint:'Progress reviews' },
 ] as const;
-const privateRoutes=['/dashboard','/planning','/curriculum','/lessons','/portfolio','/reports','/november-pilot'];
+const privateRoutes=['/dashboard','/planning','/curriculum','/global-curriculum','/lessons','/portfolio','/reports','/november-pilot'];
 
 export default function AppNavigation(){
  const pathname=usePathname()||'';
