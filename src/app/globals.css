@@ -1149,3 +1149,15 @@ button:active:not(:disabled){transform:translateY(1px)}
 }
 @media print{.app-nav-wrap,.learning-hero,.quick-start{display:none!important}}
 @media(prefers-reduced-motion:reduce){.quick-start-card,.app-nav-link,button{transition:none!important}}
+
+
+/* Illustrated welcome panels give each tool an instantly recognisable destination. */
+.dashboard-welcome:has(.section-art){position:relative;background:linear-gradient(115deg,#EDF4E9,#FAF5E9);padding:27px 33px;border:1px solid #E4EBDD;border-radius:24px;min-height:178px;overflow:hidden}
+.dashboard-welcome:has(.section-art)>div:first-child{position:relative;z-index:1;max-width:720px}
+.dashboard-welcome:has(.section-art) h1{font-size:clamp(29px,3.4vw,43px);margin:12px 0}
+.dashboard-welcome:has(.section-art) .muted{line-height:1.6;margin:0}
+.section-art{width:180px;height:142px;flex:0 0 180px;align-self:center}
+.dashboard-welcome:has(.section-art) .daily-badge{z-index:1}
+@media(max-width:780px){.dashboard-welcome:has(.section-art){padding:23px;gap:8px}.section-art{width:125px;flex-basis:125px;height:115px}}
+@media(max-width:550px){.dashboard-welcome:has(.section-art){align-items:flex-start}.section-art{width:85px;flex-basis:85px;height:82px}.dashboard-welcome:has(.section-art) h1{font-size:30px}}
+@media print{.section-art{display:none!important}.dashboard-welcome:has(.section-art){background:white!important;border:0!important;padding:0!important}}
