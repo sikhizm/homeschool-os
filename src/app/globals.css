@@ -1161,3 +1161,24 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:780px){.dashboard-welcome:has(.section-art){padding:23px;gap:8px}.section-art{width:125px;flex-basis:125px;height:115px}}
 @media(max-width:550px){.dashboard-welcome:has(.section-art){align-items:flex-start}.section-art{width:85px;flex-basis:85px;height:82px}.dashboard-welcome:has(.section-art) h1{font-size:30px}}
 @media print{.section-art{display:none!important}.dashboard-welcome:has(.section-art){background:white!important;border:0!important;padding:0!important}}
+
+/* Curriculum cards disclose depth on demand instead of showing a wall of text. */
+.competency-card{display:flex;flex-direction:column;gap:10px;min-height:225px;padding:25px!important}
+.competency-card-top{display:flex;justify-content:space-between;align-items:center;gap:14px}
+.competency-symbol{display:grid;place-items:center;width:49px;height:49px;border-radius:15px;background:#E4F1E5;color:#34765A;font-size:23px;font-weight:800;flex-shrink:0}
+.competency-card:nth-child(4n+2) .competency-symbol{background:#F7E7D7;color:#B2764D}
+.competency-card:nth-child(4n+3) .competency-symbol{background:#EBE7F5;color:#8172A3}
+.competency-card:nth-child(4n+4) .competency-symbol{background:#EFF0D9;color:#6A8759}
+.competency-card h2{font-size:21px;margin:4px 0 0}
+.competency-card .competency-outcome{margin:0;color:#5A6F62;font-size:14px;line-height:1.55;flex:1}
+.competency-detail{border-top:1px solid #E7ECE4;padding-top:12px}
+.competency-detail summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;color:#3B7B5D;font-size:13px;font-weight:750;list-style:none}
+.competency-detail summary::-webkit-details-marker{display:none}
+.competency-detail summary span{font-size:21px;line-height:1}
+.competency-detail[open] summary span{transform:rotate(180deg)}
+.competency-detail p{font-size:13px;line-height:1.6}
+.competency-detail ul{padding-left:20px}
+.competency-goal-link{display:flex;align-items:center;justify-content:space-between;gap:12px;text-decoration:none;color:#2E7655;font-weight:800;font-size:13px;margin-top:6px}
+.competency-goal-link:hover{text-decoration:underline}
+.lesson-selector{position:static;max-height:620px}
+@media(max-width:780px){.competency-card{min-height:0}.lesson-selector{max-height:430px}}
