@@ -1,3 +1,4 @@
+import SectionArtwork from '@/components/section-artwork';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
@@ -68,7 +69,7 @@ export default async function ReportsPage({searchParams}:{searchParams:Promise<P
  return <><header className="workspace-header report-no-print"><Link href="/dashboard">✦ Homeschool OS</Link><span>FAMILY LEARNING REVIEW</span></header>
  <main className="family-dashboard report-page">
   <nav className="report-no-print"><Link href="/dashboard">Dashboard</Link> · <Link href="/planning">Planning</Link> · <Link href="/portfolio">Portfolio</Link> · <Link href="/curriculum">Curriculum</Link></nav>
-  <div className="dashboard-welcome"><div><span className="tag">PHASE 07 · FAMILY INSIGHTS</span><h1>Learning review</h1><p className="muted">A private summary of recorded activities and observations—not a grade, diagnosis or automated judgement.</p></div></div>
+  <div className="dashboard-welcome"><div><span className="tag">PHASE 07 · FAMILY INSIGHTS</span><h1>Learning review</h1><p className="muted">A private summary of recorded activities and observations—not a grade, diagnosis or automated judgement.</p></div><SectionArtwork theme="insights"/></div>
   <section className="workspace-panel report-no-print"><h2>Choose a reporting window</h2>
    <form method="get" action="/reports" className="report-filters">
     <label className="workspace-field"><span>Learner</span><select name="learner" defaultValue={learnerId}>{learners.map(l=><option key={String(l.id)} value={String(l.id)}>{String(l.display_name)} · {String(l.stage)}</option>)}</select></label>
