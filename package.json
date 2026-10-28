@@ -12,7 +12,8 @@
     "test:ui": "tsx --test tests/workspace.browser.ts",
     "db:inspect": "node scripts/database.mjs inspect",
     "db:migrate": "node scripts/database.mjs migrate",
-    "test:smoke": "node scripts/smoke.mjs"
+    "test:smoke": "node scripts/smoke.mjs",
+    "db:migrate:planning": "node scripts/planning-migration.mjs"
   },
   "dependencies": {
     "@neondatabase/auth": "latest",
