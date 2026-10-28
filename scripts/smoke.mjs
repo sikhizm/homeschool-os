@@ -79,3 +79,17 @@ const pilot = await fetch(root + '/november-pilot', { redirect: 'manual' });
 assert.ok([307, 308].includes(pilot.status));
 assert.ok(pilot.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/november-pilot: unauthenticated request redirected');
+
+const portfolio = await fetch(root + '/portfolio', {redirect:'manual'});
+assert.ok([307,308].includes(portfolio.status));
+assert.ok(portfolio.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/portfolio: unauthenticated visitor redirected');
+const portfolioApi='/api/learners/11111111-1111-4111-8111-111111111111/portfolio';
+let proof=await fetch(root+portfolioApi);
+assert.equal(proof.status,401);
+assert.ok(proof.headers.get('cache-control')?.includes('no-store'));
+proof=await fetch(root+portfolioApi,{method:'POST',headers:{'Content-Type':'application/json',Origin:root},body:'{}'});
+assert.equal(proof.status,401);
+proof=await fetch(root+portfolioApi,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://attacker.invalid'},body:'{}'});
+assert.equal(proof.status,403);
+console.log('Portfolio API: unauthenticated and cross-origin access blocked');

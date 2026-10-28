@@ -61,7 +61,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
           <span className="daily-badge">✧ Around 60 minutes, together</span>
         </div>
-        <p><Link href="/planning">Annual & weekly planning →</Link> · <Link href="/curriculum">Curriculum pathways →</Link> · <Link href="/lessons">Lessons & printables →</Link> · <Link href="/november-pilot">November pilot pack →</Link></p>
+        <p><Link href="/planning">Annual & weekly planning →</Link> · <Link href="/curriculum">Curriculum pathways →</Link> · <Link href="/lessons">Lessons & printables →</Link> · <Link href="/november-pilot">November pilot pack →</Link> · <Link href="/portfolio">Learning portfolios →</Link></p>
         <LearningWorkspace
           learners={learners.map((l) => ({
             id: String(l.id),

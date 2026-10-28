@@ -13,7 +13,8 @@
     "db:inspect": "node scripts/database.mjs inspect",
     "db:migrate": "node scripts/database.mjs migrate",
     "test:smoke": "node scripts/smoke.mjs",
-    "db:migrate:planning": "node scripts/planning-migration.mjs"
+    "db:migrate:planning": "node scripts/planning-migration.mjs",
+    "db:migrate:portfolio": "node scripts/portfolio-migration.mjs"
   },
   "dependencies": {
     "@neondatabase/auth": "latest",

@@ -1001,3 +1001,15 @@ summary:focus-visible {
 
 /* Private November pilot printable teaching pack. */
 .pilot-page{max-width:1100px}.pilot-page .pilot-section{margin:22px 0}.pilot-days{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.pilot-day p{margin:9px 0}.pilot-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.pilot-check{background:#fff;border:1px solid #dce8e0;border-radius:14px;padding:17px;break-inside:avoid}.pilot-check h3{margin-top:0}.pilot-check p{margin:8px 0}.pilot-observe,.pilot-write{font-size:13px}.pilot-write{border-bottom:1px dotted #94a59d;margin:16px 0;padding-bottom:8px}.pilot-page li{margin:9px 0}@media(max-width:740px){.pilot-days,.pilot-items{grid-template-columns:1fr}}@page{size:A4;margin:13mm}@media print{.pilot-no-print,.pilot-page .pilot-no-print,body>header{display:none!important}.pilot-page{max-width:none!important;margin:0!important;padding:0!important}.pilot-page .workspace-panel{break-inside:auto!important;border:0!important;box-shadow:none!important;padding:7px 0!important}.pilot-page .card,.pilot-page .pilot-check{break-inside:avoid!important;background:#fff!important;border-color:#bbb!important}.pilot-page .pilot-days,.pilot-page .pilot-items{display:block!important}.pilot-page .pilot-days>*,.pilot-page .pilot-items>*{margin:10px 0!important}.pilot-page h2,.pilot-page h3{break-after:avoid}.pilot-page .subject-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.pilot-page{color:#111!important;font:10.5pt/1.4 Georgia,serif!important}}
+
+/* Phase 06: private learning portfolio */
+.portfolio-controls{margin:18px 0}.portfolio-controls .workspace-field{max-width:460px}
+.portfolio-layout{display:grid;grid-template-columns:minmax(260px,.9fr) minmax(0,1.4fr);gap:20px;align-items:start;margin:20px 0}
+.portfolio-fieldset{border:0;margin:0;padding:0;display:grid;gap:16px;min-width:0}
+.portfolio-fieldset button{width:max-content;max-width:100%}
+.portfolio-history{min-width:0}.portfolio-timeline{padding:0;list-style:none;display:grid;gap:14px}
+.portfolio-record{background:#fbfcfa;border:1px solid #dce8e0;border-radius:15px;padding:20px;overflow-wrap:anywhere}
+.portfolio-record-header{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.portfolio-entry-actions{display:flex;gap:10px;flex-wrap:wrap}
+.portfolio-record p{line-height:1.6}.portfolio-record h3{margin:12px 0 8px}
+@media(max-width:830px){.portfolio-layout{grid-template-columns:1fr}.portfolio-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
