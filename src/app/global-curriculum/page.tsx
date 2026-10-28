@@ -17,7 +17,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
  const total=globalSkills.filter(s=>s.stage===stage).length;
  return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>GLOBAL CURRICULUM ENGINE</span></header>
  <main className="family-dashboard">
- <div className="dashboard-welcome"><div><span className="tag">CURRICULUM ENGINE · FOUNDATION</span><h1>Rooted here. Ready for the world.</h1><p className="muted">One thoughtful learning journey, informed by international education approaches and grounded in your family's needs.</p></div><SectionArtwork theme="explore"/></div>
+ <div className="dashboard-welcome"><div><span className="tag">CURRICULUM ENGINE · FOUNDATION</span><h1>Rooted here. Ready for the world.</h1><p className="muted">One thoughtful learning journey, informed by international education approaches and grounded in your family&apos;s needs.</p></div><SectionArtwork theme="explore"/></div>
  <nav className="global-crumbs"><Link href="/dashboard">Home</Link><span aria-hidden="true">/</span><Link href="/curriculum">Curriculum pathways</Link><span aria-hidden="true">/</span><strong>Global pathways</strong></nav>
  <section className="global-intro">
   <div><span className="eyebrow">ONE FOUNDATION, MANY PERSPECTIVES</span><h2>Learn deeply, not endlessly.</h2><p>NCERT/Indian frameworks guide the core. International frameworks help us choose teaching approaches, inquiry questions and stretch opportunities. No child needs to complete six boards at once.</p></div>
