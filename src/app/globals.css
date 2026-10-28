@@ -1013,3 +1013,27 @@ summary:focus-visible {
 .portfolio-entry-actions{display:flex;gap:10px;flex-wrap:wrap}
 .portfolio-record p{line-height:1.6}.portfolio-record h3{margin:12px 0 8px}
 @media(max-width:830px){.portfolio-layout{grid-template-columns:1fr}.portfolio-metrics{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Phase 07: private print-friendly learning reviews */
+.report-page .workspace-panel{margin:18px 0}
+.report-filters{display:grid;grid-template-columns:1.2fr .8fr 1fr auto;align-items:end;gap:14px}
+.report-filters button{height:44px}
+.report-day-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:12px}
+.report-day{display:grid;gap:8px;background:#f7faf7;padding:15px;border:1px solid #dce8e0;border-radius:12px}
+.report-goals{padding:0;list-style:none;display:grid;gap:12px}
+.report-goals li{display:flex;align-items:start;justify-content:space-between;gap:16px;border-bottom:1px solid #e2e9e3;padding:10px 0;flex-wrap:wrap}
+.report-evidence{padding-left:23px}.report-evidence li{border-bottom:1px solid #e1e8e3;padding:12px 0;break-inside:avoid}
+.report-evidence li p{line-height:1.55;overflow-wrap:anywhere}
+.report-reflection p{line-height:2}
+@media(max-width:790px){.report-filters{grid-template-columns:1fr}.report-filters button{width:100%}}
+@media print{
+ .report-no-print,.report-page nav,.report-page .report-no-print{display:none!important}
+ .report-page,.family-dashboard.report-page{max-width:none!important;margin:0!important;padding:0!important;color:#111!important}
+ .report-page .workspace-panel{border:0!important;box-shadow:none!important;padding:8px 0!important;margin:10px 0!important}
+ .report-page .report-print-head{border-bottom:2px solid #333!important}
+ .report-page .report-day-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .report-page .report-day{background:white!important;break-inside:avoid}
+ .report-page .metric-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .report-page h2,.report-page h3{break-after:avoid}
+ .report-page p{color:#222!important}
+}

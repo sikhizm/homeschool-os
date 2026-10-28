@@ -16,7 +16,7 @@ export default async function PortfolioPage(){
  return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>OBSERVATIONS & PORTFOLIOS</span></header>
  <main className="family-dashboard">
   <div className="dashboard-welcome"><div><span className="tag">PHASE 06 · LEARNING EVIDENCE</span><h1>Notice what learning looks like</h1><p className="muted">Record a baseline, a meaningful observation, a work sample description or a family reflection—without grades or automatic mastery.</p></div></div>
-  <p><Link href="/dashboard">Dashboard</Link> · <Link href="/november-pilot">November pilot</Link> · <Link href="/planning">Planning</Link> · <Link href="/curriculum">Curriculum</Link></p>
+  <p><Link href="/dashboard">Dashboard</Link> · <Link href="/november-pilot">November pilot</Link> · <Link href="/planning">Planning</Link> · <Link href="/curriculum">Curriculum</Link> · <Link href="/reports">Learning reports</Link></p>
   <PortfolioWorkspace learners={learners.map(l=>({id:String(l.id),name:String(l.display_name),stage:String(l.stage||'Early Years')}))} canEdit={families[0].role==='owner'} today={today}/>
  </main></>;
 }
