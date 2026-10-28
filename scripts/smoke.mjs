@@ -74,3 +74,8 @@ const lessonPage = await fetch(root + '/lessons', { redirect: 'manual' });
 assert.ok([307, 308].includes(lessonPage.status));
 assert.ok(lessonPage.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/lessons: unauthenticated visitor redirected to sign-in');
+
+const pilot = await fetch(root + '/november-pilot', { redirect: 'manual' });
+assert.ok([307, 308].includes(pilot.status));
+assert.ok(pilot.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/november-pilot: unauthenticated request redirected');
