@@ -12,6 +12,19 @@ type Learner = { id: string; display_name: string; stage: string };
 type Props = { learners: Learner[]; canEdit: boolean; initialDate: string; suggestedGoal?: string; suggestedSubject?: string };
 const empty: Workspace = { subjects: [], goals: [], activities: [] };
 const value = (data: FormData, key: string) => String(data.get(key) ?? '');
+const shiftDay = (date: string, offset: number) => {
+  const day = new Date(date + 'T12:00:00Z');
+  day.setUTCDate(day.getUTCDate() + offset);
+  return day.toISOString().slice(0, 10);
+};
+const friendlyDate = (date: string) =>
+  new Intl.DateTimeFormat('en-IN', { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' }).format(new Date(date + 'T12:00:00Z'));
+const workspaceTabs = [
+  { name: 'Today', symbol: '☀', detail: 'Your day' },
+  { name: 'Goals', symbol: '◎', detail: 'Small steps' },
+  { name: 'Subjects', symbol: '▤', detail: 'Learning areas' },
+  { name: 'Profile', symbol: '♧', detail: 'Learner details' },
+] as const;
 function Field({
   label,
   children,
@@ -59,13 +72,15 @@ export default function LearningWorkspace({
       {learner ? (
         <>
           <nav className="workspace-tabs" aria-label="Learning workspace">
-            {['Today', 'Goals', 'Subjects', 'Profile'].map((name) => (
+            {workspaceTabs.map((item) => (
               <button
-                key={name}
-                aria-current={tab === name ? 'page' : undefined}
-                onClick={() => setTab(name)}
+                key={item.name}
+                aria-current={tab === item.name ? 'page' : undefined}
+                onClick={() => setTab(item.name)}
+                type="button"
               >
-                {name}
+                <span className="workspace-tab-icon" aria-hidden="true">{item.symbol}</span>
+                <span className="workspace-tab-copy"><strong>{item.name}</strong><small>{item.detail}</small></span>
               </button>
             ))}
           </nav>
@@ -200,6 +215,8 @@ function LearnerWorkspace({
     .filter((a) => a.completed)
     .reduce((n, a) => n + a.minutes, 0);
   const mastered = data.goals.filter((g) => g.progress === 100).length;
+  const completedCount = data.activities.filter((a) => a.completed).length;
+  const completionRatio = data.activities.length ? Math.round((completedCount / data.activities.length) * 100) : 0;
   const subjectName = (id: string | null) =>
     data.subjects.find((s) => s.id === id)?.name ?? 'Together time';
   if (loading)
@@ -247,20 +264,41 @@ function LearnerWorkspace({
                 rest.
               </p>
             </div>
-            <Field label="Learning date">
-              <input
-                type="date"
-                aria-label="Learning date"
-                min="2000-01-01"
-                max="2100-12-31"
-                value={date}
-                onChange={(e) => {
-                  if (e.target.value) setDate(e.target.value);
-                }}
-                disabled={busy}
-              />
-            </Field>
+            <div className="day-picker">
+              <span className="day-picker-caption">LEARNING DAY</span>
+              <div className="day-picker-row">
+                <button type="button" aria-label="Previous day" className="day-shift" disabled={busy || date <= '2000-01-01'} onClick={() => setDate(shiftDay(date, -1))}>‹</button>
+                <label className="day-picker-date">
+                  <span className="day-picker-human">{friendlyDate(date)}</span>
+                  <input
+                    type="date"
+                    aria-label="Learning date"
+                    min="2000-01-01"
+                    max="2100-12-31"
+                    value={date}
+                    onChange={(e) => { if (e.target.value) setDate(e.target.value); }}
+                    disabled={busy}
+                  />
+                </label>
+                <button type="button" aria-label="Next day" className="day-shift" disabled={busy || date >= '2100-12-31'} onClick={() => setDate(shiftDay(date, 1))}>›</button>
+              </div>
+            </div>
           </div>
+          <section className="day-progress" aria-label="Today's activity progress">
+            <div className="day-progress-badge" aria-hidden="true">
+              <svg viewBox="0 0 100 100" role="presentation">
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#DEEDE2" strokeWidth="9"/>
+                <circle cx="50" cy="50" r="40" fill="none" stroke="#367D60" strokeWidth="9" strokeLinecap="round" strokeDasharray={`${completionRatio * 2.513} 251.3`} transform="rotate(-90 50 50)"/>
+              </svg>
+              <span>{completionRatio}%</span>
+            </div>
+            <div className="day-progress-copy">
+              <span className="eyebrow">TODAY'S LITTLE WINS</span>
+              <h3>{!data.activities.length ? 'A fresh page for new discoveries' : completedCount === data.activities.length ? 'You explored everything planned!' : 'Every small step counts'}</h3>
+              <p>{!data.activities.length ? 'Begin with one activity, then follow your learner’s curiosity.' : `${completedCount} of ${data.activities.length} planned activities marked complete. Take your time—learning isn't a race.`}</p>
+            </div>
+            <span className="day-progress-decoration" aria-hidden="true">✳</span>
+          </section>
           <div className="metric-grid">
             <div>
               <strong>
@@ -290,7 +328,7 @@ function LearnerWorkspace({
           <div className="planner-layout">
             <section className="workspace-panel">
               <div className="panel-heading">
-                <h3>Your daily rhythm</h3>
+                <h3><span className="rhythm-heading-mark" aria-hidden="true">✿</span> Your daily rhythm</h3>
                 <span className="pill">
                   {data.activities.length} activities
                 </span>
@@ -369,7 +407,7 @@ function LearnerWorkspace({
           </div>
           {canEdit && (
             <section className="workspace-panel">
-              <h3>Add an activity</h3>
+              <h3><span className="rhythm-heading-mark" aria-hidden="true">＋</span> Add an activity</h3>
               <ActivityForm
                 key={revision}
                 subjects={subjects}
@@ -758,9 +796,7 @@ function ActivityCard({
   return (
     <article className={`activity-card ${a.completed ? 'is-complete' : ''}`}>
       <div className="activity-top">
-        <span className="activity-number" aria-hidden="true">
-          {String(index + 1).padStart(2, '0')}
-        </span>
+        <span className="activity-number" aria-hidden="true">{a.completed ? '✓' : String(index + 1).padStart(2, '0')}</span>
         <div className="activity-copy">
           <span className="eyebrow">{label}</span>
           <h4>{a.title}</h4>
