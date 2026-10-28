@@ -293,7 +293,7 @@ function LearnerWorkspace({
               <span>{completionRatio}%</span>
             </div>
             <div className="day-progress-copy">
-              <span className="eyebrow">TODAY'S LITTLE WINS</span>
+              <span className="eyebrow">TODAY&apos;S LITTLE WINS</span>
               <h3>{!data.activities.length ? 'A fresh page for new discoveries' : completedCount === data.activities.length ? 'You explored everything planned!' : 'Every small step counts'}</h3>
               <p>{!data.activities.length ? 'Begin with one activity, then follow your learner’s curiosity.' : `${completedCount} of ${data.activities.length} planned activities marked complete. Take your time—learning isn't a race.`}</p>
             </div>
