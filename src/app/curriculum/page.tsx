@@ -1,3 +1,4 @@
+import SectionArtwork from '@/components/section-artwork';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
@@ -19,7 +20,7 @@ export default async function CurriculumPage({searchParams}:{searchParams:Promis
  const references=new Map<string, {title:string;url:string}>(curriculumSources.map(source=>[source.id,source]));
  return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>CURRICULUM PATHWAYS</span></header>
  <main className="family-dashboard">
-  <div className="dashboard-welcome"><div><span className="tag">PHASE 03 · CURRICULUM</span><h1>Competency pathways</h1><p className="muted">Browse developmental suggestions, see prerequisite foundations and turn one into a parent-reviewed learning goal.</p></div></div>
+  <div className="dashboard-welcome"><div><span className="tag">PHASE 03 · CURRICULUM</span><h1>Competency pathways</h1><p className="muted">Browse developmental suggestions, see prerequisite foundations and turn one into a parent-reviewed learning goal.</p></div><SectionArtwork theme="explore"/></div>
   <section className="workspace-panel"><h2>How to use this library</h2><p>These {competencies.length} outcomes are original teaching suggestions informed by NCERT frameworks, <strong>not verbatim official learning outcomes</strong>, official grade equivalences, or proof of attainment. Use the learner&apos;s actual ability, current textbooks and individual interests. The parent decides whether and when a goal is achieved.</p><p>With multiple learners, share the family&apos;s approximate 60 minutes of adult-guided time. For infants and toddlers, use responsive care, movement, conversation and supervised sensory play—not formal lessons or screens.</p><p><Link href="/dashboard">Back to private learning workspace →</Link></p></section>
   <section className="workspace-panel"><h2>Choose a stage and subject</h2><form action="/curriculum" method="get" className="form-grid"><label className="workspace-field"><span>Learning stage</span><select name="stage" defaultValue={stage}>{curriculumStages.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}</select></label><label className="workspace-field"><span>Subject</span><select name="subject" defaultValue={subject}><option value="">All subjects</option>{subjects.map(s=><option key={s} value={s}>{s}</option>)}</select></label><button type="submit">Show competencies</button></form><p className="muted">{visible.length} of {available.length} outcomes shown for {curriculumStages.find(s=>s.id===stage)?.label}. The stage filter does not restrict what a learner is allowed to explore.</p></section>
   <div className="subject-grid">{visible.map(c=>{
