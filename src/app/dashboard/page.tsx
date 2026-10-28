@@ -5,10 +5,11 @@ import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
 import { competencies } from '@/lib/curriculum/library';
+import { validPlanningDate } from '@/lib/planning/periods';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string; date?: string }> }) {
   const params = await searchParams;
   const competency = competencies.find(item => item.id === params.competency);
   const suggestion = competency?.outcome ?? '';
@@ -39,9 +40,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     WHERE family_id = ${family.id}
     ORDER BY created_at, id
   `;
-  const initialDate = new Intl.DateTimeFormat('en-CA', {
+  const today = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Kolkata',
   }).format(new Date());
+  const initialDate = validPlanningDate(params.date) ? params.date : today;
   return (
     <>
       <header className="workspace-header">
@@ -59,7 +61,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
           <span className="daily-badge">✧ Around 60 minutes, together</span>
         </div>
-        <p><Link href="/curriculum">Browse curriculum pathways →</Link></p>
+        <p><Link href="/planning">Annual & weekly planning →</Link> · <Link href="/curriculum">Browse curriculum pathways →</Link></p>
         <LearningWorkspace
           learners={learners.map((l) => ({
             id: String(l.id),
