@@ -12,7 +12,7 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  const [learnerId,setLearnerId]=useState(learners[0]?.id??'');
  const [date,setDate]=useState(initialDate);
  const [data,setData]=useState<PlanningData|null>(null);
- const [loading,setLoading]=useState(false);
+ const [loading,setLoading]=useState(true);
  const [error,setError]=useState('');
  const [notice,setNotice]=useState('');
  const [busy,setBusy]=useState(false);
@@ -36,12 +36,11 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  useEffect(()=>{
   if(!learnerId)return;
   const controller=new AbortController();
-  setLoading(true);setError('');
   load(controller.signal).then(result=>{if(!controller.signal.aborted)setData(result);})
   .catch(e=>{if(!controller.signal.aborted){setData(null);setError(e instanceof Error?e.message:'Unable to load plans.');}})
   .finally(()=>{if(!controller.signal.aborted)setLoading(false);});
   return ()=>controller.abort();
- },[load]);
+ },[load,learnerId]);
  async function save(event:FormEvent<HTMLFormElement>,kind:'year'|'week'){
   event.preventDefault();
   if(!canEdit||busy||!learnerId)return;
@@ -67,13 +66,13 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
   <section className="workspace-panel">
    <h2>Choose learner and week</h2>
    <div className="form-grid">
-    <label className="workspace-field"><span>Learner</span><select value={learnerId} onChange={event=>{setLearnerId(event.target.value);setNotice('');}}>{learners.map(l=><option key={l.id} value={l.id}>{l.name} · {l.stage}</option>)}</select></label>
-    <label className="workspace-field"><span>Planning date</span><input type="date" min="2020-01-01" max="2099-12-31" value={date} onChange={event=>{if(event.target.value)setDate(event.target.value);}} /></label>
+    <label className="workspace-field"><span>Learner</span><select value={learnerId} onChange={event=>{setLearnerId(event.target.value);setNotice('');setError('');setLoading(true);}}>{learners.map(l=><option key={l.id} value={l.id}>{l.name} · {l.stage}</option>)}</select></label>
+    <label className="workspace-field"><span>Planning date</span><input type="date" min="2020-01-01" max="2099-12-31" value={date} onChange={event=>{if(event.target.value){setDate(event.target.value);setLoading(true);setError('');}}} /></label>
    </div>
    <div className="row" style={{display:'flex',gap:12,flexWrap:'wrap',marginTop:16}}>
-    <button type="button" onClick={()=>setDate(addDays(date,-7))} disabled={date<'2020-01-08'}>← Previous week</button>
-    <button type="button" onClick={()=>setDate(initialDate)}>Current week</button>
-    <button type="button" onClick={()=>setDate(addDays(date,7))} disabled={date>'2099-12-24'}>Next week →</button>
+    <button type="button" onClick={()=>{setDate(addDays(date,-7));setLoading(true);setError('');}} disabled={date<'2020-01-08'}>← Previous week</button>
+    <button type="button" onClick={()=>{setDate(initialDate);setLoading(true);setError('');}}>Current week</button>
+    <button type="button" onClick={()=>{setDate(addDays(date,7));setLoading(true);setError('');}} disabled={date>'2099-12-24'}>Next week →</button>
    </div>
    {selected&&<p className="muted">Planning for {selected.name}. Calendar dates use your chosen date, and all records are private to your family.</p>}
   </section>
