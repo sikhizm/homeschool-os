@@ -3,7 +3,6 @@ const root = process.env.SMOKE_BASE_URL || 'http://127.0.0.1:3000';
 if (!['127.0.0.1', 'localhost'].includes(new URL(root).hostname))
   throw new Error('This smoke test is for a local server only.');
 for (const [path, text] of [
-  ['/', 'Learning that grows with your family.'],
   ['/roadmap', 'Roadmap'],
   ['/auth/sign-in', 'Welcome back'],
   ['/auth/forgot-password', 'Reset your password'],
@@ -16,6 +15,10 @@ for (const [path, text] of [
   );
   console.log(`${path}: 200, expected content verified`);
 }
+const home = await fetch(root + '/', { redirect: 'manual' });
+assert.ok([307, 308].includes(home.status));
+assert.ok(home.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/: unauthenticated request redirected to sign-in');
 const dashboard = await fetch(root + '/dashboard', { redirect: 'manual' });
 assert.equal(dashboard.status, 307);
 assert.ok(dashboard.headers.get('location').includes('/auth/sign-in'));
@@ -53,3 +56,16 @@ assert.deepEqual(
 console.log(
   `Database health: ${response.status}${response.status === 503 ? ' (database access is unavailable; this does not verify database readiness)' : ''}`,
 );
+
+const planning = await fetch(root + '/planning', { redirect: 'manual' });
+assert.ok([307, 308].includes(planning.status));
+assert.ok(planning.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/planning: unauthenticated request redirected');
+let planningResponse = await fetch(root + '/api/planning?learnerId=11111111-1111-4111-8111-111111111111&date=2026-10-28');
+assert.equal(planningResponse.status, 401);
+assert.ok(planningResponse.headers.get('cache-control')?.includes('no-store'));
+planningResponse = await fetch(root + '/api/planning', {method:'POST',headers:{'Content-Type':'application/json',Origin:root},body:'{}'});
+assert.equal(planningResponse.status, 401);
+planningResponse = await fetch(root + '/api/planning', {method:'POST',headers:{'Content-Type':'application/json',Origin:'https://attacker.invalid'},body:'{}'});
+assert.equal(planningResponse.status, 403);
+console.log('Planning API: 401 unauthenticated, 403 cross-origin');
