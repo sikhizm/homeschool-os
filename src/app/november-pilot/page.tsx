@@ -1,3 +1,4 @@
+import SectionArtwork from '@/components/section-artwork';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
@@ -14,7 +15,7 @@ export default async function NovemberPilotPage(){
  return <><header className="workspace-header pilot-no-print"><Link href="/dashboard">✦ Homeschool OS</Link><span>NOVEMBER 2026 PILOT</span></header>
  <main className="family-dashboard pilot-page">
  <div className="pilot-no-print"><Link href="/dashboard">Dashboard</Link> · <Link href="/planning">Planning</Link> · <Link href="/curriculum">Curriculum</Link> · <Link href="/lessons">Lesson library</Link></div>
- <div className="dashboard-welcome"><div><span className="tag">PILOT READINESS · 2–8 NOVEMBER 2026</span><h1>One week of learning together</h1><p className="muted">A parent-led baseline and gentle trial, not a standardised exam or automatic measure of mastery.</p></div></div>
+ <div className="dashboard-welcome"><div><span className="tag">PILOT READINESS · 2–8 NOVEMBER 2026</span><h1>One week of learning together</h1><p className="muted">A parent-led baseline and gentle trial, not a standardised exam or automatic measure of mastery.</p></div><SectionArtwork theme="pilot"/></div>
  <div className="pilot-no-print"><PrintPilotButton/><p className="muted">Printing generates a blank A4-friendly schedule and diagnostic prompts. No learner names, answers or results are saved by this page.</p></div>
  <section className="workspace-panel pilot-section">
  <h2>One shared 60-minute guided rhythm</h2>
