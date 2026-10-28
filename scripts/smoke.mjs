@@ -69,3 +69,8 @@ assert.equal(planningResponse.status, 401);
 planningResponse = await fetch(root + '/api/planning', {method:'POST',headers:{'Content-Type':'application/json',Origin:'https://attacker.invalid'},body:'{}'});
 assert.equal(planningResponse.status, 403);
 console.log('Planning API: 401 unauthenticated, 403 cross-origin');
+
+const lessonPage = await fetch(root + '/lessons', { redirect: 'manual' });
+assert.ok([307, 308].includes(lessonPage.status));
+assert.ok(lessonPage.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/lessons: unauthenticated visitor redirected to sign-in');
