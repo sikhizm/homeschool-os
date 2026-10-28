@@ -9,7 +9,7 @@ import {
 } from '@/lib/learning/model';
 
 type Learner = { id: string; display_name: string; stage: string };
-type Props = { learners: Learner[]; canEdit: boolean; initialDate: string };
+type Props = { learners: Learner[]; canEdit: boolean; initialDate: string; suggestedGoal?: string; suggestedSubject?: string };
 const empty: Workspace = { subjects: [], goals: [], activities: [] };
 const value = (data: FormData, key: string) => String(data.get(key) ?? '');
 function Field({
@@ -30,10 +30,12 @@ export default function LearningWorkspace({
   learners,
   canEdit,
   initialDate,
+  suggestedGoal = '',
+  suggestedSubject = '',
 }: Props) {
   const [selected, setSelected] = useState(learners[0]?.id ?? '');
   const [date, setDate] = useState(initialDate);
-  const [tab, setTab] = useState('Today');
+  const [tab, setTab] = useState(suggestedGoal ? 'Goals' : 'Today');
   const learner = learners.find((l) => l.id === selected) ?? learners[0];
   return (
     <>
@@ -74,6 +76,8 @@ export default function LearningWorkspace({
             date={date}
             setDate={setDate}
             tab={tab}
+            suggestedGoal={suggestedGoal}
+            suggestedSubject={suggestedSubject}
           />
         </>
       ) : (
@@ -94,12 +98,16 @@ function LearnerWorkspace({
   date,
   setDate,
   tab,
+  suggestedGoal,
+  suggestedSubject,
 }: {
   learner: Learner;
   canEdit: boolean;
   date: string;
   setDate: (date: string) => void;
   tab: string;
+  suggestedGoal: string;
+  suggestedSubject: string;
 }) {
   const router = useRouter();
   const [data, setData] = useState<Workspace>(empty);
@@ -633,6 +641,7 @@ function LearnerWorkspace({
           {canEdit && (
             <section className="workspace-panel">
               <h3>Set a learning goal</h3>
+              {suggestedGoal && <p className="info-banner">Suggested from the curriculum map. Review and adapt the wording and subject before saving. No progress is recorded automatically.</p>}
               {!subjects.length ? (
                 <p>Add an active subject in the Subjects tab first.</p>
               ) : (
@@ -649,7 +658,7 @@ function LearnerWorkspace({
                 >
                   <fieldset disabled={busy} className="form-grid">
                     <Field label="Subject">
-                      <select name="subjectId" required>
+                      <select name="subjectId" required defaultValue={subjects.find((s) => s.name.toLowerCase() === suggestedSubject.toLowerCase())?.id ?? subjects[0]?.id}>
                         {subjects.map((s) => (
                           <option value={s.id} key={s.id}>
                             {s.name}
@@ -663,6 +672,7 @@ function LearnerWorkspace({
                         maxLength={200}
                         required
                         placeholder="e.g. Compare two-digit numbers using objects"
+                        defaultValue={suggestedGoal}
                       />
                     </Field>
                     <Field label="Target date (optional)">

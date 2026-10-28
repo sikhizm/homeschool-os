@@ -4,10 +4,15 @@ import { redirect } from 'next/navigation';
 import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
+import { competencies } from '@/lib/curriculum/library';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard() {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string }> }) {
+  const params = await searchParams;
+  const competency = competencies.find(item => item.id === params.competency);
+  const suggestion = competency?.outcome ?? '';
+  const suggestedSubject = competency?.subject ?? '';
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -54,6 +59,7 @@ export default async function Dashboard() {
           </div>
           <span className="daily-badge">✧ Around 60 minutes, together</span>
         </div>
+        <p><Link href="/curriculum">Browse curriculum pathways →</Link></p>
         <LearningWorkspace
           learners={learners.map((l) => ({
             id: String(l.id),
@@ -62,6 +68,8 @@ export default async function Dashboard() {
           }))}
           canEdit={family.role === 'owner'}
           initialDate={initialDate}
+          suggestedGoal={suggestion}
+          suggestedSubject={suggestedSubject}
         />
         {family.role === 'owner' && (
           <details className="workspace-panel add-learner-panel">

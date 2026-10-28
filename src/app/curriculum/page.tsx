@@ -1,102 +1,39 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
+import { competencies, curriculumStages, curriculumSources, curriculumForStage, type SubjectKey } from '@/lib/curriculum/library';
 
 export const dynamic = 'force-dynamic';
+type Params = {stage?:string;subject?:string};
+const subjects: SubjectKey[]=['English','Mathematics','Our world','Punjabi & Sikh heritage'];
 
-type Strand = { title: string; examples: string[] };
-type Pathway = { id: string; name: string; ages: string; purpose: string; strands: Strand[] };
-const pathways: Pathway[] = [
-  {
-    id: 'infant', name: 'Infancy and toddlerhood', ages: 'Birth–3 years',
-    purpose: 'Connection, movement, oral language, sensory discovery and play. No formal lessons or independent screens.',
-    strands: [
-      { title: 'Communication', examples: ['Respond to familiar voices, gestures and expressions', 'Enjoy short songs, rhymes and picture-book conversations'] },
-      { title: 'Movement and exploration', examples: ['Explore safe textures and everyday objects with supervision', 'Develop movement through age-appropriate floor play and outdoor observation'] },
-      { title: 'Relationships and culture', examples: ['Build predictable, caring routines', 'Listen to familiar Punjabi words and family stories'] },
-    ],
-  },
-  {
-    id: 'foundational', name: 'Early years / Nursery / LKG / UKG', ages: 'Play-based foundation',
-    purpose: 'Learning through language, manipulatives, stories, art, movement and relationships.',
-    strands: [
-      { title: 'Early literacy', examples: ['Listen, describe pictures and retell a simple story', 'Recognize sounds and experiment with marks, letters or names when ready'] },
-      { title: 'Early numeracy', examples: ['Sort, compare, match and count real objects', 'Notice shapes, patterns, quantities and everyday measurement'] },
-      { title: 'Our world and wellbeing', examples: ['Observe plants, animals, weather and neighborhood life', 'Practise cooperation, self-care and expressive play'] },
-      { title: 'Language and heritage', examples: ['Use familiar Punjabi or Hindi words in conversation', 'Explore kindness, equality and seva through family stories and action'] },
-    ],
-  },
-  {
-    id: 'primary', name: 'Classes 1–5', ages: 'Primary foundations',
-    purpose: 'Build comprehension, confident reasoning and practical inquiry before speed or rote coverage.',
-    strands: [
-      { title: 'English', examples: ['Read age-appropriate texts and discuss meaning', 'Retell, write and revise short explanations or stories'] },
-      { title: 'Mathematics', examples: ['Understand place value and operations with models', 'Apply fractions, shapes and measurements in daily situations', 'Explain a strategy and check an answer'] },
-      { title: 'The world around us', examples: ['Ask observable questions and collect simple evidence', 'Connect environment, community, health and local history'] },
-      { title: 'Languages and heritage', examples: ['Develop spoken and written Punjabi/Hindi at the learner’s pace', 'Discuss Sikh history and values accurately with age-appropriate resources'] },
-    ],
-  },
-  {
-    id: 'secondary', name: 'Classes 6–12', ages: 'Subject depth and independence',
-    purpose: 'Study subject-specific ideas, build evidence-based thinking and develop gradually increasing learner independence.',
-    strands: [
-      { title: 'Languages and communication', examples: ['Analyse texts and support interpretations with evidence', 'Plan, draft and edit explanations, essays and presentations'] },
-      { title: 'Mathematics', examples: ['Connect arithmetic, algebra, geometry and data reasoning', 'Solve unfamiliar problems and justify working'] },
-      { title: 'Science and society', examples: ['Investigate questions using suitable methods and evidence', 'Compare sources and communicate uncertainty'] },
-      { title: 'Personal development', examples: ['Set realistic goals and review learning independently', 'Balance study, physical activity, community participation and wellbeing'] },
-    ],
-  },
-];
-
-export default async function CurriculumPage() {
-  const { data: session } = await auth.getSession();
-  if (!session?.user) redirect('/auth/sign-in');
-  return (
-    <>
-      <header className="workspace-header">
-        <Link href="/dashboard">✦ Homeschool OS</Link>
-        <span>CURRICULUM PATHWAYS</span>
-      </header>
-      <main className="family-dashboard">
-        <div className="dashboard-welcome">
-          <div>
-            <span className="tag">PHASE 03 · CURRICULUM FOUNDATIONS</span>
-            <h1>A map of what to explore next</h1>
-            <p className="muted">Select a learning stage and use these example competencies to inform your own goals and daily activities.</p>
-          </div>
-        </div>
-        <section className="workspace-panel">
-          <h2>Use this map thoughtfully</h2>
-          <p>This is an original, provisional learning guide inspired by CBSE/NCERT foundations and play-based education. It is <strong>not</strong> an official NCERT syllabus, a board-certified outcome list or an assessment of any learner.</p>
-          <p>Choose the learner’s actual stage and current understanding. Adapt activities; do not automatically mark a skill mastered. The family’s suggested 60 minutes is shared parent-guided time, not 60 minutes per child. Infants need play and responsive care, not screen-based lessons.</p>
-          <p><Link href="/dashboard">Open the parent workspace to record a specific goal →</Link></p>
-        </section>
-        <nav className="workspace-panel" aria-label="Jump to learning stage">
-          <h2>Learning stages</h2>
-          <ul>
-            {pathways.map((p) => <li key={p.id}><a href={`#${p.id}`}>{p.name}</a></li>)}
-          </ul>
-        </nav>
-        {pathways.map((pathway) => (
-          <section key={pathway.id} id={pathway.id} className="workspace-panel" aria-labelledby={`${pathway.id}-title`}>
-            <span className="tag">{pathway.ages}</span>
-            <h2 id={`${pathway.id}-title`}>{pathway.name}</h2>
-            <p>{pathway.purpose}</p>
-            <div className="grid">
-              {pathway.strands.map((strand) => (
-                <article className="card" key={strand.title}>
-                  <h3>{strand.title}</h3>
-                  <ul>{strand.examples.map((example) => <li key={example}>{example}</li>)}</ul>
-                </article>
-              ))}
-            </div>
-          </section>
-        ))}
-        <section className="workspace-panel">
-          <h2>What comes next</h2>
-          <p>The next curriculum increment will turn reviewed, source-mapped competencies into selectable goals, add prerequisite relationships, and let a parent personalize each learner’s pathway. No progress will be inferred from age, class or daily-plan completion.</p>
-        </section>
-      </main>
-    </>
-  );
+export default async function CurriculumPage({searchParams}:{searchParams:Promise<Params>}) {
+ const {data:session}=await auth.getSession();
+ if(!session?.user)redirect('/auth/sign-in');
+ const query=await searchParams;
+ const stage=curriculumStages.find(s=>s.id===query.stage)?.id??'early';
+ const subject=subjects.find(s=>s===query.subject)??'';
+ const available=curriculumForStage(stage);
+ const visible=subject?available.filter(c=>c.subject===subject):available;
+ const byId=new Map(competencies.map(c=>[c.id,c]));
+ const references=new Map<string, {title:string;url:string}>(curriculumSources.map(source=>[source.id,source]));
+ return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>CURRICULUM PATHWAYS</span></header>
+ <main className="family-dashboard">
+  <div className="dashboard-welcome"><div><span className="tag">PHASE 03 · CURRICULUM</span><h1>Competency pathways</h1><p className="muted">Browse developmental suggestions, see prerequisite foundations and turn one into a parent-reviewed learning goal.</p></div></div>
+  <section className="workspace-panel"><h2>How to use this library</h2><p>These {competencies.length} outcomes are original teaching suggestions informed by NCERT frameworks, <strong>not verbatim official learning outcomes</strong>, official grade equivalences, or proof of attainment. Use the learner&apos;s actual ability, current textbooks and individual interests. The parent decides whether and when a goal is achieved.</p><p>With multiple learners, share the family&apos;s approximate 60 minutes of adult-guided time. For infants and toddlers, use responsive care, movement, conversation and supervised sensory play—not formal lessons or screens.</p><p><Link href="/dashboard">Back to private learning workspace →</Link></p></section>
+  <section className="workspace-panel"><h2>Choose a stage and subject</h2><form action="/curriculum" method="get" className="form-grid"><label className="workspace-field"><span>Learning stage</span><select name="stage" defaultValue={stage}>{curriculumStages.map(s=><option key={s.id} value={s.id}>{s.label}</option>)}</select></label><label className="workspace-field"><span>Subject</span><select name="subject" defaultValue={subject}><option value="">All subjects</option>{subjects.map(s=><option key={s} value={s}>{s}</option>)}</select></label><button type="submit">Show competencies</button></form><p className="muted">{visible.length} of {available.length} outcomes shown for {curriculumStages.find(s=>s.id===stage)?.label}. The stage filter does not restrict what a learner is allowed to explore.</p></section>
+  <div className="subject-grid">{visible.map(c=>{
+   const reference=references.get(c.sourceId);
+   return <article className="workspace-panel" key={c.id} id={c.id}>
+     <span className="eyebrow">{c.subject}</span><h2>{c.title}</h2>
+     <p><strong>Suggested outcome:</strong> {c.outcome}</p>
+     <p><strong>Try together:</strong> {c.activity}</p>
+     {c.prerequisites.length?<div><strong>Foundations to explore first:</strong><ul>{c.prerequisites.map(pr=>{const prior=byId.get(pr);return <li key={pr}>{prior?<Link href={`/curriculum?stage=${encodeURIComponent(prior.stage)}&subject=${encodeURIComponent(prior.subject)}#${prior.id}`}>{prior.title} ({curriculumStages.find(s=>s.id===prior.stage)?.label})</Link>:pr}</li>})}</ul></div>:<p className="muted">No prerequisite recorded in this curated subset.</p>}
+     <p className="muted">Background guidance: {reference?.url?<a href={reference.url} target="_blank" rel="noopener noreferrer">{reference.title}</a>:'Parent-developed enrichment'}. This is an editorial alignment reference, not an exact official outcome mapping.</p>
+     <p><Link href={`/dashboard?competency=${encodeURIComponent(c.id)}`}>Use as a parent-reviewed goal →</Link></p>
+   </article>
+  })}</div>
+  {visible.length===0&&<section className="workspace-panel"><p>No examples in this filter yet. Try another subject.</p></section>}
+  <section className="workspace-panel"><h2>Reference framework</h2><ul>{curriculumSources.filter(s=>s.id!=='original').map(s=><li key={s.id}><a href={s.url} target="_blank" rel="noopener noreferrer">{s.title}</a></li>)}</ul><p>Review the current NCERT textbooks and your relevant CBSE requirements for exact year, class, unit and learning outcomes. These examples cannot replace syllabus verification.</p></section>
+ </main></>;
 }
