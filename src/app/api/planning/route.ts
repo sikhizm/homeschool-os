@@ -51,7 +51,7 @@ export async function GET(request:Request){
 export async function POST(request:Request){
  const origin=request.headers.get('origin');
  const actual=new URL(request.url);
- if(!origin||origin!==actual.origin)return respond({error:'Same-origin request required.'},403);
+ if(!origin||origin!==`${actual.protocol}//${request.headers.get('host')}`)return respond({error:'Same-origin request required.'},403);
  const user=await sessionUser();
  if(!user)return respond({error:'Sign in required.'},401);
  if(Number(request.headers.get('content-length'))>12000)return respond({error:'Request too large.'},413);
