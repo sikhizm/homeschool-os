@@ -93,3 +93,8 @@ assert.equal(proof.status,401);
 proof=await fetch(root+portfolioApi,{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://attacker.invalid'},body:'{}'});
 assert.equal(proof.status,403);
 console.log('Portfolio API: unauthenticated and cross-origin access blocked');
+
+const reports=await fetch(root+'/reports',{redirect:'manual'});
+assert.ok([307,308].includes(reports.status));
+assert.ok(reports.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/reports: private route redirects unauthenticated visitors');
