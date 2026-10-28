@@ -16,7 +16,7 @@ export default async function PlanningPage(){
  const initialDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
  return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>ANNUAL · WEEKLY · DAILY</span></header>
  <main className="family-dashboard"><div className="dashboard-welcome"><div><span className="tag">PHASE 04 · LEARNING PLANNER</span><h1>Plan your learning rhythm</h1><p className="muted">Sketch the year, focus each week, then plan and reflect on individual days.</p></div><span className="daily-badge">✧ One shared hour of guided time</span></div>
- <p><Link href="/dashboard">Dashboard</Link> · <Link href="/curriculum">Curriculum pathways</Link></p>
+ <p><Link href="/dashboard">Dashboard</Link> · <Link href="/curriculum">Curriculum pathways</Link> · <Link href="/lessons">Lessons & printables</Link></p>
  <PlanningWorkspace learners={learners.map(l=>({id:String(l.id),name:String(l.display_name),stage:String(l.stage||'Early Years')}))} canEdit={family.role==='owner'} initialDate={initialDate}/>
  </main></>;
 }
