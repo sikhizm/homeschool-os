@@ -75,6 +75,7 @@ export default function LearningWorkspace({
             {workspaceTabs.map((item) => (
               <button
                 key={item.name}
+                aria-label={item.name}
                 aria-current={tab === item.name ? 'page' : undefined}
                 onClick={() => setTab(item.name)}
                 type="button"
