@@ -5,16 +5,18 @@ import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
 import { competencies } from '@/lib/curriculum/library';
+import { globalSkillById } from '@/lib/global-curriculum/catalogue';
 import { validPlanningDate } from '@/lib/planning/periods';
 import LearningIllustration from '@/components/learning-illustration';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string; date?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string; globalSkill?: string; date?: string }> }) {
   const params = await searchParams;
   const competency = competencies.find(item => item.id === params.competency);
-  const suggestion = competency?.outcome ?? '';
-  const suggestedSubject = competency?.subject ?? '';
+  const globalSuggestion = params.globalSkill ? globalSkillById(params.globalSkill) : undefined;
+  const suggestion = competency?.outcome ?? globalSuggestion?.outcome ?? '';
+  const suggestedSubject = competency?.subject ?? globalSuggestion?.subject ?? '';
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
