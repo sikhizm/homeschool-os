@@ -6,6 +6,7 @@ import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
 import { competencies } from '@/lib/curriculum/library';
 import { validPlanningDate } from '@/lib/planning/periods';
+import LearningIllustration from '@/components/learning-illustration';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,27 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
           <span className="daily-badge">✧ Around 60 minutes, together</span>
         </div>
-        <p><Link href="/planning">Annual & weekly planning →</Link> · <Link href="/curriculum">Curriculum pathways →</Link> · <Link href="/lessons">Lessons & printables →</Link> · <Link href="/november-pilot">November pilot pack →</Link> · <Link href="/portfolio">Learning portfolios →</Link> · <Link href="/reports">Progress reports →</Link></p>
+        <section className="learning-hero" aria-labelledby="hero-title">
+          <div className="learning-hero-content">
+            <span className="hero-kicker"><span aria-hidden="true">✦</span> YOUR FAMILY LEARNING HUB</span>
+            <h2 id="hero-title">A little wonder, <em>every day.</em></h2>
+            <p>A calm, joyful home for curious minds. Find today&apos;s rhythm, explore activities, and notice how each learner is growing.</p>
+            <div className="hero-actions">
+              <Link className="hero-action-primary" href="/lessons">Explore activities <span aria-hidden="true">↗</span></Link>
+              <Link className="hero-action-secondary" href="/planning">Plan this week <span aria-hidden="true">→</span></Link>
+            </div>
+          </div>
+          <LearningIllustration/>
+        </section>
+        <section className="quick-start" aria-labelledby="quick-start-title">
+          <div className="quick-start-heading"><div><span className="eyebrow">YOUR LEARNING TOOLS</span><h2 id="quick-start-title">Where shall we begin?</h2></div><p>Everything you need, one simple tap away.</p></div>
+          <div className="quick-start-grid">
+            <Link href="/planning" className="quick-start-card tint-peach"><span className="quick-start-icon" aria-hidden="true">▦</span><strong>Make a plan</strong><span>Shape the week ahead</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
+            <Link href="/curriculum" className="quick-start-card tint-sage"><span className="quick-start-icon" aria-hidden="true">✳</span><strong>Explore skills</strong><span>Follow their curiosity</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
+            <Link href="/portfolio" className="quick-start-card tint-lilac"><span className="quick-start-icon" aria-hidden="true">❋</span><strong>Capture growth</strong><span>Celebrate little steps</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
+            <Link href="/reports" className="quick-start-card tint-butter"><span className="quick-start-icon" aria-hidden="true">◫</span><strong>See the journey</strong><span>Reflect on what matters</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
+          </div>
+        </section>
         <LearningWorkspace
           learners={learners.map((l) => ({
             id: String(l.id),
