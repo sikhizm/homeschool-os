@@ -66,7 +66,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="learning-hero-content">
             <span className="hero-kicker"><span aria-hidden="true">✦</span> YOUR FAMILY LEARNING HUB</span>
             <h2 id="hero-title">A little wonder, <em>every day.</em></h2>
-            <p>A calm, joyful home for curious minds. Find today's rhythm, explore activities, and notice how each learner is growing.</p>
+            <p>A calm, joyful home for curious minds. Find today&apos;s rhythm, explore activities, and notice how each learner is growing.</p>
             <div className="hero-actions">
               <Link className="hero-action-primary" href="/lessons">Explore activities <span aria-hidden="true">↗</span></Link>
               <Link className="hero-action-secondary" href="/planning">Plan this week <span aria-hidden="true">→</span></Link>
