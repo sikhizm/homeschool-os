@@ -1365,3 +1365,14 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:900px){.gcv1-sources{grid-template-columns:repeat(2,minmax(0,1fr))}.gcv1-coverage-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:680px){.gcv1-intro-symbol{display:none}.gcv1-intro{padding:22px}.gcv1-filters,.gcv1-metrics,.gcv1-trust-grid,.gcv1-activity-list,.gcv1-sources,.gcv1-footer-links{grid-template-columns:1fr}.gcv1-filters button{grid-column:span 1}.gcv1-coverage-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.gcv1-section-top{flex-direction:column;align-items:flex-start}}
 @media print{.gcv1-filters,.gcv1-footer-links,.gcv1-intro-symbol{display:none!important}.gcv1-activity-card{break-inside:avoid}}
+
+
+/* Direct official NCERT chapter reader actions */
+.ncert-chapter-description{min-width:0;flex:1}
+.ncert-chapter-title-link{font-size:14px;font-weight:800;line-height:1.5;color:#205d44;text-decoration:none;text-underline-offset:3px;overflow-wrap:anywhere}
+.ncert-chapter-title-link:hover,.ncert-chapter-title-link:focus-visible{text-decoration:underline}
+.ncert-chapter-open{flex-shrink:0;background:#e5f2e6;border:1px solid #c8e2cc;color:#286b4f;text-decoration:none;padding:9px 12px;border-radius:11px;font-size:12px;font-weight:800}
+.ncert-chapter-open:hover{background:#d5e9d9;text-decoration:underline}
+.ncert-chapter-open:focus-visible,.ncert-chapter-title-link:focus-visible{outline:3px solid #e4a568;outline-offset:3px}
+@media(max-width:540px){.ncert-chapter-row{gap:9px;padding:11px}.ncert-chapter-open{font-size:11px;padding:8px}.ncert-chapter-title-link{font-size:13px}}
+@media print{.ncert-chapter-open{display:none!important}}

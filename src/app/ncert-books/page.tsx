@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
-import {selectTextbooks,chaptersFor,textbookAudit,textbookGrades} from '@/lib/ncert/textbooks';
+import {selectTextbooks,chaptersFor,officialChapterPdf,textbookAudit,textbookGrades} from '@/lib/ncert/textbooks';
 import {globalSkills} from '@/lib/global-curriculum/catalogue';
 import SectionArtwork from '@/components/section-artwork';
 
@@ -46,9 +46,16 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  <section className="workspace-panel ncert-chapter-panel">
   {selectedBook&&<><div className="ncert-chapter-intro"><div><span className="eyebrow">OFFICIAL BOOK IDENTIFIED</span><h2>{selectedBook.title}</h2><p>Class {selectedBook.grade} · {selectedBook.subject} · {selectedBook.language} · NCERT</p></div><span className="ncert-mini-book" aria-hidden="true">▤</span></div>
   <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} chapter titles checked`:'Book identified · Chapter contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
-  <p className="muted">Edition note: {selectedBook.editionLabel}. Checked titles come from the NCERT publisher contents; placeholders are not chapter names. Confirm the current edition before assigning skills.</p>
+  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed chapter title to open its learning page. Checked chapters also link to official NCERT PDFs; unverified chapters do not receive guessed PDF links. Confirm the current edition before assigning skills.</p>
   {chapters.length===0&&<p className="ncert-pending">The chapter index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
-  <div className="ncert-chapter-list">{chapters.map(c=><div className="ncert-chapter-row" key={c.id}><span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span><div><strong>{c.verifiedTitle??c.label}</strong><small>{c.verifiedTitle?'Title checked against publisher contents':'Official chapter title not verified'} · {c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available'}</small></div><span className="ncert-chapter-review">{c.verifiedTitle?"Title checked":"Review pending"}</span></div>)}</div></>}
+  <div className="ncert-chapter-list">{chapters.map(c=>{const chapterUrl=officialChapterPdf(c);return <div className="ncert-chapter-row" key={c.id}>
+    <span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span>
+    <div className="ncert-chapter-description">
+      <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for chapter ${c.chapterNumber}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
+      <small>{chapterUrl?'Learning page and official PDF available':'Learning page available · official PDF not yet verified'} · {c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available'}</small>
+    </div>
+    {chapterUrl?<a className="ncert-chapter-open" href={chapterUrl} target="_blank" rel="noopener noreferrer">Read PDF <span aria-hidden="true">↗</span></a>:<span className="ncert-chapter-review">Review pending</span>}
+  </div>})}</div></>}
  </section>
  </div>}
  <section className="workspace-panel ncert-skill-suggestions"><span className="eyebrow">SEPARATE FROM TEXTBOOK ALIGNMENT</span><h2>Original skills to explore</h2>

@@ -159,3 +159,16 @@ export function validateNcertCatalogue(){
  }
  return issues;
 }
+
+/**
+ * Official NCERT chapter PDF URL for source-checked chapter records only.
+ * NCERT's publisher uses {textbookCode}{two-digit chapter}.pdf for these series.
+ * Do not invent chapter links for books whose contents have not been verified.
+ */
+export function officialChapterPdf(chapter:ChapterSlot):string|null {
+ const book=textbookById(chapter.bookId);
+ if(!book||book.chapterCount<1||!chapter.verifiedTitle||chapter.status==='chapter-title-pending')return null;
+ if(!/^[a-z]{4}[1-9]$/.test(book.textbookCode))return null;
+ if(!Number.isInteger(chapter.chapterNumber)||chapter.chapterNumber<1||chapter.chapterNumber>book.chapterCount)return null;
+ return `https://ncert.nic.in/textbook/pdf/${book.textbookCode}${String(chapter.chapterNumber).padStart(2,'0')}.pdf`;
+}
