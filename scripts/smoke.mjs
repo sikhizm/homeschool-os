@@ -108,3 +108,8 @@ const books=await fetch(root+'/ncert-books',{redirect:'manual'});
 assert.ok([307,308].includes(books.status));
 assert.ok(books.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/ncert-books: private page rejects unauthenticated visitors');
+
+const studio=await fetch(root+'/curriculum-studio',{redirect:'manual'});
+assert.ok([307,308].includes(studio.status));
+assert.ok(studio.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/curriculum-studio: requires signed-in family member');
