@@ -1282,3 +1282,47 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:740px){.global-framework-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.global-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.global-filter-grid button{grid-column:span 2}.global-intro-art{display:none}.global-crosslink{align-items:flex-start;flex-direction:column}.global-bottom-row{grid-template-columns:1fr}}
 @media(max-width:530px){.global-framework-grid,.global-skill-grid,.global-filter-grid{grid-template-columns:1fr}.global-filter-grid button{grid-column:span 1}.global-intro{padding:22px}.global-framework{flex-direction:row}.global-skill-card{padding:20px}}
 @media print{.global-crumbs,.global-filter-panel form,.global-intro-art{display:none!important}}
+
+
+/* NCERT book index: clear provenance and visual chapter-audit progression */
+.ncert-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin:18px 0 22px}
+.ncert-stats>div{display:grid;gap:6px;background:#fefcf7;border:1px solid #e4e9e0;border-radius:18px;padding:19px 23px}
+.ncert-stats strong{font-size:32px;letter-spacing:-.05em;color:#347458}
+.ncert-stats span{color:#63796b;font-size:12px}
+.ncert-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px}
+.ncert-heading h2{margin:5px 0}.ncert-heading p{font-size:13px}
+.ncert-audit-note{background:#f8ebd9;color:#9c693c;padding:8px 12px;border-radius:999px;white-space:nowrap;font-size:11px;font-weight:800}
+.ncert-filter-grid{display:grid;grid-template-columns:1fr 1fr auto;gap:14px;align-items:end;margin-top:18px}
+.ncert-filter-grid button{background:#327656;color:white;padding:12px 18px;border-radius:12px;font-size:13px;font-weight:800}
+.ncert-pending{background:#f8efdf;border:1px solid #ecd8b4;color:#74583b;border-radius:12px;padding:14px;margin-top:17px}
+.ncert-books-layout{display:grid;grid-template-columns:minmax(235px,.8fr) minmax(0,1.65fr);gap:18px;align-items:start;margin:20px 0}
+.ncert-book-list{display:grid;gap:9px}.ncert-book-choice{display:flex;align-items:center;gap:12px;text-decoration:none;background:#f9faf6;border:1px solid #e6ebe2;border-radius:15px;padding:13px;min-width:0}
+.ncert-book-choice.is-active{background:#eaf4eb;border-color:#82ad8b}.ncert-book-choice>span:nth-child(2){display:grid;gap:5px;flex:1;min-width:0}
+.ncert-book-choice strong{font-size:14px}.ncert-book-choice small{font-size:11px;color:#75847a}
+.ncert-book-letter{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#e3ecde;color:#37785b;flex-shrink:0;font-size:23px;font-weight:800}
+.ncert-book-choice:nth-child(4n+2) .ncert-book-letter{background:#f7e9d7;color:#a97742}
+.ncert-book-choice:nth-child(4n+3) .ncert-book-letter{background:#e9e5f2;color:#756499}
+.ncert-book-choice:nth-child(4n+4) .ncert-book-letter{background:#f4f0d8;color:#8a783b}
+.ncert-chapter-intro{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.ncert-chapter-intro h2{font-size:clamp(24px,2.7vw,35px);margin:5px 0}.ncert-chapter-intro p{font-size:13px;margin:0}
+.ncert-mini-book{display:grid;place-items:center;width:72px;height:72px;flex-shrink:0;border-radius:20px;background:#e5f1e7;color:#43815e;font-size:43px}
+.ncert-source-strip{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;background:#edf4ea;border-radius:12px;padding:14px;margin:18px 0;font-size:12px;color:#3b7254}
+.ncert-source-strip a,.ncert-info-grid a{color:#2e7658;font-weight:800}
+.ncert-chapter-list{display:grid;gap:9px;margin-top:19px}
+.ncert-chapter-row{display:flex;gap:14px;align-items:center;border:1px solid #e6ece2;border-radius:12px;padding:12px 14px}
+.ncert-chapter-number{height:37px;width:37px;display:grid;place-items:center;background:#eef3e8;border-radius:10px;font-size:12px;color:#41745c;font-weight:900;flex-shrink:0}
+.ncert-chapter-row>div{display:grid;gap:3px;flex:1;min-width:0}
+.ncert-chapter-row strong{font-size:14px}.ncert-chapter-row small{font-size:11px;color:#829184}
+.ncert-chapter-review{font-size:10px;background:#fbf1df;border-radius:9px;padding:7px 9px;color:#98733d;white-space:nowrap}
+.ncert-skill-suggestions{margin-top:22px}
+.ncert-original-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-top:18px}
+.ncert-original-grid article{border:1px solid #e4e9e1;border-radius:14px;padding:18px;background:#f9fbf7}
+.ncert-original-grid strong{font-size:14px}.ncert-original-grid p{font-size:12px;line-height:1.6}
+.ncert-original-grid a{color:#307655;font-weight:800;font-size:11px}
+.ncert-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:18px 0}
+.ncert-global-link{display:flex;justify-content:space-between;gap:20px;align-items:center;background:linear-gradient(110deg,#e6f2e6,#f9eddd);padding:23px 28px;border:1px solid #dae7d9;border-radius:20px;margin:15px 0 22px}
+.ncert-global-link h2{margin:6px 0;font-size:24px;letter-spacing:-.035em}.ncert-global-link p{font-size:13px;color:#647b6a;max-width:690px;margin:0}
+.ncert-global-link>a{border-radius:12px;padding:12px 16px;text-decoration:none;white-space:nowrap;color:#fff;background:#2f7356;font-size:12px;font-weight:800}
+@media(max-width:900px){.ncert-books-layout{grid-template-columns:1fr}.ncert-book-list{grid-template-columns:repeat(2,minmax(0,1fr))}.ncert-original-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:680px){.ncert-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ncert-filter-grid{grid-template-columns:1fr}.ncert-info-grid,.ncert-original-grid{grid-template-columns:1fr}.ncert-heading,.ncert-global-link{flex-direction:column;align-items:flex-start}.ncert-book-list{grid-template-columns:1fr}.ncert-chapter-review{display:none}.ncert-chapter-intro{align-items:flex-start}}
+@media print{.ncert-filter-grid,.ncert-global-link{display:none!important}.ncert-chapter-row{break-inside:avoid}}

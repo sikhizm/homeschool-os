@@ -23,7 +23,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
   <div><span className="eyebrow">ONE FOUNDATION, MANY PERSPECTIVES</span><h2>Learn deeply, not endlessly.</h2><p>NCERT/Indian frameworks guide the core. International frameworks help us choose teaching approaches, inquiry questions and stretch opportunities. No child needs to complete six boards at once.</p></div>
   <div className="global-intro-art" aria-hidden="true"><span>✳</span><strong>Explore</strong><small>Understand · Practice · Apply</small></div>
  </section>
- <div className="global-framework-grid" aria-label="Curriculum reference frameworks">
+ <div className="ncert-global-link"><div><span className="eyebrow">OFFICIAL NCERT BOOK DIRECTORY</span><h2>Explore chapters by class and subject</h2><p>Browse source-identified textbook records with transparent verification and mapping status.</p></div><Link href="/ncert-books">Open NCERT book index →</Link></div><div className="global-framework-grid" aria-label="Curriculum reference frameworks">
   {globalFrameworks.filter(f=>f.id!=='original'&&f.id!=='epathshala').map((framework,index)=><article className="global-framework" key={framework.id}>
    <span className="global-framework-icon" aria-hidden="true">{['✦','✳','◎','∑','◈'][index]}</span>
    <div><h3>{framework.label}</h3><p>{framework.description}</p><a href={framework.url} target="_blank" rel="noopener noreferrer">Official framework ↗</a></div>

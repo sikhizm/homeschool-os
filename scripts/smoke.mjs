@@ -103,3 +103,8 @@ const globalCurriculum=await fetch(root+'/global-curriculum',{redirect:'manual'}
 assert.ok([307,308].includes(globalCurriculum.status));
 assert.ok(globalCurriculum.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/global-curriculum: private route redirects unauthenticated visitors');
+
+const books=await fetch(root+'/ncert-books',{redirect:'manual'});
+assert.ok([307,308].includes(books.status));
+assert.ok(books.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/ncert-books: private page rejects unauthenticated visitors');

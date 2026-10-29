@@ -80,7 +80,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="quick-start-heading"><div><span className="eyebrow">YOUR LEARNING TOOLS</span><h2 id="quick-start-title">Where shall we begin?</h2></div><p>Everything you need, one simple tap away.</p></div>
           <div className="quick-start-grid">
             <Link href="/planning" className="quick-start-card tint-peach"><span className="quick-start-icon" aria-hidden="true">▦</span><strong>Make a plan</strong><span>Shape the week ahead</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
-            <Link href="/global-curriculum" className="quick-start-card tint-sage"><span className="quick-start-icon" aria-hidden="true">✳</span><strong>Explore skills</strong><span>Follow their curiosity</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
+            <Link href="/ncert-books" className="quick-start-card tint-sage"><span className="quick-start-icon" aria-hidden="true">✳</span><strong>Find their books</strong><span>NCERT chapters & skills</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
             <Link href="/portfolio" className="quick-start-card tint-lilac"><span className="quick-start-icon" aria-hidden="true">❋</span><strong>Capture growth</strong><span>Celebrate little steps</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
             <Link href="/reports" className="quick-start-card tint-butter"><span className="quick-start-icon" aria-hidden="true">◫</span><strong>See the journey</strong><span>Reflect on what matters</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
           </div>
