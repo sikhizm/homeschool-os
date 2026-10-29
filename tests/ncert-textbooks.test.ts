@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {ncertTextbooks,ncertChapterSlots,textbookById,chaptersFor,textbookAudit,selectTextbooks,validateNcertCatalogue,textbookGrades} from '../src/lib/ncert/textbooks';
+import {ncertTextbooks,ncertChapterSlots,textbookById,chaptersFor,textbookAudit,selectTextbooks,validateNcertCatalogue,officialChapterPdf,textbookGrades} from '../src/lib/ncert/textbooks';
 
 test('Class 4 textbook metadata and chapter slots form a valid bounded catalogue',()=>{
  assert.deepEqual(validateNcertCatalogue(),[]);
@@ -37,4 +37,17 @@ test('textbook selection is exact and unknown classes are not fabricated',()=>{
  assert.equal(selectTextbooks(6).length,0);
  assert.equal(textbookById('not-real'),undefined);
  assert.equal(chaptersFor('../secrets').length,0);
+});
+
+test('verified NCERT chapters link to official publisher PDFs',()=>{
+ const veena=chaptersFor('ncert-4-veena');
+ assert.equal(officialChapterPdf(veena[0]),'https://ncert.nic.in/textbook/pdf/dhve101.pdf');
+ assert.equal(officialChapterPdf(veena[12]),'https://ncert.nic.in/textbook/pdf/dhve113.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-4-santoor')[0]),'https://ncert.nic.in/textbook/pdf/desa101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-4-maths-mela')[0]),'https://ncert.nic.in/textbook/pdf/demm101.pdf');
+ assert.ok(ncertChapterSlots.every(ch=>officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
+ assert.equal(chaptersFor('ncert-5-veena').length,0);
+ assert.equal(officialChapterPdf({...veena[0],verifiedTitle:null}),null);
+ assert.equal(officialChapterPdf({...veena[0],chapterNumber:99}),null);
+ assert.equal(officialChapterPdf({...veena[0],bookId:'unknown'}),null);
 });
