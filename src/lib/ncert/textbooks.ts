@@ -3,7 +3,7 @@
  * No embedded copyrighted textbook contents. Chapter slot labels are NOT confirmed chapter titles.
  * Source snapshots need ongoing revalidation against the current NCERT edition.
  */
-export type ReviewStatus='catalogued'|'chapter-title-pending'|'human-reviewed';
+export type ReviewStatus='catalogued'|'chapter-title-pending'|'source-verified'|'human-reviewed';
 export type Textbook={id:string;grade:number;subject:string;title:string;language:string;publisher:'NCERT';textbookCode:string;chapterCount:number;sourceUrl:string;referenceUrl:string;editionLabel:string;status:string};
 export type ChapterSlot={id:string;bookId:string;chapterNumber:number;label:string;verifiedTitle:string|null;status:ReviewStatus;sourceUrl:string;skillIds:string[];mappingStatus:'unmapped'|'proposed'|'human-reviewed'};
 export const ncertTextbooks:Textbook[]=[
@@ -64,12 +64,31 @@ export const ncertTextbooks:Textbook[]=[
     "status": "book-confirmed-chapter-titles-pending"
   }
 ];
+/** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
+export const verifiedChapterTitles:Record<string,readonly string[]>={
+ 'ncert-4-maths-mela':[
+ 'Shapes Around Us','Hide and Seek','Pattern Around Us','Thousands Around Us',
+ 'Sharing and Measuring','Measuring Length','The Cleanest Village','Weigh it, Pour it',
+ 'Equal Groups','Elephants, Tigers, and Leopards','Fun with Symmetry',
+ 'Ticking Clocks and Turning Calendar','The Transport Museum','Data Handling'
+ ],
+ 'ncert-4-our-wondrous-world':[
+ 'Living Together','Exploring Our Neighbourhood','Nature Trail','Growing up with Nature',
+ 'Food for Health','Happy and Healthy Living','How Things Work','How Things are Made',
+ 'Different Lands, Different Lives','Our Sky'
+ ]
+};
+export const verifiedContentsSources:Record<string,string>={
+ 'ncert-4-maths-mela':'https://ncert.nic.in/textbook/pdf/demm1ps.pdf',
+ 'ncert-4-our-wondrous-world':'https://ncert.nic.in/textbook/pdf/deev1ps.pdf'
+};
+
 export const ncertChapterSlots:ChapterSlot[]=ncertTextbooks.flatMap(book=>
  Array.from({length:book.chapterCount},(_,index)=>({
   id:`${book.id}-ch-${String(index+1).padStart(2,'0')}`,
-  bookId:book.id,chapterNumber:index+1,label:`Chapter ${index+1}`,verifiedTitle:null,
-  status:'chapter-title-pending' as const,
-  sourceUrl:book.sourceUrl,skillIds:[],mappingStatus:'unmapped' as const
+  bookId:book.id,chapterNumber:index+1,label:`Chapter ${index+1}`,verifiedTitle:verifiedChapterTitles[book.id]?.[index]??null,
+  status:verifiedChapterTitles[book.id]?.[index]?'source-verified' as const:'chapter-title-pending' as const,
+  sourceUrl:verifiedContentsSources[book.id]??book.sourceUrl,skillIds:[],mappingStatus:'unmapped' as const
  }))
 );
 export const textbookGrades=Array.from({length:12},(_,index)=>index+1);
@@ -78,7 +97,7 @@ export function chaptersFor(bookId:string){return ncertChapterSlots.filter(c=>c.
 export function textbookById(id:string){return ncertTextbooks.find(b=>b.id===id);}
 export function textbookAudit(){
  const mapped=ncertChapterSlots.filter(c=>c.mappingStatus==='human-reviewed').length;
- const titles=ncertChapterSlots.filter(c=>c.verifiedTitle&&c.status==='human-reviewed').length;
+ const titles=ncertChapterSlots.filter(c=>c.verifiedTitle&&(c.status==='source-verified'||c.status==='human-reviewed')).length;
  return {books:ncertTextbooks.length,chapterSlots:ncertChapterSlots.length,verifiedChapterTitles:titles,approvedSkillMappings:mapped,unreviewedChapterSlots:ncertChapterSlots.length-titles,gradesCovered:[...new Set(ncertTextbooks.map(b=>b.grade))]};
 }
 export function validateNcertCatalogue(){
@@ -88,12 +107,13 @@ export function validateNcertCatalogue(){
   if(ids.has(book.id))issues.push('duplicate textbook '+book.id);ids.add(book.id);
   if(book.chapterCount<1||book.chapterCount>60)issues.push('invalid chapter count '+book.id);
   if(!book.sourceUrl.startsWith('https://ncert.nic.in/'))issues.push('non official source '+book.id);
+  if(verifiedChapterTitles[book.id]&&verifiedChapterTitles[book.id].length!==book.chapterCount)issues.push('contents count '+book.id);
   if(chaptersFor(book.id).length!==book.chapterCount)issues.push('slot count '+book.id);
  }
  for(const c of ncertChapterSlots){
   if(chapters.has(c.id))issues.push('duplicate slot '+c.id);chapters.add(c.id);
   if(!ids.has(c.bookId))issues.push('orphan chapter '+c.id);
-  if(c.status==='human-reviewed'&&!c.verifiedTitle)issues.push('missing verified title '+c.id);
+  if((c.status==='human-reviewed'||c.status==='source-verified')&&!c.verifiedTitle)issues.push('missing verified title '+c.id);
   if(c.mappingStatus==='human-reviewed'&&!c.skillIds.length)issues.push('empty reviewed mapping '+c.id);
   if(c.mappingStatus==='unmapped'&&c.skillIds.length)issues.push('unreviewed mapping attached '+c.id);
  }
