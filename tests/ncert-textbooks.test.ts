@@ -4,16 +4,18 @@ import {ncertTextbooks,ncertChapterSlots,textbookById,chaptersFor,textbookAudit,
 
 test('Class 4 textbook metadata and chapter slots form a valid bounded catalogue',()=>{
  assert.deepEqual(validateNcertCatalogue(),[]);
- assert.equal(ncertTextbooks.length,4);
+ assert.equal(ncertTextbooks.length,8);
  assert.equal(ncertChapterSlots.length,49);
- assert.deepEqual(ncertTextbooks.map(x=>x.chapterCount),[14,12,13,10]);
+ assert.deepEqual(ncertTextbooks.map(x=>x.chapterCount),[14,12,13,10,0,0,0,0]);
  assert.equal(textbookGrades.length,12);
 });
 test('chapter slots distinguish publisher-verified titles and unreviewed placeholders',()=>{
  for(const book of ncertTextbooks){
   assert.equal(chaptersFor(book.id).length,book.chapterCount);
-  assert.equal(chaptersFor(book.id)[0].chapterNumber,1);
-  assert.equal(chaptersFor(book.id).at(-1)?.chapterNumber,book.chapterCount);
+  if(book.chapterCount>0){
+   assert.equal(chaptersFor(book.id)[0].chapterNumber,1);
+   assert.equal(chaptersFor(book.id).at(-1)?.chapterNumber,book.chapterCount);
+  }else assert.deepEqual(chaptersFor(book.id),[]);
  }
  for(const slot of ncertChapterSlots){
   assert.equal(slot.status,slot.verifiedTitle?'source-verified':'chapter-title-pending');
@@ -22,11 +24,16 @@ test('chapter slots distinguish publisher-verified titles and unreviewed placeho
  }
 });
 test('audit metrics do not manufacture completed chapter review or mappings',()=>{
- assert.deepEqual(textbookAudit(),{books:4,chapterSlots:49,verifiedChapterTitles:24,approvedSkillMappings:0,unreviewedChapterSlots:25,gradesCovered:[4]});
+ assert.deepEqual(textbookAudit(),{books:8,chapterSlots:49,verifiedChapterTitles:49,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:4,gradesCovered:[4,5]});
 });
 test('textbook selection is exact and unknown classes are not fabricated',()=>{
  assert.equal(selectTextbooks(4,'English')[0].title,'Santoor');
- assert.equal(selectTextbooks(5).length,0);
+ assert.equal(selectTextbooks(5).length,4);
+ assert.equal(selectTextbooks(5,'Hindi')[0].textbookCode,'ehve1');
+ assert.equal(chaptersFor('ncert-5-veena').length,0);
+ assert.ok(ncertChapterSlots.every(c=>c.verifiedTitle&&c.status==='source-verified'));
+ assert.deepEqual(ncertChapterSlots.filter(c=>c.mappingStatus==='human-reviewed'),[]);
+ assert.equal(selectTextbooks(6).length,0);
  assert.equal(textbookById('not-real'),undefined);
  assert.equal(chaptersFor('../secrets').length,0);
 });
