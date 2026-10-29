@@ -17,7 +17,7 @@
 - SCERT Haryana Class 4 English-medium book catalogue: https://scertharyana.gov.in/document-category/textbooks-class-4/
 - Class 4 2026–27 third-party index (chapter counts as cross-check only): https://schools.aglasem.com/ncert-books-class-4/
 
-The official textbook catalogue and SCERT Haryana confirm book identities. Specific chapter *titles*, full chapter sequence per edition, ISBN/edition and chapter-to-skill links have **not been independently reviewed**, so they are all visibly pending. Counts are provisional until reconfirmed chapter-by-chapter on the current NCERT edition. Do not publish full textbook coverage claims from this version.
+The official textbook catalogue and SCERT Haryana confirm book identities. Maths Mela and Our Wondrous World chapter titles were checked against their 2026–27 publisher tables of contents, while the other 25 remain pending. ISBN/edition details and all chapter-to-skill links have **not been comprehensively reviewed**, so they are pending for Santoor and Veena; Maths Mela (14) and Our Wondrous World (10) have source-verified titles. Counts are provisional until reconfirmed chapter-by-chapter on the current NCERT edition. Do not publish full textbook coverage claims from this version.
 
 ## Editorial chapter mapping checklist
 For each book, retain grade, language, subject, publisher, textbook code, and checked source URL. Confirm the edition/reprint from its imprint and chapter title and position from the publisher's own table of contents. Review each proposed competency against the chapter's actual subject matter and record reviewer/date/evidence. **No mapping becomes `human-reviewed` without a human checking it**. Note any changed chapters when new NCERT editions arrive.
@@ -26,7 +26,7 @@ For each book, retain grade, language, subject, publisher, textbook code, and ch
 NCERT states textbooks are copyrighted and prohibits redistribution, hosting textbooks or packaging them in software without permission. This app stores only metadata, generic chapter numbers and original teaching suggestions, and opens the official external publisher portal. Before adding direct chapter links to a distributable service, confirm NCERT permission and current usage terms.
 
 ## Remaining work (not completed by this phase)
-- Class 4 chapter-title audit, edition/ISBN cross-check and individual chapter-skill evidence.
+- Santoor and Veena chapter-title audit, edition/ISBN cross-check and individual chapter-skill evidence.
 - Class 1–3, 5–12 actual book and chapter indexing.
 - Structured standard-code review and approval workflow with editorial persistence (admin-only).
 - Authorized international textbook/standards mapping.
@@ -34,3 +34,8 @@ NCERT states textbooks are copyrighted and prohibits redistribution, hosting tex
 
 ## Release checks
 `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. The zero-data safe catalogue needs no database migration.
+
+## Additional publisher TOC title verification
+- Maths Mela 2026–27 reprint official contents (14): https://ncert.nic.in/textbook/pdf/demm1ps.pdf
+- Our Wondrous World 2026–27 reprint official contents (10): https://ncert.nic.in/textbook/pdf/deev1ps.pdf
+- Their 24 names are marked `source-verified`; 25 other titles still await direct publisher-content confirmation. All 49 **skill alignments remain unapproved**. Source verification does not imply pedagogical skill mapping approval.
