@@ -12,8 +12,10 @@ test('Class 4 textbook metadata and chapter slots form a valid bounded catalogue
 test('chapter slots distinguish publisher-verified titles and unreviewed placeholders',()=>{
  for(const book of ncertTextbooks){
   assert.equal(chaptersFor(book.id).length,book.chapterCount);
-  assert.equal(chaptersFor(book.id)[0].chapterNumber,1);
-  assert.equal(chaptersFor(book.id).at(-1)?.chapterNumber,book.chapterCount);
+  if(book.chapterCount>0){
+   assert.equal(chaptersFor(book.id)[0].chapterNumber,1);
+   assert.equal(chaptersFor(book.id).at(-1)?.chapterNumber,book.chapterCount);
+  }else assert.deepEqual(chaptersFor(book.id),[]);
  }
  for(const slot of ncertChapterSlots){
   assert.equal(slot.status,slot.verifiedTitle?'source-verified':'chapter-title-pending');
@@ -22,7 +24,7 @@ test('chapter slots distinguish publisher-verified titles and unreviewed placeho
  }
 });
 test('audit metrics do not manufacture completed chapter review or mappings',()=>{
- assert.deepEqual(textbookAudit(),{books:4,chapterSlots:49,verifiedChapterTitles:49,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:4,gradesCovered:[4,5]});
+ assert.deepEqual(textbookAudit(),{books:8,chapterSlots:49,verifiedChapterTitles:49,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:4,gradesCovered:[4,5]});
 });
 test('textbook selection is exact and unknown classes are not fabricated',()=>{
  assert.equal(selectTextbooks(4,'English')[0].title,'Santoor');
