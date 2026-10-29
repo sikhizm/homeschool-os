@@ -5,16 +5,18 @@ import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
 import { competencies } from '@/lib/curriculum/library';
+import { globalSkillById } from '@/lib/global-curriculum/catalogue';
 import { validPlanningDate } from '@/lib/planning/periods';
 import LearningIllustration from '@/components/learning-illustration';
 
 export const dynamic = 'force-dynamic';
 
-export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string; date?: string }> }) {
+export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string; globalSkill?: string; date?: string }> }) {
   const params = await searchParams;
   const competency = competencies.find(item => item.id === params.competency);
-  const suggestion = competency?.outcome ?? '';
-  const suggestedSubject = competency?.subject ?? '';
+  const globalSuggestion = params.globalSkill ? globalSkillById(params.globalSkill) : undefined;
+  const suggestion = competency?.outcome ?? globalSuggestion?.outcome ?? '';
+  const suggestedSubject = competency?.subject ?? globalSuggestion?.subject ?? '';
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -78,7 +80,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           <div className="quick-start-heading"><div><span className="eyebrow">YOUR LEARNING TOOLS</span><h2 id="quick-start-title">Where shall we begin?</h2></div><p>Everything you need, one simple tap away.</p></div>
           <div className="quick-start-grid">
             <Link href="/planning" className="quick-start-card tint-peach"><span className="quick-start-icon" aria-hidden="true">▦</span><strong>Make a plan</strong><span>Shape the week ahead</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
-            <Link href="/curriculum" className="quick-start-card tint-sage"><span className="quick-start-icon" aria-hidden="true">✳</span><strong>Explore skills</strong><span>Follow their curiosity</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
+            <Link href="/global-curriculum" className="quick-start-card tint-sage"><span className="quick-start-icon" aria-hidden="true">✳</span><strong>Explore skills</strong><span>Follow their curiosity</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
             <Link href="/portfolio" className="quick-start-card tint-lilac"><span className="quick-start-icon" aria-hidden="true">❋</span><strong>Capture growth</strong><span>Celebrate little steps</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
             <Link href="/reports" className="quick-start-card tint-butter"><span className="quick-start-icon" aria-hidden="true">◫</span><strong>See the journey</strong><span>Reflect on what matters</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
           </div>

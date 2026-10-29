@@ -1238,3 +1238,47 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:820px){.workspace-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.workspace-tabs button{min-height:65px}.day-progress-decoration{display:none}}
 @media(max-width:540px){.workspace-tabs{gap:8px}.workspace-tabs button{padding:10px;gap:8px}.workspace-tab-icon{width:33px;height:33px;font-size:19px}.workspace-tab-copy strong{font-size:12px}.workspace-tab-copy small{font-size:10px}.section-heading{flex-wrap:wrap;align-items:flex-start}.day-picker{width:100%}.day-picker-row{justify-content:space-between}.day-progress{padding:14px;gap:12px}.day-progress-badge,.day-progress-badge svg{width:71px;height:71px}.day-progress-badge{flex-basis:71px}.day-progress-badge>span{font-size:16px}.day-progress-copy h3{font-size:17px}.activity-card{padding:14px}.activity-number{width:34px;height:34px}.activity-top{gap:10px}}
 @media print{.day-picker,.workspace-tabs,.day-shift{display:none!important}.day-progress{background:white!important}.activity-card{break-inside:avoid}}
+
+
+/* Global Curriculum Engine — editorial trust + purposeful exploration */
+.global-crumbs{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:5px 0 22px;color:#76897e;font-size:12px}
+.global-crumbs a{color:#40775a;text-decoration:none}.global-crumbs a:hover{text-decoration:underline}
+.global-intro{display:flex;align-items:center;justify-content:space-between;gap:24px;overflow:hidden;border:1px solid #dce8da;border-radius:23px;padding:26px 31px;background:linear-gradient(112deg,#e6f1e8,#faf0dc);margin:0 0 22px}
+.global-intro>div:first-child{max-width:740px}.global-intro h2{font-size:clamp(24px,3vw,37px);letter-spacing:-.05em;margin:5px 0 7px}
+.global-intro p{font-size:14px;line-height:1.7;color:#597569;margin:0}
+.global-intro-art{flex:0 0 166px;width:166px;height:137px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:3px;background:#fffcf5;border-radius:23px;transform:rotate(4deg);box-shadow:0 9px 24px rgba(33,72,48,.07);border:1px solid #edf0e5}
+.global-intro-art span{font-size:43px;color:#da9b59}.global-intro-art strong{font-size:19px;color:#37674e}.global-intro-art small{font-size:9px;color:#769383}
+.global-framework-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:27px}
+.global-framework{min-width:0;background:#fffefa;border:1px solid #e5e9de;border-radius:18px;padding:16px 14px;display:flex;flex-direction:column;gap:12px}
+.global-framework:nth-child(5n+2){background:#fdf6ed}.global-framework:nth-child(5n+3){background:#f6f4fb}.global-framework:nth-child(5n+4){background:#eff6ee}.global-framework:nth-child(5n+5){background:#f6f7e9}
+.global-framework-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#e3f0e4;color:#347658;font-size:24px}
+.global-framework h3{font-size:14px;line-height:1.3;margin:0 0 6px;letter-spacing:-.02em}
+.global-framework p{color:#65786e;font-size:11px;line-height:1.6;margin:0 0 12px}
+.global-framework a{font-size:11px;font-weight:800;color:#307356}
+.global-filter-panel{margin-bottom:18px}.global-filter-panel h2{margin-bottom:5px}.global-filter-panel .muted{font-size:13px}
+.global-filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:end;margin:17px 0}
+.global-filter-grid button{grid-column:span 4;justify-self:start;padding:11px 22px;border-radius:12px;background:#276a51;color:white;font-weight:750}
+.global-skill-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px;margin:20px 0 26px}
+.global-skill-card{background:#fffefa;border:1px solid #e4eae1;border-radius:21px;padding:24px;display:flex;flex-direction:column;gap:11px;min-width:0;box-shadow:0 5px 20px rgba(43,72,46,.04)}
+.global-skill-top{display:flex;align-items:center;justify-content:space-between;gap:9px}
+.global-skill-symbol{width:46px;height:46px;border-radius:14px;background:#e2f0e5;color:#397d5b;display:grid;place-items:center;font-size:22px;font-weight:800}
+.global-skill-card:nth-child(4n+2) .global-skill-symbol{background:#f5e9d8;color:#b17849}
+.global-skill-card:nth-child(4n+3) .global-skill-symbol{background:#eae7f4;color:#7d6a9e}
+.global-skill-card h3{font-size:20px;letter-spacing:-.035em;margin:3px 0 0}
+.global-skill-outcome{font-size:13px;line-height:1.6;color:#587166;margin:0;flex:1}
+.global-framework-tags{display:flex;gap:6px;flex-wrap:wrap}
+.global-framework-tags span{border-radius:30px;background:#eff4ed;color:#4b7460;font-size:10px;font-weight:700;padding:6px 9px}
+.global-skill-card details{border-top:1px solid #e8ede5;padding-top:10px}
+.global-skill-card details summary{cursor:pointer;display:flex;justify-content:space-between;color:#397b58;font-weight:800;font-size:12px;list-style:none}
+.global-skill-card details summary::-webkit-details-marker{display:none}
+.global-skill-card details p{font-size:12px;line-height:1.7;color:#5d766a}
+.global-skill-action{font-size:12px;color:#2a7454;font-weight:850;text-decoration:none;display:flex;justify-content:space-between;gap:10px;margin-top:6px}
+.global-skill-action:hover{text-decoration:underline}
+.global-bottom-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}.global-bottom-row a{color:#277153;font-weight:800}
+.global-crosslink{display:flex;align-items:center;justify-content:space-between;gap:18px;background:linear-gradient(105deg,#e7f2e6,#f9ecdd);border:1px solid #dfe9df;border-radius:21px;padding:25px 30px;margin-bottom:19px}
+.global-crosslink h2{font-size:23px;letter-spacing:-.03em;margin:5px 0}.global-crosslink p{color:#627b6e;font-size:13px;max-width:750px;margin:0}
+.global-crosslink>a{background:#2d7858;padding:12px 17px;color:white;text-decoration:none;border-radius:12px;white-space:nowrap;font-size:12px;font-weight:800}
+@media(max-width:1100px){.global-framework-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.global-skill-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:740px){.global-framework-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.global-filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.global-filter-grid button{grid-column:span 2}.global-intro-art{display:none}.global-crosslink{align-items:flex-start;flex-direction:column}.global-bottom-row{grid-template-columns:1fr}}
+@media(max-width:530px){.global-framework-grid,.global-skill-grid,.global-filter-grid{grid-template-columns:1fr}.global-filter-grid button{grid-column:span 1}.global-intro{padding:22px}.global-framework{flex-direction:row}.global-skill-card{padding:20px}}
+@media print{.global-crumbs,.global-filter-panel form,.global-intro-art{display:none!important}}
