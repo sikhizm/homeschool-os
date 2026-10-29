@@ -71,7 +71,15 @@ export const ncertTextbooks:Textbook[]=[
     "id":"ncert-5-veena","grade":5,"subject":"Hindi","title":"Veena","language":"Hindi","publisher":"NCERT","textbookCode":"ehve1","chapterCount":0,"sourceUrl":"https://ncert.nic.in/textbook.php?ehve1=0-12","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE-listed 2025 primary textbook; edition and contents pending review","status":"book-confirmed-contents-pending"
   },{
     "id":"ncert-5-our-wondrous-world","grade":5,"subject":"Environmental Studies","title":"Our Wondrous World","language":"English","publisher":"NCERT","textbookCode":"eeev1","chapterCount":0,"sourceUrl":"https://ncert.nic.in/textbook.php?eeev1=0-10","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE-listed 2025 primary textbook; edition and contents pending review","status":"book-confirmed-contents-pending"
-  }
+  },
+{"id":"ncert-5-bansuri","grade":5,"subject":"Arts","title":"Bansuri","language":"English","textbookCode":"eebu1","sourceUrl":"https://ncert.nic.in/textbook.php?eebu1=0-19","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-5-khel-yoga","grade":5,"subject":"Physical Education","title":"Khel Yoga","language":"English","textbookCode":"eeky1","sourceUrl":"https://ncert.nic.in/textbook.php?eeky1=0-3","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-5-sitaan","grade":5,"subject":"Urdu","title":"Sitaan","language":"Urdu","textbookCode":"eust1","sourceUrl":"https://ncert.nic.in/textbook.php?eust1=0-14","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-8-poorvi","grade":8,"subject":"English","title":"Poorvi","language":"English","textbookCode":"hepr1","sourceUrl":"https://ncert.nic.in/textbook.php?hepr1=0-5","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-8-ganita-prakash","grade":8,"subject":"Mathematics","title":"Ganita Prakash","language":"English","textbookCode":"hegp1","sourceUrl":"https://ncert.nic.in/textbook.php?hegp1=0-7","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-8-malhar","grade":8,"subject":"Hindi","title":"Malhar","language":"Hindi","textbookCode":"hhml1","sourceUrl":"https://ncert.nic.in/textbook.php?hhml1=0-10","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-8-deepakam","grade":8,"subject":"Sanskrit","title":"Deepakam","language":"Sanskrit","textbookCode":"hsde1","sourceUrl":"https://ncert.nic.in/textbook.php?hsde1=0-17","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-8-curiosity","grade":8,"subject":"Science","title":"Curiosity","language":"English","textbookCode":"hecu1","sourceUrl":"https://ncert.nic.in/textbook.php?hecu1=0-12","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"}
 ];
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
 export const verifiedChapterTitles:Record<string,readonly string[]>={
@@ -115,6 +123,14 @@ export const ncertChapterSlots:ChapterSlot[]=ncertTextbooks.flatMap(book=>
  }))
 );
 export const textbookGrades=Array.from({length:12},(_,index)=>index+1);
+export function gradeCoverage(){
+ return textbookGrades.map(grade=>({
+   grade,
+   cataloguedBooks:ncertTextbooks.filter(book=>book.grade===grade).length,
+   contentsAudited:ncertTextbooks.filter(book=>book.grade===grade&&book.chapterCount>0).length,
+   status:(ncertTextbooks.some(book=>book.grade===grade) ? 'partial' : 'not-catalogued') as 'partial'|'not-catalogued'
+ }));
+}
 export function selectTextbooks(grade:number,subject=''){return ncertTextbooks.filter(b=>b.grade===grade&&(!subject||b.subject===subject));}
 export function chaptersFor(bookId:string){return ncertChapterSlots.filter(c=>c.bookId===bookId);}
 export function textbookById(id:string){return ncertTextbooks.find(b=>b.id===id);}
