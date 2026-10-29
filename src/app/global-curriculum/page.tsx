@@ -19,7 +19,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
  <main className="family-dashboard">
  <div className="dashboard-welcome"><div><span className="tag">CURRICULUM ENGINE · FOUNDATION</span><h1>Rooted here. Ready for the world.</h1><p className="muted">One thoughtful learning journey, informed by international education approaches and grounded in your family&apos;s needs.</p></div><SectionArtwork theme="explore"/></div>
  <nav className="global-crumbs"><Link href="/dashboard">Home</Link><span aria-hidden="true">/</span><Link href="/curriculum">Curriculum pathways</Link><span aria-hidden="true">/</span><strong>Global pathways</strong></nav>
- <section className="global-intro">
+ <div className="global-crosslink"><div><span className="eyebrow">INTEGRATED CURRICULUM</span><h2>Your learning plan, resources and verified coverage</h2><p>See original lessons, stage-sensitive parent-reviewable guidance and a transparent NCERT inventory together.</p></div><Link href="/curriculum-studio">Open Curriculum Studio →</Link></div><section className="global-intro">
   <div><span className="eyebrow">ONE FOUNDATION, MANY PERSPECTIVES</span><h2>Learn deeply, not endlessly.</h2><p>NCERT/Indian frameworks guide the core. International frameworks help us choose teaching approaches, inquiry questions and stretch opportunities. No child needs to complete six boards at once.</p></div>
   <div className="global-intro-art" aria-hidden="true"><span>✳</span><strong>Explore</strong><small>Understand · Practice · Apply</small></div>
  </section>
