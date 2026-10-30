@@ -1,7 +1,8 @@
 import {NextResponse} from 'next/server';
 import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
-import {queueCatalogue,nextQueueTasks} from '@/lib/auto-learning/catalogue';
+import {queueCatalogue} from '@/lib/auto-learning/catalogue';
+import {prioritizedQueue,knownReviewTask} from '@/lib/auto-learning/revision';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const send=(x:unknown,status=200)=>NextResponse.json(x,{status,headers:{'Cache-Control':'private, no-store'}});
@@ -36,8 +37,9 @@ export async function GET(){
     id:t.id,title:t.title,subject:t.subject,
     updatedAt:String(progress.find(p=>String(p.learner_id)===String(l.id)&&p.task_id===t.id)?.updated_at??'')
    }));
-   const recommended=nextQueueTasks(all,done,5);
-   const upcoming=all.filter(t=>!done.has(t.id)).slice(5,11).map(t=>({id:t.id,title:t.title,subject:t.subject,minutes:t.minutes}));
+   const myProgress=progress.filter(p=>String(p.learner_id)===String(l.id)).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
+   const recommended=prioritizedQueue(all,myProgress,new Date(),5);
+   const upcoming=all.filter(t=>!done.has(t.id)&&!recommended.some(r=>r.id===t.id)).slice(0,6).map(t=>({id:t.id,title:t.title,subject:t.subject,minutes:t.minutes}));
    const subjects=[...new Set(all.map(t=>t.subject))].map(subject=>({
     subject,total:all.filter(t=>t.subject===subject).length,
     completed:all.filter(t=>t.subject===subject&&done.has(t.id)).length
@@ -70,7 +72,8 @@ export async function POST(request:Request){
    WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner' LIMIT 1
   `;
   if(!learners.length)return send({error:'Only a family owner can change progress'},403);
-  if(!queueCatalogue(String(learners[0].stage)).some(x=>x.id===taskId))return send({error:'Task does not belong to this grade'},400);
+  const catalogue=queueCatalogue(String(learners[0].stage));
+  if(!catalogue.some(x=>x.id===taskId)&&!knownReviewTask(taskId,catalogue))return send({error:'Task does not belong to this grade'},400);
   if(status==='pending'){
    await sql`DELETE FROM auto_learning_progress WHERE learner_id::text=${learnerId} AND task_id=${taskId}`;
   }else{
