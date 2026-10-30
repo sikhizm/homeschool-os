@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import {useCallback,useEffect,useMemo,useState} from 'react';
 
-type Task={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];status:string};
+type Task={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];status:string;check?:string};
 type Overview={subject:string;total:number;completed:number};
 type History={id:string;title:string;subject:string;updatedAt:string};
 type Badge={id:string;name:string;description:string;symbol:string};
@@ -90,7 +90,7 @@ export default function AutomaticLearning(){
        {current.canEdit&&<div style={{marginTop:12}}>
         {checking===task.id?<div style={{border:'1px solid #bbd6c3',borderRadius:12,padding:14,background:'#f3faf5'}}>
          <strong>Parent understanding check</strong>
-         <p style={{fontSize:13,margin:'8px 0'}}>Ask the child to explain or demonstrate what they learned, without looking at the answer. Use the chapter resource if a reminder is needed.</p>
+         <p style={{fontSize:13,margin:'8px 0'}}>{task.check??'Ask the child to explain or demonstrate what they learned without looking at the answer. Use the chapter resource if a reminder is needed.'}</p>
          <p style={{fontSize:13,margin:'8px 0'}}>Was your child able to show understanding?</p>
          <div className="coach-actions">
           <button type="button" className="coach-complete" disabled={!!busy} onClick={()=>{setChecking('');void mark(current.id,task.id,'completed')}}>Yes, understood ✓</button>
