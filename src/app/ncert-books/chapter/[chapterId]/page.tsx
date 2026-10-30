@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import ChapterProgress from './chapter-progress';
 import {notFound, redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {ncertChapterSlots, textbookById, chaptersFor, officialChapterPdf} from '@/lib/ncert/textbooks';
@@ -54,9 +55,10 @@ export default async function ChapterLearningPage({params}:{params:Promise<{chap
       <li>What question would you ask your teacher?</li>
       <li>Where might you use this idea in real life?</li>
      </ul>
-     <p className="muted">Progress recording, chapter-specific quizzes and individual learner assignments are not enabled on this page yet. Do not treat opening a PDF as completion.</p>
+     <p className="muted">Parent-recorded progress and learner assignments are available below. Chapter-specific quizzes are not available yet. Opening a PDF never counts as completion.</p>
     </section>
    </div>
+   <ChapterProgress chapterId={chapter.id}/>
    <section className="workspace-panel">
     <div style={{display:'flex',flexWrap:'wrap',justifyContent:'space-between',gap:'12px'}}>
      {previous?<Link href={`/ncert-books/chapter/${previous.id}`}>← Previous: {previous.verifiedTitle??`Chapter ${previous.chapterNumber}`}</Link>:<span>First chapter</span>}
