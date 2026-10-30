@@ -23,7 +23,7 @@ export default async function CurriculumStudio({searchParams}:{searchParams:Prom
  const plan=createParentReviewPlan(stage,focus);
  const coverage=curriculumCoverage();
  const total=plan.reduce((sum,x)=>sum+x.minutes,0);
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>GLOBAL CURRICULUM STUDIO</span></header>
+ return <>
  <main className="family-dashboard">
   <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM 1.0 · INTEGRATED PREVIEW</span><h1>One thoughtful learning journey</h1><p className="muted">Bring Indian academic foundations and original international-inspired learning approaches together in one manageable family plan.</p></div><SectionArtwork theme="explore"/></div>
   <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span aria-hidden="true">/</span><Link href="/global-curriculum">Explore</Link><span aria-hidden="true">/</span><strong>Curriculum studio</strong></nav>
