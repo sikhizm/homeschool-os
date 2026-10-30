@@ -11,7 +11,7 @@ const sections = [
  { href:'/portfolio',label:'Journey',glyph:'❋',hint:'Learning portfolios' },
  { href:'/reports',label:'Insights',glyph:'◫',hint:'Progress reviews' },
 ] as const;
-const privateRoutes=['/dashboard','/planning','/curriculum','/global-curriculum','/curriculum-studio','/ncert-books','/lessons','/portfolio','/reports','/november-pilot'];
+const privateRoutes=['/learning-pathways','/roadmap','/dashboard','/planning','/curriculum','/global-curriculum','/curriculum-studio','/ncert-books','/lessons','/portfolio','/reports','/november-pilot'];
 
 export default function AppNavigation(){
  const pathname=usePathname()||'';
@@ -24,7 +24,7 @@ export default function AppNavigation(){
    </Link>
    <nav className="app-primary-nav" aria-label="Primary navigation">
     {sections.map(section=>{
-     const active=pathname===section.href;
+     const active=pathname===section.href || pathname.startsWith(section.href+'/') || (section.href==='/curriculum-studio' && ['/curriculum','/global-curriculum','/ncert-books','/learning-pathways','/roadmap'].some(route=>pathname===route||pathname.startsWith(route+'/')));
      return <Link key={section.href} href={section.href} className={active?'app-nav-link is-active':'app-nav-link'} aria-current={active?'page':undefined} title={section.hint}>
        <span className="app-nav-icon" aria-hidden="true">{section.glyph}</span><span>{section.label}</span>
      </Link>;

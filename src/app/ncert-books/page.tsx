@@ -22,7 +22,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>NCERT BOOK & CHAPTER CATALOGUE</span></header>
  <main className="family-dashboard">
  <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM ENGINE · TEXTBOOK INDEX</span><h1>One chapter at a time</h1><p className="muted">Find the right NCERT book, view its chapter index and separate verified textbook facts from learning suggestions awaiting editorial review.</p></div><SectionArtwork theme="explore"/></div>
- <nav className="global-crumbs"><Link href="/dashboard">Home</Link><span>/</span><Link href="/global-curriculum">Global curriculum</Link><span>/</span><strong>NCERT books</strong></nav>
+ <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span>/</span><Link href="/global-curriculum">Global curriculum</Link><span>/</span><strong>NCERT books</strong></nav>
  <div className="ncert-stats" aria-label="Catalogue audit summary">
   <div><strong>{stats.books}</strong><span>Books catalogued (Classes 4–5)</span></div><div><strong>{stats.chapterSlots}</strong><span>Class 4 chapters indexed</span></div><div><strong>{stats.verifiedChapterTitles}</strong><span>Titles fully verified</span></div><div><strong>{stats.approvedSkillMappings}</strong><span>Approved skill mappings</span></div>
  </div>

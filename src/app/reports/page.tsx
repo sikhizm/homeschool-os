@@ -68,7 +68,8 @@ export default async function ReportsPage({searchParams}:{searchParams:Promise<P
  const activity=activitySummary(days),objective=goalSummary(goals),observations=evidenceSummary(evidence);
  return <><header className="workspace-header report-no-print"><Link href="/dashboard">✦ Homeschool OS</Link><span>FAMILY LEARNING REVIEW</span></header>
  <main className="family-dashboard report-page">
-  <nav className="report-no-print"><Link href="/dashboard">Dashboard</Link> · <Link href="/planning">Planning</Link> · <Link href="/portfolio">Portfolio</Link> · <Link href="/curriculum">Curriculum</Link></nav>
+
+
   <div className="dashboard-welcome"><div><span className="tag">PHASE 07 · FAMILY INSIGHTS</span><h1>Learning review</h1><p className="muted">A private summary of recorded activities and observations—not a grade, diagnosis or automated judgement.</p></div><SectionArtwork theme="insights"/></div>
   <section className="workspace-panel report-no-print"><h2>Choose a reporting window</h2>
    <form method="get" action="/reports" className="report-filters">
