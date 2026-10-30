@@ -18,6 +18,7 @@ export default function AutomaticLearning(){
  const [notice,setNotice]=useState('Preparing your learning day…');
  const [loading,setLoading]=useState(true);
  const [busy,setBusy]=useState('');
+ const [checking,setChecking]=useState('');
  const [dailyBudget,setDailyBudget]=useState(60);
  const [error,setError]=useState(false);
  const load=useCallback(async()=>{
@@ -86,7 +87,19 @@ export default function AutomaticLearning(){
        <div className="coach-task-tags"><span>{task.subject}</span><span>◷ {task.minutes} min</span>{task.status==='needs_revision'&&<span className="coach-revision">↻ Revision</span>}</div>
        <h4>{task.title}</h4><small>{task.source}</small>
        <details className="coach-instructions"><summary>Show me how to teach this</summary><ol>{task.instructions.map((step,i)=><li key={i}>{step}</li>)}</ol><Link href={task.href}>Open activity or source ↗</Link></details>
-       {current.canEdit&&<div className="coach-actions"><button type="button" className="coach-complete" disabled={!!busy} onClick={()=>void mark(current.id,task.id,'completed')}>✓ Mark complete</button><button type="button" className="coach-revise" disabled={!!busy} onClick={()=>void mark(current.id,task.id,'needs_revision')}>↻ Needs revision</button></div>}
+       {current.canEdit&&<div style={{marginTop:12}}>
+        {checking===task.id?<div style={{border:'1px solid #bbd6c3',borderRadius:12,padding:14,background:'#f3faf5'}}>
+         <strong>Parent understanding check</strong>
+         <p style={{fontSize:13,margin:'8px 0'}}>Ask the child to explain or demonstrate what they learned, without looking at the answer. Use the chapter resource if a reminder is needed.</p>
+         <p style={{fontSize:13,margin:'8px 0'}}>Was your child able to show understanding?</p>
+         <div className="coach-actions">
+          <button type="button" className="coach-complete" disabled={!!busy} onClick={()=>{setChecking('');void mark(current.id,task.id,'completed')}}>Yes, understood ✓</button>
+          <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>{setChecking('');void mark(current.id,task.id,'needs_revision')}}>Needs more practice ↻</button>
+          <button type="button" disabled={!!busy} onClick={()=>setChecking('')}>Not assessed yet</button>
+         </div>
+        </div>:<button type="button" className="coach-revise" style={{marginTop:12}} disabled={!!busy} onClick={()=>setChecking(task.id)}>✓ Check understanding & record</button>}
+       </div>}
+       
       </div>
      </article>)}
      {!suggested.length&&<div className="coach-empty"><strong>All available activities are complete!</strong><p>This is the end of the curated pilot queue for this learning stage, not proof of full annual curriculum completion.</p></div>}
