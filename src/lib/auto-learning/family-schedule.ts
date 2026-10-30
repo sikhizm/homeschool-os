@@ -15,10 +15,8 @@ export function buildFamilySchedule<T extends {id:string;minutes:number}>(learne
    const task=learner.tasks[at];
    if(!task)continue;
    const available=Math.max(1,Math.floor(task.minutes));
-   const mins=Math.min(available,remaining);
-   // Allow a short supervised introduction when the entire task will not fit;
-   // never claim that this partial segment completed the task.
-   if(mins<5&&available>mins)continue;
+   if(available>remaining)continue;
+   const mins=available;
    slots.push({learnerId:learner.id,name:learner.name,grade:learner.grade,task,minutes:mins,startMinute:budget-remaining});
    remaining-=mins;cursors.set(learner.id,at+1);added=true;
    if(remaining===0)break;
