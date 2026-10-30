@@ -1,3 +1,4 @@
+import {modulesForGrade} from './pathways';
 import {lessons} from '@/lib/lessons/library';
 import {ncertChapterSlots,textbookById,officialChapterPdf} from '@/lib/ncert/textbooks';
 
@@ -16,7 +17,12 @@ export function queueCatalogue(grade:string):QueueTask[]{
   source:'Original activity · educator review recommended',href:'/lessons',
   instructions:x.steps,grade
  }));
- if(grade!=='Class 4')return original;
+ const structured=modulesForGrade(grade).sort((a,b)=>a.week-b.week||a.subject.localeCompare(b.subject)).map(m=>({
+  id:m.id,title:m.title,subject:m.subject,minutes:m.minutes,
+  source:'Original grade-specific learning pathway · editor review recommended',href:'/curriculum-studio',
+  instructions:[...m.steps,'Understanding check: '+m.check],grade
+ }));
+ if(grade!=='Class 4')return [...structured,...original];
  const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle).flatMap(c=>{
   const book=textbookById(c.bookId)!;
   const resource='/ncert-books/chapter/'+c.id;
@@ -39,7 +45,7 @@ export function queueCatalogue(grade:string):QueueTask[]{
  for(const c of chapters)bySubject.set(c.subject,[...(bySubject.get(c.subject)??[]),c]);
  const interleaved:QueueTask[]=[];
  while([...bySubject.values()].some(x=>x.length))for(const tasks of bySubject.values()){const next=tasks.shift();if(next)interleaved.push(next);}
- return [...interleaved,...original];
+ return [...interleaved,...structured,...original];
 }
 export function nextQueueTasks(tasks:QueueTask[],completed:ReadonlySet<string>,limit=3){
  // Continue through the sequence without replaying completed tasks.
