@@ -45,7 +45,14 @@ export function queueCatalogue(grade:string):QueueTask[]{
  for(const c of chapters)bySubject.set(c.subject,[...(bySubject.get(c.subject)??[]),c]);
  const interleaved:QueueTask[]=[];
  while([...bySubject.values()].some(x=>x.length))for(const tasks of bySubject.values()){const next=tasks.shift();if(next)interleaved.push(next);}
- return [...interleaved,...structured,...original];
+ // Mix enrichment into the NCERT sequence while keeping existing NCERT order stable.
+ const blended:QueueTask[]=[];
+ let enrichIndex=0;
+ for(let index=0;index<interleaved.length;index++){
+  if(index%6===0&&enrichIndex<structured.length)blended.push(structured[enrichIndex++]);
+  blended.push(interleaved[index]);
+ }
+ return [...blended,...structured.slice(enrichIndex),...original];
 }
 export function nextQueueTasks(tasks:QueueTask[],completed:ReadonlySet<string>,limit=3){
  // Continue through the sequence without replaying completed tasks.
