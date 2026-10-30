@@ -15,7 +15,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
  const query=(params.query||'').slice(0,80);
  const skills=selectGlobalSkills({stage,subject,framework,query});
  const total=globalSkills.filter(s=>s.stage===stage).length;
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>GLOBAL CURRICULUM ENGINE</span></header>
+ return <>
  <main className="family-dashboard">
  <div className="dashboard-welcome"><div><span className="tag">CURRICULUM ENGINE · FOUNDATION</span><h1>Rooted here. Ready for the world.</h1><p className="muted">One thoughtful learning journey, informed by international education approaches and grounded in your family&apos;s needs.</p></div><SectionArtwork theme="explore"/></div>
  <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span aria-hidden="true">/</span><Link href="/curriculum">Curriculum pathways</Link><span aria-hidden="true">/</span><strong>Global pathways</strong></nav>
