@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import {useCallback,useEffect,useState} from 'react';
 type Task={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];status:string};
-type Learner={id:string;name:string;grade:string;canEdit:boolean;completed:number;total:number;tasks:Task[]};
+type Learner={id:string;name:string;grade:string;canEdit:boolean;completed:number;total:number;tasks:Task[];history:{id:string;title:string;subject:string;updatedAt:string}[]};
 export default function AutomaticLearning(){
  const [learners,setLearners]=useState<Learner[]>([]);
  const [notice,setNotice]=useState('Loading your next learning activities…');
@@ -45,6 +45,11 @@ export default function AutomaticLearning(){
      </div>}
      {task.status==='needs_revision'&&<small>Revision requested — stays in your queue</small>}
     </div>):<p>No unfinished items are available in this curated pilot. More grade-appropriate content needs editorial review.</p>}
+    <details style={{marginTop:16}}><summary>Completed learning history ({learner.history.length} recent items)</summary>
+     {learner.history.length?<ul>{learner.history.map(item=><li key={item.id}>{item.title} · {item.subject}
+       {learner.canEdit&&<button type="button" disabled={busy!==''} style={{marginLeft:8}} onClick={()=>mark(learner.id,item.id,'pending')}>Undo completion</button>}
+      </li>)}</ul>:<p>No completed sessions yet.</p>}
+    </details>
    </article>)}
    {!learners.length&&<p>No learner profiles found. Add learners below to begin.</p>}
   </div>
