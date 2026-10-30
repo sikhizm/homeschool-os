@@ -16,7 +16,7 @@ export default async function PortfolioPage(){
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
  return <>
  <main className="family-dashboard">
-  <div className="dashboard-welcome"><div><span className="tag">PHASE 06 · LEARNING EVIDENCE</span><h1>Notice what learning looks like</h1><p className="muted">Record a baseline, a meaningful observation, a work sample description or a family reflection—without grades or automatic mastery.</p></div><SectionArtwork theme="journey"/></div>
+  <div className="dashboard-welcome"><div><span className="tag">LEARNING JOURNEY</span><h1>Notice what learning looks like</h1><p className="muted">Record a baseline, a meaningful observation, a work sample description or a family reflection—without grades or automatic mastery.</p></div><SectionArtwork theme="journey"/></div>
 
 
   <PortfolioWorkspace learners={learners.map(l=>({id:String(l.id),name:String(l.display_name),stage:String(l.stage||'Early Years')}))} canEdit={families[0].role==='owner'} today={today}/>
