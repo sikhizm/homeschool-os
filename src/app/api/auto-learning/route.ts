@@ -19,7 +19,7 @@ export async function GET(){
    WHERE fm.auth_user_id=${user} ORDER BY l.created_at,l.id
   `;
   const progress=await sql`
-   SELECT p.learner_id::text AS learner_id,p.task_id,p.status
+   SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at
    FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id
    JOIN family_members fm ON fm.family_id=l.family_id
    WHERE fm.auth_user_id=${user}
@@ -28,12 +28,20 @@ export async function GET(){
    const all=queueCatalogue(String(l.stage));
    const done=new Set(progress.filter(p=>String(p.learner_id)===String(l.id)&&p.status==='completed').map(p=>String(p.task_id)));
    const revise=new Set(progress.filter(p=>String(p.learner_id)===String(l.id)&&p.status==='needs_revision').map(p=>String(p.task_id)));
+   // A previously completed single-chapter milestone counts as all three new sessions.
+   for(const item of all){
+    if(item.id.startsWith('ncert:') && done.has(item.id.replace(/:(read|practice|review)$/,'')))done.add(item.id);
+   }
+   const history=all.filter(t=>done.has(t.id)).slice(-12).reverse().map(t=>({
+    id:t.id,title:t.title,subject:t.subject,
+    updatedAt:String(progress.find(p=>String(p.learner_id)===String(l.id)&&p.task_id===t.id)?.updated_at??'')
+   }));
    const recommended=nextQueueTasks(all,done,3);
    return {id:String(l.id),name:String(l.display_name),grade:String(l.stage),canEdit:l.role==='owner',
-    completed:done.size,total:all.length,
+    completed:all.filter(t=>done.has(t.id)).length,total:all.length,history,
     tasks:recommended.map(t=>({...t,status:revise.has(t.id)?'needs_revision':'pending'}))};
   });
-  return send({learners,notice:'Pilot sequence: Class 4 NCERT chapter order and original activity suggestions. Other grades use only the currently curated original activity library. Not a complete annual curriculum.'});
+  return send({learners,notice:'Pilot sequence: Class 4 chapters have three guided parent-led sessions, plus original activity suggestions. Other grades use only the currently curated original activity library. Not a complete annual curriculum.'});
  }catch{return send({error:'Automatic learning database is not ready. Apply migration 005.'},503);}
 }
 export async function POST(request:Request){
