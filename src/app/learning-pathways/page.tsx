@@ -7,7 +7,7 @@ export const dynamic='force-dynamic';
 export default async function AnnualPathways(){
  const {data:session}=await auth.getSession();if(!session?.user)redirect('/auth/sign-in');
  const coverage=pathwayAudit();
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>LEARNING PATHWAYS</span></header>
+ return <>
  <main className="family-dashboard">
   <div className="dashboard-welcome"><div><span className="tag">CURRICULUM · COVERAGE TRACKER</span><h1>Learning paths, not homework for parents</h1><p className="muted">The activities below are prewritten original parent-led modules, automatically queued by grade. They supplement — but do not replace — a complete reviewed school-year syllabus.</p></div></div>
   <section className="workspace-panel"><h2>Available grade pathways</h2>

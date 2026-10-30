@@ -14,7 +14,7 @@ export default async function PortfolioPage(){
  if(!families.length)return <main className="family-dashboard"><h1>Portfolio</h1><p>Family membership approval is required.</p><Link href="/dashboard">Return to Dashboard</Link></main>;
  const learners=await sql`SELECT id::text,display_name,stage FROM learners WHERE family_id=${families[0].id} ORDER BY created_at,id`;
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>OBSERVATIONS & PORTFOLIOS</span></header>
+ return <>
  <main className="family-dashboard">
   <div className="dashboard-welcome"><div><span className="tag">PHASE 06 · LEARNING EVIDENCE</span><h1>Notice what learning looks like</h1><p className="muted">Record a baseline, a meaningful observation, a work sample description or a family reflection—without grades or automatic mastery.</p></div><SectionArtwork theme="journey"/></div>
 

@@ -50,10 +50,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const initialDate = validPlanningDate(params.date) ? params.date : today;
   return (
     <>
-      <header className="workspace-header">
-        <Link href="/">✦ Homeschool OS</Link>
-        <span>YOUR FAMILY’S LEARNING SPACE</span>
-      </header>
       <main className="family-dashboard">
         <div className="dashboard-welcome">
           <div>

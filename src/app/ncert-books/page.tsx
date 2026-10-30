@@ -19,7 +19,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  const stats=textbookAudit();
  const matchedStage=selectedGrade<=2?'class1-2':selectedGrade<=5?'class3-5':selectedGrade<=8?'class6-8':selectedGrade<=10?'class9-10':'class11-12';
  const suggestedSkills=globalSkills.filter(x=>x.stage===matchedStage&&(!selectedBook||(selectedBook.subject==='Environmental Studies'?x.subject==='Our world':x.subject===selectedBook.subject)));
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>NCERT BOOK & CHAPTER CATALOGUE</span></header>
+ return <>
  <main className="family-dashboard">
  <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM ENGINE · TEXTBOOK INDEX</span><h1>One chapter at a time</h1><p className="muted">Find the right NCERT book, view its chapter index and separate verified textbook facts from learning suggestions awaiting editorial review.</p></div><SectionArtwork theme="explore"/></div>
  <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span>/</span><Link href="/global-curriculum">Global curriculum</Link><span>/</span><strong>NCERT books</strong></nav>

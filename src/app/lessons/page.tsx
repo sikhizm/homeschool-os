@@ -14,7 +14,7 @@ export default async function LessonsPage(){
  if(!families.length)return <main className="family-dashboard"><h1>Lesson library</h1><p>Access requires an approved family membership.</p><Link href="/dashboard">Return to Dashboard</Link></main>;
  const learners=await sql`SELECT l.id::text,l.display_name,l.stage FROM learners l WHERE l.family_id=${families[0].id} ORDER BY l.created_at,l.id`;
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>LESSONS · ACTIVITIES · PRINTABLES</span></header>
+ return <>
  <main className="family-dashboard"><div className="dashboard-welcome"><div><span className="tag">PHASE 05 · RESOURCE STUDIO</span><h1>Make learning tangible</h1><p className="muted">Choose a short activity, adapt it to your learner, print a simple sheet, or add it to a real learning day.</p></div><SectionArtwork theme="create"/></div>
  <LessonStudio learners={learners.map(l=>({id:String(l.id),name:String(l.display_name),stage:String(l.stage)}))} canEdit={families[0].role==='owner'} initialDate={today}/>
  </main></>;
