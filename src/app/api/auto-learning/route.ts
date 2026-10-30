@@ -32,13 +32,23 @@ export async function GET(){
    for(const item of all){
     if(item.id.startsWith('ncert:') && done.has(item.id.replace(/:(read|practice|review)$/,'')))done.add(item.id);
    }
-   const history=all.filter(t=>done.has(t.id)).slice(-12).reverse().map(t=>({
+   const history=all.filter(t=>done.has(t.id)).slice(-30).reverse().map(t=>({
     id:t.id,title:t.title,subject:t.subject,
     updatedAt:String(progress.find(p=>String(p.learner_id)===String(l.id)&&p.task_id===t.id)?.updated_at??'')
    }));
-   const recommended=nextQueueTasks(all,done,3);
+   const recommended=nextQueueTasks(all,done,5);
+   const upcoming=all.filter(t=>!done.has(t.id)).slice(5,11).map(t=>({id:t.id,title:t.title,subject:t.subject,minutes:t.minutes}));
+   const subjects=[...new Set(all.map(t=>t.subject))].map(subject=>({
+    subject,total:all.filter(t=>t.subject===subject).length,
+    completed:all.filter(t=>t.subject===subject&&done.has(t.id)).length
+   }));
+   const earnedBadges=[
+    ...(all.filter(t=>done.has(t.id)).length>=1?[{id:'first-step',name:'First Step',description:'Completed the first activity',symbol:'⭐'}]:[]),
+    ...(all.filter(t=>done.has(t.id)).length>=5?[{id:'five-steps',name:'Learning Explorer',description:'Completed five activities',symbol:'🧭'}]:[]),
+    ...(all.filter(t=>done.has(t.id)).length>=15?[{id:'fifteen-steps',name:'Learning Champion',description:'Completed fifteen activities',symbol:'🏆'}]:[])
+   ];
    return {id:String(l.id),name:String(l.display_name),grade:String(l.stage),canEdit:l.role==='owner',
-    completed:all.filter(t=>done.has(t.id)).length,total:all.length,history,
+    completed:all.filter(t=>done.has(t.id)).length,total:all.length,history,upcoming,subjects,earnedBadges,
     tasks:recommended.map(t=>({...t,status:revise.has(t.id)?'needs_revision':'pending'}))};
   });
   return send({learners,notice:'Pilot sequence: Class 4 chapters have three guided parent-led sessions, plus original activity suggestions. Other grades use only the currently curated original activity library. Not a complete annual curriculum.'});
