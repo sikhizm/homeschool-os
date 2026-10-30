@@ -8,6 +8,7 @@ import { competencies } from '@/lib/curriculum/library';
 import { globalSkillById } from '@/lib/global-curriculum/catalogue';
 import { validPlanningDate } from '@/lib/planning/periods';
 import LearningIllustration from '@/components/learning-illustration';
+import AutomaticLearning from './automatic-learning';
 
 export const dynamic = 'force-dynamic';
 
@@ -71,7 +72,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <p>A calm, joyful home for curious minds. Find today&apos;s rhythm, explore activities, and notice how each learner is growing.</p>
             <div className="hero-actions">
               <Link className="hero-action-primary" href="/lessons">Explore activities <span aria-hidden="true">↗</span></Link>
-              <Link className="hero-action-secondary" href="/planning">Plan this week <span aria-hidden="true">→</span></Link>
+              <Link className="hero-action-secondary" href="/planning">Adjust your week <span aria-hidden="true">→</span></Link>
             </div>
           </div>
           <LearningIllustration/>
@@ -85,6 +86,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <Link href="/reports" className="quick-start-card tint-butter"><span className="quick-start-icon" aria-hidden="true">◫</span><strong>See the journey</strong><span>Reflect on what matters</span><span className="quick-start-arrow" aria-hidden="true">↗</span></Link>
           </div>
         </section>
+        <AutomaticLearning />
+        <details className="workspace-panel"><summary>Optional: Manual planning and learning workspace</summary>
         <LearningWorkspace
           learners={learners.map((l) => ({
             id: String(l.id),
@@ -96,6 +99,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           suggestedGoal={suggestion}
           suggestedSubject={suggestedSubject}
         />
+        </details>
         {family.role === 'owner' && (
           <details className="workspace-panel add-learner-panel">
             <summary>Add another learner</summary>
