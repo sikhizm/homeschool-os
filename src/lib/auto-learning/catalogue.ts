@@ -17,15 +17,22 @@ export function queueCatalogue(grade:string):QueueTask[]{
   instructions:x.steps,grade
  }));
  if(grade!=='Class 4')return original;
- const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle).map(c=>{
+ const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle).flatMap(c=>{
   const book=textbookById(c.bookId)!;
-  const pdf=officialChapterPdf(c);
-  return {
-   id:'ncert:'+c.id,title:c.verifiedTitle!,subject:book.subject,minutes:20,
-   source:'NCERT chapter reading · verify edition',href:'/ncert-books/chapter/'+c.id,
-   instructions:['Open the official publisher chapter and read a manageable section together.','Discuss the main idea and practise the questions in the book.','Only mark the chapter complete when its learning has actually been covered.'],
-   grade
-  };
+  const resource='/ncert-books/chapter/'+c.id;
+  const base='ncert:'+c.id;
+  // Three short parent-led stages, not copied textbook exercises or an asserted chapter length.
+  return [
+   {id:base+':read',title:c.verifiedTitle+' · Read & explore',subject:book.subject,minutes:15,
+    source:'NCERT · guided reading (original activity)',href:resource,
+    instructions:['Open the official chapter through the learning page.','Read a manageable portion together; stop when the child needs a break.','Ask the learner to retell or explain the main idea.'],grade},
+   {id:base+':practice',title:c.verifiedTitle+' · Practice',subject:book.subject,minutes:20,
+    source:'NCERT · parent-led practice (original activity)',href:resource,
+    instructions:['Review the chapter sections already read.','Choose suitable questions or activities from the official NCERT chapter.','Note any idea that needs another explanation.'],grade},
+   {id:base+':review',title:c.verifiedTitle+' · Understanding check',subject:book.subject,minutes:10,
+    source:'NCERT · parent-checked understanding (original activity)',href:resource,
+    instructions:['Ask the learner to explain two important ideas from the chapter.','Review one example independently or together as appropriate.','If understanding is incomplete, choose Needs revision instead of Completed.'],grade}
+  ];
  });
  // Interleave by textbook/subject to prevent long single-subject streaks.
  const bySubject=new Map<string,QueueTask[]>();
@@ -35,5 +42,6 @@ export function queueCatalogue(grade:string):QueueTask[]{
  return [...interleaved,...original];
 }
 export function nextQueueTasks(tasks:QueueTask[],completed:ReadonlySet<string>,limit=3){
+ // Continue through the sequence without replaying completed tasks.
  return tasks.filter(t=>!completed.has(t.id)).slice(0,limit);
 }
