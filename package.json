@@ -15,7 +15,8 @@
     "test:smoke": "node scripts/smoke.mjs",
     "db:migrate:planning": "node scripts/planning-migration.mjs",
     "db:migrate:portfolio": "node scripts/portfolio-migration.mjs",
-    "db:migrate:ncert-progress": "node scripts/ncert-progress-migration.mjs"
+    "db:migrate:ncert-progress": "node scripts/ncert-progress-migration.mjs",
+    "db:migrate:auto-learning": "node scripts/auto-learning-migration.mjs"
   },
   "dependencies": {
     "@neondatabase/auth": "latest",
