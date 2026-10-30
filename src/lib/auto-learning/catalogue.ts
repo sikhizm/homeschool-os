@@ -2,7 +2,7 @@ import {modulesForGrade} from './pathways';
 import {lessons} from '@/lib/lessons/library';
 import {ncertChapterSlots,textbookById,officialChapterPdf} from '@/lib/ncert/textbooks';
 
-export type QueueTask={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];grade:string};
+export type QueueTask={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];grade:string;check?:string};
 export function stageFor(grade:string){
  if(['Early Years','Nursery','LKG','UKG'].includes(grade))return 'early';
  const n=Number(grade.replace('Class ',''));
@@ -15,12 +15,12 @@ export function queueCatalogue(grade:string):QueueTask[]{
  const original=lessons.filter(x=>x.stage===stage).map(x=>({
   id:'original:'+x.id,title:x.title,subject:x.subject,minutes:x.minutes,
   source:'Original activity · educator review recommended',href:'/lessons',
-  instructions:x.steps,grade
+  instructions:x.steps,check:x.questions[0]??x.objective,grade
  }));
  const structured=modulesForGrade(grade).sort((a,b)=>a.week-b.week||a.subject.localeCompare(b.subject)).map(m=>({
   id:m.id,title:m.title,subject:m.subject,minutes:m.minutes,
   source:'Original grade-specific learning pathway · editor review recommended',href:'/curriculum-studio',
-  instructions:[...m.steps,'Understanding check: '+m.check],grade
+  instructions:[...m.steps],check:m.check,grade
  }));
  if(grade!=='Class 4')return [...structured,...original];
  const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle).flatMap(c=>{
