@@ -15,7 +15,7 @@ export default async function PlanningPage(){
  const family=families[0];
  const learners=await sql`SELECT id::text,display_name,stage FROM learners WHERE family_id=${family.id} ORDER BY created_at,id`;
  const initialDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
- return <><header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>ANNUAL · WEEKLY · DAILY</span></header>
+ return <>
  <main className="family-dashboard"><div className="dashboard-welcome"><div><span className="tag">PHASE 04 · LEARNING PLANNER</span><h1>Plan your learning rhythm</h1><p className="muted">Sketch the year, focus each week, then plan and reflect on individual days.</p></div><SectionArtwork theme="plan"/><span className="daily-badge">✧ One shared hour of guided time</span></div>
  <PlanningWorkspace learners={learners.map(l=>({id:String(l.id),name:String(l.display_name),stage:String(l.stage||'Early Years')}))} canEdit={family.role==='owner'} initialDate={initialDate}/>
  </main></>;
