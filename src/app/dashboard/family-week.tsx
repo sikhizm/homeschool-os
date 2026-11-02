@@ -19,7 +19,7 @@ export default function FamilyWeek(){
   }catch(e){setError(e instanceof Error?e.message:'Unable to load weekly overview')}
   finally{setBusy(false)}
  }
- useEffect(()=>{void reload()},[]);
+ useEffect(()=>{const handle=setTimeout(()=>{void reload()},0);return ()=>clearTimeout(handle)},[]);
  const days=data?dates(data.today):[];
  const current=data?.days.find(x=>x.date===selected);
  const all=data?.days.flatMap(x=>x.items)||[];
