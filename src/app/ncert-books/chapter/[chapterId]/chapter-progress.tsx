@@ -18,7 +18,7 @@ export default function ChapterProgress({chapterId}:{chapterId:string}){
    .catch(err=>{if(active)setMessage(String(err.message));});
   return ()=>{active=false};
  },[chapterId]);
- useEffect(()=>{setStatus(current?.status??'assigned');setNote(current?.parent_note??'');},[current?.learner_id,current?.status,current?.parent_note]);
+ useEffect(()=>{const handle=setTimeout(()=>{setStatus(current?.status??'assigned');setNote(current?.parent_note??'');},0);return ()=>clearTimeout(handle);},[current?.learner_id,current?.status,current?.parent_note]);
  async function save(){
   if(!selected)return;
   setBusy(true);setMessage('');
