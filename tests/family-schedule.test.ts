@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {buildFamilySchedule} from '../src/lib/auto-learning/family-schedule';
+import {buildFamilySchedule,buildFamilyPlan} from '../src/lib/auto-learning/family-schedule';
 
 const learners=[
  {id:'a',name:'A',grade:'Class 4',tasks:[{id:'a1',minutes:20},{id:'a2',minutes:20}]},
@@ -22,4 +22,29 @@ test('does not split a teaching task or exceed time budget',()=>{
 test('works with empty task queues and no learners',()=>{
  assert.equal(buildFamilySchedule([],60).length,0);
  assert.equal(buildFamilySchedule([{id:'baby',name:'Baby',grade:'Early Years',tasks:[]}],60).length,0);
+});
+
+test('infants are never assigned formal teaching slots',()=>{
+ const plan=buildFamilyPlan([{id:'baby',name:'Baby',grade:'Infant',tasks:[{id:'x',minutes:10}]},...learners],60);
+ assert.ok(plan.slots.every(s=>s.learnerId!=='baby'));
+ assert.ok(plan.notes.some(n=>n.includes('Infant')));
+ assert.ok(plan.allocated<=60);
+});
+test('revision takes precedence and total time stays within budget',()=>{
+ const plan=buildFamilyPlan([{id:'x',name:'X',grade:'Class 4',tasks:[
+  {id:'regular',minutes:20,subject:'Math',status:'pending'},
+  {id:'review',minutes:10,subject:'English',status:'needs_revision'}
+ ]}],20,2);
+ assert.equal(plan.slots[0].task.id,'review');
+ assert.ok(plan.slots.reduce((a,s)=>a+s.minutes,0)<=20);
+});
+test('different weekdays may rotate available subject suggestions without losing tasks',()=>{
+ const single=[{id:'x',name:'X',grade:'Class 4',tasks:[
+  {id:'1',minutes:10,subject:'English'},{id:'2',minutes:10,subject:'Mathematics'},
+  {id:'3',minutes:10,subject:'Science'},{id:'4',minutes:10,subject:'Punjabi'}
+ ]}];
+ const a=buildFamilyPlan(single,10,0).slots[0].task.id;
+ const b=buildFamilyPlan(single,10,3).slots[0].task.id;
+ assert.ok(['1','2','3','4'].includes(a));
+ assert.ok(['1','2','3','4'].includes(b));
 });
