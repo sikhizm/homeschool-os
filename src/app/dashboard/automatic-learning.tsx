@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import FamilyCalendar from './family-calendar';
+import FamilyWeek from './family-week';
 import {useCallback,useEffect,useMemo,useState} from 'react';
 
 type Task={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];status:string;check?:string};
@@ -33,7 +34,7 @@ export default function AutomaticLearning(){
   }catch(e){setNotice(e instanceof Error?e.message:'Unable to load');setError(true)}
   finally{setLoading(false)}
  },[]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{const handle=setTimeout(()=>{void load()},0);return ()=>clearTimeout(handle)},[load]);
  const current=learners.find(x=>x.id===selected);
  const suggested=useMemo(()=>{
   if(!current)return [];
@@ -63,6 +64,7 @@ export default function AutomaticLearning(){
    <div className="coach-stat"><strong>{learners.length}</strong><span>Learners</span></div>
   </div>
   {learners.length>0&&<FamilyCalendar learners={learners.map(l=>({id:l.id,history:l.history}))}/>}
+  {learners.length>0&&<FamilyWeek/>}
   {learners.length>0&&<div className="coach-learner-tabs" role="group" aria-label="Choose learner">
    {learners.map((learner,index)=><button type="button" key={learner.id} onClick={()=>{setSelected(learner.id);setView('today')}} aria-pressed={learner.id===selected} className={'coach-learner-tab '+(learner.id===selected?'is-selected':'')}>
     <span className="coach-avatar" style={{background:palette[index%palette.length]}}>{learner.name.slice(0,1).toUpperCase()}</span>
@@ -79,7 +81,7 @@ export default function AutomaticLearning(){
    </div>
    {view==='today'&&<div className="coach-content">
     <div className="coach-day-head">
-     <div><span className="coach-kicker">YOUR NEXT STEPS</span><h3>Today's ready-to-teach activities</h3><p>{suggested.length} activities · approximately {suggestedMinutes} minutes</p></div>
+     <div><span className="coach-kicker">YOUR NEXT STEPS</span><h3>Today&apos;s ready-to-teach activities</h3><p>{suggested.length} activities · approximately {suggestedMinutes} minutes</p></div>
      <label className="coach-time-select">Time available (shared budget)<select value={dailyBudget} onChange={e=>setDailyBudget(Number(e.target.value))}><option value={20}>20 min</option><option value={40}>40 min</option><option value={60}>60 min</option><option value={90}>90 min</option></select></label>
     </div>
     <div className="coach-task-list">
@@ -109,7 +111,7 @@ export default function AutomaticLearning(){
     {current.tasks.length>suggested.length&&<p className="coach-next-note">✦ {current.tasks.length-suggested.length} more queued activities are available beyond today&apos;s time budget.</p>}
    </div>}
    {view==='roadmap'&&<div className="coach-content">
-    <div className="coach-day-head"><div><span className="coach-kicker">WHAT'S DONE & WHAT'S NEXT</span><h3>Curriculum coverage</h3><p>Progress across currently curated activities, not the full annual syllabus.</p></div></div>
+    <div className="coach-day-head"><div><span className="coach-kicker">WHAT&apos;S DONE & WHAT&apos;S NEXT</span><h3>Curriculum coverage</h3><p>Progress across currently curated activities, not the full annual syllabus.</p></div></div>
     <div className="coach-subject-grid">{current.subjects.map((s,i)=><div key={s.subject} className="coach-subject-card"><span className="coach-subject-symbol" style={{background:palette[i%palette.length]}}>✦</span><strong>{s.subject}</strong><p>{s.completed} / {s.total} activities</p><div className="coach-bar"><span style={{width:percent(s.completed,s.total)+'%'}}/></div></div>)}</div>
     <h4 className="coach-upcoming-heading">Coming up next</h4>
     {current.upcoming.length?<ol className="coach-upcoming">{current.upcoming.map(t=><li key={t.id}><strong>{t.title}</strong><small>{t.subject} · {t.minutes} min</small></li>)}</ol>:<p>Nothing else is indexed beyond the current queue yet.</p>}

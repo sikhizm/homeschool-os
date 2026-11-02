@@ -16,7 +16,7 @@ export default function FamilyCalendar({learners}:{learners:Learner[]}){
  const [budget,setBudget]=useState(60);
  const [status,setStatus]=useState('Loading saved learning plan…');
  const [working,setWorking]=useState(false);
- const dates=useMemo(recentDates,[]);
+ const dates=useMemo(()=>recentDates(),[]);
  useEffect(()=>{
   let active=true;
   async function load(){
@@ -63,7 +63,7 @@ export default function FamilyCalendar({learners}:{learners:Learner[]}){
     </div></article>)}</div>
    <p className="coach-next-note">Plans are snapshots of what was proposed, not attendance records. Unfinished tasks remain eligible in the automatic learning queue.</p>
   </div>:<div className="coach-empty">
-   {date===localToday()?<><strong>Ready to prepare today’s plan?</strong><p>The scheduler uses unfinished tasks and your shared family budget.</p><label className="coach-time-select">Family time<select value={budget} onChange={e=>setBudget(Number(e.target.value))}><option value={20}>20 minutes</option><option value={40}>40 minutes</option><option value={60}>60 minutes</option><option value={90}>90 minutes</option></select></label><button type="button" className="coach-complete" style={{marginTop:12,padding:'10px 16px',borderRadius:12}} disabled={working} onClick={()=>void save()}>Save today's family plan</button></>:<p>No family plan was saved for this date.</p>}
+   {date===localToday()?<><strong>Ready to prepare today’s plan?</strong><p>The scheduler uses unfinished tasks and your shared family budget.</p><label className="coach-time-select">Family time<select value={budget} onChange={e=>setBudget(Number(e.target.value))}><option value={20}>20 minutes</option><option value={40}>40 minutes</option><option value={60}>60 minutes</option><option value={90}>90 minutes</option></select></label><button type="button" className="coach-complete" style={{marginTop:12,padding:'10px 16px',borderRadius:12}} disabled={working} onClick={()=>void save()}>Save today&apos;s family plan</button></>:<p>No family plan was saved for this date.</p>}
   </div>}
   <p role="status" aria-live="polite" className="coach-feedback" style={{padding:'12px 0'}}>{status}</p>
  </section>;

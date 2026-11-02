@@ -2,7 +2,6 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {pathwayAudit,modulesForGrade} from '@/lib/auto-learning/pathways';
-import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 export const dynamic='force-dynamic';
 export default async function AnnualPathways(){
  const {data:session}=await auth.getSession();if(!session?.user)redirect('/auth/sign-in');
@@ -20,6 +19,6 @@ export default async function AnnualPathways(){
    <ol style={{paddingLeft:24}}>{m.steps.map((s,i)=><li key={i}>{s}</li>)}</ol>
    <p><strong>Check understanding:</strong> {m.check}</p>
   </details>)}</section>)}
-  <section className="workspace-panel"><h2>How this connects to your dashboard</h2><p>Each activity has a stable identifier. The Automatic Learning Engine skips completed items, retains unfinished items, and offers the next activities. Open <Link href="/dashboard">Today's Learning</Link> to teach and record completion for each learner.</p></section>
+  <section className="workspace-panel"><h2>How this connects to your dashboard</h2><p>Each activity has a stable identifier. The Automatic Learning Engine skips completed items, retains unfinished items, and offers the next activities. Open <Link href="/dashboard">Today&apos;s Learning</Link> to teach and record completion for each learner.</p></section>
  </main></>;
 }
