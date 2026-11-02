@@ -19,7 +19,7 @@ export async function GET(){
   const revising=new Set(progress.filter(p=>p.status==='needs_revision').map(p=>String(p.learner_id)+'::'+String(p.task_id)));
   const entries=plans.map(p=>{
    const slots=Array.isArray(p.slots)?p.slots:[];
-   const items=slots.filter((slot:unknown)=>Boolean(slot)&&typeof slot==='object'&&'learnerId' in slot&&'task' in slot).map((slot:{learnerId:string;name:string;minutes:number;task:{id:string;title:string;subject:string}})=>{
+   const items=slots.filter((slot:unknown)=>slot!==null&&typeof slot==='object'&&'learnerId' in slot&&'task' in slot).map((slot:{learnerId:string;name:string;minutes:number;task:{id:string;title:string;subject:string}})=>{
     const key=String(slot.learnerId)+'::'+String(slot.task.id);
     return {learnerId:String(slot.learnerId),name:String(slot.name),title:String(slot.task.title),subject:String(slot.task.subject),minutes:Number(slot.minutes)||0,status:done.has(key)?'completed':revising.has(key)?'revision':'unfinished'};
    });
