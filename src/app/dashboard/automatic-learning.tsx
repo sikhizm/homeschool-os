@@ -111,7 +111,7 @@ export default function AutomaticLearning(){
     {current.tasks.length>suggested.length&&<p className="coach-next-note">✦ {current.tasks.length-suggested.length} more queued activities are available beyond today&apos;s time budget.</p>}
    </div>}
    {view==='roadmap'&&<div className="coach-content">
-    <div className="coach-day-head"><div><span className="coach-kicker">WHAT'S DONE & WHAT'S NEXT</span><h3>Curriculum coverage</h3><p>Progress across currently curated activities, not the full annual syllabus.</p></div></div>
+    <div className="coach-day-head"><div><span className="coach-kicker">WHAT&apos;S DONE & WHAT&apos;S NEXT</span><h3>Curriculum coverage</h3><p>Progress across currently curated activities, not the full annual syllabus.</p></div></div>
     <div className="coach-subject-grid">{current.subjects.map((s,i)=><div key={s.subject} className="coach-subject-card"><span className="coach-subject-symbol" style={{background:palette[i%palette.length]}}>✦</span><strong>{s.subject}</strong><p>{s.completed} / {s.total} activities</p><div className="coach-bar"><span style={{width:percent(s.completed,s.total)+'%'}}/></div></div>)}</div>
     <h4 className="coach-upcoming-heading">Coming up next</h4>
     {current.upcoming.length?<ol className="coach-upcoming">{current.upcoming.map(t=><li key={t.id}><strong>{t.title}</strong><small>{t.subject} · {t.minutes} min</small></li>)}</ol>:<p>Nothing else is indexed beyond the current queue yet.</p>}
