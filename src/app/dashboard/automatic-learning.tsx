@@ -34,7 +34,7 @@ export default function AutomaticLearning(){
   }catch(e){setNotice(e instanceof Error?e.message:'Unable to load');setError(true)}
   finally{setLoading(false)}
  },[]);
- useEffect(()=>{void load()},[load]);
+ useEffect(()=>{const handle=setTimeout(()=>{void load()},0);return ()=>clearTimeout(handle)},[load]);
  const current=learners.find(x=>x.id===selected);
  const suggested=useMemo(()=>{
   if(!current)return [];
@@ -81,7 +81,7 @@ export default function AutomaticLearning(){
    </div>
    {view==='today'&&<div className="coach-content">
     <div className="coach-day-head">
-     <div><span className="coach-kicker">YOUR NEXT STEPS</span><h3>Today's ready-to-teach activities</h3><p>{suggested.length} activities · approximately {suggestedMinutes} minutes</p></div>
+     <div><span className="coach-kicker">YOUR NEXT STEPS</span><h3>Today&apos;s ready-to-teach activities</h3><p>{suggested.length} activities · approximately {suggestedMinutes} minutes</p></div>
      <label className="coach-time-select">Time available (shared budget)<select value={dailyBudget} onChange={e=>setDailyBudget(Number(e.target.value))}><option value={20}>20 min</option><option value={40}>40 min</option><option value={60}>60 min</option><option value={90}>90 min</option></select></label>
     </div>
     <div className="coach-task-list">
