@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import FamilyCalendar from './family-calendar';
+import FamilyWeek from './family-week';
 import {useCallback,useEffect,useMemo,useState} from 'react';
 
 type Task={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];status:string;check?:string};
@@ -63,6 +64,7 @@ export default function AutomaticLearning(){
    <div className="coach-stat"><strong>{learners.length}</strong><span>Learners</span></div>
   </div>
   {learners.length>0&&<FamilyCalendar learners={learners.map(l=>({id:l.id,history:l.history}))}/>}
+  {learners.length>0&&<FamilyWeek/>}
   {learners.length>0&&<div className="coach-learner-tabs" role="group" aria-label="Choose learner">
    {learners.map((learner,index)=><button type="button" key={learner.id} onClick={()=>{setSelected(learner.id);setView('today')}} aria-pressed={learner.id===selected} className={'coach-learner-tab '+(learner.id===selected?'is-selected':'')}>
     <span className="coach-avatar" style={{background:palette[index%palette.length]}}>{learner.name.slice(0,1).toUpperCase()}</span>
