@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import {buildFamilySchedule} from '@/lib/auto-learning/family-schedule';
+import {buildFamilyPlan} from '@/lib/auto-learning/family-schedule';
 import {useCallback,useEffect,useMemo,useState} from 'react';
 
 type Task={id:string;title:string;subject:string;minutes:number;source:string;href:string;instructions:string[];status:string;check?:string};
@@ -45,8 +45,9 @@ export default function AutomaticLearning(){
   }
   return queue;
  },[current,dailyBudget]);
- const familySchedule=useMemo(()=>buildFamilySchedule(learners.map(l=>({id:l.id,name:l.name,grade:l.grade,tasks:l.tasks})),dailyBudget),[learners,dailyBudget]);
- const familyMinutes=familySchedule.reduce((n,s)=>n+s.minutes,0);
+ const familyPlan=useMemo(()=>buildFamilyPlan(learners.map(l=>({id:l.id,name:l.name,grade:l.grade,tasks:l.tasks})),dailyBudget,new Date().getDay()),[learners,dailyBudget]);
+ const familySchedule=familyPlan.slots;
+ const familyMinutes=familyPlan.allocated;
  const suggestedMinutes=suggested.reduce((n,t)=>n+t.minutes,0);
  async function mark(learnerId:string,taskId:string,status:'completed'|'needs_revision'|'pending'){
   setBusy(taskId);setNotice('Saving progress…');
@@ -73,7 +74,7 @@ export default function AutomaticLearning(){
     {familySchedule.map((slot,index)=><article className="coach-task" key={slot.learnerId+':'+slot.task.id}>
      <span className="coach-task-index">{String(index+1).padStart(2,'0')}</span>
      <div className="coach-task-main">
-      <div className="coach-task-tags"><span>{slot.name} · {slot.grade}</span><span>{slot.minutes} min</span><span>{slot.task.subject}</span></div>
+      <div className="coach-task-tags"><span>{slot.name} · {slot.grade}</span><span>{slot.minutes} min</span><span>{slot.task.subject}</span><span>{slot.mode==='play'?'Play & explore':'Parent guided'}</span></div>
       <h4>{slot.task.title}</h4><small>Minute {slot.startMinute}–{slot.startMinute+slot.minutes} · Parent-guided time</small>
       <details className="coach-instructions"><summary>Teach this activity</summary><ol>{slot.task.instructions.map((step,i)=><li key={i}>{step}</li>)}</ol><Link href={slot.task.href}>Open learning resource ↗</Link></details>
       <button type="button" className="coach-revise" style={{marginTop:12}} onClick={()=>{setSelected(slot.learnerId);setView('today')}}>Open understanding check →</button>
@@ -81,6 +82,7 @@ export default function AutomaticLearning(){
     </article>)}
     {!familySchedule.length&&!loading&&<div className="coach-empty">No activities are currently available for the enrolled learning stages.</div>}
    </div>
+   {familyPlan.notes.map(note=><p key={note} className="coach-next-note">{note}</p>)}
    <p className="coach-next-note">This schedule shares your selected time across the family. It does not assume each child gets a full hour or that infants need formal lessons. Completing an activity still requires the parent understanding check.</p>
   </div>}
   {learners.length>0&&<div className="coach-learner-tabs" role="group" aria-label="Choose learner">
