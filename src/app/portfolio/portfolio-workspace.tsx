@@ -18,7 +18,6 @@ export default function PortfolioWorkspace({learners,canEdit,today}:Props){
  const [draft,setDraft]=useState<Draft>(()=>initial(today));
  const [editing,setEditing]=useState<string|null>(null);
  const [filter,setFilter]=useState('all');
- const learner=learners.find(l=>l.id===learnerId);
  const endpoint=`/api/learners/${encodeURIComponent(learnerId)}/portfolio`;
  const refresh=useCallback(async(signal?:AbortSignal)=>{
   if(!learnerId)return;

@@ -3,15 +3,25 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 import {prioritizedQueue,knownReviewTask} from '@/lib/auto-learning/revision';
+import {buildFamilyPlan,sharedBudgetTasks,separateTasks} from '@/lib/auto-learning/family-schedule';
+import {annualCoverageForStage} from '@/lib/curriculum/annual';
+import {
+ assessmentPlan,assessmentSummary,participationBadges,masteryBadges,
+ isInternalProgressId,activityCompletions,understoodTasks,masteredTasks,type SavedRecord
+} from '@/lib/auto-learning/assessment';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const send=(x:unknown,status=200)=>NextResponse.json(x,{status,headers:{'Cache-Control':'private, no-store'}});
+const todayIST=()=>new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
 async function access(){
  const {data:session}=await auth.getSession();
  return session?.user?.id??null;
 }
-export async function GET(){
+const budgets=[20,40,60,90] as const;
+export async function GET(request:Request){
  const user=await access();if(!user)return send({error:'Sign in required'},401);
+ const requested=new URL(request.url).searchParams.get('budget');
+ const budget=budgets.includes(Number(requested) as typeof budgets[number])?Number(requested):60;
  try{
   const sql=getSql();
   const rows=await sql`
@@ -25,35 +35,56 @@ export async function GET(){
    JOIN family_members fm ON fm.family_id=l.family_id
    WHERE fm.auth_user_id=${user}
   `;
+  const family: {id:string;name:string;grade:string;tasks:ReturnType<typeof prioritizedQueue>}[]=[];
   const learners=rows.map(l=>{
+   const learnerId=String(l.id);
    const all=queueCatalogue(String(l.stage));
-   const done=new Set(progress.filter(p=>String(p.learner_id)===String(l.id)&&p.status==='completed').map(p=>String(p.task_id)));
-   const revise=new Set(progress.filter(p=>String(p.learner_id)===String(l.id)&&p.status==='needs_revision').map(p=>String(p.task_id)));
-   // A previously completed single-chapter milestone counts as all three new sessions.
+   const catalogueIds=new Set(all.map(task=>task.id));
+   const myProgress:SavedRecord[]=progress.filter(p=>String(p.learner_id)===learnerId)
+    .map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
+   const recordedDone=activityCompletions(myProgress);
+   const done=new Set([...recordedDone].filter(id=>catalogueIds.has(id)));
+   const revise=new Set(myProgress.filter(p=>p.status==='needs_revision'&&!isInternalProgressId(p.task_id)).map(p=>p.task_id));
+   // A previously completed single-chapter milestone counts as all three newer sessions.
+   // Check the raw records, since legacy ids are intentionally not in the current catalogue.
    for(const item of all){
-    if(item.id.startsWith('ncert:') && done.has(item.id.replace(/:(read|practice|review)$/,'')))done.add(item.id);
+    if(item.id.startsWith('ncert:')&&recordedDone.has(item.id.replace(/:(read|practice|review)$/,'')))done.add(item.id);
    }
    const history=all.filter(t=>done.has(t.id)).slice(-30).reverse().map(t=>({
     id:t.id,title:t.title,subject:t.subject,
-    updatedAt:String(progress.find(p=>String(p.learner_id)===String(l.id)&&p.task_id===t.id)?.updated_at??'')
+    updatedAt:String(myProgress.find(p=>p.task_id===t.id)?.updated_at??'')
    }));
-   const myProgress=progress.filter(p=>String(p.learner_id)===String(l.id)).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
-   const recommended=prioritizedQueue(all,myProgress,new Date(),5);
-   const upcoming=all.filter(t=>!done.has(t.id)&&!recommended.some(r=>r.id===t.id)).slice(0,6).map(t=>({id:t.id,title:t.title,subject:t.subject,minutes:t.minutes}));
+   const recommended=prioritizedQueue(all,myProgress.map(p=>({...p,updated_at:p.updated_at??''})),new Date(),5);
+   const upcoming=all.filter(t=>!done.has(t.id)&&!recommended.some(r=>r.id===t.id)).slice(0,6)
+    .map(t=>({id:t.id,title:t.title,subject:t.subject,minutes:t.minutes}));
    const subjects=[...new Set(all.map(t=>t.subject))].map(subject=>({
     subject,total:all.filter(t=>t.subject===subject).length,
     completed:all.filter(t=>t.subject===subject&&done.has(t.id)).length
    }));
-   const earnedBadges=[
-    ...(all.filter(t=>done.has(t.id)).length>=1?[{id:'first-step',name:'First Step',description:'Completed the first activity',symbol:'⭐'}]:[]),
-    ...(all.filter(t=>done.has(t.id)).length>=5?[{id:'five-steps',name:'Learning Explorer',description:'Completed five activities',symbol:'🧭'}]:[]),
-    ...(all.filter(t=>done.has(t.id)).length>=15?[{id:'fifteen-steps',name:'Learning Champion',description:'Completed fifteen activities',symbol:'🏆'}]:[])
-   ];
-   return {id:String(l.id),name:String(l.display_name),grade:String(l.stage),canEdit:l.role==='owner',
-    completed:all.filter(t=>done.has(t.id)).length,total:all.length,history,upcoming,subjects,earnedBadges,
-    tasks:recommended.map(t=>({...t,status:revise.has(t.id)?'needs_revision':'pending'}))};
+   const summary=assessmentSummary(myProgress,catalogueIds);
+   const understood=understoodTasks(myProgress);
+   const mastered=masteredTasks(myProgress);
+   const annual=annualCoverageForStage(String(l.stage),done);
+   const tasks=recommended.map(t=>({...t,status:revise.has(t.id)?'needs_revision':'pending'}));
+   family.push({id:learnerId,name:String(l.display_name),grade:String(l.stage),tasks});
+   return {id:learnerId,name:String(l.display_name),grade:String(l.stage),canEdit:l.role==='owner',
+    completed:summary.completed,total:all.length,history,upcoming,subjects,annual,
+    assessment:summary,understood:[...understood],mastered:[...mastered],
+    earnedBadges:[...participationBadges(summary.completed),...masteryBadges(summary.understood,summary.mastered)],
+    tasks};
   });
-  return send({learners,notice:'Pilot sequence: Class 4 chapters have three guided parent-led sessions, plus original activity suggestions. Other grades use only the currently curated original activity library. Not a complete annual curriculum.'});
+  const dayOfWeek=new Date(todayIST()+'T12:00:00Z').getUTCDay();
+  const planned=buildFamilyPlan(sharedBudgetTasks(family),budget,dayOfWeek);
+  const separate=separateTasks(family).map(entry=>({
+   learnerId:entry.learnerId,name:entry.name,grade:entry.grade,
+   task:{id:entry.task.id,title:entry.task.title,subject:entry.task.subject,minutes:entry.task.minutes,
+    mode:entry.task.mode??'play',href:entry.task.href,source:entry.task.source,
+    instructions:entry.task.instructions,check:entry.task.check,lesson:entry.task.lesson??null}
+  }));
+  const familyPlan={budget:planned.budget,allocated:planned.allocated,unallocated:planned.unallocated,
+   notes:planned.notes,slots:planned.slots,separate};
+  return send({learners,familyPlan,
+   notice:'Ready-to-teach 36-week pathways for all four learning stages, sequenced with prerequisites. One shared family time budget is applied across every child; independent practice and infant interaction are shown separately. Original HomeSchool OS content — not official NCERT lessons or accredited board coverage.'});
  }catch{return send({error:'Automatic learning database is not ready. Apply migration 005.'},503);}
 }
 export async function POST(request:Request){
@@ -63,8 +94,15 @@ export async function POST(request:Request){
  const raw=await request.text();if(raw.length>3000)return send({error:'Request too large'},413);
  let body:unknown;try{body=JSON.parse(raw);}catch{return send({error:'Invalid JSON'},400);}
  if(!body||typeof body!=='object')return send({error:'Invalid input'},400);
- const {learnerId,taskId,status}=body as Record<string,unknown>;
- if(typeof learnerId!=='string'||learnerId.length>100||typeof taskId!=='string'||taskId.length>140||!['completed','needs_revision','pending'].includes(String(status)))return send({error:'Invalid input'},400);
+ const {learnerId,taskId,status,assessment}=body as Record<string,unknown>;
+ const validStatus=['completed','needs_revision','pending'].includes(String(status));
+ if(typeof learnerId!=='string'||learnerId.length>100||typeof taskId!=='string'||taskId.length>140||!validStatus)return send({error:'Invalid input'},400);
+ if(isInternalProgressId(taskId))return send({error:'Invalid task identifier'},400);
+ if(assessment!==undefined&&!['understood','not-yet'].includes(String(assessment)))return send({error:'Invalid assessment'},400);
+ const verdict=assessment===undefined?undefined:assessment as 'understood'|'not-yet';
+ // "understood" evidence belongs only to a completed session; "not-yet" may accompany a revision.
+ if(verdict==='understood'&&status!=='completed')return send({error:'An understanding check belongs to a completed session'},400);
+ const action=status as 'completed'|'needs_revision'|'pending';
  try{
   const sql=getSql();
   const learners=await sql`
@@ -74,14 +112,26 @@ export async function POST(request:Request){
   if(!learners.length)return send({error:'Only a family owner can change progress'},403);
   const catalogue=queueCatalogue(String(learners[0].stage));
   if(!catalogue.some(x=>x.id===taskId)&&!knownReviewTask(taskId,catalogue))return send({error:'Task does not belong to this grade'},400);
-  if(status==='pending'){
-   await sql`DELETE FROM auto_learning_progress WHERE learner_id::text=${learnerId} AND task_id=${taskId}`;
-  }else{
+  const records=await sql`
+   SELECT p.task_id,p.status FROM auto_learning_progress p
+   WHERE p.learner_id::text=${learnerId}
+   AND EXISTS(SELECT 1 FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
+    WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner')
+  `;
+  const plan=assessmentPlan(taskId,action,verdict,records.map(r=>({task_id:String(r.task_id),status:String(r.status)})));
+  for(const id of plan.deletes){
+   await sql`DELETE FROM auto_learning_progress WHERE learner_id::text=${learnerId} AND task_id=${id}
+    AND EXISTS(SELECT 1 FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
+     WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner')`;
+  }
+  for(const write of plan.upserts){
    await sql`INSERT INTO auto_learning_progress (learner_id,task_id,status) VALUES (
-    (SELECT l.id FROM learners l JOIN family_members fm ON fm.family_id=l.family_id WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner' LIMIT 1),
-    ${taskId},${status as string})
+    (SELECT l.id FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
+     WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner' LIMIT 1),
+    ${write.taskId},${write.status})
     ON CONFLICT(learner_id,task_id) DO UPDATE SET status=EXCLUDED.status,updated_at=now()`;
   }
-  return send({saved:true});
+  return send({saved:true,masteryEarned:plan.mastery,
+   message:plan.mastery?'Understanding and delayed recall both shown — mastery recorded.':verdict==='understood'?'Understanding recorded; a later recall check can demonstrate mastery.':undefined});
  }catch{return send({error:'Unable to save task progress'},503);}
 }

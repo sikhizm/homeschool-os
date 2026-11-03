@@ -6,6 +6,8 @@ export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const STAGES = new Set([
+  'Infant (0–18 months)',
+  'Toddler (18–36 months)',
   'Early Years',
   'Nursery',
   'LKG',

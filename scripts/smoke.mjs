@@ -113,3 +113,19 @@ const studio=await fetch(root+'/curriculum-studio',{redirect:'manual'});
 assert.ok([307,308].includes(studio.status));
 assert.ok(studio.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/curriculum-studio: requires signed-in family member');
+
+const annual = await fetch(root + '/learning-pathways', { redirect: 'manual' });
+assert.ok([307, 308].includes(annual.status));
+assert.ok(annual.headers.get('location').includes('/auth/sign-in'));
+console.log('/learning-pathways: annual curriculum is private');
+
+let coach = await fetch(root + '/api/auto-learning?budget=60');
+assert.equal(coach.status, 401);
+assert.ok(coach.headers.get('cache-control')?.includes('no-store'));
+coach = await fetch(root + '/api/auto-learning', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Origin: 'https://attacker.invalid' },
+  body: '{}',
+});
+assert.equal(coach.status, 403);
+console.log('Family coach API: 401 unauthenticated, 403 cross-origin');

@@ -1414,3 +1414,74 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:860px){.app-context-nav{padding:5px 17px 8px;gap:5px}.app-context-label{margin-right:2px}}
 @media(max-width:520px){.app-context-label{font-size:9px}.app-context-link{min-height:32px;padding:6px 10px;font-size:11px}}
 @media print{.app-context-wrap{display:none!important}}
+
+/* Annual pathways: complete ready-to-teach lesson cards */
+.lesson-card{margin-top:14px;border:1px solid #dde8de;border-radius:16px;background:#fbfdf9;overflow:hidden}
+.lesson-card[open]{border-color:#cfe2d3;box-shadow:0 8px 24px rgba(44,94,68,.06)}
+.lesson-card-summary{cursor:pointer;padding:12px 16px;font-weight:800;color:#2c6f50;font-size:.86rem;list-style:none;display:flex;align-items:center;gap:8px}
+.lesson-card-summary::-webkit-details-marker{display:none}
+.lesson-card-summary:hover,.lesson-card-summary:focus-visible{background:#eff7ef}
+.lesson-card-summary:focus-visible{outline:2px solid #d89b60;outline-offset:-2px}
+.lesson-card-summary small{font-weight:600;color:#6c8172}
+.lesson-card-body{padding:4px 18px 20px;border-top:1px solid #e6eee6;display:grid;gap:14px}
+.lesson-label{display:block;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#4e8065;margin-bottom:5px}
+.lesson-card-body p{margin:0;font-size:.88rem;line-height:1.65;color:#3f5348}
+.lesson-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.lesson-field{padding:12px 14px;border:1px solid #e8eee7;border-radius:13px;background:#fff}
+.lesson-example{padding:14px 16px;border-radius:13px;background:#eef6ec;border-left:4px solid #6fa985}
+.lesson-example p{font-weight:600;color:#2f5340}
+.lesson-answer{padding:14px 16px;border-radius:13px;background:#fdf5e6;border-left:4px solid #d9a75f}
+.lesson-variant{background:#f7faf6}
+.lesson-steps{padding-left:22px;margin:6px 0 0;display:grid;gap:7px;font-size:.88rem;line-height:1.6;color:#3f5348}
+.lesson-steps li::marker{color:#4e8065;font-weight:800}
+.lesson-questions{padding-left:20px;margin:6px 0 0;display:grid;gap:6px;font-size:.88rem;line-height:1.6;color:#3f5348}
+.lesson-links{display:flex;flex-wrap:wrap;gap:14px;padding-top:4px}
+.lesson-links a{color:#287552;font-weight:800;font-size:.83rem}
+.lesson-links a:hover,.lesson-links a:focus-visible{text-decoration:underline}
+.lesson-check{margin-top:14px;border:1px solid #bbd6c3;border-radius:14px;padding:16px;background:#f3faf5}
+.lesson-check strong{color:#2c6f50;font-size:.92rem}
+.lesson-check p{font-size:.82rem;line-height:1.6;margin:8px 0;color:#4a5f52}
+.lesson-check-answer{background:#fff;border-radius:10px;padding:10px 12px}
+.coach-budget-note{font-size:.85rem;color:#4e6a58;background:#f0f7f0;border-radius:12px;padding:11px 14px;margin:0 0 16px}
+.coach-separate{margin-top:26px;padding-top:8px;border-top:1px dashed #dbe6dc}
+.coach-archive{margin-top:26px;border-top:1px solid #e7ece7;padding-top:14px}
+.coach-archive>summary{cursor:pointer;font-weight:800;color:#4a735c;padding:10px 0;font-size:.85rem}
+.coach-archive>summary:focus-visible{outline:2px solid #d89b60;outline-offset:2px}
+.coach-task-tags .coach-mastery{background:#e4f1de;color:#2f6b45}
+.coach-task-tags .coach-understood{background:#fdf0d8;color:#8a6224}
+.coach-milestone{font-size:.76rem!important;color:#6b7d6f!important;line-height:1.55!important}
+.coach-badge.is-mastery{background:#edf6e9;border-color:#cfe4c6}
+@media(max-width:680px){.lesson-pair{grid-template-columns:1fr}.lesson-card-body{padding:4px 12px 16px}.annual-grade-grid{grid-template-columns:1fr}.annual-week-head{flex-wrap:wrap}}
+
+/* Annual pathway explorer */
+.annual-intro p{line-height:1.7;color:#4b5f52;margin:10px 0}
+.annual-honesty{background:#fbf7ec;border-left:4px solid #d9a75f;padding:12px 16px;border-radius:10px}
+.annual-grade-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:14px}
+.annual-grade{display:grid;gap:6px;padding:18px;border:1px solid #e2e9e1;border-radius:16px;text-decoration:none;color:#31493b;background:#fbfdf9}
+.annual-grade:hover,.annual-grade:focus-visible{border-color:#8fbc9c;background:#f1f8f1}
+.annual-grade.is-active{border-color:#4f9170;background:#eaf5ec;box-shadow:0 8px 22px rgba(44,94,68,.08)}
+.annual-grade strong{font-size:1rem}
+.annual-grade span{font-size:.78rem;font-weight:700;color:#4d765f}
+.annual-grade small{font-size:.78rem;color:#6b7d6f;line-height:1.55}
+.annual-provenance p{line-height:1.7;color:#4b5f52}
+.annual-provenance .coach-subject-grid{margin-top:16px}
+.annual-section-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-end;flex-wrap:wrap;margin-bottom:12px}
+.annual-section-head p{max-width:340px;font-size:.84rem;color:#607466;margin:0}
+.annual-term{margin-top:26px}
+.annual-term-heading{font-size:1.15rem;color:#2f6048;border-bottom:2px solid #e0ebe0;padding-bottom:8px;margin:0}
+.annual-term-milestone{font-size:.82rem;color:#7a6a44;margin:10px 0 16px}
+.annual-week{border:1px solid #e4ebe3;border-radius:17px;padding:16px 18px;margin:12px 0;background:#fff}
+.annual-week.is-focused{border-color:#4f9170;box-shadow:0 10px 28px rgba(44,94,68,.1)}
+.annual-week-head{display:flex;align-items:center;gap:14px}
+.annual-week-badge{flex:0 0 auto;background:#e9f4eb;color:#3b7c57;font-weight:800;font-size:.76rem;border-radius:999px;padding:6px 12px}
+.annual-week-head>div{flex:1;min-width:0}
+.annual-week-head h4{margin:0;font-size:1rem}
+.annual-week-head small{color:#6c8072;font-size:.76rem}
+.annual-week-mode{font-size:.74rem;font-weight:700;color:#4e735d;background:#f2f7f0;border-radius:999px;padding:6px 10px;white-space:nowrap}
+.annual-practice{margin-top:8px;padding-left:14px;border-left:2px solid #e6eee5}
+.annual-milestone-note{font-size:.8rem;color:#7a6a44;background:#fdf6e6;border-radius:10px;padding:9px 12px;margin:12px 0 0}
+.annual-footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:14px}
+.annual-footer-links a{background:#eaf2e7;padding:15px 18px;border-radius:13px;text-decoration:none;color:#2e7054;font-weight:800;font-size:.85rem}
+.annual-footer-links a:hover{text-decoration:underline}
+@media(max-width:680px){.annual-grade-grid,.annual-footer-links{grid-template-columns:1fr}.annual-week{padding:13px}}
+@media print{.coach-view-tabs,.coach-actions,.lesson-card-summary,.annual-footer-links{display:none!important}.lesson-card{display:block!important}}

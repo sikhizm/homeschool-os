@@ -22,4 +22,4 @@ A parent-guided family learning platform combining CBSE alignment, globally info
 Do not commit children's personal information, assessment results, credentials, or photographs to this repository. Require authentication and appropriate data access controls before storing learner records.
 
 ## Status
-Private learner dashboard with subjects, individual goals and a daily learning planner. See [development and rollout instructions](docs/LEARNING_MANAGEMENT.md).
+An authenticated family learning coach with a shared 60-minute daily budget, complete 36-week ready-to-teach pathways for Infant, Nursery, UKG and Class 4, annual coverage tracking, spaced revision, and separate participation/understanding/mastery records. Original HomeSchool OS lessons sit alongside (never inside) separately indexed official NCERT book metadata. See [phase status](docs/PHASE_STATUS.md), [annual curriculum phase notes](docs/ANNUAL_CURRICULUM_PHASE.md) and [development and rollout instructions](docs/LEARNING_MANAGEMENT.md).
