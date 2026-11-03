@@ -21,5 +21,7 @@ test('completed sessions advance without repeating them',()=>{
 test('early years retains existing curated original activities',()=>{
  const tasks=queueCatalogue('UKG');
  assert.ok(tasks.length>0);
- assert.ok(tasks.every(x=>x.id.startsWith('original:')));
+ assert.ok(tasks.some(x=>x.id.startsWith('original:')),'existing original lessons remain in the early-years queue');
+ assert.ok(tasks.length>tasks.filter(x=>x.id.startsWith('original:')).length,'grade-specific pathway activities are also included');
+ assert.equal(new Set(tasks.map(x=>x.id)).size,tasks.length);
 });
