@@ -26,7 +26,6 @@ export default async function CurriculumStudio({searchParams}:{searchParams:Prom
  return <>
  <main className="family-dashboard">
   <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM 1.0 · INTEGRATED PREVIEW</span><h1>One thoughtful learning journey</h1><p className="muted">Bring Indian academic foundations and original international-inspired learning approaches together in one manageable family plan.</p></div><SectionArtwork theme="explore"/></div>
-  <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span aria-hidden="true">/</span><Link href="/global-curriculum">Explore</Link><span aria-hidden="true">/</span><strong>Curriculum studio</strong></nav>
   <section className="gcv1-intro" aria-label="Curriculum overview">
    <div><span className="eyebrow">YOUR FAMILY LEARNING SYSTEM</span><h2>Clarity over curriculum overload.</h2><p>This is a parent-reviewed learning proposal, not an AI-generated diagnosis or a certification that a textbook or board has been completed. Every activity and skill can be adjusted.</p></div>
    <div className="gcv1-intro-symbol" aria-hidden="true">✳</div>

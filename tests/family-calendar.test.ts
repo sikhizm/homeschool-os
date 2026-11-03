@@ -4,7 +4,7 @@ import {buildFamilyPlan} from '../src/lib/auto-learning/family-schedule';
 
 test('a saved daily plan can be replayed without recalculating from a changed queue',()=>{
  const learners=[{id:'learner-1',name:'Learner',grade:'Class 4',tasks:[{id:'step-1',minutes:15,subject:'Mathematics'},{id:'step-2',minutes:15,subject:'English'}]}];
- const first=buildFamilyPlan(learners,20,1);
+ const first=buildFamilyPlan(learners,20,0);
  const snapshot=JSON.parse(JSON.stringify(first.slots));
  learners[0].tasks.shift();
  assert.deepEqual(snapshot.map((x:{task:{id:string}})=>x.task.id),['step-1']);
