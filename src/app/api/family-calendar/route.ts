@@ -3,7 +3,7 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 import {prioritizedQueue} from '@/lib/auto-learning/revision';
-import {buildFamilyPlan} from '@/lib/auto-learning/family-schedule';
+import {buildFamilyPlan,sharedBudgetTasks} from '@/lib/auto-learning/family-schedule';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -56,7 +56,7 @@ export async function POST(request:Request){
    const tasks=prioritizedQueue(queueCatalogue(grade),entries,new Date(),5);
    return {id,name:String(l.display_name),grade,tasks};
   });
-  const planned=buildFamilyPlan(family,budget,new Date(date+'T12:00:00Z').getUTCDay());
+  const planned=buildFamilyPlan(sharedBudgetTasks(family),budget,new Date(date+'T12:00:00Z').getUTCDay());
   const slots=planned.slots.map(slot=>({learnerId:slot.learnerId,name:slot.name,grade:slot.grade,task:slot.task,minutes:slot.minutes,startMinute:slot.startMinute,mode:slot.mode}));
   // The unique key makes concurrent first-open requests idempotent; no silent replacement.
   const saved=await sql`INSERT INTO family_daily_plans(family_id,learning_date,budget_minutes,slots)

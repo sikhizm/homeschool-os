@@ -217,3 +217,79 @@ test('parent workspace works on desktop and mobile with real SQL persistence', a
     await db.close();
   }
 });
+
+test('ready-to-teach lesson card renders the whole teaching script on desktop and mobile', async () => {
+  const { annualSteps } = await import('../src/lib/curriculum/annual');
+  const lesson = annualSteps('class4').find((step) => step.kind === 'core')!.lesson;
+  const bundle = await build({
+    stdin: {
+      contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import LessonCard from './src/app/dashboard/lesson-card'; const lesson=__LESSON__; createRoot(document.getElementById('app')).render(<LessonCard lesson={lesson} defaultOpen={true}/>);`,
+      resolveDir: process.cwd(),
+      loader: 'tsx',
+    },
+    bundle: true,
+    write: false,
+    format: 'iife',
+    jsx: 'automatic',
+    define: {
+      'process.env.NODE_ENV': '"production"',
+      __LESSON__: JSON.stringify(lesson),
+    },
+    plugins: [
+      {
+        name: 'test-link',
+        setup(b) {
+          b.onResolve({ filter: /^next\/link$/ }, () => ({ path: 'link', namespace: 'test' }));
+          b.onLoad({ filter: /.*/, namespace: 'test' }, () => ({
+            contents: "import React from 'react'; export default function Link(props){return React.createElement('a',{href:props.href},props.children);}",
+            resolveDir: process.cwd(),
+          }));
+        },
+      },
+    ],
+  });
+  const css = (await readFile('src/app/globals.css', 'utf8')).replace("@import 'tailwindcss';", '');
+  const server = createServer((request, response) => {
+    const url = new URL(request.url!, 'http://localhost');
+    if (url.pathname === '/bundle.js') {
+      response.setHeader('Content-Type', 'text/javascript');
+      response.end(bundle.outputFiles[0].text);
+    } else {
+      response.setHeader('Content-Type', 'text/html');
+      response.end(`<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>${css}</style></head><body><main class="family-dashboard"><div id="app"></div></main><script src="/bundle.js"></script></body></html>`);
+    }
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  assert.ok(address && typeof address === 'object');
+  let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
+  try {
+    browser = await chromium.launch({
+      executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium',
+      headless: true,
+      args: ['--no-sandbox'],
+    });
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await page.goto(`http://127.0.0.1:${address.port}`);
+    await page.getByText('Show them how · worked example').waitFor();
+    for (const text of [
+      'Learning objective', 'Before you start', 'Teach it step by step',
+      'Questions to ask', 'Expected answers & assessment guidance',
+      'Make it easier', 'Make it harder', 'How to know it', 'If it needs another look',
+    ]) {
+      assert.ok(await page.getByText(text, { exact: false }).count() > 0, text);
+    }
+    assert.ok(await page.getByText(lesson.example, { exact: false }).count() > 0);
+    assert.ok(await page.getByText(lesson.expectedAnswer, { exact: false }).count() > 0);
+    assert.ok(await page.getByRole('listitem').count() >= lesson.steps.length);
+    await page.setViewportSize({ width: 375, height: 812 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    assert.ok(overflow <= 2, 'lesson card must not overflow a 375px viewport: ' + overflow);
+    assert.deepEqual(errors, []);
+  } finally {
+    await browser?.close();
+    await new Promise<void>((resolve, reject) => server.close((e) => (e ? reject(e) : resolve())));
+  }
+});

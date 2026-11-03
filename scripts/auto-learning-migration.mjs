@@ -9,5 +9,5 @@ try{
  const check=await client.query("SELECT relrowsecurity FROM pg_class WHERE oid='public.auto_learning_progress'::regclass");
  if(!check.rows[0]?.relrowsecurity)throw new Error('Row security verification failed');
  console.log('Automatic learning progress migration applied.');
-}catch(error){console.error('Migration failed. Check database configuration privately.');process.exitCode=1;}
+}catch{console.error('Migration failed. Check database configuration privately.');process.exitCode=1;}
 finally{await client.end();}

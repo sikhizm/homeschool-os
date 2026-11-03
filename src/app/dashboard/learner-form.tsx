@@ -2,7 +2,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-const stages = ['Early Years', 'Nursery', 'LKG', 'UKG', ...Array.from({ length: 12 }, (_, index) => `Class ${index + 1}`)];
+const stages = ['Infant (0–18 months)', 'Toddler (18–36 months)', 'Early Years', 'Nursery', 'LKG', 'UKG', ...Array.from({ length: 12 }, (_, index) => `Class ${index + 1}`)];
 export default function LearnerForm() {
   const router = useRouter();
   const [displayName, setDisplayName] = useState('');

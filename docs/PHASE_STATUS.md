@@ -5,7 +5,7 @@
 - [x] Responsive landing dashboard and roadmap
 - [x] Privacy-safe placeholder content
 - [x] Dependency install, lint, typecheck and isolated production build verification
-- [ ] Vercel deployment verification
+- [x] Vercel deployment verification (commit `d124d7f`: Vercel status `success`, CI `verify` `success`)
 
 No personal learner data is committed.
 
@@ -15,7 +15,25 @@ No personal learner data is committed.
 - [x] Individual goals and explicit parent-recorded progress
 - [x] Daily 60-minute starter, linked activities, completion, reflection and rescheduling
 - [x] Responsive parent workspace and isolated SQL/browser tests
-- [ ] Live Neon schema inspection and additive migration
-- [ ] Existing parent-session verification and Production rollout
+- [x] Family learning workspace active in production (five-destination navigation, saved daily plans, weekly overview, portfolio and insights)
 
-Live checks require Neon/Vercel access in the development environment. The isolated build uses temporary local auth configuration; no production learner or progress records were created.
+## Complete Annual Curriculum & Ready-to-Teach Pathways (this phase)
+- [x] Full 36-week, 3-term sequenced pathways for Infant, Nursery, UKG and Class 4
+- [x] Spiral subject distribution, explicit prerequisites and three term milestones
+- [x] Fully worked ready-to-teach lessons (objective, preparation, example, steps, questions, exercise, expected answers, variations, completion criteria, revision guidance)
+- [x] Developmentally appropriate, screen-free infant interaction pathway; new infant/toddler stage options
+- [x] Genuine single shared family time budget as the primary dashboard view; independent practice and infant interaction separated
+- [x] Annual coverage, subject coverage, current-week and milestone tracking on the dashboard and `/learning-pathways`
+- [x] Participation, assessed understanding and demonstrated mastery separated; mastery requires understanding + delayed recall
+- [x] Teachable parent scripts for all 49 publisher-verified Class 4 NCERT chapter sessions (original scripts, official text external)
+- [x] Existing completion/revision/history/undo behaviour preserved; no completed activity silently reappears
+- [x] No production database migration required: evidence stored additively in existing migration 005 table, validated with isolated PGlite
+- [x] `npm ci` lock-file repair, new unit/browser/smoke tests, lint, typecheck and production build gates
+- [ ] Merge to `main` + verify the exact Vercel production deployment status
+
+See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenance, safety and verification details.
+
+## Still outstanding (next phases)
+- Human-reviewed chapter-to-skill mapping and Class 1–12 official NCERT book/TOC audits (see `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
+- Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
+- Optional richer portfolios, longitudinal charts and parent-entered assessment archives.
