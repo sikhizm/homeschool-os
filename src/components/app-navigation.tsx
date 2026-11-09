@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
 import {navigationForPath,navigationLinkIsActive} from '@/lib/navigation';
+import {PwaInstallButton} from '@/components/pwa-tools';
 
 const sections=[
  {id:'home',href:'/dashboard',label:'Home',glyph:'⌂',hint:'Family overview'},
@@ -31,7 +32,10 @@ export default function AppNavigation(){
      </Link>;
     })}
    </nav>
-   <Link className="app-nav-cta" href="/november-pilot">Pilot guide <span aria-hidden="true">↗</span></Link>
+   <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+    <PwaInstallButton />
+    <Link className="app-nav-cta" href="/november-pilot">Pilot guide <span aria-hidden="true">↗</span></Link>
+   </div>
   </div>
   {context&&<div className="app-context-wrap"><nav className="app-context-nav" aria-label={context.label}>
    <span className="app-context-label">{context.label}</span>
