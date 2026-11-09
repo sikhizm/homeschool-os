@@ -155,3 +155,16 @@ test('undoing a later recall preserves an understanding check recorded earlier',
  assert.equal(undo.deletes.includes('review:3:'+task),true);
  assert.equal(undo.deletes.includes(recallEvidenceId('review:2:'+task,'with_hint')),true);
 });
+
+test('a failed later recall does not erase earlier understanding evidence',()=>{
+ const before:SavedRecord[]=[
+  {task_id:task,status:'completed',updated_at:'2026-10-01T10:00:00Z'},
+  {task_id:assessmentId(task),status:'completed',updated_at:'2026-10-01T10:05:00Z'}
+ ];
+ const retry=assessmentPlan(review,'needs_revision',undefined,before,'not_yet');
+ assert.ok(!retry.upserts.some(w=>w.taskId===assessmentId(task)));
+ const after=[...before,...retry.upserts.map(w=>record(w.taskId,w.status))];
+ assert.equal(understoodTasks(after).has(task),true);
+ const successful=assessmentPlan(review,'completed',undefined,after,'independent');
+ assert.equal(successful.mastery,true);
+});
