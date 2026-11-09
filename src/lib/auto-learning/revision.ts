@@ -30,11 +30,16 @@ function reviewTask(task:QueueTask,round:ReviewRound,delay:number,quality:Recall
    'Ask the learner to explain or demonstrate the idea again in their own words.',
    'If one small hint was enough, choose Remembered with a hint. If not, choose Not yet.',
    'Revisit the original lesson together if more support is needed.'
-  ]:[
+  ]:quality==='not_yet'?[
    'Start with a calm, short reminder of the original activity; this is practice, not a test.',
    'Model one example, then invite the learner to try a similar one.',
    'Break the idea into a smaller step and allow thinking time.',
    'Choose Remembered with a hint or Not yet based on what actually happened.'
+  ]:[
+   'Ask the learner to recall the idea before opening the lesson or textbook.',
+   'Invite a fresh example, explanation or demonstration in their own words.',
+   'Use a small hint only if needed, and record whether recall was independent or supported.',
+   'Reopen the original lesson after the attempt if a gentle reminder would help.'
   ]};
 }
 export function revisionTasks(catalogue:QueueTask[],records:SavedProgress[],now=new Date()):QueueTask[]{
