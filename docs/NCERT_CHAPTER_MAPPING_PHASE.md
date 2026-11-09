@@ -19,16 +19,16 @@
 - Veena: https://ncert.nic.in/textbook/pdf/dhve1ps.pdf
 - Our Wondrous World: https://ncert.nic.in/textbook/pdf/deev1ps.pdf
 
-**Class 5 contents PDFs — current publisher editions (six 2026–27 reprints; Sitaan first edition June 2025)**
+**Class 5 contents PDFs — current publisher editions (six 2026–27 reprints; Sitaar first edition June 2025)**
 - Maths Mela: https://ncert.nic.in/textbook/pdf/eemm1ps.pdf
 - Santoor: https://ncert.nic.in/textbook/pdf/eesa1ps.pdf
 - Veena: https://ncert.nic.in/textbook/pdf/ehve1ps.pdf
 - Our Wondrous World: https://ncert.nic.in/textbook/pdf/eeev1ps.pdf
 - Bansuri: https://ncert.nic.in/textbook/pdf/eebu1ps.pdf
 - Khel Yoga: https://ncert.nic.in/textbook/pdf/eeky1ps.pdf
-- Sitaan: https://ncert.nic.in/textbook/pdf/eust1ps.pdf
+- Sitaar: https://ncert.nic.in/textbook/pdf/eust1ps.pdf
 
-Only numbered chapter/lesson entries are included in counts. Supplementary reading pieces and unnumbered sections are not turned into chapter records. The NCERT contents and imprint pages provide each book's edition and chapter-order evidence; Sitaan is the first edition dated June 2025, while the other six Grade 5 contents PDFs are marked 2026–27 reprints.
+Only numbered chapter/lesson entries are included in counts. Supplementary reading pieces and unnumbered sections are not turned into chapter records. The NCERT contents and imprint pages provide each book's edition and chapter-order evidence; Sitaar is the first edition dated June 2025, while the other six Grade 5 contents PDFs are marked 2026–27 reprints.
 
 ## Audit totals
 - Class 4: 49 / 49 numbered chapter titles verified.

@@ -27,10 +27,10 @@
 | Our Wondrous World | The World Around Us | 10 |
 | Bansuri | Arts | 19 |
 | Khel Yoga | Physical Education and Well-being | 7 |
-| Sitaan | Urdu | 13 |
+| Sitaar | Urdu | 13 |
 | **Total** |  | **86** |
 
-Only numbered chapters/lessons are counted. Unnumbered poems, supplementary readings, warm-up material, self-assessment pages and teacher guidance are not incorrectly added as chapter slots. The contents source and book imprint identify each edition; six Class 5 contents PDFs are marked 2026–27 reprints, while Sitaan is the first edition (June 2025).
+Only numbered chapters/lessons are counted. Unnumbered poems, supplementary readings, warm-up material, self-assessment pages and teacher guidance are not incorrectly added as chapter slots. The contents source and book imprint identify each edition; six Class 5 contents PDFs are marked 2026–27 reprints, while Sitaar is the first edition (June 2025).
 
 ## Official publisher contents sources
 **Class 4**
@@ -39,14 +39,14 @@ Only numbered chapters/lessons are counted. Unnumbered poems, supplementary read
 - Veena: https://ncert.nic.in/textbook/pdf/dhve1ps.pdf
 - Our Wondrous World: https://ncert.nic.in/textbook/pdf/deev1ps.pdf
 
-**Class 5 contents PDFs (six 2026–27 reprints; Sitaan first edition June 2025)**
+**Class 5 contents PDFs (six 2026–27 reprints; Sitaar first edition June 2025)**
 - Maths Mela: https://ncert.nic.in/textbook/pdf/eemm1ps.pdf
 - Santoor: https://ncert.nic.in/textbook/pdf/eesa1ps.pdf
 - Veena: https://ncert.nic.in/textbook/pdf/ehve1ps.pdf
 - Our Wondrous World: https://ncert.nic.in/textbook/pdf/eeev1ps.pdf
 - Bansuri: https://ncert.nic.in/textbook/pdf/eebu1ps.pdf
 - Khel Yoga: https://ncert.nic.in/textbook/pdf/eeky1ps.pdf
-- Sitaan: https://ncert.nic.in/textbook/pdf/eust1ps.pdf
+- Sitaar: https://ncert.nic.in/textbook/pdf/eust1ps.pdf
 
 Official NCERT textbook portal: https://ncert.nic.in/textbook.php
 

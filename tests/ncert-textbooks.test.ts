@@ -35,6 +35,7 @@ test('Grade 5 contains seven source-identified NCERT books with verified numbere
   else assert.ok(book.editionLabel.includes('2026–27'),book.id);
  }
  assert.equal(chaptersFor('ncert-5-veena')[0].verifiedTitle,'किरन');
+ assert.equal(textbookById('ncert-5-sitaan')?.title,'Sitaar');
  assert.equal(chaptersFor('ncert-5-sitaan')[0].verifiedTitle,'خدا کی قدرت');
  assert.equal(chaptersFor('ncert-5-bansuri').at(-1)?.verifiedTitle,'My Dance and Your Dance');
 });
