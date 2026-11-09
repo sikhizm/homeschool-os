@@ -1,41 +1,54 @@
-# NCERT Textbook & Chapter Mapping — Foundation/Edition Audit
+# NCERT Textbook & Chapter Mapping — Verified Catalogue Phase
 
-## What was actually shipped
-- Parent-authenticated `/ncert-books` index with class/subject/book filters, source links, responsive book shelf, chapter positions and audit status.
-- Four NCERT Class 4 books (Maths Mela, Santoor, Veena, Our Wondrous World), chapter-position counts 14, 12, 13 and 10, **49 numbered slots**.
-- Distinct fields for `verifiedTitle`, `status`, `mappingStatus`, `skillIds`, `sourceUrl` so no placeholder is mistaken for a validated chapter title or official subject mapping.
-- Links into `/global-curriculum` and the parent-reviewed goal workflow, with stage/subject suggestions clearly **not** assigned to textbook chapters.
-- Validation tests that reject fabricated full coverage and enforce the 0-verified/0-mapped audit baseline.
-- No new migrations, no learner data writes, no scraping/rehosting copyright NCERT chapters, no unlicensed content imports.
+## Delivered
+- Parent-authenticated `/ncert-books` directory with class/subject/book filters, official source links, responsive book shelf, chapter positions and audit status.
+- Class 4: four publisher-identified NCERT books and 49 numbered chapter titles checked against the 2026–27 publisher contents.
+- Class 5: seven publisher-identified NCERT books and 86 numbered chapter titles checked against the 2026–27 publisher contents.
+- Combined catalogue: 16 book records across Classes 4, 5 and 8; 135 verified chapter-title slots; five Class 8 books still await their contents audit.
+- Verified chapters open an authenticated learning page with previous/next navigation and an external official NCERT chapter link.
+- Distinct fields for `verifiedTitle`, `status`, `mappingStatus`, `skillIds`, `sourceUrl` and edition notes keep publisher facts separate from proposed learning alignments.
+- All 135 chapter-to-skill mappings remain unapproved. No mapping is inferred from subject or title.
+- No migration, learner-data writes, scraping/rehosting copyrighted textbook chapters, or unlicensed content imports.
 
-## Research evidence and provenance (reviewed 29 Oct 2026)
-- NCERT official textbook portal: https://ncert.nic.in/textbook.php
-- NCERT Class 4 Maths Mela: https://ncert.nic.in/textbook.php?demm1=0-14
-- NCERT Class 4 Santoor: https://ncert.nic.in/textbook.php?desa1=0-12
-- NCERT Class 4 Veena: https://ncert.nic.in/textbook.php?dhve1=0-13
-- NCERT Class 4 Our Wondrous World: https://ncert.nic.in/textbook.php?deev1=0-10
-- SCERT Haryana Class 4 English-medium book catalogue: https://scertharyana.gov.in/document-category/textbooks-class-4/
-- Class 4 2026–27 third-party index (chapter counts as cross-check only): https://schools.aglasem.com/ncert-books-class-4/
+## Publisher evidence and provenance (reviewed 9 Nov 2026)
+**NCERT official textbook portal:** https://ncert.nic.in/textbook.php
 
-The official textbook catalogue and SCERT Haryana confirm book identities. Maths Mela and Our Wondrous World chapter titles were checked against their 2026–27 publisher tables of contents, while the other 25 remain pending. ISBN/edition details and all chapter-to-skill links have **not been comprehensively reviewed**, so they are pending for Santoor and Veena; Maths Mela (14) and Our Wondrous World (10) have source-verified titles. Counts are provisional until reconfirmed chapter-by-chapter on the current NCERT edition. Do not publish full textbook coverage claims from this version.
+**Class 4 contents PDFs**
+- Maths Mela: https://ncert.nic.in/textbook/pdf/demm1ps.pdf
+- Santoor: https://ncert.nic.in/textbook/pdf/desa1ps.pdf
+- Veena: https://ncert.nic.in/textbook/pdf/dhve1ps.pdf
+- Our Wondrous World: https://ncert.nic.in/textbook/pdf/deev1ps.pdf
+
+**Class 5 contents PDFs — NCERT 2026–27 reprints**
+- Maths Mela: https://ncert.nic.in/textbook/pdf/eemm1ps.pdf
+- Santoor: https://ncert.nic.in/textbook/pdf/eesa1ps.pdf
+- Veena: https://ncert.nic.in/textbook/pdf/ehve1ps.pdf
+- Our Wondrous World: https://ncert.nic.in/textbook/pdf/eeev1ps.pdf
+- Bansuri: https://ncert.nic.in/textbook/pdf/eebu1ps.pdf
+- Khel Yoga: https://ncert.nic.in/textbook/pdf/eeky1ps.pdf
+- Sitaan: https://ncert.nic.in/textbook/pdf/eust1ps.pdf
+
+Only numbered chapter/lesson entries are included in counts. Supplementary reading pieces and unnumbered sections are not turned into chapter records. The NCERT contents and imprint pages provide the edition and chapter order evidence.
+
+## Audit totals
+- Class 4: 49 / 49 numbered chapter titles verified.
+- Class 5: 86 / 86 numbered chapter titles verified.
+- Combined: 135 verified titles across 11 books.
+- Class 8: five book identities indexed, contents still pending.
+- Human-approved chapter-to-skill mappings: 0.
 
 ## Editorial chapter mapping checklist
-For each book, retain grade, language, subject, publisher, textbook code, and checked source URL. Confirm the edition/reprint from its imprint and chapter title and position from the publisher's own table of contents. Review each proposed competency against the chapter's actual subject matter and record reviewer/date/evidence. **No mapping becomes `human-reviewed` without a human checking it**. Note any changed chapters when new NCERT editions arrive.
+For each book, retain grade, language, subject, publisher, textbook code, edition/reprint, and checked source URL. Confirm each numbered title and position from the publisher's own table of contents. Review each proposed competency against the actual chapter content and record rationale, source edition, reviewer and date. **No mapping becomes `human-reviewed` without a human checking it.** Record differences when a later NCERT reprint changes chapter order or titles.
 
 ## Copyright and licensed access
-NCERT states textbooks are copyrighted and prohibits redistribution, hosting textbooks or packaging them in software without permission. This app stores only metadata, generic chapter numbers and original teaching suggestions, and opens the official external publisher portal. Before adding direct chapter links to a distributable service, confirm NCERT permission and current usage terms.
+NCERT states textbooks are copyrighted and restricts reproduction. This app stores metadata, numbered chapter titles and original parent-guided prompts, and opens the official external publisher portal/PDF. It does not host textbook pages or reproduce exercises. Confirm current publisher terms before adding any textbook ingestion or redistribution.
 
-## Remaining work (not completed by this phase)
-- Santoor and Veena chapter-title audit, edition/ISBN cross-check and individual chapter-skill evidence.
-- Class 1–3, 5–12 actual book and chapter indexing.
-- Structured standard-code review and approval workflow with editorial persistence (admin-only).
-- Authorized international textbook/standards mapping.
-- Real authenticated parent walkthrough using preview; don't create dummy learner goals against production database.
+## Remaining work
+- Official Class 3 textbook and chapter contents audit, then systematic Class 1–12 coverage (Classes 1–3 and 6–12 remain incomplete; Class 8 chapter contents are still pending).
+- Human-reviewed chapter-to-skill mapping workflow and evidence for each proposed alignment.
+- Authorized international textbook/standards mapping and specialist review.
+- Optional editorial persistence for reviewer identity, source edition, review timestamp and revision history.
+- Authenticated parent walkthrough on desktop/mobile; do not create synthetic learner goals or progress against production data.
 
 ## Release checks
-`npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. The zero-data safe catalogue needs no database migration.
-
-## Additional publisher TOC title verification
-- Maths Mela 2026–27 reprint official contents (14): https://ncert.nic.in/textbook/pdf/demm1ps.pdf
-- Our Wondrous World 2026–27 reprint official contents (10): https://ncert.nic.in/textbook/pdf/deev1ps.pdf
-- Their 24 names are marked `source-verified`; 25 other titles still await direct publisher-content confirmation. All 49 **skill alignments remain unapproved**. Source verification does not imply pedagogical skill mapping approval.
+`npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. The catalogue phase requires no database migration.

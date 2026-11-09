@@ -1,37 +1,69 @@
-# NCERT Curriculum Expansion — Class 4 Complete Title Audit + Class 5 Book Index
+# NCERT Class 4–5 Publisher Contents Audit (2026–27)
 
-## Scope delivered
-- Existing NCERT Class 4 shelf remains intact with the same 4 book IDs and 49 chapter-slot IDs.
-- Verified the **remaining 25 chapter headings** directly from official NCERT 2026–27 Santoor and Veena reprint contents; total is **49/49 Class 4 headings source-checked**.
-- Source-specific NCERT PDF contents URLs retained for all four Class 4 books. Hindi titles preserve Devanagari.
-- Added **four Class 5 official publisher book records**: Maths Mela, Santoor, Veena and Our Wondrous World. Exact chapter contents/counts **not yet audited**: `chapterCount:0` means *no trusted chapter list* (not an empty book).
-- Expanded student-facing Class 5 filters, mobile UI, source/audit status and clear editorial disclaimers. All 49 competency mappings still remain `unmapped`; no automatic claims of educational attainment.
-- No schema migration, child record changes, book-content downloads/rehosting or automatic child assessments.
+## Current delivery
+- Parent-authenticated `/ncert-books` directory with class, subject and book filters, official publisher links, chapter positions, source status and separate learning pages.
+- **Class 4:** four NCERT books and 49 numbered chapter titles checked against the 2026–27 publisher contents.
+- **Class 5:** seven NCERT books and 86 numbered chapter titles checked against the 2026–27 publisher contents.
+- **Combined:** 16 catalogued book records across Classes 4, 5 and 8; 135 source-verified chapter titles; five Class 8 book records still have no generated chapter entries.
+- Every verified chapter title opens its own authenticated parent-guided learning page. The chapter page links to official NCERT material rather than copying or hosting textbook content.
+- All 135 chapter records remain `unmapped`; no chapter-to-skill equivalence has been approved.
+- No database migration, learner-data write, textbook download/rehosting or copyrighted textbook text is added.
 
-## Official publisher evidence
-**Class 4:**
-- NCERT English Santoor 2026–27 contents, PDF page 15 (zero-based 14): https://ncert.nic.in/textbook/pdf/desa1ps.pdf (12 numbered entries; additional self-assessment sections excluded)
-- NCERT Hindi Veena 2026–27 contents, PDF pages 17–19 (zero-based 16–18): https://ncert.nic.in/textbook/pdf/dhve1ps.pdf (13 numbered entries; unnumbered readings excluded)
-- NCERT Maths Mela publisher contents: https://ncert.nic.in/textbook/pdf/demm1ps.pdf
-- NCERT Our Wondrous World publisher contents: https://ncert.nic.in/textbook/pdf/deev1ps.pdf
+## Class 4 verified contents
+| Book | Numbered chapter titles |
+|---|---:|
+| Maths Mela | 14 |
+| Santoor | 12 |
+| Veena | 13 |
+| Our Wondrous World | 10 |
+| **Total** | **49** |
 
-**Class 5 book identity references:**
-- CBSE Circular 48/2025, including official NCERT viewer links for Class 5 Santoor `eesa1`, Math Mela `eemm1`, Veena `ehve1` and Our Wondrous World `eeev1`: https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf
-- Publisher textbook portal: https://ncert.nic.in/textbook.php
+## Class 5 verified contents
+| Book | Subject | Numbered chapter titles |
+|---|---|---:|
+| Maths Mela | Mathematics | 15 |
+| Santoor | English | 10 |
+| Veena | Hindi | 12 |
+| Our Wondrous World | The World Around Us | 10 |
+| Bansuri | Arts | 19 |
+| Khel Yoga | Physical Education and Well-being | 7 |
+| Sitaan | Urdu | 13 |
+| **Total** |  | **86** |
 
-## Editorial review boundary
-- Chapter headings are verified as *contents entries in the linked NCERT publisher PDFs*, not checked for every possible state or later printing.
-- Class 5 viewer URL ranges do **not** establish confirmed counts; until publisher tables of contents are checked, no chapter objects are generated.
-- Source-verified chapter titles are not approved chapter-to-skill alignments. Before linking any global competency to a chapter, an editor must check chapter substance, edition and source evidence and record rationale.
-- The existing 29 global skills are independent, illustrative activities. No textbook or syllabus completeness claims.
-- Hindi is the published book language; learners may use home-language support as appropriate.
-- The publisher retains copyrights in books and activities: the application stores only brief bibliographic metadata and headings, not copies of textbook pages.
+Only numbered chapters/lessons are counted. Unnumbered poems, supplementary readings, warm-up material, self-assessment pages and teacher guidance are not incorrectly added as chapter slots. The contents source and book imprint identify the NCERT 2026–27 reprint.
+
+## Official publisher contents sources
+**Class 4**
+- Maths Mela: https://ncert.nic.in/textbook/pdf/demm1ps.pdf
+- Santoor: https://ncert.nic.in/textbook/pdf/desa1ps.pdf
+- Veena: https://ncert.nic.in/textbook/pdf/dhve1ps.pdf
+- Our Wondrous World: https://ncert.nic.in/textbook/pdf/deev1ps.pdf
+
+**Class 5**
+- Maths Mela: https://ncert.nic.in/textbook/pdf/eemm1ps.pdf
+- Santoor: https://ncert.nic.in/textbook/pdf/eesa1ps.pdf
+- Veena: https://ncert.nic.in/textbook/pdf/ehve1ps.pdf
+- Our Wondrous World: https://ncert.nic.in/textbook/pdf/eeev1ps.pdf
+- Bansuri: https://ncert.nic.in/textbook/pdf/eebu1ps.pdf
+- Khel Yoga: https://ncert.nic.in/textbook/pdf/eeky1ps.pdf
+- Sitaan: https://ncert.nic.in/textbook/pdf/eust1ps.pdf
+
+Official NCERT textbook portal: https://ncert.nic.in/textbook.php
+
+## Editorial boundary
+- The title and position of each numbered chapter/lesson are verified against the publisher's own 2026–27 reprint contents.
+- A verified chapter title does **not** mean the chapter has been read, assessed, mapped to an outcome, or approved as a curriculum equivalence.
+- Original global skills remain illustrative parent-guided learning suggestions, not official NCERT learning outcomes.
+- The five Class 8 book records remain identity-only with `chapterCount: 0`; zero means no verified chapter list, not an empty book.
+- Do not infer the existence or contents of books for classes not yet catalogued.
+
+## Copyright and source use
+NCERT retains copyright in its textbooks. The application stores bibliographic metadata, numbered chapter titles and original parent-guided study prompts only. It opens official NCERT resources externally and does not mirror textbook pages or PDFs. Confirm current publisher terms before any future redistribution or ingestion.
 
 ## Next sequential phase
-1. Review Class 5 official publisher TOCs and add headings+chapter count per book.
-2. Expand to full 2026–27 Class 3 and Class 5 subject catalogues, then systematically Classes 1–12, checking annual CBSE/NCERT revisions.
-3. Design a family-safe *parent-only mapping review* with draft/approved states, required source/edition, rationale, editor identity and revision tracking. Map skills only after source evidence review. Consider whether this should live in DB or curated code rather than silently auto-assign.
-4. Optional official textbook links remain external; no licensed book ingestion without explicit permission.
+1. Build the official Class 3 book index and verify publisher contents for each identified book.
+2. Continue the systematic Class 1–12 edition-by-edition catalogue and contents audit, keeping unknown classes visibly pending.
+3. Design a family-safe, parent/editor-only chapter-to-skill review workflow with draft/approved states, source edition, rationale, reviewer identity and revision history. A mapping must never be auto-approved.
 
 ## Release checks
-GitHub lint, typecheck, unit suite, isolated browser fixtures, production build and smoke. Check that Grade 4 shows actual verified titles, Grade 5 displays books without fake chapter counts, and unknown classes remain empty with clear guidance.
+Run `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. Confirm Class 4 and 5 show the verified titles, Class 8 still shows honest pending states, and chapter links open their learning pages. No production database migration is required.

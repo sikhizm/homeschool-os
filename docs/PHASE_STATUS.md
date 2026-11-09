@@ -29,11 +29,20 @@ No personal learner data is committed.
 - [x] Existing completion/revision/history/undo behaviour preserved; no completed activity silently reappears
 - [x] No production database migration required: evidence stored additively in existing migration 005 table, validated with isolated PGlite
 - [x] `npm ci` lock-file repair, new unit/browser/smoke tests, lint, typecheck and production build gates
-- [ ] Merge to `main` + verify the exact Vercel production deployment status
+- [x] Merged to `main`; exact Vercel production deployment for commit `d048527` is READY
 
 See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenance, safety and verification details.
 
+## NCERT Grade 5 Publisher Contents Audit (this phase)
+- [x] Verify all seven Grade 5 NCERT books against official 2026–27 publisher contents.
+- [x] Add 86 numbered Grade 5 chapter/lesson titles and chapter counts.
+- [x] Bring the combined Class 4–5 catalogue to 135 verified titles across 11 books.
+- [x] Make each verified chapter open its own learning page and official publisher material.
+- [x] Keep all chapter-to-skill mappings unapproved pending human review.
+- [x] No production migration or learner-data writes required.
+
 ## Still outstanding (next phases)
-- Human-reviewed chapter-to-skill mapping and Class 1–12 official NCERT book/TOC audits (see `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
+- Official Class 3 book/contents audit, then systematic NCERT Classes 1–12 coverage; Class 8 contents remain pending (see `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
+- Human-reviewed chapter-to-skill mapping with source edition, rationale, reviewer and revision evidence.
 - Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.

@@ -64,17 +64,17 @@ export const ncertTextbooks:Textbook[]=[
     "status": "book-confirmed-chapter-titles-pending"
   }
   ,{
-    "id":"ncert-5-maths-mela","grade":5,"subject":"Mathematics","title":"Maths Mela","language":"English","publisher":"NCERT","textbookCode":"eemm1","chapterCount":0,"sourceUrl":"https://ncert.nic.in/textbook.php?eemm1=0-15","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE-listed 2025 primary textbook; edition and contents pending review","status":"book-confirmed-contents-pending"
+    "id":"ncert-5-maths-mela","grade":5,"subject":"Mathematics","title":"Maths Mela","language":"English","publisher":"NCERT","textbookCode":"eemm1","chapterCount":15,"sourceUrl":"https://ncert.nic.in/textbook.php?eemm1=0-15","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"
   },{
-    "id":"ncert-5-santoor","grade":5,"subject":"English","title":"Santoor","language":"English","publisher":"NCERT","textbookCode":"eesa1","chapterCount":0,"sourceUrl":"https://ncert.nic.in/textbook.php?eesa1=0-10","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE-listed 2025 primary textbook; edition and contents pending review","status":"book-confirmed-contents-pending"
+    "id":"ncert-5-santoor","grade":5,"subject":"English","title":"Santoor","language":"English","publisher":"NCERT","textbookCode":"eesa1","chapterCount":10,"sourceUrl":"https://ncert.nic.in/textbook.php?eesa1=0-10","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"
   },{
-    "id":"ncert-5-veena","grade":5,"subject":"Hindi","title":"Veena","language":"Hindi","publisher":"NCERT","textbookCode":"ehve1","chapterCount":0,"sourceUrl":"https://ncert.nic.in/textbook.php?ehve1=0-12","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE-listed 2025 primary textbook; edition and contents pending review","status":"book-confirmed-contents-pending"
+    "id":"ncert-5-veena","grade":5,"subject":"Hindi","title":"Veena","language":"Hindi","publisher":"NCERT","textbookCode":"ehve1","chapterCount":12,"sourceUrl":"https://ncert.nic.in/textbook.php?ehve1=0-12","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"
   },{
-    "id":"ncert-5-our-wondrous-world","grade":5,"subject":"Environmental Studies","title":"Our Wondrous World","language":"English","publisher":"NCERT","textbookCode":"eeev1","chapterCount":0,"sourceUrl":"https://ncert.nic.in/textbook.php?eeev1=0-10","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE-listed 2025 primary textbook; edition and contents pending review","status":"book-confirmed-contents-pending"
+    "id":"ncert-5-our-wondrous-world","grade":5,"subject":"Environmental Studies","title":"Our Wondrous World","language":"English","publisher":"NCERT","textbookCode":"eeev1","chapterCount":10,"sourceUrl":"https://ncert.nic.in/textbook.php?eeev1=0-10","referenceUrl":"https://cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"
   },
-{"id":"ncert-5-bansuri","grade":5,"subject":"Arts","title":"Bansuri","language":"English","textbookCode":"eebu1","sourceUrl":"https://ncert.nic.in/textbook.php?eebu1=0-19","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
-{"id":"ncert-5-khel-yoga","grade":5,"subject":"Physical Education","title":"Khel Yoga","language":"English","textbookCode":"eeky1","sourceUrl":"https://ncert.nic.in/textbook.php?eeky1=0-3","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
-{"id":"ncert-5-sitaan","grade":5,"subject":"Urdu","title":"Sitaan","language":"Urdu","textbookCode":"eust1","sourceUrl":"https://ncert.nic.in/textbook.php?eust1=0-14","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
+{"id":"ncert-5-bansuri","grade":5,"subject":"Arts","title":"Bansuri","language":"English","textbookCode":"eebu1","sourceUrl":"https://ncert.nic.in/textbook.php?eebu1=0-19","publisher":"NCERT","chapterCount":19,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
+{"id":"ncert-5-khel-yoga","grade":5,"subject":"Physical Education","title":"Khel Yoga","language":"English","textbookCode":"eeky1","sourceUrl":"https://ncert.nic.in/textbook.php?eeky1=0-7","publisher":"NCERT","chapterCount":7,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
+{"id":"ncert-5-sitaan","grade":5,"subject":"Urdu","title":"Sitaan","language":"Urdu","textbookCode":"eust1","sourceUrl":"https://ncert.nic.in/textbook.php?eust1=0-13","publisher":"NCERT","chapterCount":13,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
 {"id":"ncert-8-poorvi","grade":8,"subject":"English","title":"Poorvi","language":"English","textbookCode":"hepr1","sourceUrl":"https://ncert.nic.in/textbook.php?hepr1=0-5","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
 {"id":"ncert-8-ganita-prakash","grade":8,"subject":"Mathematics","title":"Ganita Prakash","language":"English","textbookCode":"hegp1","sourceUrl":"https://ncert.nic.in/textbook.php?hegp1=0-7","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
 {"id":"ncert-8-malhar","grade":8,"subject":"Hindi","title":"Malhar","language":"Hindi","textbookCode":"hhml1","sourceUrl":"https://ncert.nic.in/textbook.php?hhml1=0-10","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
@@ -105,13 +105,59 @@ export const verifiedChapterTitles:Record<string,readonly string[]>={
  'Living Together','Exploring Our Neighbourhood','Nature Trail','Growing up with Nature',
  'Food for Health','Happy and Healthy Living','How Things Work','How Things are Made',
  'Different Lands, Different Lives','Our Sky'
+ ],
+ 'ncert-5-santoor':[
+  'Papa’s Spectacles','Gone with the Scooter','The Rainbow','The Wise Parrot',
+  'The Frog','What a Tank!','Gilli Danda','The Decision of the Panchayat',
+  'Vocation','Glass Bangles'
+ ],
+ 'ncert-5-maths-mela':[
+  'We the Travellers—I','Fractions','Angles as Turns','We the Travellers—II',
+  'Far and Near','The Dairy Farm','Shapes and Patterns','Weight and Capacity',
+  'Coconut Farm','Symmetrical Designs','Grandmother’s Quilt','Racing Seconds',
+  'Animal Jumps','Maps and Locations','Data Through Pictures'
+ ],
+ 'ncert-5-veena':[
+  'किरन','न्याय की कुर्सी','चाँद का कुरता','साङकेन','सुंदरिया','चतुर चित्रकार',
+  'मेरा बचपन','काजीरंगा राष्ट्रीय उद्यान की यात्रा','न्याय','तीन मछलियाँ',
+  'हमारे ये कलामंदिर','गंगा की कहानी'
+ ],
+ 'ncert-5-our-wondrous-world':[
+  'Water—The Essence of Life','Journey of a River','The Mystery of Food',
+  'Our School—A Happy Place','Our Vibrant Country','Some Unique Places',
+  'Energy—How Things Work','Clothes—How Things are Made','Rhythms of Nature',
+  'Earth—Our Shared Home'
+ ],
+ 'ncert-5-bansuri':[
+  'Objects on the Move','Peeping Out of the Window','Picturing Stories','Imaginary Beings',
+  'Spreading the Message','Create a Scene','Stitch it for a Story','Time, Team, Technique',
+  'View and Review','Sing and Play','Music Around Me','Sounds and Instruments',
+  'Building Blocks','Ideas and Inspiration','My Everyday Activities in Modes of Dance',
+  'Dancing with Rhythm and Tempos','Dances of My Nation',
+  'My Dance Expresses Emotions and Narrates Stories','My Dance and Your Dance'
+ ],
+ 'ncert-5-khel-yoga':[
+  'Throwing and Catching','Kicking and Receiving','Strike the Object','Little Steps',
+  'Local and Traditional Games','Yoga for Daily Life','Yoga Sadhana'
+ ],
+ 'ncert-5-sitaan':[
+  'خدا کی قدرت','تالاب کا بھوت','گرو نانک','راہ نما بن جاؤں','چچا چھکن کی عینک',
+  'ڈبکی','شہد کی مکھی','چار دوست','ڈیجیٹل دادی','گنگا','ٹیولپ گارڈن',
+  'چار سکے','چلیے سنبھل سنبھل کر'
  ]
 };
 export const verifiedContentsSources:Record<string,string>={
  'ncert-4-maths-mela':'https://ncert.nic.in/textbook/pdf/demm1ps.pdf',
  'ncert-4-santoor':'https://ncert.nic.in/textbook/pdf/desa1ps.pdf',
  'ncert-4-veena':'https://ncert.nic.in/textbook/pdf/dhve1ps.pdf',
- 'ncert-4-our-wondrous-world':'https://ncert.nic.in/textbook/pdf/deev1ps.pdf'
+ 'ncert-4-our-wondrous-world':'https://ncert.nic.in/textbook/pdf/deev1ps.pdf',
+ 'ncert-5-maths-mela':'https://ncert.nic.in/textbook/pdf/eemm1ps.pdf',
+ 'ncert-5-santoor':'https://ncert.nic.in/textbook/pdf/eesa1ps.pdf',
+ 'ncert-5-veena':'https://ncert.nic.in/textbook/pdf/ehve1ps.pdf',
+ 'ncert-5-our-wondrous-world':'https://ncert.nic.in/textbook/pdf/eeev1ps.pdf',
+ 'ncert-5-bansuri':'https://ncert.nic.in/textbook/pdf/eebu1ps.pdf',
+ 'ncert-5-khel-yoga':'https://ncert.nic.in/textbook/pdf/eeky1ps.pdf',
+ 'ncert-5-sitaan':'https://ncert.nic.in/textbook/pdf/eust1ps.pdf'
 };
 
 export const ncertChapterSlots:ChapterSlot[]=ncertTextbooks.flatMap(book=>
