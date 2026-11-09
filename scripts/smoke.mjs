@@ -129,3 +129,38 @@ coach = await fetch(root + '/api/auto-learning', {
 });
 assert.equal(coach.status, 403);
 console.log('Family coach API: 401 unauthenticated, 403 cross-origin');
+
+
+const manifestResponse = await fetch(root + '/manifest.webmanifest');
+assert.equal(manifestResponse.status, 200, 'PWA manifest');
+const manifest = await manifestResponse.json();
+assert.equal(manifest.name, 'Homeschool OS');
+assert.equal(manifest.display, 'standalone');
+assert.equal(manifest.start_url, '/dashboard');
+assert.ok(manifest.icons.some((icon) => icon.sizes === '192x192'));
+assert.ok(manifest.icons.some((icon) => icon.sizes === '512x512'));
+console.log('PWA manifest: install name, start URL, standalone mode and icons verified');
+
+for (const path of [
+  '/icons/icon-192.png',
+  '/icons/icon-512.png',
+  '/icons/maskable-512.png',
+  '/icons/apple-touch-icon.png',
+]) {
+  const icon = await fetch(root + path);
+  assert.equal(icon.status, 200, path);
+  assert.ok(icon.headers.get('content-type')?.includes('image/png'), path + ' content type');
+  const bytes = new Uint8Array(await icon.arrayBuffer());
+  assert.deepEqual([...bytes.slice(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10], path + ' PNG signature');
+}
+console.log('PWA icons: Android, maskable and Apple PNG endpoints verified');
+
+const worker = await fetch(root + '/sw.js');
+assert.equal(worker.status, 200, 'service worker');
+const workerText = await worker.text();
+assert.ok(workerText.includes('homeschool-os-static-v2'));
+assert.ok(workerText.includes("'/offline.html'"));
+const offline = await fetch(root + '/offline.html');
+assert.equal(offline.status, 200, 'offline fallback');
+assert.ok((await offline.text()).includes("You're offline"));
+console.log('PWA service worker and offline fallback: public routes verified');
