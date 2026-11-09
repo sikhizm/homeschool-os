@@ -6,15 +6,15 @@ import {ncertTextbooks,gradeCoverage,validateNcertCatalogue,chaptersFor} from '.
 test('integrated curriculum preserves source identity and no fabricated textbook chapters',()=>{
  assert.deepEqual(validateNcertCatalogue(),[]);
  assert.equal(ncertTextbooks.length,16);
- assert.equal(ncertTextbooks.filter(x=>x.chapterCount===0).length,12);
+ assert.equal(ncertTextbooks.filter(x=>x.chapterCount===0).length,5);
  for(const book of ncertTextbooks.filter(x=>x.chapterCount===0))assert.equal(chaptersFor(book.id).length,0);
  assert.deepEqual(gradeCoverage().filter(x=>x.cataloguedBooks>0).map(x=>x.grade),[4,5,8]);
 });
 test('coverage honestly describes the partial programme',()=>{
  const c=curriculumCoverage();
  assert.equal(c.textbookRecords,16);
- assert.equal(c.chaptersIndexed,49);
- assert.equal(c.sourceCheckedTitles,49);
+ assert.equal(c.chaptersIndexed,135);
+ assert.equal(c.sourceCheckedTitles,135);
  assert.equal(c.approvedChapterMappings,0);
  assert.equal(c.completeBoards,0);
  assert.equal(c.gradesWithPartialCatalogue,3);

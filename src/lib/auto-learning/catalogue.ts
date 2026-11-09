@@ -107,7 +107,7 @@ export function queueCatalogue(grade:string):QueueTask[]{
   instructions:[...m.steps],check:m.check,grade
  }));
  if(grade!=='Class 4')return [...annual,...structured,...original];
- const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle).flatMap(c=>{
+ const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle&&textbookById(c.bookId)?.grade===4).flatMap(c=>{
   const book=textbookById(c.bookId)!;
   const resource='/ncert-books/chapter/'+c.id;
   const base='ncert:'+c.id;

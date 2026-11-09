@@ -97,6 +97,7 @@ test('annual steps preserve prior completion behaviour and the NCERT session ord
  const all=queueCatalogue('Class 4');
  const ids=all.filter(t=>t.id.startsWith('ncert:'));
  assert.equal(ids.length,49*3);
+ assert.ok(ids.every(t=>t.href.includes('/ncert-books/chapter/ncert-4-')),'Class 4 queue must not include Class 5 chapters');
  const first=ids[0].id.replace(/:(read|practice|review)$/,'');
  assert.deepEqual(ids.filter(t=>t.id.startsWith(first+':')).map(t=>t.id),[first+':read',first+':practice',first+':review']);
  assert.ok(ids.every(t=>t.lesson&&t.lesson.steps.length>=4&&t.lesson.expectedAnswer.length>30));
