@@ -42,7 +42,7 @@ See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenan
 - [x] No production migration or learner-data writes required.
 
 ## Still outstanding (next phases)
+- Human-reviewed Class 5 chapter-to-skill mapping with source edition, chapter evidence, rationale, reviewer and revision history; no automatic approval.
 - Official Class 3 book/contents audit, then systematic NCERT Classes 1–12 coverage; Class 8 contents remain pending (see `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
-- Human-reviewed chapter-to-skill mapping with source edition, rationale, reviewer and revision evidence.
 - Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.

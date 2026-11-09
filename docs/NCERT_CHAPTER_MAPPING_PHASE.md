@@ -44,8 +44,8 @@ For each book, retain grade, language, subject, publisher, textbook code, editio
 NCERT states textbooks are copyrighted and restricts reproduction. This app stores metadata, numbered chapter titles and original parent-guided prompts, and opens the official external publisher portal/PDF. It does not host textbook pages or reproduce exercises. Confirm current publisher terms before adding any textbook ingestion or redistribution.
 
 ## Remaining work
+- Human-reviewed Class 5 chapter-to-skill mapping: inspect official chapter content, propose only evidence-backed alignments, and retain an explicit no-fit state where appropriate. All 135 mappings remain unapproved until a human review is recorded.
 - Official Class 3 textbook and chapter contents audit, then systematic Class 1–12 coverage (Classes 1–3 and 6–12 remain incomplete; Class 8 chapter contents are still pending).
-- Human-reviewed chapter-to-skill mapping workflow and evidence for each proposed alignment.
 - Authorized international textbook/standards mapping and specialist review.
 - Optional editorial persistence for reviewer identity, source edition, review timestamp and revision history.
 - Authenticated parent walkthrough on desktop/mobile; do not create synthetic learner goals or progress against production data.

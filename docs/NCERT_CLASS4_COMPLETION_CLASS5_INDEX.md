@@ -61,9 +61,9 @@ Official NCERT textbook portal: https://ncert.nic.in/textbook.php
 NCERT retains copyright in its textbooks. The application stores bibliographic metadata, numbered chapter titles and original parent-guided study prompts only. It opens official NCERT resources externally and does not mirror textbook pages or PDFs. Confirm current publisher terms before any future redistribution or ingestion.
 
 ## Next sequential phase
-1. Build the official Class 3 book index and verify publisher contents for each identified book.
-2. Continue the systematic Class 1–12 edition-by-edition catalogue and contents audit, keeping unknown classes visibly pending.
-3. Design a family-safe, parent/editor-only chapter-to-skill review workflow with draft/approved states, source edition, rationale, reviewer identity and revision history. A mapping must never be auto-approved.
+1. Build a parent/editor-only review queue for the 86 Class 5 chapters. Read the official chapter content and propose a mapping to an existing original learning skill only where the chapter evidence supports it; explicitly record “no suitable match” where it does not.
+2. Keep every proposal unapproved until a parent/editor reviews the chapter, rationale, source edition, reviewer and revision history. No mapping may be auto-approved or inferred from a title alone.
+3. Continue the official Class 3 book index and contents audit, then the systematic Class 1–12 edition-by-edition catalogue while keeping unknown classes visibly pending.
 
 ## Release checks
 Run `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. Confirm Class 4 and 5 show the verified titles, Class 8 still shows honest pending states, and chapter links open their learning pages. No production database migration is required.
