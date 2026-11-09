@@ -3,7 +3,7 @@ import {test} from 'node:test';
 import {readFile} from 'node:fs/promises';
 import {PGlite} from '@electric-sql/pglite';
 import {
- assessmentPlan,assessmentSummary,assessmentId,masteryId,participationBadges,masteryBadges,
+ assessmentPlan,assessmentSummary,assessmentId,masteryId,recallEvidenceId,participationBadges,masteryBadges,
  understoodTasks,masteredTasks,isInternalProgressId,type SavedRecord
 } from '../src/lib/auto-learning/assessment';
 
@@ -17,7 +17,7 @@ test('a completion click records participation but never understanding or master
  assert.equal(plan.mastery,false);
  const records=plan.upserts.map(w=>record(w.taskId,w.status));
  const summary=assessmentSummary(records);
- assert.deepEqual(summary,{completed:1,understood:0,mastered:0});
+ assert.deepEqual(summary,{completed:1,understood:0,mastered:0,independentRecall:0,recallWithHint:0});
  assert.equal(participationBadges(summary.completed).length,1);
  assert.equal(masteryBadges(summary.understood,summary.mastered).length,0);
 });
@@ -36,7 +36,7 @@ test('an understanding check records assessment evidence without awarding master
 
 test('mastery needs both understanding and a later successful spaced recall',()=>{
  const understood=assessmentPlan(task,'completed','understood',[]).upserts.map(w=>record(w.taskId,w.status));
- const recall=assessmentPlan(review,'completed',undefined,understood);
+ const recall=assessmentPlan(review,'completed',undefined,understood,'independent');
  assert.equal(recall.mastery,true);
  assert.ok(recall.upserts.some(w=>w.taskId===masteryId(task)));
  const combined=[...understood,...recall.upserts.map(w=>record(w.taskId,w.status))];
@@ -101,11 +101,12 @@ test('assessment evidence fits the existing migration 005 schema and preserves r
    records.push(...plan.upserts.map(w=>record(w.taskId,w.status)));
   };
   await apply(assessmentPlan(task,'completed','understood',records));
-  await apply(assessmentPlan(review,'completed',undefined,records));
+  await apply(assessmentPlan(review,'completed',undefined,records,'independent'));
   const rows=await db.query<{task_id:string;status:string}>('SELECT task_id,status FROM auto_learning_progress ORDER BY task_id');
-  assert.equal(rows.rows.length,5); // one original row + task, assess, review, mastery
+  assert.equal(rows.rows.length,6); // one original row + task, assess, review, recall evidence, mastery
   assert.ok(rows.rows.some(r=>r.task_id==='ncert:old-chapter'&&r.status==='completed'));
   assert.ok(rows.rows.some(r=>r.task_id===masteryId(task)&&r.status==='completed'));
+  assert.ok(rows.rows.some(r=>r.task_id===recallEvidenceId(review,'independent')&&r.status==='completed'));
   const undo=assessmentPlan(review,'pending',undefined,records);
   for(const remove of undo.deletes)await db.query('DELETE FROM auto_learning_progress WHERE learner_id::text=$1 AND task_id=$2',[id,remove]);
   const remaining=await db.query<{task_id:string}>('SELECT task_id FROM auto_learning_progress');
@@ -114,4 +115,56 @@ test('assessment evidence fits the existing migration 005 schema and preserves r
   await assert.rejects(db.query('INSERT INTO auto_learning_progress (learner_id,task_id,status) VALUES ($1,$2,$3)',[id,'x','mastered']));
   await assert.rejects(db.query('INSERT INTO auto_learning_progress (learner_id,task_id,status) VALUES ($1,$2,$3)',[id,'x'.repeat(141),'completed']));
  }finally{await db.close()}
+});
+
+test('a hinted recall shortens the interval but never awards mastery',()=>{
+ const understood=assessmentPlan(task,'completed','understood',[]).upserts.map(w=>record(w.taskId,w.status));
+ const plan=assessmentPlan(review,'completed',undefined,understood,'with_hint');
+ assert.equal(plan.mastery,false);
+ assert.ok(plan.upserts.some(w=>w.taskId===recallEvidenceId(review,'with_hint')));
+ assert.ok(plan.upserts.every(w=>w.taskId!==masteryId(task)));
+});
+test('first independent recall can establish understanding but a later recall is still required',()=>{
+ const first=assessmentPlan(review,'completed',undefined,[record(task,'completed')],'independent');
+ assert.equal(first.mastery,false);
+ assert.ok(first.upserts.some(w=>w.taskId===assessmentId(task)&&w.status==='completed'));
+ const records=[record(task,'completed'),...first.upserts.map(w=>record(w.taskId,w.status))];
+ const second=assessmentPlan('review:2:'+task,'completed',undefined,records,'independent');
+ assert.equal(second.mastery,true);
+ assert.ok(second.upserts.some(w=>w.taskId===masteryId(task)));
+});
+test('adaptive recall evidence is internal and never counted as an activity',()=>{
+ const evidence=record(recallEvidenceId(review,'independent'),'completed');
+ assert.equal(isInternalProgressId(evidence.task_id),true);
+ assert.equal(assessmentSummary([record(task,'completed'),evidence]).completed,1);
+ assert.equal(assessmentSummary([record(task,'completed'),evidence]).independentRecall,1);
+});
+
+test('undoing a later recall preserves an understanding check recorded earlier',()=>{
+ const earlier:SavedRecord[]=[
+  {task_id:task,status:'completed',updated_at:'2026-10-01T10:00:00Z'},
+  {task_id:assessmentId(task),status:'completed',updated_at:'2026-10-01T10:05:00Z'},
+  {task_id:review,status:'completed',updated_at:'2026-10-04T10:00:00Z'},
+  {task_id:recallEvidenceId(review,'independent'),status:'completed',updated_at:'2026-10-04T10:00:00Z'},
+  {task_id:'review:2:'+task,status:'completed',updated_at:'2026-10-14T10:00:00Z'},
+  {task_id:recallEvidenceId('review:2:'+task,'with_hint'),status:'completed',updated_at:'2026-10-14T10:00:00Z'}
+ ];
+ const undo=assessmentPlan('review:2:'+task,'pending',undefined,earlier);
+ assert.equal(undo.deletes.includes(assessmentId(task)),false);
+ assert.equal(undo.deletes.includes(masteryId(task)),true);
+ assert.equal(undo.deletes.includes('review:3:'+task),true);
+ assert.equal(undo.deletes.includes(recallEvidenceId('review:2:'+task,'with_hint')),true);
+});
+
+test('a failed later recall does not erase earlier understanding evidence',()=>{
+ const before:SavedRecord[]=[
+  {task_id:task,status:'completed',updated_at:'2026-10-01T10:00:00Z'},
+  {task_id:assessmentId(task),status:'completed',updated_at:'2026-10-01T10:05:00Z'}
+ ];
+ const retry=assessmentPlan(review,'needs_revision',undefined,before,'not_yet');
+ assert.ok(!retry.upserts.some(w=>w.taskId===assessmentId(task)));
+ const after=[...before,...retry.upserts.map(w=>record(w.taskId,w.status))];
+ assert.equal(understoodTasks(after).has(task),true);
+ const successful=assessmentPlan(review,'completed',undefined,after,'independent');
+ assert.equal(successful.mastery,true);
 });

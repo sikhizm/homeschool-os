@@ -51,6 +51,17 @@ See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenan
 
 See [NCERT_CLASS1_INDEX.md](NCERT_CLASS1_INDEX.md) for exact sources, edition notes, scope and remaining gaps.
 
+## Phase 04 — Adaptive revision & retention (this phase)
+- [x] Replace fixed 3/10-day-only recall with parent-recorded independent / hinted / not-yet recall outcomes
+- [x] Adapt intervals: independent recall 10 days, recall with a hint 4 days, not-yet recall returns immediately for gentle revision
+- [x] Continue up to five spaced checks when independent retention has not yet been demonstrated
+- [x] Award mastery only after an understanding record and a later independent recall; a hinted recall never awards mastery
+- [x] Keep evidence in the existing migration 005 progress table; no new migration or production data rewrite
+- [x] Preserve legacy review:1 and review:2 records and support undo without erasing earlier understanding evidence
+- [x] Add tests for interval adaptation, later recall, legacy compatibility and evidence rollback
+
+See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rules and safeguards.
+
 ## Still outstanding (next phases)
 - Human-reviewed Class 5 chapter-to-skill mapping with source edition, chapter evidence, rationale, reviewer and revision history; no automatic approval.
 - Official Class 2 and Class 3 book/contents audits, then systematic NCERT Classes 1–12 coverage; Class 8 contents and Class 1 Dilchasp Riyazi contents remain pending (see `NCERT_CLASS1_INDEX.md` and `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
