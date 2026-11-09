@@ -50,7 +50,7 @@ test('an independent second recall earns mastery and ends the review sequence',(
 });
 test('if understanding is first established during recall, a later independent check is still required',()=>{
  const r1='review:1:'+first.id,r2='review:2:'+first.id;
- const records=[record(first.id,'completed',30),record(r1,'completed',20),record(recallEvidenceId(r1,'independent'),'completed',20),record(assessmentId(first.id),'completed',20),record(r2,'completed',10),record(recallEvidenceId(r2,'with_hint'),'completed',10)];
+ const records=[record(first.id,'completed',30),record(r1,'completed',20),record(recallEvidenceId(r1,'independent'),'completed',20),record(assessmentId(first.id),'completed',20),record(r2,'completed',2),record(recallEvidenceId(r2,'with_hint'),'completed',2)];
  assert.equal(revisionTasks(all,records,now).length,0);
  records[5].updated_at=previous(4);records[4].updated_at=previous(4);
  assert.equal(revisionTasks(all,records,now)[0].id,'review:3:'+first.id);
