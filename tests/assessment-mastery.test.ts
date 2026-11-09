@@ -105,7 +105,8 @@ test('assessment evidence fits the existing migration 005 schema and preserves r
   const rows=await db.query<{task_id:string;status:string}>('SELECT task_id,status FROM auto_learning_progress ORDER BY task_id');
   assert.equal(rows.rows.length,6); // one original row + task, assess, review, recall evidence, mastery
   assert.ok(rows.rows.some(r=>r.task_id==='ncert:old-chapter'&&r.status==='completed'));
-  assert.ok(rows.rows.some(r=>r.task_id===masteryId(task)&&r.status==='completed'));\n  assert.ok(rows.rows.some(r=>r.task_id===recallEvidenceId(review,'independent')&&r.status==='completed'));
+  assert.ok(rows.rows.some(r=>r.task_id===masteryId(task)&&r.status==='completed'));
+  assert.ok(rows.rows.some(r=>r.task_id===recallEvidenceId(review,'independent')&&r.status==='completed'));
   const undo=assessmentPlan(review,'pending',undefined,records);
   for(const remove of undo.deletes)await db.query('DELETE FROM auto_learning_progress WHERE learner_id::text=$1 AND task_id=$2',[id,remove]);
   const remaining=await db.query<{task_id:string}>('SELECT task_id FROM auto_learning_progress');
