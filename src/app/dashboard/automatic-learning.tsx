@@ -198,7 +198,9 @@ export default function AutomaticLearning(){
     <div className="coach-subject-grid">
      <div className="coach-subject-card"><strong>{current.assessment.completed}</strong><p>Activities participated in</p></div>
      <div className="coach-subject-card"><strong>{current.assessment.understood}</strong><p>Understanding checks passed</p></div>
-     <div className="coach-subject-card"><strong>{current.assessment.mastered}</strong><p>Mastery shown after delayed recall</p></div>\n     <div className="coach-subject-card"><strong>{current.assessment.independentRecall}</strong><p>Independent recalls</p></div>\n     <div className="coach-subject-card"><strong>{current.assessment.recallWithHint}</strong><p>Recalls with a hint</p></div>
+     <div className="coach-subject-card"><strong>{current.assessment.mastered}</strong><p>Mastery shown after delayed recall</p></div>
+     <div className="coach-subject-card"><strong>{current.assessment.independentRecall}</strong><p>Independent recalls</p></div>
+     <div className="coach-subject-card"><strong>{current.assessment.recallWithHint}</strong><p>Recalls with a hint</p></div>
     </div>
     <h4 className="coach-upcoming-heading">Mastery badges</h4>
     <p className="coach-next-note">A mastery badge needs an understanding check plus a successful later independent recall. It is never awarded for a completion click. Review spacing adapts: independent recall usually waits 10 days, recall with a hint returns in 4 days, and a not-yet-secure idea stays in the revision queue.</p>
