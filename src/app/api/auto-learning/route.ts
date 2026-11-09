@@ -103,7 +103,7 @@ export async function POST(request:Request){
  const verdict=assessment===undefined?undefined:assessment as 'understood'|'not-yet';
  // "understood" evidence belongs only to a completed session; "not-yet" may accompany a revision.
  if(verdict==='understood'&&status!=='completed')return send({error:'An understanding check belongs to a completed session'},400);
- if(recallQuality!==undefined&&!/^review:[123]:/.test(taskId))return send({error:'Recall results belong to a scheduled recall session'},400);
+ if(recallQuality!==undefined&&!/^review:[1-5]:/.test(taskId))return send({error:'Recall results belong to a scheduled recall session'},400);
  if(recallQuality==='not_yet'&&status!=='needs_revision')return send({error:'A recall that is not yet secure must remain in revision'},400);
  if((recallQuality==='independent'||recallQuality==='with_hint')&&status!=='completed')return send({error:'A successful recall must be completed'},400);
  const action=status as 'completed'|'needs_revision'|'pending';
