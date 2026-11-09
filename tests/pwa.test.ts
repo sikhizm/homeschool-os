@@ -30,9 +30,14 @@ test('service worker provides an offline fallback without caching private family
 test('layout links the manifest and registers the service worker client',()=>{
  const layout=read('src/app/layout.tsx');
  const tools=read('src/components/pwa-tools.tsx');
+ const navigation=read('src/components/app-navigation.tsx');
+ const css=read('src/app/globals.css');
  assert.match(layout,/manifest:/);
  assert.match(layout,/PwaRegistration/);
  assert.match(tools,/navigator\.serviceWorker\.register/);
  assert.match(tools,/beforeinstallprompt/);
  assert.match(tools,/Add to Home Screen/);
+ assert.match(navigation,/className="app-nav-actions"/);
+ assert.match(css,/\.app-nav-actions\{position:absolute/);
+ assert.match(tools,/nav\.platform === 'MacIntel'/);
 });
