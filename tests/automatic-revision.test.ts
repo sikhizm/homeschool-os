@@ -64,7 +64,8 @@ test('legacy fixed-review records remain readable and get a conservative seven-d
 });
 test('unknown review identifiers are rejected and third review is supported',()=>{
  assert.equal(knownReviewTask('review:1:'+first.id,all),true);
- assert.equal(knownReviewTask('review:3:'+first.id,all),true);\n assert.equal(knownReviewTask('review:5:'+first.id,all),true);
+ assert.equal(knownReviewTask('review:3:'+first.id,all),true);
+ assert.equal(knownReviewTask('review:5:'+first.id,all),true);
  assert.equal(knownReviewTask('review:6:'+first.id,all),false);
  assert.equal(knownReviewTask('review:1:unrecognized',all),false);
 });
