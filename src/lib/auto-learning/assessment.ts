@@ -21,7 +21,7 @@ export function isInternalProgressId(taskId:string){
  return taskId.startsWith(ASSESS_PREFIX)||taskId.startsWith(MASTERY_PREFIX)||taskId.startsWith('recall:');
 }
 export function reviewBaseId(taskId:string):string|null{
- const match=/^review:[123]:(.+)$/.exec(taskId);
+ const match=/^review:[1-5]:(.+)$/.exec(taskId);
  return match?match[1]:null;
 }
 export function underlyingTaskId(taskId:string){return reviewBaseId(taskId)??taskId;}
@@ -54,7 +54,7 @@ export function assessmentPlan(
    deletes.add(assessmentId(base));deletes.add(masteryId(base));
    for(const round of [1,2,3,4,5]){const id='review:'+round+':'+base;deletes.add(id);for(const evidence of recallEvidenceIds(id))deletes.add(evidence);}
   }else{
-   const round=Number(/^review:([123]):/.exec(taskId)?.[1]??1);
+   const round=Number(/^review:([1-5]):/.exec(taskId)?.[1]??1);
    const reviewAt=new Date(records.find(r=>r.task_id===taskId)?.updated_at??'').getTime();
    const assessedAt=new Date(records.find(r=>r.task_id===assessmentId(base))?.updated_at??'').getTime();
    const masteredAt=new Date(records.find(r=>r.task_id===masteryId(base))?.updated_at??'').getTime();
