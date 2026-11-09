@@ -22,7 +22,7 @@ Replace a fixed spaced-revision timer with a calm, parent-observed recall loop. 
 - An initial parent understanding check records understanding, not mastery.
 - A hinted recall never awards mastery.
 - An independent recall can establish understanding if the parent had not assessed the original lesson, but it cannot establish mastery on that same attempt. A later independent recall is required.
-- A not-yet result keeps the task in the queue; it does not label a child as behind or incapable.
+- A not-yet result keeps the task in the queue; it does not label a child as behind or incapable. A later recall setback does not erase an earlier parent-observed understanding record.
 - Infant interactions remain responsive, screen-free parent–child care, not academic tasks or assessment targets.
 - The dashboard's shared parent-guided budget remains one family-wide 60-minute default. Short revision sessions use that same shared budget; independent work and infant play remain separate.
 
