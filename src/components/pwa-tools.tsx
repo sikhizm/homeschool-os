@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 
 type InstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -10,6 +10,37 @@ type InstallPromptEvent = Event & {
 type NavigatorWithStandalone = Navigator & {
   standalone?: boolean;
 };
+
+function subscribeToInstalledState(onChange: () => void) {
+  if (typeof window === 'undefined') return () => undefined;
+
+  const displayMode = window.matchMedia('(display-mode: standalone)');
+  displayMode.addEventListener('change', onChange);
+  window.addEventListener('appinstalled', onChange);
+
+  return () => {
+    displayMode.removeEventListener('change', onChange);
+    window.removeEventListener('appinstalled', onChange);
+  };
+}
+
+function getInstalledSnapshot() {
+  if (typeof window === 'undefined') return false;
+  const nav = window.navigator as NavigatorWithStandalone;
+  return window.matchMedia('(display-mode: standalone)').matches || nav.standalone === true;
+}
+
+function getServerInstalledSnapshot() {
+  return false;
+}
+
+function isAppleMobileDevice() {
+  if (typeof window === 'undefined') return false;
+  const nav = window.navigator as NavigatorWithStandalone;
+  const userAgent = nav.userAgent.toLowerCase();
+  return /iphone|ipad|ipod/.test(userAgent)
+    || (nav.platform === 'MacIntel' && nav.maxTouchPoints > 1);
+}
 
 export function PwaRegistration() {
   useEffect(() => {
@@ -48,26 +79,22 @@ export function PwaRegistration() {
 
 export function PwaInstallButton() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
-  const [isIos, setIsIos] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  const [acceptedInstall, setAcceptedInstall] = useState(false);
   const [showInstallHelp, setShowInstallHelp] = useState(false);
+  const isInstalled = useSyncExternalStore(
+    subscribeToInstalledState,
+    getInstalledSnapshot,
+    getServerInstalledSnapshot,
+  );
+  const isIos = isAppleMobileDevice();
 
   useEffect(() => {
-    const nav = window.navigator as NavigatorWithStandalone;
-    const standalone = window.matchMedia('(display-mode: standalone)').matches
-      || nav.standalone === true;
-    setIsInstalled(standalone);
-
-    const userAgent = nav.userAgent.toLowerCase();
-    const isIpadOs = nav.platform === 'MacIntel' && nav.maxTouchPoints > 1;
-    setIsIos(/iphone|ipad|ipod/.test(userAgent) || isIpadOs);
-
     const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setInstallPrompt(event as InstallPromptEvent);
     };
     const onAppInstalled = () => {
-      setIsInstalled(true);
+      setAcceptedInstall(true);
       setInstallPrompt(null);
       setShowInstallHelp(false);
     };
@@ -89,7 +116,7 @@ export function PwaInstallButton() {
     try {
       await installPrompt.prompt();
       const choice = await installPrompt.userChoice;
-      if (choice.outcome === 'accepted') setIsInstalled(true);
+      if (choice.outcome === 'accepted') setAcceptedInstall(true);
     } catch {
       setShowInstallHelp(true);
     } finally {
@@ -97,7 +124,7 @@ export function PwaInstallButton() {
     }
   }
 
-  if (isInstalled) return null;
+  if (isInstalled || acceptedInstall) return null;
 
   return (
     <>
