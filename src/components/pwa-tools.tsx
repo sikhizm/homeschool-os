@@ -7,13 +7,40 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>;
 };
 
+type NavigatorWithStandalone = Navigator & {
+  standalone?: boolean;
+};
+
 export function PwaRegistration() {
   useEffect(() => {
     if (!('serviceWorker' in navigator)) return;
 
-    navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' }).catch(() => {
-      // The app remains usable if service-worker registration is unavailable.
-    });
+    let registration: ServiceWorkerRegistration | undefined;
+    let active = true;
+
+    const update = () => {
+      if (active) registration?.update().catch(() => undefined);
+    };
+
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+      .then((registered) => {
+        registration = registered;
+        if (registered.waiting) registered.waiting.postMessage({ type: 'SKIP_WAITING' });
+        update();
+      })
+      .catch(() => {
+        // Installation remains available through the browser's Add to Home Screen menu.
+      });
+
+    window.addEventListener('online', update);
+    document.addEventListener('visibilitychange', update);
+
+    return () => {
+      active = false;
+      window.removeEventListener('online', update);
+      document.removeEventListener('visibilitychange', update);
+    };
   }, []);
 
   return null;
@@ -26,12 +53,14 @@ export function PwaInstallButton() {
   const [showInstallHelp, setShowInstallHelp] = useState(false);
 
   useEffect(() => {
+    const nav = window.navigator as NavigatorWithStandalone;
     const standalone = window.matchMedia('(display-mode: standalone)').matches
-      || (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+      || nav.standalone === true;
     setIsInstalled(standalone);
 
-    const userAgent = window.navigator.userAgent.toLowerCase();
-    setIsIos(/iphone|ipad|ipod/.test(userAgent) && !standalone);
+    const userAgent = nav.userAgent.toLowerCase();
+    const isIpadOs = nav.platform === 'MacIntel' && nav.maxTouchPoints > 1;
+    setIsIos(/iphone|ipad|ipod/.test(userAgent) || isIpadOs);
 
     const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
@@ -57,10 +86,15 @@ export function PwaInstallButton() {
       return;
     }
 
-    await installPrompt.prompt();
-    const choice = await installPrompt.userChoice;
-    if (choice.outcome === 'accepted') setIsInstalled(true);
-    setInstallPrompt(null);
+    try {
+      await installPrompt.prompt();
+      const choice = await installPrompt.userChoice;
+      if (choice.outcome === 'accepted') setIsInstalled(true);
+    } catch {
+      setShowInstallHelp(true);
+    } finally {
+      setInstallPrompt(null);
+    }
   }
 
   if (isInstalled) return null;
@@ -71,6 +105,7 @@ export function PwaInstallButton() {
         type="button"
         onClick={installApp}
         className="pwa-install-trigger"
+        aria-label="Install Homeschool OS on this device"
         aria-haspopup="dialog"
         aria-expanded={showInstallHelp}
         style={{
@@ -118,23 +153,25 @@ export function PwaInstallButton() {
             }}
           >
             <h2 id="pwa-install-title" style={{ margin: '0 0 10px', fontSize: 21 }}>
-              {isIos ? 'Add Homeschool OS to your iPhone' : 'Install Homeschool OS'}
+              {isIos ? 'Add Homeschool OS to your iPhone or iPad' : 'Install Homeschool OS'}
             </h2>
             {isIos ? (
               <ol style={{ paddingLeft: 21, lineHeight: 1.7, fontSize: 14 }}>
-                <li>Open this page in Safari.</li>
-                <li>Tap the Share button in the browser toolbar.</li>
-                <li>Choose <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
+                <li>If you are not in Safari, open this same site in Safari first.</li>
+                <li>Tap the Share button in Safari.</li>
+                <li>Scroll and choose <strong>Add to Home Screen</strong>.</li>
+                <li>Keep the suggested name and tap <strong>Add</strong>.</li>
               </ol>
             ) : (
               <ol style={{ paddingLeft: 21, lineHeight: 1.7, fontSize: 14 }}>
                 <li>Open this site in Chrome or Edge.</li>
-                <li>Open the browser menu (⋮) or tap the install icon in the address bar.</li>
+                <li>Tap the browser menu (⋮).</li>
                 <li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>, then confirm.</li>
               </ol>
             )}
             <p style={{ margin: '12px 0 18px', color: '#617568', fontSize: 12, lineHeight: 1.6 }}>
-              Homeschool OS will appear with its own Home Screen icon and open in a standalone window.
+              The installed app gets its own Homeschool OS icon and opens in a standalone window.
+              Your family information continues to sync securely when you are online.
             </p>
             <button
               type="button"
