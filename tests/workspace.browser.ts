@@ -367,12 +367,12 @@ test('adaptive recall UI records independent, hinted and not-yet outcomes on des
     browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true, args: ['--no-sandbox'] });
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
     await page.addInitScript((data) => {
-      (window as AdaptiveTestWindow).__lastAdaptivePost = null;
+      (window as unknown as AdaptiveTestWindow).__lastAdaptivePost = null;
       window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
         if (url.startsWith('/api/auto-learning')) {
           if (init?.method === 'POST') {
-            (window as AdaptiveTestWindow).__lastAdaptivePost = JSON.parse(String(init.body));
+            (window as unknown as AdaptiveTestWindow).__lastAdaptivePost = JSON.parse(String(init.body));
             return new Response(JSON.stringify({ saved: true, message: 'Recall outcome recorded.' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
           }
           return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -389,7 +389,7 @@ test('adaptive recall UI records independent, hinted and not-yet outcomes on des
       await page.getByRole('button', { name: 'Record recall result' }).click();
       await page.getByRole('button', { name: label }).click();
       await page.getByText('Recall outcome recorded.', { exact: true }).waitFor();
-      const posted = await page.evaluate(() => (window as AdaptiveTestWindow).__lastAdaptivePost);
+      const posted = await page.evaluate(() => (window as unknown as AdaptiveTestWindow).__lastAdaptivePost);
       assert.ok(posted);
       assert.equal(posted.taskId, taskId);
       assert.equal(posted.recallQuality, quality);
