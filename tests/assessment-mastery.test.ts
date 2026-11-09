@@ -138,3 +138,19 @@ test('adaptive recall evidence is internal and never counted as an activity',()=
  assert.equal(assessmentSummary([record(task,'completed'),evidence]).completed,1);
  assert.equal(assessmentSummary([record(task,'completed'),evidence]).independentRecall,1);
 });
+
+test('undoing a later recall preserves an understanding check recorded earlier',()=>{
+ const earlier:SavedRecord[]=[
+  {task_id:task,status:'completed',updated_at:'2026-10-01T10:00:00Z'},
+  {task_id:assessmentId(task),status:'completed',updated_at:'2026-10-01T10:05:00Z'},
+  {task_id:review,status:'completed',updated_at:'2026-10-04T10:00:00Z'},
+  {task_id:recallEvidenceId(review,'independent'),status:'completed',updated_at:'2026-10-04T10:00:00Z'},
+  {task_id:'review:2:'+task,status:'completed',updated_at:'2026-10-14T10:00:00Z'},
+  {task_id:recallEvidenceId('review:2:'+task,'with_hint'),status:'completed',updated_at:'2026-10-14T10:00:00Z'}
+ ];
+ const undo=assessmentPlan('review:2:'+task,'pending',undefined,earlier);
+ assert.equal(undo.deletes.includes(assessmentId(task)),false);
+ assert.equal(undo.deletes.includes(masteryId(task)),true);
+ assert.equal(undo.deletes.includes('review:3:'+task),true);
+ assert.equal(undo.deletes.includes(recallEvidenceId('review:2:'+task,'with_hint')),true);
+});
