@@ -1,20 +1,16 @@
-const CACHE_NAME = 'homeschool-os-static-v1';
+const CACHE_NAME = 'homeschool-os-static-v2';
 const OFFLINE_URL = '/offline.html';
-const PRECACHE_URLS = [
-  OFFLINE_URL,
-  '/icons/icon-192.png',
-  '/icons/icon-512.png',
-  '/icons/maskable-512.png',
-  '/icons/apple-touch-icon.png',
-];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => Promise.all(
-      PRECACHE_URLS.map((url) => cache.add(url).catch(() => undefined)),
-    )),
-  );
-  self.skipWaiting();
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE_NAME);
+    try {
+      await cache.add(OFFLINE_URL);
+    } catch {
+      // The worker can still activate; the next successful visit retries the offline page.
+    }
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (event) => {
@@ -47,29 +43,31 @@ self.addEventListener('fetch', (event) => {
     || url.pathname.startsWith('/_next/data/')
   ) return;
 
-  // Only immutable framework assets and app icons are cached for repeat visits.
+  // Cache immutable Next.js chunks only. HTML and private family data stay network-only.
   const isStaticAsset = url.pathname.startsWith('/_next/static/')
     || url.pathname.startsWith('/icons/');
 
   if (isStaticAsset) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        if (cached) return cached;
-        return fetch(request).then((response) => {
-          if (!response.ok) return response;
-          return caches.open(CACHE_NAME).then((cache) => (
-            cache.put(request, response.clone()).then(() => response)
-          ));
-        });
-      }),
-    );
+    event.respondWith((async () => {
+      const cache = await caches.open(CACHE_NAME);
+      const cached = await cache.match(request);
+      if (cached) return cached;
+
+      try {
+        const response = await fetch(request);
+        if (response.ok) await cache.put(request, response.clone());
+        return response;
+      } catch {
+        return Response.error();
+      }
+    })());
     return;
   }
 
-  // Navigation is network-only: offline mode shows a neutral page, never stale family data.
+  // Never replay a cached dashboard or learner record while offline.
   if (request.mode === 'navigate') {
     event.respondWith(
-      fetch(request).catch(() => caches.match(OFFLINE_URL).then((page) => page || Response.error())),
+      fetch(request).catch(async () => (await caches.match(OFFLINE_URL)) || Response.error()),
     );
   }
 });
