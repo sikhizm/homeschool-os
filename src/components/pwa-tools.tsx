@@ -23,7 +23,7 @@ export function PwaInstallButton() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);
   const [isIos, setIsIos] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [showIosHelp, setShowIosHelp] = useState(false);
+  const [showInstallHelp, setShowInstallHelp] = useState(false);
 
   useEffect(() => {
     const standalone = window.matchMedia('(display-mode: standalone)').matches
@@ -40,7 +40,7 @@ export function PwaInstallButton() {
     const onAppInstalled = () => {
       setIsInstalled(true);
       setInstallPrompt(null);
-      setShowIosHelp(false);
+      setShowInstallHelp(false);
     };
 
     window.addEventListener('beforeinstallprompt', onBeforeInstallPrompt);
@@ -53,7 +53,7 @@ export function PwaInstallButton() {
 
   async function installApp() {
     if (!installPrompt) {
-      setShowIosHelp(true);
+      setShowInstallHelp(true);
       return;
     }
 
@@ -63,7 +63,7 @@ export function PwaInstallButton() {
     setInstallPrompt(null);
   }
 
-  if (isInstalled || (!installPrompt && !isIos)) return null;
+  if (isInstalled) return null;
 
   return (
     <>
@@ -71,8 +71,8 @@ export function PwaInstallButton() {
         type="button"
         onClick={installApp}
         className="pwa-install-trigger"
-        aria-haspopup={isIos ? 'dialog' : undefined}
-        aria-expanded={isIos ? showIosHelp : undefined}
+        aria-haspopup="dialog"
+        aria-expanded={showInstallHelp}
         style={{
           minHeight: 38,
           padding: '8px 13px',
@@ -89,10 +89,10 @@ export function PwaInstallButton() {
         ↓ Install app
       </button>
 
-      {showIosHelp && (
+      {showInstallHelp && (
         <div
           role="presentation"
-          onClick={() => setShowIosHelp(false)}
+          onClick={() => setShowInstallHelp(false)}
           style={{
             position: 'fixed',
             inset: 0,
@@ -106,7 +106,7 @@ export function PwaInstallButton() {
           <section
             role="dialog"
             aria-modal="true"
-            aria-labelledby="pwa-ios-title"
+            aria-labelledby="pwa-install-title"
             onClick={(event) => event.stopPropagation()}
             style={{
               width: 'min(100%, 380px)',
@@ -117,18 +117,28 @@ export function PwaInstallButton() {
               boxShadow: '0 20px 60px rgba(0,0,0,.2)',
             }}
           >
-            <h2 id="pwa-ios-title" style={{ margin: '0 0 10px', fontSize: 21 }}>Add Homeschool OS to your iPhone</h2>
-            <ol style={{ paddingLeft: 21, lineHeight: 1.7, fontSize: 14 }}>
-              <li>Open this page in Safari.</li>
-              <li>Tap the Share button in the browser toolbar.</li>
-              <li>Choose <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
-            </ol>
+            <h2 id="pwa-install-title" style={{ margin: '0 0 10px', fontSize: 21 }}>
+              {isIos ? 'Add Homeschool OS to your iPhone' : 'Install Homeschool OS'}
+            </h2>
+            {isIos ? (
+              <ol style={{ paddingLeft: 21, lineHeight: 1.7, fontSize: 14 }}>
+                <li>Open this page in Safari.</li>
+                <li>Tap the Share button in the browser toolbar.</li>
+                <li>Choose <strong>Add to Home Screen</strong>, then tap <strong>Add</strong>.</li>
+              </ol>
+            ) : (
+              <ol style={{ paddingLeft: 21, lineHeight: 1.7, fontSize: 14 }}>
+                <li>Open this site in Chrome or Edge.</li>
+                <li>Open the browser menu (⋮) or tap the install icon in the address bar.</li>
+                <li>Choose <strong>Install app</strong> or <strong>Add to Home screen</strong>, then confirm.</li>
+              </ol>
+            )}
             <p style={{ margin: '12px 0 18px', color: '#617568', fontSize: 12, lineHeight: 1.6 }}>
-              The app will get its own Home Screen icon and open in a standalone window.
+              Homeschool OS will appear with its own Home Screen icon and open in a standalone window.
             </p>
             <button
               type="button"
-              onClick={() => setShowIosHelp(false)}
+              onClick={() => setShowInstallHelp(false)}
               style={{
                 width: '100%',
                 minHeight: 44,
