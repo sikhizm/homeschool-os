@@ -24,27 +24,38 @@ const modeLabel=(mode?:string)=>mode==='independent'?'Independent practice':mode
 
 function TaskActions({task,learnerId,canEdit,checking,setChecking,onMark,busy}:{
  task:Task;learnerId:string;canEdit:boolean;checking:string;setChecking:(value:string)=>void;
- onMark:(learnerId:string,taskId:string,status:'completed'|'needs_revision'|'pending',assessment?:'understood'|'not-yet')=>void;busy:string;
+ onMark:(learnerId:string,taskId:string,status:'completed'|'needs_revision'|'pending',assessment?:'understood'|'not-yet',recallQuality?:'independent'|'with_hint'|'not_yet')=>void;busy:string;
 }){
  if(!canEdit)return null;
  const prompt=task.check??task.lesson?.completionCriteria??'Ask the child to explain or demonstrate what they learned without looking at the answer.';
+ const isRecall=/^review:[123]:/.test(task.id);
  if(checking===task.id)return <div className="lesson-check">
-  <strong>Parent understanding check</strong>
-  <p>{prompt}</p>
-  {task.lesson?.expectedAnswer&&<p className="lesson-check-answer"><em>Expected answer guidance:</em> {task.lesson.expectedAnswer}</p>}
-  <p>Was your child able to show understanding without help? Only a “yes” records assessed understanding.</p>
-  <div className="coach-actions">
-   <button type="button" className="coach-complete" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'completed','understood')}}>Yes, understood ✓</button>
-   <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'needs_revision','not-yet')}}>Needs more practice ↻</button>
-   <button type="button" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'completed')}}>Done, not assessed</button>
-   <button type="button" disabled={!!busy} onClick={()=>setChecking('')}>Cancel</button>
-  </div>
+  {isRecall?<><strong>How did recall go?</strong>
+   <p>Ask without showing the lesson first. Record what you actually observed; the next review date will adapt to this answer.</p>
+   <p>{prompt}</p>
+   <div className="coach-actions">
+    <button type="button" className="coach-complete" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'completed',undefined,'independent')}}>Remembered independently ✓</button>
+    <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'completed',undefined,'with_hint')}}>Remembered with a hint</button>
+    <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'needs_revision',undefined,'not_yet')}}>Not yet — revisit gently ↻</button>
+    <button type="button" disabled={!!busy} onClick={()=>setChecking('')}>Cancel</button>
+   </div>
+  </>:<>
+   <strong>Parent understanding check</strong>
+   <p>{prompt}</p>
+   {task.lesson?.expectedAnswer&&<p className="lesson-check-answer"><em>Expected answer guidance:</em> {task.lesson.expectedAnswer}</p>}
+   <p>Was your child able to show understanding without help? Only a “yes” records assessed understanding.</p>
+   <div className="coach-actions">
+    <button type="button" className="coach-complete" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'completed','understood')}}>Yes, understood ✓</button>
+    <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'needs_revision','not-yet')}}>Needs more practice ↻</button>
+    <button type="button" disabled={!!busy} onClick={()=>{setChecking('');onMark(learnerId,task.id,'completed')}}>Done, not assessed</button>
+    <button type="button" disabled={!!busy} onClick={()=>setChecking('')}>Cancel</button>
+   </div>
+  </>}
  </div>;
  return <div className="coach-actions">
-  <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>setChecking(task.id)}>✓ Check understanding & record</button>
+  <button type="button" className="coach-revise" disabled={!!busy} onClick={()=>setChecking(task.id)}>{isRecall?'↻ Record recall result':'✓ Check understanding & record'}</button>
  </div>;
 }
-
 export default function AutomaticLearning(){
  const [learners,setLearners]=useState<Learner[]>([]);
  const [selected,setSelected]=useState('');
@@ -72,11 +83,11 @@ export default function AutomaticLearning(){
  const current=learners.find(x=>x.id===selected);
  const mySlots=useMemo(()=>familyPlan?.slots.filter(slot=>slot.learnerId===selected)??[],[familyPlan,selected]);
  const mySeparate=useMemo(()=>familyPlan?.separate.filter(entry=>entry.learnerId===selected)??[],[familyPlan,selected]);
- async function mark(learnerId:string,taskId:string,status:'completed'|'needs_revision'|'pending',assessment?:'understood'|'not-yet'){
+ async function mark(learnerId:string,taskId:string,status:'completed'|'needs_revision'|'pending',assessment?:'understood'|'not-yet',recallQuality?:'independent'|'with_hint'|'not_yet'){
   setBusy(taskId);setNotice('Saving progress…');
   try{
    const res=await fetch('/api/auto-learning',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({learnerId,taskId,status,...(assessment?{assessment}:{})})});
+    body:JSON.stringify({learnerId,taskId,status,...(assessment?{assessment}:{}),...(recallQuality?{recallQuality}:{})})});
    const data=await res.json();
    if(!res.ok)throw new Error(data.error??'Unable to save progress');
    await load(dailyBudget);
