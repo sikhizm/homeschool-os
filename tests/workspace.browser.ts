@@ -330,14 +330,14 @@ test('adaptive recall UI records independent, hinted and not-yet outcomes on des
     plugins: [{
       name: 'adaptive-test-stubs',
       setup(b) {
-        b.onResolve({ filter: /^next\\/link$/ }, () => ({ path: 'link', namespace: 'test' }));
+        b.onResolve({ filter: /^next.link$/ }, () => ({ path: 'link', namespace: 'test' }));
         b.onLoad({ filter: /.*/, namespace: 'test' }, () => ({
           contents: "import React from 'react'; export default function Link(props){return React.createElement('a',{href:props.href},props.children);}",
           resolveDir: process.cwd()
         }));
-        b.onResolve({ filter: /\\.\\/family-calendar$/ }, () => ({ path: 'calendar', namespace: 'stub' }));
-        b.onResolve({ filter: /\\.\\/family-week$/ }, () => ({ path: 'week', namespace: 'stub' }));
-        b.onResolve({ filter: /\\.\\/lesson-card$/ }, () => ({ path: 'lesson', namespace: 'stub' }));
+        b.onResolve({ filter: /family-calendar$/ }, () => ({ path: 'calendar', namespace: 'stub' }));
+        b.onResolve({ filter: /family-week$/ }, () => ({ path: 'week', namespace: 'stub' }));
+        b.onResolve({ filter: /lesson-card$/ }, () => ({ path: 'lesson', namespace: 'stub' }));
         b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({
           contents: "import React from 'react'; export default function Stub(){return React.createElement('div');}",
           resolveDir: process.cwd()
