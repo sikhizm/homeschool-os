@@ -34,7 +34,8 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
    <button type="submit">Show books</button>
   </form>
   {![4,5,8].includes(selectedGrade)&&<p className="ncert-pending">Class {selectedGrade} is not catalogued yet. The official NCERT textbook portal is available below; this does not mean textbooks do not exist.</p>}
-  {[5,8].includes(selectedGrade)&&<p className="ncert-pending">All seven catalogued Class 5 NCERT books have chapter titles checked against their official 2026–27 publisher contents. Chapter-to-skill mappings remain unapproved.</p>}
+  {selectedGrade===5&&<p className="ncert-pending">All seven catalogued Class 5 NCERT books have chapter titles checked against their official 2026–27 publisher contents. Chapter-to-skill mappings remain unapproved.</p>}
+  {selectedGrade===8&&<p className="ncert-pending">Class 8 book identities are indexed, but individual chapter names and counts remain pending official NCERT contents review.</p>}
  </section>
  {books.length>0&&<div className="ncert-books-layout">
  <aside className="workspace-panel ncert-book-selector">
