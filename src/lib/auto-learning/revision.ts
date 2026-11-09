@@ -14,7 +14,7 @@ export function recallQualityFor(reviewTaskId:string,records:SavedProgress[]):Re
  return null;
 }
 function timestamp(record:SavedProgress|undefined){const value=new Date(record?.updated_at??'').getTime();return Number.isFinite(value)?value:null;}
-function reviewTask(task:QueueTask,round:1|2|3,delay:number,quality:RecallQuality|null,immediate=false):QueueTask{
+type ReviewRound=1|2|3|4|5;\nfunction reviewTask(task:QueueTask,round:ReviewRound,delay:number,quality:RecallQuality|null,immediate=false):QueueTask{
  const reason=quality==='independent'?'recalled independently':quality==='with_hint'?'needed a hint':quality==='not_yet'?'could not yet recall':'has not had a recorded recall rating';
  const title=round===1?'First recall':round===2?'Spaced recall': 'Retention check';
  return {...task,id:'review:'+round+':'+task.id,title:title+' · '+task.title,minutes:Math.min(task.minutes,10),
@@ -47,39 +47,27 @@ export function revisionTasks(catalogue:QueueTask[],records:SavedProgress[],now=
    continue;
   }
   if(initial?.status!=='completed')continue;
-  const completedAt=timestamp(initial);if(completedAt===null)continue;
-  const firstId='review:1:'+task.id,first=byId.get(firstId);
-  if(!first){
-   const interval=byId.get(assessmentId(task.id))?.status==='completed'?3:2;
-   if(now.getTime()>=completedAt+interval*DAY)due.push(reviewTask(task,1,interval,null));
-   continue;
+  let previousAt=timestamp(initial);
+  if(previousAt===null)continue;
+  let previousQuality:RecallQuality|null=null;
+  for(let number=1;number<=5;number++){
+   const round=number as ReviewRound;
+   const id='review:'+round+':'+task.id;
+   const stored=byId.get(id);
+   if(!stored){
+    const interval=round===1?(byId.get(assessmentId(task.id))?.status==='completed'?3:2):delays[previousQuality??'unassessed'];
+    if(now.getTime()>=previousAt+interval*DAY)due.push(reviewTask(task,round,interval,previousQuality));
+    break;
+   }
+   if(stored.status==='needs_revision'){
+    due.push(reviewTask(task,round,0,'not_yet',true));break;
+   }
+   if(stored.status!=='completed')break;
+   // A successful independent recall after understanding ends the sequence.
+   if(byId.get(masteryId(task.id))?.status==='completed')break;
+   previousAt=timestamp(stored)??previousAt;
+   previousQuality=recallQualityFor(id,records);
   }
-  if(first.status==='needs_revision'){
-   due.push(reviewTask(task,1,0,'not_yet',true));continue;
-  }
-  if(first.status!=='completed')continue;
-  const firstQuality=recallQualityFor(firstId,records);
-  const secondId='review:2:'+task.id,second=byId.get(secondId);
-  if(!second){
-   const interval=delays[firstQuality??'unassessed'];
-   const at=timestamp(first);
-   if(at!==null&&now.getTime()>=at+interval*DAY)due.push(reviewTask(task,2,interval,firstQuality));
-   continue;
-  }
-  if(second.status==='needs_revision'){
-   due.push(reviewTask(task,2,0,'not_yet',true));continue;
-  }
-  if(second.status!=='completed')continue;
-  if(byId.get(masteryId(task.id))?.status==='completed')continue;
-  const secondQuality=recallQualityFor(secondId,records);
-  const thirdId='review:3:'+task.id,third=byId.get(thirdId);
-  if(!third){
-   const interval=delays[secondQuality??'unassessed'];
-   const at=timestamp(second);
-   if(at!==null&&now.getTime()>=at+interval*DAY)due.push(reviewTask(task,3,interval,secondQuality));
-   continue;
-  }
-  if(third.status==='needs_revision')due.push(reviewTask(task,3,0,'not_yet',true));
  }
  return due;
 }
@@ -90,6 +78,6 @@ export function prioritizedQueue(catalogue:QueueTask[],records:SavedProgress[],n
  return [...reviews,...fresh].slice(0,limit);
 }
 export function knownReviewTask(id:string,catalogue:QueueTask[]){
- const match=/^review:([123]):(.+)$/.exec(id);
+ const match=/^review:([1-5]):(.+)$/.exec(id);
  return Boolean(match&&catalogue.some(t=>t.id===match[2]));
 }
