@@ -49,11 +49,19 @@ export function assessmentPlan(
  const review=Boolean(reviewBaseId(taskId));
  const understood=understoodTasks(records);
  if(status==='pending'){
-  const deletes=new Set([taskId,assessmentId(base),masteryId(base),assessmentId(taskId),masteryId(taskId),...recallEvidenceIds(taskId)]);
+  const deletes=new Set([taskId,assessmentId(taskId),masteryId(taskId),...recallEvidenceIds(taskId)]);
   if(!review){
+   deletes.add(assessmentId(base));deletes.add(masteryId(base));
    for(const round of [1,2,3]){const id='review:'+round+':'+base;deletes.add(id);for(const evidence of recallEvidenceIds(id))deletes.add(evidence);}
   }else{
    const round=Number(/^review:([123]):/.exec(taskId)?.[1]??1);
+   const reviewAt=new Date(records.find(r=>r.task_id===taskId)?.updated_at??'').getTime();
+   const assessedAt=new Date(records.find(r=>r.task_id===assessmentId(base))?.updated_at??'').getTime();
+   const masteredAt=new Date(records.find(r=>r.task_id===masteryId(base))?.updated_at??'').getTime();
+   // Undo only evidence derived on or after this recall. Earlier parent evidence
+   // remains valid when a later review is undone.
+   if(!Number.isFinite(reviewAt)||!Number.isFinite(assessedAt)||assessedAt>=reviewAt)deletes.add(assessmentId(base));
+   if(!Number.isFinite(reviewAt)||!Number.isFinite(masteredAt)||masteredAt>=reviewAt)deletes.add(masteryId(base));
    for(let next=round+1;next<=3;next++){const id='review:'+next+':'+base;deletes.add(id);for(const evidence of recallEvidenceIds(id))deletes.add(evidence);}
   }
   return {upserts:[],deletes:[...deletes],mastery:false};
