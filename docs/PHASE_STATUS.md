@@ -33,7 +33,18 @@ No personal learner data is committed.
 
 See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenance, safety and verification details.
 
-## Phase 04 — Adaptive revision & retention (this phase)\n- [x] Replace fixed 3/10-day-only recall with parent-recorded independent / hinted / not-yet recall outcomes\n- [x] Adapt intervals: independent recall 10 days, recall with a hint 4 days, not-yet recall returns immediately for gentle revision\n- [x] Continue up to five spaced checks when independent retention has not yet been demonstrated\n- [x] Award mastery only after an understanding record and a later independent recall; a hinted recall never awards mastery\n- [x] Keep evidence in the existing migration 005 progress table; no new migration or production data rewrite\n- [x] Preserve legacy review:1 and review:2 records and support undo without erasing earlier understanding evidence\n- [x] Add tests for interval adaptation, later recall, legacy compatibility and evidence rollback\n\nSee [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rules and safeguards.\n\n## Still outstanding (next phases)
+## Phase 04 — Adaptive revision & retention (this phase)
+- [x] Replace fixed 3/10-day-only recall with parent-recorded independent / hinted / not-yet recall outcomes
+- [x] Adapt intervals: independent recall 10 days, recall with a hint 4 days, not-yet recall returns immediately for gentle revision
+- [x] Continue up to five spaced checks when independent retention has not yet been demonstrated
+- [x] Award mastery only after an understanding record and a later independent recall; a hinted recall never awards mastery
+- [x] Keep evidence in the existing migration 005 progress table; no new migration or production data rewrite
+- [x] Preserve legacy review:1 and review:2 records and support undo without erasing earlier understanding evidence
+- [x] Add tests for interval adaptation, later recall, legacy compatibility and evidence rollback
+
+See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rules and safeguards.
+
+## Still outstanding (next phases)
 - Human-reviewed chapter-to-skill mapping and Class 1–12 official NCERT book/TOC audits (see `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
 - Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.
