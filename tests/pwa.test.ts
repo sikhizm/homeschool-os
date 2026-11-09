@@ -1,11 +1,12 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
+import {resolve} from 'node:path';
 
-const read = (path:string) => readFileSync(new URL(path, import.meta.url), 'utf8');
+const read = (path:string) => readFileSync(resolve(process.cwd(), path), 'utf8');
 
 test('PWA manifest declares an installable standalone family app and platform icons',()=>{
- const manifest=read('../src/app/manifest.ts');
+ const manifest=read('src/app/manifest.ts');
  assert.match(manifest,/name:\s*'Homeschool OS'/);
  assert.match(manifest,/short_name:\s*'Homeschool'/);
  assert.match(manifest,/start_url:/);
@@ -16,7 +17,7 @@ test('PWA manifest declares an installable standalone family app and platform ic
 });
 
 test('service worker provides an offline fallback without caching private family data',()=>{
- const worker=read('../public/sw.js');
+ const worker=read('public/sw.js');
  assert.match(worker,/addEventListener\('install'/);
  assert.match(worker,/addEventListener\('activate'/);
  assert.match(worker,/addEventListener\('fetch'/);
@@ -27,8 +28,8 @@ test('service worker provides an offline fallback without caching private family
 });
 
 test('layout links the manifest and registers the service worker client',()=>{
- const layout=read('../src/app/layout.tsx');
- const tools=read('../src/components/pwa-tools.tsx');
+ const layout=read('src/app/layout.tsx');
+ const tools=read('src/components/pwa-tools.tsx');
  assert.match(layout,/manifest:/);
  assert.match(layout,/PwaRegistration/);
  assert.match(tools,/navigator\.serviceWorker\.register/);
