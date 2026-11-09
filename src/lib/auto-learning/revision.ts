@@ -14,7 +14,8 @@ export function recallQualityFor(reviewTaskId:string,records:SavedProgress[]):Re
  return null;
 }
 function timestamp(record:SavedProgress|undefined){const value=new Date(record?.updated_at??'').getTime();return Number.isFinite(value)?value:null;}
-type ReviewRound=1|2|3|4|5;\nfunction reviewTask(task:QueueTask,round:ReviewRound,delay:number,quality:RecallQuality|null,immediate=false):QueueTask{
+type ReviewRound=1|2|3|4|5;
+function reviewTask(task:QueueTask,round:ReviewRound,delay:number,quality:RecallQuality|null,immediate=false):QueueTask{
  const reason=quality==='independent'?'recalled independently':quality==='with_hint'?'needed a hint':quality==='not_yet'?'could not yet recall':'has not had a recorded recall rating';
  const title=round===1?'First recall':round===2?'Spaced recall': 'Retention check';
  return {...task,id:'review:'+round+':'+task.id,title:title+' · '+task.title,minutes:Math.min(task.minutes,10),
