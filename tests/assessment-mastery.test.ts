@@ -101,7 +101,7 @@ test('assessment evidence fits the existing migration 005 schema and preserves r
    records.push(...plan.upserts.map(w=>record(w.taskId,w.status)));
   };
   await apply(assessmentPlan(task,'completed','understood',records));
-  await apply(assessmentPlan(review,'completed',undefined,records));
+  await apply(assessmentPlan(review,'completed',undefined,records,'independent'));
   const rows=await db.query<{task_id:string;status:string}>('SELECT task_id,status FROM auto_learning_progress ORDER BY task_id');
   assert.equal(rows.rows.length,6); // one original row + task, assess, review, recall evidence, mastery
   assert.ok(rows.rows.some(r=>r.task_id==='ncert:old-chapter'&&r.status==='completed'));
