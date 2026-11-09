@@ -67,9 +67,15 @@ export function assessmentPlan(
   return {upserts:[],deletes:[...deletes],mastery:false};
  }
  if(status==='needs_revision'){
-  const upserts:ProgressWrite[]=[{taskId,status},{taskId:assessmentId(base),status:'needs_revision'}];
-  if(review&&recallQuality==='not_yet')upserts.push({taskId:recallEvidenceId(taskId,'not_yet'),status:'needs_revision'});
-  return {upserts,deletes:review?recallEvidenceIds(taskId).filter(id=>id!==recallEvidenceId(taskId,'not_yet')):[],mastery:false};
+  const upserts:ProgressWrite[]=[{taskId,status}];
+  if(review){
+   // A failed later recall is evidence about recall today, not proof that an
+   // earlier parent-observed understanding never happened.
+   if(recallQuality==='not_yet'||assessment==='not-yet')upserts.push({taskId:recallEvidenceId(taskId,'not_yet'),status:'needs_revision'});
+   return {upserts,deletes:recallEvidenceIds(taskId).filter(id=>id!==recallEvidenceId(taskId,'not_yet')),mastery:false};
+  }
+  upserts.push({taskId:assessmentId(base),status:'needs_revision'});
+  return {upserts,deletes:[],mastery:false};
  }
  const upserts:ProgressWrite[]=[{taskId,status}];
  if(!review){
