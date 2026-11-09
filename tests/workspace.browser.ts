@@ -293,3 +293,113 @@ test('ready-to-teach lesson card renders the whole teaching script on desktop an
     await new Promise<void>((resolve, reject) => server.close((e) => (e ? reject(e) : resolve())));
   }
 });
+
+type AdaptiveTestWindow = Window & {
+  __lastAdaptivePost: { learnerId: string; taskId: string; status: string; recallQuality: string } | null;
+};
+
+test('adaptive recall UI records independent, hinted and not-yet outcomes on desktop and mobile', async () => {
+  const learnerId = '11111111-1111-4111-8111-111111111111';
+  const taskId = 'review:1:annual:class4:w01:core';
+  const fixtureData = {
+    learners: [{
+      id: learnerId, name: 'Fixture learner', grade: 'Class 4', canEdit: true,
+      completed: 1, total: 72, tasks: [], upcoming: [], history: [], subjects: [],
+      earnedBadges: [], annual: null,
+      assessment: { completed: 1, understood: 1, mastered: 0, independentRecall: 0, recallWithHint: 0 },
+      understood: ['annual:class4:w01:core'], mastered: []
+    }],
+    familyPlan: {
+      budget: 60, allocated: 10, unallocated: 50, notes: [],
+      slots: [{
+        learnerId, name: 'Fixture learner', grade: 'Class 4', minutes: 10, startMinute: 0, mode: 'guided',
+        task: {
+          id: taskId, title: 'First recall · Compare quantities', subject: 'Mathematics',
+          minutes: 10, source: 'Adaptive recall · 3 days after the learner understood',
+          href: '/learning-pathways', instructions: ['Ask for a fresh example.'],
+          check: 'Explain the idea without looking.', status: 'pending'
+        }
+      }],
+      separate: []
+    },
+    notice: 'Ready for a little learning.'
+  };
+  const bundle = await build({
+    stdin: {
+      contents: `import React from 'react'; import {createRoot} from 'react-dom/client'; import AutomaticLearning from './src/app/dashboard/automatic-learning'; createRoot(document.getElementById('app')).render(<AutomaticLearning/>);`,
+      resolveDir: process.cwd(), loader: 'tsx'
+    },
+    bundle: true, write: false, format: 'iife', jsx: 'automatic',
+    define: { 'process.env.NODE_ENV': '"production"' },
+    plugins: [{
+      name: 'adaptive-test-stubs',
+      setup(b) {
+        b.onResolve({ filter: /^next.link$/ }, () => ({ path: 'link', namespace: 'test' }));
+        b.onLoad({ filter: /.*/, namespace: 'test' }, () => ({
+          contents: "import React from 'react'; export default function Link(props){return React.createElement('a',{href:props.href},props.children);}",
+          resolveDir: process.cwd()
+        }));
+        b.onResolve({ filter: /family-calendar$/ }, () => ({ path: 'calendar', namespace: 'stub' }));
+        b.onResolve({ filter: /family-week$/ }, () => ({ path: 'week', namespace: 'stub' }));
+        b.onResolve({ filter: /lesson-card$/ }, () => ({ path: 'lesson', namespace: 'stub' }));
+        b.onLoad({ filter: /.*/, namespace: 'stub' }, () => ({
+          contents: "import React from 'react'; export default function Stub(){return React.createElement('div');}",
+          resolveDir: process.cwd()
+        }));
+      }
+    }]
+  });
+  const css = (await readFile('src/app/globals.css', 'utf8')).replace("@import 'tailwindcss';", '');
+  const server = createServer((request, response) => {
+    if (new URL(request.url!, 'http://localhost').pathname === '/bundle.js') {
+      response.setHeader('Content-Type', 'text/javascript');
+      response.end(bundle.outputFiles[0].text);
+    } else {
+      response.setHeader('Content-Type', 'text/html');
+      response.end(`<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>${css}</style></head><body><main class="family-dashboard"><div id="app"></div></main><script src="/bundle.js"></script></body></html>`);
+    }
+  });
+  await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+  const address = server.address();
+  assert.ok(address && typeof address === 'object');
+  let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined;
+  try {
+    browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || '/usr/bin/chromium', headless: true, args: ['--no-sandbox'] });
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    await page.addInitScript((data) => {
+      (window as unknown as AdaptiveTestWindow).__lastAdaptivePost = null;
+      window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
+        if (url.startsWith('/api/auto-learning')) {
+          if (init?.method === 'POST') {
+            (window as unknown as AdaptiveTestWindow).__lastAdaptivePost = JSON.parse(String(init.body));
+            return new Response(JSON.stringify({ saved: true, message: 'Recall outcome recorded.' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+          }
+          return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
+        }
+        return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+      };
+    }, fixtureData);
+    await page.goto(`http://127.0.0.1:${address.port}`);
+    for (const [label, quality, status] of [
+      ['Remembered independently', 'independent', 'completed'],
+      ['Remembered with a hint', 'with_hint', 'completed'],
+      ['Not yet — revisit gently', 'not_yet', 'needs_revision']
+    ] as const) {
+      await page.getByRole('button', { name: 'Record recall result' }).click();
+      await page.getByRole('button', { name: label }).click();
+      await page.getByText('Recall outcome recorded.', { exact: true }).waitFor();
+      const posted = await page.evaluate(() => (window as unknown as AdaptiveTestWindow).__lastAdaptivePost);
+      assert.ok(posted);
+      assert.equal(posted.taskId, taskId);
+      assert.equal(posted.recallQuality, quality);
+      assert.equal(posted.status, status);
+      await page.setViewportSize({ width: 375, height: 812 });
+      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
+      await page.setViewportSize({ width: 1280, height: 900 });
+    }
+  } finally {
+    await browser?.close();
+    await new Promise<void>((resolve, reject) => server.close((e) => e ? reject(e) : resolve()));
+  }
+});
