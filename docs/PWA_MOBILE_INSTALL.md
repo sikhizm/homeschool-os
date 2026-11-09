@@ -6,7 +6,7 @@ Homeschool OS can be installed from its HTTPS website on Android and iPhone. The
 
 1. Open https://homeschool-os-gamma.vercel.app/ in Chrome.
 2. Sign in to Homeschool OS.
-3. Tap **Install app** in the app navigation. If Chrome displays its own install prompt, confirm it.
+3. Tap **Install app** at the top-right of the Homeschool OS header. If Chrome displays its own install prompt, confirm it.
 4. Open Homeschool OS from the new Home Screen or app-drawer icon.
 
 If the install button is not shown yet, open Chrome's menu (⋮) and look for **Install app** or **Add to Home screen**.
@@ -15,7 +15,7 @@ If the install button is not shown yet, open Chrome's menu (⋮) and look for **
 
 1. Open https://homeschool-os-gamma.vercel.app/ in Safari.
 2. Sign in to Homeschool OS.
-3. Tap **Install app** in the app navigation for the instructions.
+3. Tap **Install app** at the top-right of the Homeschool OS header to see the iPhone steps.
 4. In Safari, tap **Share** → **Add to Home Screen** → **Add**.
 5. Launch Homeschool OS from the new Home Screen icon.
 
