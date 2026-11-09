@@ -19,7 +19,7 @@ function reviewTask(task:QueueTask,round:ReviewRound,delay:number,quality:Recall
  const reason=quality==='independent'?'recalled independently':quality==='with_hint'?'needed a hint':quality==='not_yet'?'could not yet recall':'has not had a recorded recall rating';
  const title=round===1?'First recall':round===2?'Spaced recall': 'Retention check';
  return {...task,id:'review:'+round+':'+task.id,title:title+' · '+task.title,minutes:Math.min(task.minutes,10),
-  source:immediate?'Adaptive revision · revisit now':`Adaptive recall · ${delay} days after the learner ${reason}`,
+  source:immediate?'Adaptive revision · revisit now':round===1?`First recall · ${delay} days after the original activity`:`Adaptive recall · ${delay} days after the learner ${reason}`,
   instructions:quality==='independent'?[
    'Ask the learner to recall the idea without opening the lesson or textbook.',
    'Invite a new example, explanation or demonstration rather than repeating the same answer.',
