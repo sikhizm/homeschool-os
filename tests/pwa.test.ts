@@ -14,6 +14,15 @@ test('PWA manifest declares an installable standalone family app and platform ic
  assert.match(manifest,/icon-192\.png/);
  assert.match(manifest,/icon-512\.png/);
  assert.match(manifest,/maskable-512\.png/);
+ assert.match(manifest,/purpose: 'maskable'/);
+ for (const path of [
+  'src/app/icons/icon-192.png/route.ts',
+  'src/app/icons/icon-512.png/route.ts',
+  'src/app/icons/maskable-512.png/route.ts',
+  'src/app/icons/apple-touch-icon.png/route.ts'
+ ]) {
+  assert.match(read(path),/new ImageResponse/);
+ }
 });
 
 test('service worker provides an offline fallback without caching private family data',()=>{
