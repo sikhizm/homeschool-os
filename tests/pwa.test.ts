@@ -16,7 +16,7 @@ test('PWA manifest declares an installable standalone family app and platform ic
 });
 
 test('service worker provides an offline fallback without caching private family data',()=>{
- const worker=read('../../public/sw.js');
+ const worker=read('../public/sw.js');
  assert.match(worker,/addEventListener\('install'/);
  assert.match(worker,/addEventListener\('activate'/);
  assert.match(worker,/addEventListener\('fetch'/);
