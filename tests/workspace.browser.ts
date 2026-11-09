@@ -294,7 +294,11 @@ test('ready-to-teach lesson card renders the whole teaching script on desktop an
   }
 });
 
-type AdaptiveTestWindow = Window & {\n  __lastAdaptivePost: { learnerId: string; taskId: string; status: string; recallQuality: string } | null;\n};\n\ntest('adaptive recall UI records independent, hinted and not-yet outcomes on desktop and mobile', async () => {
+type AdaptiveTestWindow = Window & {
+  __lastAdaptivePost: { learnerId: string; taskId: string; status: string; recallQuality: string } | null;
+};
+
+test('adaptive recall UI records independent, hinted and not-yet outcomes on desktop and mobile', async () => {
   const learnerId = '11111111-1111-4111-8111-111111111111';
   const taskId = 'review:1:annual:class4:w01:core';
   const fixtureData = {
@@ -386,7 +390,8 @@ type AdaptiveTestWindow = Window & {\n  __lastAdaptivePost: { learnerId: string;
       await page.getByRole('button', { name: label }).click();
       await page.getByText('Recall outcome recorded.', { exact: true }).waitFor();
       const posted = await page.evaluate(() => (window as any).__lastAdaptivePost);
-      assert.ok(posted);\n      assert.equal(posted.taskId, taskId);
+      assert.ok(posted);
+      assert.equal(posted.taskId, taskId);
       assert.equal(posted.recallQuality, quality);
       assert.equal(posted.status, status);
       await page.setViewportSize({ width: 375, height: 812 });
