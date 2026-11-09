@@ -1,67 +1,86 @@
 /**
- * Participation, assessed understanding and demonstrated mastery are three
- * different things. Completion alone never earns a mastery badge.
- *
- * Storage is deliberately additive: assessment evidence is kept in the
- * EXISTING auto_learning_progress table using namespaced task ids, so this
- * phase needs NO production migration and cannot alter any existing family
- * or learner progress row. Statuses remain the two already allowed values.
+ * Participation, understanding and demonstrated mastery are separate records.
+ * Adaptive recall evidence uses the existing auto_learning_progress table and
+ * its existing status values; no schema change or migration is needed.
  */
 export type SavedRecord={task_id:string;status:string;updated_at?:string|Date};
 export type ProgressWrite={taskId:string;status:'completed'|'needs_revision'};
+export type RecallQuality='independent'|'with_hint'|'not_yet';
 export type AssessmentPlan={upserts:ProgressWrite[];deletes:string[];mastery:boolean};
-export type AssessmentSummary={completed:number;understood:number;mastered:number};
+export type AssessmentSummary={completed:number;understood:number;mastered:number;independentRecall:number;recallWithHint:number};
 export type Badge={id:string;name:string;description:string;symbol:string;kind:'participation'|'mastery'};
-
 export const ASSESS_PREFIX='assess:';
 export const MASTERY_PREFIX='mastery:';
 export const assessmentId=(taskId:string)=>ASSESS_PREFIX+taskId;
 export const masteryId=(taskId:string)=>MASTERY_PREFIX+taskId;
-export function isInternalProgressId(taskId:string){return taskId.startsWith(ASSESS_PREFIX)||taskId.startsWith(MASTERY_PREFIX);}
-
-/** Extract the original activity from a spaced-recall task id. */
+export const recallEvidenceId=(reviewTaskId:string,quality:RecallQuality)=>'recall:'+quality+':'+reviewTaskId;
+export const recallEvidenceIds=(reviewTaskId:string)=>(
+ ['independent','with_hint','not_yet'] as const
+).map(quality=>recallEvidenceId(reviewTaskId,quality));
+export function isInternalProgressId(taskId:string){
+ return taskId.startsWith(ASSESS_PREFIX)||taskId.startsWith(MASTERY_PREFIX)||taskId.startsWith('recall:');
+}
 export function reviewBaseId(taskId:string):string|null{
- const match=/^review:[12]:(.+)$/.exec(taskId);
+ const match=/^review:[123]:(.+)$/.exec(taskId);
  return match?match[1]:null;
 }
 export function underlyingTaskId(taskId:string){return reviewBaseId(taskId)??taskId;}
-
 export function understoodTasks(records:SavedRecord[]):Set<string>{
  return new Set(records.filter(r=>r.status==='completed'&&r.task_id.startsWith(ASSESS_PREFIX)).map(r=>r.task_id.slice(ASSESS_PREFIX.length)));
 }
 export function masteredTasks(records:SavedRecord[]):Set<string>{
  return new Set(records.filter(r=>r.status==='completed'&&r.task_id.startsWith(MASTERY_PREFIX)).map(r=>r.task_id.slice(MASTERY_PREFIX.length)));
 }
-/** Namespaced evidence rows are never counted as real completed activities. */
 export function activityCompletions(records:SavedRecord[]):Set<string>{
  return new Set(records.filter(r=>r.status==='completed'&&!isInternalProgressId(r.task_id)).map(r=>r.task_id));
 }
 export function assessmentSummary(records:SavedRecord[],validIds?:ReadonlySet<string>):AssessmentSummary{
  const completed=[...activityCompletions(records)].filter(id=>!validIds||validIds.has(id));
- return {completed:completed.length,understood:understoodTasks(records).size,mastered:masteredTasks(records).size};
+ const independentRecall=records.filter(r=>r.status==='completed'&&r.task_id.startsWith('recall:independent:')).length;
+ const recallWithHint=records.filter(r=>r.status==='completed'&&r.task_id.startsWith('recall:with_hint:')).length;
+ return {completed:completed.length,understood:understoodTasks(records).size,mastered:masteredTasks(records).size,independentRecall,recallWithHint};
 }
-
-/**
- * Derive the exact progress writes for one parent action.
- * Mastery requires BOTH an understanding check passed earlier AND a later
- * successful spaced-recall session on the same underlying activity.
- */
-export function assessmentPlan(taskId:string,status:'completed'|'needs_revision'|'pending',assessment:'understood'|'not-yet'|undefined,records:SavedRecord[]):AssessmentPlan{
+/** Derive safe, idempotent writes for one parent-recorded action. */
+export function assessmentPlan(
+ taskId:string,status:'completed'|'needs_revision'|'pending',
+ assessment:'understood'|'not-yet'|undefined,records:SavedRecord[],recallQuality?:RecallQuality
+):AssessmentPlan{
  const base=underlyingTaskId(taskId);
+ const review=Boolean(reviewBaseId(taskId));
  const understood=understoodTasks(records);
  if(status==='pending'){
-  return {upserts:[],deletes:[...new Set([taskId,assessmentId(base),masteryId(base),assessmentId(taskId),masteryId(taskId)])],mastery:false};
+  const deletes=new Set([taskId,assessmentId(base),masteryId(base),assessmentId(taskId),masteryId(taskId),...recallEvidenceIds(taskId)]);
+  if(!review){
+   for(const round of [1,2,3]){const id='review:'+round+':'+base;deletes.add(id);for(const evidence of recallEvidenceIds(id))deletes.add(evidence);}
+  }else{
+   const round=Number(/^review:([123]):/.exec(taskId)?.[1]??1);
+   for(let next=round+1;next<=3;next++){const id='review:'+next+':'+base;deletes.add(id);for(const evidence of recallEvidenceIds(id))deletes.add(evidence);}
+  }
+  return {upserts:[],deletes:[...deletes],mastery:false};
  }
  if(status==='needs_revision'){
-  return {upserts:[{taskId,status:'needs_revision'},{taskId:assessmentId(base),status:'needs_revision'}],deletes:[],mastery:false};
+  const upserts:ProgressWrite[]=[{taskId,status},{taskId:assessmentId(base),status:'needs_revision'}];
+  if(review&&recallQuality==='not_yet')upserts.push({taskId:recallEvidenceId(taskId,'not_yet'),status:'needs_revision'});
+  return {upserts,deletes:review?recallEvidenceIds(taskId).filter(id=>id!==recallEvidenceId(taskId,'not_yet')):[],mastery:false};
  }
- const upserts:ProgressWrite[]=[{taskId,status:'completed'}];
- if(assessment==='understood'&&!reviewBaseId(taskId))upserts.push({taskId:assessmentId(base),status:'completed'});
- const canMaster=Boolean(reviewBaseId(taskId))&&understood.has(base);
+ const upserts:ProgressWrite[]=[{taskId,status}];
+ if(!review){
+  if(assessment==='understood')upserts.push({taskId:assessmentId(base),status:'completed'});
+  else if(assessment==='not-yet')upserts.push({taskId:assessmentId(base),status:'needs_revision'});
+  return {upserts,deletes:[],mastery:false};
+ }
+ const quality=recallQuality??(assessment==='understood'?'independent':undefined);
+ if(!quality)return {upserts,deletes:[],mastery:false};
+ const evidenceId=recallEvidenceId(taskId,quality);
+ const deletes=recallEvidenceIds(taskId).filter(id=>id!==evidenceId);
+ upserts.push({taskId:evidenceId,status:'completed'});
+ // An independent recall can establish understanding, but cannot establish
+ // mastery on the same attempt. Mastery needs a later independent recall.
+ if(quality==='independent'&&!understood.has(base))upserts.push({taskId:assessmentId(base),status:'completed'});
+ const canMaster=quality==='independent'&&understood.has(base);
  if(canMaster)upserts.push({taskId:masteryId(base),status:'completed'});
- return {upserts,deletes:[],mastery:canMaster};
+ return {upserts,deletes,mastery:canMaster};
 }
-
 export function participationBadges(completed:number):Badge[]{
  return [
   ...(completed>=1?[{id:'first-step',name:'First Step',description:'Joined the first activity',symbol:'⭐',kind:'participation' as const}]:[]),
