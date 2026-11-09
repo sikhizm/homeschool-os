@@ -28,7 +28,7 @@ function TaskActions({task,learnerId,canEdit,checking,setChecking,onMark,busy}:{
 }){
  if(!canEdit)return null;
  const prompt=task.check??task.lesson?.completionCriteria??'Ask the child to explain or demonstrate what they learned without looking at the answer.';
- const isRecall=/^review:[123]:/.test(task.id);
+ const isRecall=/^review:[1-5]:/.test(task.id);
  if(checking===task.id)return <div className="lesson-check">
   {isRecall?<><strong>How did recall go?</strong>
    <p>Ask without showing the lesson first. Record what you actually observed; the next review date will adapt to this answer.</p>
