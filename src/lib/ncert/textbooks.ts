@@ -1,5 +1,5 @@
 /**
- * NCERT textbook metadata sourced from NCERT textbook catalog and SCERT Haryana Class 4.
+ * NCERT textbook metadata sourced from official NCERT publication, textbook and CIET catalogues.
  * No embedded copyrighted textbook contents. Unverified chapter slots remain clearly labelled.
  * Source snapshots need ongoing revalidation against the current NCERT edition.
  */
@@ -7,6 +7,36 @@ export type ReviewStatus='catalogued'|'chapter-title-pending'|'source-verified'|
 export type Textbook={id:string;grade:number;subject:string;title:string;language:string;publisher:'NCERT';textbookCode:string;chapterCount:number;sourceUrl:string;referenceUrl:string;editionLabel:string;status:string};
 export type ChapterSlot={id:string;bookId:string;chapterNumber:number;label:string;verifiedTitle:string|null;status:ReviewStatus;sourceUrl:string;skillIds:string[];mappingStatus:'unmapped'|'proposed'|'human-reviewed'};
 export const ncertTextbooks:Textbook[]=[
+  {
+    "id":"ncert-1-mridang","grade":1,"subject":"English","title":"Mridang","language":"English","publisher":"NCERT","textbookCode":"aemr1","chapterCount":9,
+    "sourceUrl":"https://ncert.nic.in/textbook.php?aemr1=0-9","referenceUrl":"https://ciet.ncert.gov.in/audio-book/115",
+    "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  },
+  {
+    "id":"ncert-1-sarangi","grade":1,"subject":"Hindi","title":"Sarangi","language":"Hindi","publisher":"NCERT","textbookCode":"ahsr1","chapterCount":19,
+    "sourceUrl":"https://ncert.nic.in/textbook.php?ahsr1=0-19","referenceUrl":"https://ciet.ncert.gov.in/audio-book/117",
+    "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  },
+  {
+    "id":"ncert-1-joyful-mathematics","grade":1,"subject":"Mathematics","title":"Joyful Mathematics","language":"English","publisher":"NCERT","textbookCode":"aejm1","chapterCount":13,
+    "sourceUrl":"https://ncert.nic.in/textbook.php?aejm1=0-13","referenceUrl":"https://ciet.ncert.gov.in/audio-book/118",
+    "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  },
+  {
+    "id":"ncert-1-anandmay-ganit","grade":1,"subject":"Mathematics","title":"Anandmay Ganit","language":"Hindi","publisher":"NCERT","textbookCode":"ahjm1","chapterCount":13,
+    "sourceUrl":"https://ncert.nic.in/textbook.php?ahjm1=0-13","referenceUrl":"https://ciet.ncert.gov.in/audio-book/119",
+    "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  },
+  {
+    "id":"ncert-1-shehnai","grade":1,"subject":"Urdu","title":"Shehnai","language":"Urdu","publisher":"NCERT","textbookCode":"4108","chapterCount":18,
+    "sourceUrl":"https://ncert.nic.in/textbook.php?aush1=0-18","referenceUrl":"https://ciet.ncert.gov.in/audio-book/123",
+    "editionLabel":"NCERT/CIET Class 1 Urdu title and 18 lessons verified; current 2026–27 print reprint not independently confirmed; direct chapter-PDF pattern not verified","status":"source-verified-chapter-titles"
+  },
+  {
+    "id":"ncert-1-dilchasp-riyazi","grade":1,"subject":"Mathematics","title":"Dilchasp Riyazi","language":"Urdu","publisher":"NCERT","textbookCode":"4109","chapterCount":0,
+    "sourceUrl":"https://ncert.nic.in/textbook.php","referenceUrl":"https://ncert.nic.in/division/pd/pdf/list_of_publication.pdf",
+    "editionLabel":"Listed in NCERT Urdu textbook catalogue for Class I (publication code 4109); digital chapter contents and current edition not verified","status":"book-confirmed-contents-pending"
+  },
   {
     "id": "ncert-4-maths-mela",
     "grade": 4,
@@ -83,6 +113,33 @@ export const ncertTextbooks:Textbook[]=[
 ];
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
 export const verifiedChapterTitles:Record<string,readonly string[]>={
+ 'ncert-1-mridang':[
+  'Two Little Hands','Greetings','Picture Time','The Cap Seller and the Monkeys','A Farm',
+  'Fun with Pictures','The Food We Eat','The Four Seasons',"Anandi's Rainbow"
+ ],
+ 'ncert-1-sarangi':[
+  'Meena Ka Parivar','Dada-Dadi','Reena Ka Din','Rani Bhi','Mithai','Teen Saathi',
+  'Waah Mere Ghode','Khatre Mein Saanp','Aaloo Ki Sadak','Jhulam Jhuli','Bhutte',
+  'Phooli Roti','Mela','Barkha Aur Megha','Holi','Janamdiwas Par Ped Lagao',
+  'Hawa','Kitni Pyari Hai Ye Duniya','Chaand Ka Baccha'
+ ],
+ 'ncert-1-joyful-mathematics':[
+  'Finding the Furry Cat!','What is Long?','Mango Treat','Making 10','How Many?',
+  'Vegetable Farm',"Lina's Family",'Fun with Numbers','Utsav','How do I Spend my Day?',
+  'How Many Times?','How Much Can We Spend?','So Many Toys'
+ ],
+ 'ncert-1-anandmay-ganit':[
+  'Meri Pyari Billi Dhundho','Kya hai lamba? kya hai gol?','Swadisht aam','10 bnayein',
+  'Kitne?','Sabziyon ki kheti','Lina ka parivar','Fun with Numbers','Utsav',
+  'Meri Din Charya','Kitni baar?','Hum kitna kharcha kar sakte hain?',
+  'Khiloune hi khiloune aur Paheliyan'
+ ],
+ 'ncert-1-shehnai':[
+  'Barish aur Paraathe','Chand mein Pariyan rehti hain','Do Dost','Aao Padhein Hum',
+  'Chalo School Chalein','Baag ki Sair','Shehzada Sohan','Sardi ki Dopahar',
+  'Chand ka Baccha','Meri Billi','Huruf-e-Tahaji','Jada Aya','Sher aur Macchar',
+  'Aam','Ginati ka Geet','Phooli Roti','Pyari Titali','Achhi Chidiya'
+ ],
  'ncert-4-santoor':[
   'Together We Can','The Tinkling Bells','Be Smart, Be Safe',
   'One Thing at a Time','The Old Stag','Braille',
@@ -157,7 +214,12 @@ export const verifiedContentsSources:Record<string,string>={
  'ncert-5-our-wondrous-world':'https://ncert.nic.in/textbook/pdf/eeev1ps.pdf',
  'ncert-5-bansuri':'https://ncert.nic.in/textbook/pdf/eebu1ps.pdf',
  'ncert-5-khel-yoga':'https://ncert.nic.in/textbook/pdf/eeky1ps.pdf',
- 'ncert-5-sitaan':'https://ncert.nic.in/textbook/pdf/eust1ps.pdf'
+ 'ncert-5-sitaan':'https://ncert.nic.in/textbook/pdf/eust1ps.pdf',
+ 'ncert-1-mridang':'https://ciet.ncert.gov.in/audio-book/115',
+ 'ncert-1-sarangi':'https://ciet.ncert.gov.in/audio-book/117',
+ 'ncert-1-joyful-mathematics':'https://ciet.ncert.gov.in/audio-book/118',
+ 'ncert-1-anandmay-ganit':'https://ciet.ncert.gov.in/audio-book/119',
+ 'ncert-1-shehnai':'https://ciet.ncert.gov.in/audio-book/123'
 };
 
 export const ncertChapterSlots:ChapterSlot[]=ncertTextbooks.flatMap(book=>

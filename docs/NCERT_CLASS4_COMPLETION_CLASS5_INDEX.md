@@ -1,13 +1,26 @@
-# NCERT Class 4–5 Publisher Contents Audit (2026–27)
+# NCERT Class 1, 4–5 Publisher Contents Audit (2026–27)
 
 ## Current delivery
 - Parent-authenticated `/ncert-books` directory with class, subject and book filters, official publisher links, chapter positions, source status and separate learning pages.
 - **Class 4:** four NCERT books and 49 numbered chapter titles checked against the 2026–27 publisher contents.
 - **Class 5:** seven NCERT books and 86 numbered chapter titles checked against the 2026–27 publisher contents.
-- **Combined:** 16 catalogued book records across Classes 4, 5 and 8; 135 source-verified chapter titles; five Class 8 book records still have no generated chapter entries.
+- **Class 1:** six book records; five CIET-indexed books with 72 source-verified numbered titles; the separate Urdu catalogue title Dilchasp Riyazi remains contents-pending.
+- **Combined:** 22 catalogued book records across Classes 1, 4, 5 and 8; 207 source-verified chapter titles; six records remain contents-pending (five Class 8 books and Class 1 Dilchasp Riyazi).
 - Every verified chapter title opens its own authenticated parent-guided learning page. The chapter page links to official NCERT material rather than copying or hosting textbook content.
 - All 135 chapter records remain `unmapped`; no chapter-to-skill equivalence has been approved.
 - No database migration, learner-data write, textbook download/rehosting or copyrighted textbook text is added.
+
+## Class 1 verified contents
+| Book | Subject | Numbered chapter titles |
+|---|---|---:|
+| Mridang | English | 9 |
+| Sarangi | Hindi | 19 |
+| Joyful Mathematics | Mathematics · English | 13 |
+| Anandmay Ganit | Mathematics · Hindi | 13 |
+| Shehnai | Urdu | 18 |
+| **Total** | **Five CIET-indexed books** | **72** |
+
+Dilchasp Riyazi (Urdu mathematics, NCERT publication code 4109) is catalogued by identity only; its digital chapter contents remain pending.
 
 ## Class 4 verified contents
 | Book | Numbered chapter titles |
@@ -54,7 +67,7 @@ Official NCERT textbook portal: https://ncert.nic.in/textbook.php
 - The title and position of each numbered chapter/lesson are verified against the publisher's own 2026–27 reprint contents.
 - A verified chapter title does **not** mean the chapter has been read, assessed, mapped to an outcome, or approved as a curriculum equivalence.
 - Original global skills remain illustrative parent-guided learning suggestions, not official NCERT learning outcomes.
-- The five Class 8 book records remain identity-only with `chapterCount: 0`; zero means no verified chapter list, not an empty book.
+- The five Class 8 book records remain identity-only with `chapterCount: 0`; zero means no verified chapter list, not an empty book. Class 1's catalogue-only Dilchasp Riyazi record also remains at zero until its digital contents are verified.
 - Do not infer the existence or contents of books for classes not yet catalogued.
 
 ## Copyright and source use
@@ -63,7 +76,7 @@ NCERT retains copyright in its textbooks. The application stores bibliographic m
 ## Next sequential phase
 1. Build a parent/editor-only review queue for the 86 Class 5 chapters. Read the official chapter content and propose a mapping to an existing original learning skill only where the chapter evidence supports it; explicitly record “no suitable match” where it does not.
 2. Keep every proposal unapproved until a parent/editor reviews the chapter, rationale, source edition, reviewer and revision history. No mapping may be auto-approved or inferred from a title alone.
-3. Continue the official Class 3 book index and contents audit, then the systematic Class 1–12 edition-by-edition catalogue while keeping unknown classes visibly pending.
+3. Continue the sequential Class 2 and Class 3 book indexes and contents audits, then systematic Class 1–12 edition-by-edition coverage while keeping unknown classes visibly pending.
 
 ## Release checks
 Run `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. Confirm Class 4 and 5 show the verified titles, Class 8 still shows honest pending states, and chapter links open their learning pages. No production database migration is required.

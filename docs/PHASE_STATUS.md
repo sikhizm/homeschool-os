@@ -41,8 +41,18 @@ See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenan
 - [x] Keep all chapter-to-skill mappings unapproved pending human review.
 - [x] No production migration or learner-data writes required.
 
+## NCERT Grade 1 Publisher Contents Audit (this phase)
+- [x] Identify all six Class 1 book records present in NCERT publication/CIET catalogues.
+- [x] Verify all 72 numbered chapter/lesson titles across the five CIET-indexed Class 1 books.
+- [x] Link verified chapter records to their own authenticated learning pages and only verified NCERT chapter PDFs.
+- [x] Keep the Urdu catalogue-only Dilchasp Riyazi record visibly contents-pending; do not invent chapters or PDF links.
+- [x] Preserve the separate source/edition and chapter-to-skill review states; no automatic competency mappings.
+- [x] No production migration or learner-data writes required.
+
+See [NCERT_CLASS1_INDEX.md](NCERT_CLASS1_INDEX.md) for exact sources, edition notes, scope and remaining gaps.
+
 ## Still outstanding (next phases)
 - Human-reviewed Class 5 chapter-to-skill mapping with source edition, chapter evidence, rationale, reviewer and revision history; no automatic approval.
-- Official Class 3 book/contents audit, then systematic NCERT Classes 1–12 coverage; Class 8 contents remain pending (see `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
+- Official Class 2 and Class 3 book/contents audits, then systematic NCERT Classes 1–12 coverage; Class 8 contents and Class 1 Dilchasp Riyazi contents remain pending (see `NCERT_CLASS1_INDEX.md` and `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
 - Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.
