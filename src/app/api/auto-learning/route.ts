@@ -6,7 +6,7 @@ import {prioritizedQueue,knownReviewTask} from '@/lib/auto-learning/revision';
 import {buildFamilyPlan,sharedBudgetTasks,separateTasks} from '@/lib/auto-learning/family-schedule';
 import {annualCoverageForStage} from '@/lib/curriculum/annual';
 import {
- assessmentPlan,assessmentSummary,participationBadges,masteryBadges,
+ assessmentPlan,assessmentSummary,participationBadges,masteryBadges,reviewBaseId,
  isInternalProgressId,activityCompletions,understoodTasks,masteredTasks,type SavedRecord
 } from '@/lib/auto-learning/assessment';
 export const runtime='nodejs';
@@ -94,14 +94,14 @@ export async function POST(request:Request){
  const raw=await request.text();if(raw.length>3000)return send({error:'Request too large'},413);
  let body:unknown;try{body=JSON.parse(raw);}catch{return send({error:'Invalid JSON'},400);}
  if(!body||typeof body!=='object')return send({error:'Invalid input'},400);
- const {learnerId,taskId,status,assessment}=body as Record<string,unknown>;
+ const {learnerId,taskId,status,assessment,recallQuality}=body as Record<string,unknown>;
  const validStatus=['completed','needs_revision','pending'].includes(String(status));
  if(typeof learnerId!=='string'||learnerId.length>100||typeof taskId!=='string'||taskId.length>140||!validStatus)return send({error:'Invalid input'},400);
  if(isInternalProgressId(taskId))return send({error:'Invalid task identifier'},400);
- if(assessment!==undefined&&!['understood','not-yet'].includes(String(assessment)))return send({error:'Invalid assessment'},400);
+ if(assessment!==undefined&&!['understood','not-yet'].includes(String(assessment)))return send({error:'Invalid assessment'},400);\n if(recallQuality!==undefined&&!['independent','with_hint','not_yet'].includes(String(recallQuality)))return send({error:'Invalid recall result'},400);
  const verdict=assessment===undefined?undefined:assessment as 'understood'|'not-yet';
  // "understood" evidence belongs only to a completed session; "not-yet" may accompany a revision.
- if(verdict==='understood'&&status!=='completed')return send({error:'An understanding check belongs to a completed session'},400);
+ if(verdict==='understood'&&status!=='completed')return send({error:'An understanding check belongs to a completed session'},400);\n if(recallQuality!==undefined&&!/^review:[123]:/.test(taskId))return send({error:'Recall results belong to a scheduled recall session'},400);\n if(recallQuality==='not_yet'&&status!=='needs_revision')return send({error:'A recall that is not yet secure must remain in revision'},400);\n if((recallQuality==='independent'||recallQuality==='with_hint')&&status!=='completed')return send({error:'A successful recall must be completed'},400);
  const action=status as 'completed'|'needs_revision'|'pending';
  try{
   const sql=getSql();
@@ -113,12 +113,12 @@ export async function POST(request:Request){
   const catalogue=queueCatalogue(String(learners[0].stage));
   if(!catalogue.some(x=>x.id===taskId)&&!knownReviewTask(taskId,catalogue))return send({error:'Task does not belong to this grade'},400);
   const records=await sql`
-   SELECT p.task_id,p.status FROM auto_learning_progress p
+   SELECT p.task_id,p.status,p.updated_at FROM auto_learning_progress p
    WHERE p.learner_id::text=${learnerId}
    AND EXISTS(SELECT 1 FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
     WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner')
   `;
-  const plan=assessmentPlan(taskId,action,verdict,records.map(r=>({task_id:String(r.task_id),status:String(r.status)})));
+  const plan=assessmentPlan(taskId,action,verdict,records.map(r=>({task_id:String(r.task_id),status:String(r.status),updated_at:String(r.updated_at)})),recallQuality as 'independent'|'with_hint'|'not_yet'|undefined);
   for(const id of plan.deletes){
    await sql`DELETE FROM auto_learning_progress WHERE learner_id::text=${learnerId} AND task_id=${id}
     AND EXISTS(SELECT 1 FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
