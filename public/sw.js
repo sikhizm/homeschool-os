@@ -10,9 +10,9 @@ const PRECACHE_URLS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
-      .catch(() => undefined),
+    caches.open(CACHE_NAME).then((cache) => Promise.all(
+      PRECACHE_URLS.map((url) => cache.add(url).catch(() => undefined)),
+    )),
   );
   self.skipWaiting();
 });
@@ -56,11 +56,10 @@ self.addEventListener('fetch', (event) => {
       caches.match(request).then((cached) => {
         if (cached) return cached;
         return fetch(request).then((response) => {
-          if (response.ok) {
-            const copy = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
-          }
-          return response;
+          if (!response.ok) return response;
+          return caches.open(CACHE_NAME).then((cache) => (
+            cache.put(request, response.clone()).then(() => response)
+          ));
         });
       }),
     );
