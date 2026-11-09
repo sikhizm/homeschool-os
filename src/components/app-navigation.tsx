@@ -32,7 +32,7 @@ export default function AppNavigation(){
      </Link>;
     })}
    </nav>
-   <div style={{display:'flex',alignItems:'center',gap:10,flexShrink:0}}>
+   <div className="app-nav-actions">
     <PwaInstallButton />
     <Link className="app-nav-cta" href="/november-pilot">Pilot guide <span aria-hidden="true">↗</span></Link>
    </div>
