@@ -31,7 +31,8 @@ test('Grade 5 contains seven source-identified NCERT books with verified numbere
  for(const book of grade5){
   const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
   assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'),book.id);
-  assert.ok(book.editionLabel.includes('2026–27'),book.id);
+  if(book.id==='ncert-5-sitaan') assert.ok(book.editionLabel.includes('June 2025'),book.id);
+  else assert.ok(book.editionLabel.includes('2026–27'),book.id);
  }
  assert.equal(chaptersFor('ncert-5-veena')[0].verifiedTitle,'किरन');
  assert.equal(chaptersFor('ncert-5-sitaan')[0].verifiedTitle,'خدا کی قدرت');

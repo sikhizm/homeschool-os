@@ -5,7 +5,7 @@ One coherent parent-facing curriculum studio at `/curriculum-studio`: class/stag
 
 - Reuses existing authenticated family/membership guard, original competencies, independent original lessons, planning/dashboard and observation reports. The learner dropdown is read-only context; no goals, marks or progress are created by selecting it.
 - Parent-reviewed goal handoff goes through the original existing dashboard. The studio does NOT automatically record completion.
-- NCERT textbook index currently has 16 book records across Classes 4, 5 and 8. Class 4 has 49 publisher-verified numbered chapter titles; Class 5 has 86 publisher-verified numbered chapter titles from NCERT 2026–27 reprints. Five Class 8 book records still await contents review.
+- NCERT textbook index currently has 16 book records across Classes 4, 5 and 8. Class 4 has 49 publisher-verified numbered chapter titles; Class 5 has 86 publisher-verified numbered chapter titles from the official contents pages; six books are 2026–27 reprints and Sitaan is the first edition (June 2025). Five Class 8 book records still await contents review.
 - All 135 indexed chapter titles remain unmapped to skills; no official chapter-to-competency equivalence is claimed.
 - Provides source-aware stage, subject, goals and coverage navigation across `/curriculum-studio`, `/global-curriculum`, `/ncert-books`, `/lessons`, `/reports`, `/planning`.
 - Pure `engine.ts` with deterministic suggestions for parent review, validations, and an honest gap audit.

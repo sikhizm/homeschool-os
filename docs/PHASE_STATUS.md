@@ -34,7 +34,7 @@ No personal learner data is committed.
 See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenance, safety and verification details.
 
 ## NCERT Grade 5 Publisher Contents Audit (this phase)
-- [x] Verify all seven Grade 5 NCERT books against official 2026–27 publisher contents.
+- [x] Verify all seven Grade 5 NCERT books against official publisher contents and their printed edition details.
 - [x] Add 86 numbered Grade 5 chapter/lesson titles and chapter counts.
 - [x] Bring the combined Class 4–5 catalogue to 135 verified titles across 11 books.
 - [x] Make each verified chapter open its own learning page and official publisher material.

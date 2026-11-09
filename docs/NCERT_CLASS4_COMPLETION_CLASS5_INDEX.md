@@ -30,7 +30,7 @@
 | Sitaan | Urdu | 13 |
 | **Total** |  | **86** |
 
-Only numbered chapters/lessons are counted. Unnumbered poems, supplementary readings, warm-up material, self-assessment pages and teacher guidance are not incorrectly added as chapter slots. The contents source and book imprint identify the NCERT 2026–27 reprint.
+Only numbered chapters/lessons are counted. Unnumbered poems, supplementary readings, warm-up material, self-assessment pages and teacher guidance are not incorrectly added as chapter slots. The contents source and book imprint identify each edition; six Class 5 contents PDFs are marked 2026–27 reprints, while Sitaan is the first edition (June 2025).
 
 ## Official publisher contents sources
 **Class 4**
@@ -39,7 +39,7 @@ Only numbered chapters/lessons are counted. Unnumbered poems, supplementary read
 - Veena: https://ncert.nic.in/textbook/pdf/dhve1ps.pdf
 - Our Wondrous World: https://ncert.nic.in/textbook/pdf/deev1ps.pdf
 
-**Class 5**
+**Class 5 contents PDFs (six 2026–27 reprints; Sitaan first edition June 2025)**
 - Maths Mela: https://ncert.nic.in/textbook/pdf/eemm1ps.pdf
 - Santoor: https://ncert.nic.in/textbook/pdf/eesa1ps.pdf
 - Veena: https://ncert.nic.in/textbook/pdf/ehve1ps.pdf
