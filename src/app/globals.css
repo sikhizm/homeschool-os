@@ -1061,6 +1061,7 @@ body{background:var(--canvas);font-family:Arial,Helvetica,sans-serif;color:var(-
 .app-nav-icon{font-size:19px;line-height:1;color:#6F967D;font-weight:500}
 .app-nav-link:hover,.app-nav-link:focus-visible{background:#EDF4EA;color:#275E49}
 .app-nav-link.is-active{background:#E4EFE5;color:#27684F}
+.app-nav-actions{display:flex;align-items:center;gap:10px;flex-shrink:0}
 .app-nav-cta{background:#2A7257;color:white;text-decoration:none;border-radius:12px;padding:11px 16px;font-weight:700;font-size:12px;white-space:nowrap;box-shadow:0 5px 12px rgba(36,105,79,.13)}
 .app-nav-cta:hover{background:#20573F}
 .app-nav-link:focus-visible,.app-nav-cta:focus-visible,.quick-start-card:focus-visible,.hero-actions a:focus-visible{outline:3px solid #E5A36A;outline-offset:3px}
@@ -1125,9 +1126,12 @@ button:active:not(:disabled){transform:translateY(1px)}
 .lesson-print-sheet{background:#FFFDF8}
 @media(max-width:1140px){.app-nav-inner{gap:15px}.app-nav-link{padding:10px 9px;font-size:12px}.app-nav-cta{display:none}}
 @media(max-width:860px){
- .app-nav-inner{flex-wrap:wrap;gap:10px;padding:11px 17px}
- .app-brand{width:100%}
- .app-primary-nav{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:3px;scrollbar-width:thin}
+ .app-nav-inner{position:relative;flex-wrap:wrap;gap:10px;padding:11px 17px}
+ .app-brand{width:auto;max-width:calc(100% - 124px);min-width:0}
+ .app-brand .brand-copy{min-width:0}
+ .app-nav-actions{position:absolute;top:12px;right:17px;z-index:3}
+ .app-nav-actions .pwa-install-trigger{min-height:40px!important;padding:8px 11px!important}
+ .app-primary-nav{order:2;flex:0 0 100%;min-width:0;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;width:100%;padding-bottom:3px;scrollbar-width:thin}
  .app-nav-link{padding:9px 13px}
  .family-dashboard{padding:23px 18px 75px}
  .quick-start-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
