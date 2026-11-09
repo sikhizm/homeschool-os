@@ -64,7 +64,17 @@ test('legacy fixed-review records remain readable and get a conservative seven-d
 });
 test('unknown review identifiers are rejected and third review is supported',()=>{
  assert.equal(knownReviewTask('review:1:'+first.id,all),true);
- assert.equal(knownReviewTask('review:3:'+first.id,all),true);
- assert.equal(knownReviewTask('review:4:'+first.id,all),false);
+ assert.equal(knownReviewTask('review:3:'+first.id,all),true);\n assert.equal(knownReviewTask('review:5:'+first.id,all),true);
+ assert.equal(knownReviewTask('review:6:'+first.id,all),false);
  assert.equal(knownReviewTask('review:1:unrecognized',all),false);
+});
+
+test('hinted recall can continue through later adaptive rounds without claiming mastery',()=>{
+ const records=[record(first.id,'completed',30)];
+ for(const round of [1,2,3]){
+  const id='review:'+round+':'+first.id;
+  records.push(record(id,'completed',round===3?4:round===2?8:12));
+  records.push(record(recallEvidenceId(id,'with_hint'),'completed',round===3?4:round===2?8:12));
+ }
+ assert.equal(revisionTasks(all,records,now)[0].id,'review:4:'+first.id);
 });
