@@ -98,10 +98,14 @@ export async function POST(request:Request){
  const validStatus=['completed','needs_revision','pending'].includes(String(status));
  if(typeof learnerId!=='string'||learnerId.length>100||typeof taskId!=='string'||taskId.length>140||!validStatus)return send({error:'Invalid input'},400);
  if(isInternalProgressId(taskId))return send({error:'Invalid task identifier'},400);
- if(assessment!==undefined&&!['understood','not-yet'].includes(String(assessment)))return send({error:'Invalid assessment'},400);\n if(recallQuality!==undefined&&!['independent','with_hint','not_yet'].includes(String(recallQuality)))return send({error:'Invalid recall result'},400);
+ if(assessment!==undefined&&!['understood','not-yet'].includes(String(assessment)))return send({error:'Invalid assessment'},400);
+ if(recallQuality!==undefined&&!['independent','with_hint','not_yet'].includes(String(recallQuality)))return send({error:'Invalid recall result'},400);
  const verdict=assessment===undefined?undefined:assessment as 'understood'|'not-yet';
  // "understood" evidence belongs only to a completed session; "not-yet" may accompany a revision.
- if(verdict==='understood'&&status!=='completed')return send({error:'An understanding check belongs to a completed session'},400);\n if(recallQuality!==undefined&&!/^review:[123]:/.test(taskId))return send({error:'Recall results belong to a scheduled recall session'},400);\n if(recallQuality==='not_yet'&&status!=='needs_revision')return send({error:'A recall that is not yet secure must remain in revision'},400);\n if((recallQuality==='independent'||recallQuality==='with_hint')&&status!=='completed')return send({error:'A successful recall must be completed'},400);
+ if(verdict==='understood'&&status!=='completed')return send({error:'An understanding check belongs to a completed session'},400);
+ if(recallQuality!==undefined&&!/^review:[123]:/.test(taskId))return send({error:'Recall results belong to a scheduled recall session'},400);
+ if(recallQuality==='not_yet'&&status!=='needs_revision')return send({error:'A recall that is not yet secure must remain in revision'},400);
+ if((recallQuality==='independent'||recallQuality==='with_hint')&&status!=='completed')return send({error:'A successful recall must be completed'},400);
  const action=status as 'completed'|'needs_revision'|'pending';
  try{
   const sql=getSql();
@@ -132,6 +136,6 @@ export async function POST(request:Request){
     ON CONFLICT(learner_id,task_id) DO UPDATE SET status=EXCLUDED.status,updated_at=now()`;
   }
   return send({saved:true,masteryEarned:plan.mastery,
-   message:plan.mastery?'Understanding and delayed recall both shown — mastery recorded.':verdict==='understood'?'Understanding recorded; a later recall check can demonstrate mastery.':undefined});
+   message:plan.mastery?'Independent recall after an earlier understanding check — lasting mastery recorded.':recallQuality==='independent'?'Independent recall recorded. A later spaced check will confirm lasting retention.':recallQuality==='with_hint'?'Recall with a hint recorded. The next check will come sooner.':recallQuality==='not_yet'?'That is useful information. This activity stays in the revision queue for a gentler revisit.':verdict==='understood'?'Understanding recorded; a later recall check can demonstrate mastery.':undefined});
  }catch{return send({error:'Unable to save task progress'},503);}
 }
