@@ -36,7 +36,7 @@ export function LearnHome({initialLearnerId}:{initialLearnerId?:string}){
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
-  fetch('/api/auto-learning',{cache:'no-store'})
+  fetch(initialLearnerId?'/api/auto-learning?learner='+encodeURIComponent(initialLearnerId):'/api/auto-learning',{cache:'no-store'})
    .then(r=>r.json())
    .then((json:{learners?:ApiLearner[]})=>{
     if(!alive)return;
@@ -68,14 +68,14 @@ export function LearnHome({initialLearnerId}:{initialLearnerId?:string}){
    <Link className="mode-switch" href="/dashboard">Parent mode <span aria-hidden="true">→</span></Link>
   </header>
 
-  <nav className="learner-switcher" aria-label="Choose learner">
+  {!initialLearnerId&&<nav className="learner-switcher" aria-label="Choose learner">
    {data.learners.map(l=><button key={l.id} type="button"
     className={l.id===learner.id?'learner-pill is-active':'learner-pill'}
     aria-pressed={l.id===learner.id} onClick={()=>setSelected(l.id)}>
     <span className="learner-avatar" style={{background:subjectTint(l.tasks?.[0]?.subject??'')}} aria-hidden="true">{l.name.slice(0,1).toUpperCase()}</span>
     <span>{l.name}</span>
    </button>)}
-  </nav>
+  </nav>}
 
   {tier==='toddler'&&<ToddlerHome learner={learner} canEdit={learner.canEdit}/>}
   {tier==='preschool'&&<PreschoolHome learner={learner} next={next}/>}

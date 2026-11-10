@@ -19,7 +19,7 @@ export default async function ReportsPage({searchParams}:{searchParams:Promise<P
    WHERE fm.auth_user_id=${session.user.id} ORDER BY fm.created_at,fm.family_id LIMIT 1`;
  if(!membership.length)return <main className="family-dashboard"><h1>Learning reports</h1><p>Your account needs an approved family membership.</p><Link href="/dashboard">Return to Dashboard</Link></main>;
  const family=membership[0];
- const learners=await sql`SELECT l.id::text AS id,l.display_name,l.stage FROM learners l WHERE l.family_id=${family.id} ORDER BY l.created_at,l.id`;
+ const learners=await sql`SELECT l.id::text AS id,l.display_name,l.stage FROM learners l WHERE l.family_id=${family.id} AND l.archived_at IS NULL ORDER BY l.created_at,l.id`;
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
  const end=validDate(params.end)&&params.end<=today?params.end:today;
  const period=parseReportPeriod(params.days);

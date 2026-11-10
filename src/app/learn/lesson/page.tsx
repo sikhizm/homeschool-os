@@ -13,7 +13,7 @@ export default async function LessonPage({searchParams}:{searchParams:Promise<{l
  const sql=getSql();
  const rows=await sql`
   SELECT l.id::text AS id,l.display_name FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
-  WHERE l.id::text=${params.learner} AND fm.auth_user_id=${session.user.id} LIMIT 1
+  WHERE l.id::text=${params.learner} AND l.archived_at IS NULL AND fm.auth_user_id=${session.user.id} LIMIT 1
  `;
  if(!rows.length)redirect('/learn');
  return <LessonPlayer learnerId={params.learner} taskId={params.task} learnerName={String(rows[0].display_name)}/>;

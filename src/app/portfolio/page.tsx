@@ -12,7 +12,7 @@ export default async function PortfolioPage(){
  const families=await sql`SELECT f.id,f.name,fm.role FROM families f JOIN family_members fm ON fm.family_id=f.id
  WHERE fm.auth_user_id=${session.user.id} ORDER BY fm.created_at,fm.family_id LIMIT 1`;
  if(!families.length)return <main className="family-dashboard"><h1>Portfolio</h1><p>Family membership approval is required.</p><Link href="/dashboard">Return to Dashboard</Link></main>;
- const learners=await sql`SELECT id::text,display_name,stage FROM learners WHERE family_id=${families[0].id} ORDER BY created_at,id`;
+ const learners=await sql`SELECT id::text,display_name,stage FROM learners WHERE family_id=${families[0].id} AND archived_at IS NULL ORDER BY created_at,id`;
  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
  return <>
  <main className="family-dashboard">
