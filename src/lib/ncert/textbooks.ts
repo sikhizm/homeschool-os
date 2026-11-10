@@ -3,9 +3,12 @@
  * No embedded copyrighted textbook contents. Unverified chapter slots remain clearly labelled.
  * Source snapshots need ongoing revalidation against the current NCERT edition.
  */
-export type ReviewStatus='catalogued'|'chapter-title-pending'|'source-verified'|'human-reviewed';
-export type Textbook={id:string;grade:number;subject:string;title:string;language:string;publisher:'NCERT';textbookCode:string;chapterCount:number;sourceUrl:string;referenceUrl:string;editionLabel:string;status:string};
-export type ChapterSlot={id:string;bookId:string;chapterNumber:number;label:string;verifiedTitle:string|null;status:ReviewStatus;sourceUrl:string;skillIds:string[];mappingStatus:'unmapped'|'proposed'|'human-reviewed'};
+import type{ChapterSlot,ReviewStatus,Textbook} from './types';
+import{grade2ChapterTitles,grade2ContentSources,grade2Textbooks} from './data/grade2';
+import{grade3ChapterTitles,grade3ContentSources,grade3Textbooks} from './data/grade3';
+import{grade8ChapterTitles,grade8ContentSources,grade8Textbooks} from './data/grade8';
+import{grade6ChapterTitles,grade6ContentSources,grade6Textbooks} from './data/grade6';
+export type{ChapterSlot,ReviewStatus,Textbook};
 export const ncertTextbooks:Textbook[]=[
   {
     "id":"ncert-1-mridang","grade":1,"subject":"English","title":"Mridang","language":"English","publisher":"NCERT","textbookCode":"aemr1","chapterCount":9,
@@ -37,6 +40,8 @@ export const ncertTextbooks:Textbook[]=[
     "sourceUrl":"https://ncert.nic.in/textbook.php","referenceUrl":"https://ncert.nic.in/division/pd/pdf/list_of_publication.pdf",
     "editionLabel":"Listed in NCERT Urdu textbook catalogue for Class I (publication code 4109); digital chapter contents and current edition not verified","status":"book-confirmed-contents-pending"
   },
+  ...grade2Textbooks,
+  ...grade3Textbooks,
   {
     "id": "ncert-4-maths-mela",
     "grade": 4,
@@ -105,14 +110,15 @@ export const ncertTextbooks:Textbook[]=[
 {"id":"ncert-5-bansuri","grade":5,"subject":"Arts","title":"Bansuri","language":"English","textbookCode":"eebu1","sourceUrl":"https://ncert.nic.in/textbook.php?eebu1=0-19","publisher":"NCERT","chapterCount":19,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
 {"id":"ncert-5-khel-yoga","grade":5,"subject":"Physical Education","title":"Khel Yoga","language":"English","textbookCode":"eeky1","sourceUrl":"https://ncert.nic.in/textbook.php?eeky1=0-3","publisher":"NCERT","chapterCount":7,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
 {"id":"ncert-5-sitaan","grade":5,"subject":"Urdu","title":"Sitaar","language":"Urdu","textbookCode":"eust1","sourceUrl":"https://ncert.nic.in/textbook.php?eust1=0-14","publisher":"NCERT","chapterCount":13,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT first edition, June 2025; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
-{"id":"ncert-8-poorvi","grade":8,"subject":"English","title":"Poorvi","language":"English","textbookCode":"hepr1","sourceUrl":"https://ncert.nic.in/textbook.php?hepr1=0-5","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
-{"id":"ncert-8-ganita-prakash","grade":8,"subject":"Mathematics","title":"Ganita Prakash","language":"English","textbookCode":"hegp1","sourceUrl":"https://ncert.nic.in/textbook.php?hegp1=0-7","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
-{"id":"ncert-8-malhar","grade":8,"subject":"Hindi","title":"Malhar","language":"Hindi","textbookCode":"hhml1","sourceUrl":"https://ncert.nic.in/textbook.php?hhml1=0-10","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
-{"id":"ncert-8-deepakam","grade":8,"subject":"Sanskrit","title":"Deepakam","language":"Sanskrit","textbookCode":"hsde1","sourceUrl":"https://ncert.nic.in/textbook.php?hsde1=0-17","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"},
-{"id":"ncert-8-curiosity","grade":8,"subject":"Science","title":"Curiosity","language":"English","textbookCode":"hecu1","sourceUrl":"https://ncert.nic.in/textbook.php?hecu1=0-12","publisher":"NCERT","chapterCount":0,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"CBSE Circular Acad-48/2025 book reference; exact chapter contents and current reprint pending audit","status":"book-confirmed-contents-pending"}
+...grade6Textbooks,
+...grade8Textbooks
 ];
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
 export const verifiedChapterTitles:Record<string,readonly string[]>={
+ ...grade2ChapterTitles,
+ ...grade3ChapterTitles,
+ ...grade6ChapterTitles,
+ ...grade8ChapterTitles,
  'ncert-1-mridang':[
   'Two Little Hands','Greetings','Picture Time','The Cap Seller and the Monkeys','A Farm',
   'Fun with Pictures','The Food We Eat','The Four Seasons',"Anandi's Rainbow"
@@ -204,6 +210,10 @@ export const verifiedChapterTitles:Record<string,readonly string[]>={
  ]
 };
 export const verifiedContentsSources:Record<string,string>={
+ ...grade2ContentSources,
+ ...grade3ContentSources,
+ ...grade6ContentSources,
+ ...grade8ContentSources,
  'ncert-4-maths-mela':'https://ncert.nic.in/textbook/pdf/demm1ps.pdf',
  'ncert-4-santoor':'https://ncert.nic.in/textbook/pdf/desa1ps.pdf',
  'ncert-4-veena':'https://ncert.nic.in/textbook/pdf/dhve1ps.pdf',

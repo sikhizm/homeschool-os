@@ -4,9 +4,9 @@ import {ncertTextbooks,ncertChapterSlots,textbookById,chaptersFor,textbookAudit,
 
 test('Class 4 and Class 5 publisher catalogues form a valid bounded index',()=>{
  assert.deepEqual(validateNcertCatalogue(),[]);
- assert.equal(ncertTextbooks.length,22);
- assert.equal(ncertChapterSlots.length,207);
- assert.deepEqual(ncertTextbooks.map(x=>x.chapterCount),[9,19,13,13,18,0,14,12,13,10,15,10,12,10,19,7,13,...Array(5).fill(0)]);
+ assert.equal(ncertTextbooks.length,44);
+ assert.equal(ncertChapterSlots.length,559);
+ assert.deepEqual(ncertTextbooks.map(x=>x.chapterCount),[9,19,13,13,18,0,13,26,11,11,18,12,14,20,20,7,7,14,12,13,10,15,10,12,10,19,7,13,16,13,10,12,14,16,14,22,5,6,15,7,7,10,13,13]);
  assert.equal(textbookGrades.length,12);
 });
 test('chapter slots distinguish verified titles from books still awaiting contents',()=>{
@@ -21,9 +21,13 @@ test('chapter slots distinguish verified titles from books still awaiting conten
  }
 });
 test('audit metrics count only verified numbered titles and never manufacture mappings',()=>{
- assert.deepEqual(textbookAudit(),{books:22,chapterSlots:207,verifiedChapterTitles:207,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:6,gradesCovered:[1,4,5,8]});
+ assert.deepEqual(textbookAudit(),{books:44,chapterSlots:559,verifiedChapterTitles:559,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:1,gradesCovered:[1,2,3,4,5,6,8]});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===1),{grade:1,cataloguedBooks:6,contentsAudited:5,status:'partial'});
+ assert.deepEqual(gradeCoverage().find(x=>x.grade===2),{grade:2,cataloguedBooks:4,contentsAudited:4,status:'partial'});
+ assert.deepEqual(gradeCoverage().find(x=>x.grade===3),{grade:3,cataloguedBooks:7,contentsAudited:7,status:'partial'});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===5),{grade:5,cataloguedBooks:7,contentsAudited:7,status:'partial'});
+ assert.deepEqual(gradeCoverage().find(x=>x.grade===6),{grade:6,cataloguedBooks:10,contentsAudited:10,status:'partial'});
+ assert.deepEqual(gradeCoverage().find(x=>x.grade===8),{grade:8,cataloguedBooks:6,contentsAudited:6,status:'partial'});
 });
 test('Class 1 indexes five current NCERT/CIET books and preserves the Urdu catalogue-only title',()=>{
  const grade1=selectTextbooks(1);assert.equal(grade1.length,6);
@@ -42,6 +46,50 @@ test('Class 1 indexes five current NCERT/CIET books and preserves the Urdu catal
  assert.equal(chaptersFor('ncert-1-anandmay-ganit')[0].verifiedTitle,'Meri Pyari Billi Dhundho');
  assert.equal(chaptersFor('ncert-1-shehnai').at(-1)?.verifiedTitle,'Achhi Chidiya');
 });
+test('Class 2 indexes four current NCERT/CIET books with verified titles and official chapter PDFs',()=>{
+ const grade2=selectTextbooks(2);assert.equal(grade2.length,4);
+ assert.deepEqual(grade2.map(book=>book.chapterCount),[13,26,11,11]);
+ assert.equal(grade2.reduce((sum,book)=>sum+book.chapterCount,0),61);
+ for(const book of grade2){
+  const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
+  assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'),book.id);
+  assert.ok(chapters.every(ch=>ch.mappingStatus==='unmapped'&&ch.skillIds.length===0),book.id);
+  assert.ok(book.editionLabel.includes('2026–27'),book.id);
+ }
+ assert.equal(chaptersFor('ncert-2-mridang')[0].verifiedTitle,'My Bicycle');
+ assert.equal(chaptersFor('ncert-2-mridang').at(-1)?.verifiedTitle,'We are all Indians');
+ assert.equal(chaptersFor('ncert-2-sarangi')[0].verifiedTitle,'नीमा की दादी');
+ assert.equal(chaptersFor('ncert-2-sarangi').at(-1)?.verifiedTitle,'बादल');
+ assert.equal(chaptersFor('ncert-2-joyful-mathematics')[0].verifiedTitle,'A Day at the Beach');
+ assert.equal(chaptersFor('ncert-2-anandmay-ganit')[0].verifiedTitle,'समुद्र किनारे एक दिन');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-2-mridang')[0]),'https://ncert.nic.in/textbook/pdf/bemr101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-2-sarangi')[0]),'https://ncert.nic.in/textbook/pdf/bhsr101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-2-joyful-mathematics')[0]),'https://ncert.nic.in/textbook/pdf/bejm101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-2-anandmay-ganit')[0]),'https://ncert.nic.in/textbook/pdf/bhjm101.pdf');
+});
+test('Class 3 indexes seven current NCERT books with prelims-verified titles and chapter PDFs',()=>{
+ const grade3=selectTextbooks(3);assert.equal(grade3.length,7);
+ assert.deepEqual(grade3.map(book=>book.chapterCount),[18,12,14,20,20,7,7]);
+ assert.equal(grade3.reduce((sum,book)=>sum+book.chapterCount,0),98);
+ for(const book of grade3){
+  const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
+  assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'),book.id);
+  assert.ok(chapters.every(ch=>ch.mappingStatus==='unmapped'&&ch.skillIds.length===0),book.id);
+  assert.ok(book.editionLabel.includes('2026–27'),book.id);
+ }
+ assert.equal(chaptersFor('ncert-3-veena')[0].verifiedTitle,'सीखो');
+ assert.equal(chaptersFor('ncert-3-veena').at(-1)?.verifiedTitle,'हम अनेक किंतु एक');
+ assert.equal(chaptersFor('ncert-3-santoor')[0].verifiedTitle,'Colours');
+ assert.equal(chaptersFor('ncert-3-santoor').at(-1)?.verifiedTitle,'Chandrayaan');
+ assert.equal(chaptersFor('ncert-3-maths-mela')[13].verifiedTitle,'The Surajkund Fair');
+ assert.equal(chaptersFor('ncert-3-bansuri')[0].verifiedTitle,'Objects in Art');
+ assert.equal(chaptersFor('ncert-3-bansuri-hindi')[16].verifiedTitle,'आइए, सृजन करें');
+ assert.equal(chaptersFor('ncert-3-khel-yoga').at(-1)?.verifiedTitle,'Yogic Practices (Yoga Sadhana)');
+ assert.equal(chaptersFor('ncert-3-khel-yoga-hindi')[5].verifiedTitle,'दैनिक जीवन के लिए योग');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-3-veena')[0]),'https://ncert.nic.in/textbook/pdf/chve101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-3-santoor')[0]),'https://ncert.nic.in/textbook/pdf/cesa101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-3-bansuri-hindi')[16]),'https://ncert.nic.in/textbook/pdf/chbu117.pdf');
+});
 test('Grade 5 contains seven source-identified NCERT books with verified numbered chapter lists',()=>{
  const grade5=selectTextbooks(5);assert.equal(grade5.length,7);
  assert.deepEqual(grade5.map(book=>book.chapterCount),[15,10,12,10,19,7,13]);
@@ -57,11 +105,58 @@ test('Grade 5 contains seven source-identified NCERT books with verified numbere
  assert.equal(chaptersFor('ncert-5-sitaan')[0].verifiedTitle,'خدا کی قدرت');
  assert.equal(chaptersFor('ncert-5-bansuri').at(-1)?.verifiedTitle,'My Dance and Your Dance');
 });
+test('Grade 6 indexes ten prelims-verified NCERT books with verified numbered chapter lists',()=>{
+ const grade6=selectTextbooks(6);assert.equal(grade6.length,10);
+ assert.deepEqual(grade6.map(b=>b.chapterCount),[16,13,10,12,14,16,14,22,5,6]);
+ assert.equal(grade6.reduce((sum,book)=>sum+book.chapterCount,0),128);
+ for(const book of grade6){
+  const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
+  assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'));
+  assert.ok(chapters.every(ch=>officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
+ }
+ assert.equal(chaptersFor('ncert-6-poorvi')[0].verifiedTitle,'A Bottle of Dew');
+ assert.equal(chaptersFor('ncert-6-poorvi').at(-1)?.verifiedTitle,'National War Memorial');
+ assert.equal(chaptersFor('ncert-6-malhar')[0].verifiedTitle,'मातृभूमि');
+ assert.equal(chaptersFor('ncert-6-ganita-prakash')[0].verifiedTitle,'Patterns in Mathematics');
+ assert.equal(chaptersFor('ncert-6-curiosity').at(-1)?.verifiedTitle,'Beyond Earth');
+ assert.equal(chaptersFor('ncert-6-exploring-society')[0].verifiedTitle,'Locating Places on the Earth');
+ assert.equal(chaptersFor('ncert-6-deepakam').at(-1)?.verifiedTitle,'वृक्षाः सत्पुरुषाः इव');
+ assert.equal(chaptersFor('ncert-6-khayal').at(-1)?.verifiedTitle,'صحت اور صفائی');
+ assert.equal(chaptersFor('ncert-6-kriti').length,22);
+ assert.equal(chaptersFor('ncert-6-khel-yatra').at(-1)?.verifiedTitle,'Yoga');
+ assert.equal(chaptersFor('ncert-6-kaushal-bodh')[0].verifiedTitle,'School Kitchen Garden');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-6-ganita-prakash')[0]),'https://ncert.nic.in/textbook/pdf/fegp101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-6-exploring-society')[1]),'https://ncert.nic.in/textbook/pdf/fees102.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-6-khayal').at(-1)!),'https://ncert.nic.in/textbook/pdf/fuky114.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-6-khel-yatra').at(-1)!),'https://ncert.nic.in/textbook/pdf/feky105.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-6-kaushal-bodh').at(-1)!),'https://ncert.nic.in/textbook/pdf/fekb106.pdf');
+});
+test('Class 8 indexes six prelims-verified NCERT books including both Ganita Prakash parts',()=>{
+ const grade8=selectTextbooks(8);assert.equal(grade8.length,6);
+ assert.deepEqual(grade8.map(b=>b.chapterCount),[15,7,7,10,13,13]);
+ assert.equal(grade8.reduce((sum,book)=>sum+book.chapterCount,0),65);
+ for(const book of grade8){
+  const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
+  assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'));
+  assert.ok(chapters.every(ch=>officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
+ }
+ assert.equal(chaptersFor('ncert-8-curiosity')[0].verifiedTitle,'Exploring the Investigative World of Science');
+ assert.equal(chaptersFor('ncert-8-curiosity').at(-1)?.verifiedTitle,'Our Home: Earth, a Unique Life Sustaining Planet');
+ assert.equal(chaptersFor('ncert-8-poorvi')[0].verifiedTitle,'The Wit that Won Hearts');
+ assert.equal(chaptersFor('ncert-8-poorvi').at(-1)?.verifiedTitle,'Bibha Chowdhuri: The Beam of Light that Lit the Path for Women in Indian Science');
+ assert.equal(chaptersFor('ncert-8-ganita-prakash')[0].verifiedTitle,'A Square and A Cube');
+ assert.equal(chaptersFor('ncert-8-ganita-prakash-2').at(-1)?.verifiedTitle,'Area');
+ assert.equal(chaptersFor('ncert-8-malhar')[0].verifiedTitle,'स्वदेश');
+ assert.equal(chaptersFor('ncert-8-deepakam')[0].verifiedTitle,'संगच्छध्वं संवदध्वम्');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-curiosity')[0]),'https://ncert.nic.in/textbook/pdf/hecu101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-ganita-prakash-2')[0]),'https://ncert.nic.in/textbook/pdf/hegp201.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-deepakam')[0]),'https://ncert.nic.in/textbook/pdf/hsde101.pdf');
+});
 test('textbook selection remains exact and unknown classes are not fabricated',()=>{
- assert.equal(selectTextbooks(1).length,6);assert.equal(selectTextbooks(4,'English')[0].title,'Santoor');assert.equal(selectTextbooks(5).length,7);
- assert.equal(selectTextbooks(8).length,5);assert.equal(selectTextbooks(5,'Hindi')[0].textbookCode,'ehve1');
+ assert.equal(selectTextbooks(1).length,6);assert.equal(selectTextbooks(2).length,4);assert.equal(selectTextbooks(3).length,7);assert.equal(selectTextbooks(4,'English')[0].title,'Santoor');assert.equal(selectTextbooks(5).length,7);
+ assert.equal(selectTextbooks(8).length,6);assert.equal(selectTextbooks(5,'Hindi')[0].textbookCode,'ehve1');
  assert.equal(chaptersFor('ncert-5-veena').length,12);assert.deepEqual(ncertChapterSlots.filter(c=>c.mappingStatus==='human-reviewed'),[]);
- assert.equal(selectTextbooks(6).length,0);assert.equal(textbookById('not-real'),undefined);assert.equal(chaptersFor('../secrets').length,0);
+ assert.equal(selectTextbooks(6).length,10);assert.equal(textbookById('not-real'),undefined);assert.equal(chaptersFor('../secrets').length,0);
 });
 test('verified Grade 4 and Grade 5 chapters generate official NCERT chapter PDF links',()=>{
  const veena4=chaptersFor('ncert-4-veena');
