@@ -41,7 +41,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const family = families[0];
   const learners = await sql`
     SELECT id, display_name, stage FROM learners
-    WHERE family_id = ${family.id}
+    WHERE family_id = ${family.id} AND archived_at IS NULL
     ORDER BY created_at, id
   `;
   const today = new Intl.DateTimeFormat('en-CA', {
