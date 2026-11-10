@@ -8,7 +8,7 @@ type Period={id:string;kind:'year'|'week';start_date:string;end_date:string;titl
 type Day={date:string;activities:number;minutes:number;completed_minutes:number};
 type PlanningData={year:{startDate:string;endDate:string};week:string[];periods:Period[];days:Day[]};
 type Props={learners:Learner[];canEdit:boolean;initialDate:string};
-const stageKey=(stage:string)=>{const s=stage.toLowerCase();if(s.includes('class 1')||s.includes('class 2'))return 'class1-2';if(['class 3','class 4','class 5'].some(v=>s.includes(v)))return 'class3-5';if(['class 6','class 7','class 8'].some(v=>s.includes(v)))return 'class6-8';if(s.includes('class 9')||s.includes('class 10'))return 'class9-10';if(s.includes('class 11')||s.includes('class 12'))return 'class11-12';return 'early';};
+const stageKey=(stage:string)=>{const match=stage.toLowerCase().match(/^class\s+(\d+)$/);if(!match)return 'early';const grade=Number(match[1]);if(grade<=2)return 'class1-2';if(grade<=5)return 'class3-5';if(grade<=8)return 'class6-8';if(grade<=10)return 'class9-10';return 'class11-12';};
 function CompetencyPicker({items,selected,onChange,label}:{items:Competency[];selected:string[];onChange:(ids:string[])=>void;label:string}){const subjects=[...new Set(items.map(item=>item.subject))];return <section className="plan-curriculum-picker"><div className="plan-picker-heading"><strong>{label}</strong><span>{selected.length} selected</span></div>{subjects.map(subject=><div className="plan-picker-subject" key={subject}><h4>{subject}</h4><div className="plan-picker-options">{items.filter(item=>item.subject===subject).map(item=><label className="plan-competency-option" key={item.id}><input type="checkbox" checked={selected.includes(item.id)} onChange={event=>onChange(event.target.checked?[...selected,item.id]:selected.filter(id=>id!==item.id))}/><span><strong>{item.title}</strong><small>{item.outcome}</small></span></label>)}</div></div>)}</section>;}
 const display=(date:string)=>new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
@@ -110,7 +110,7 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
       <fieldset disabled={busy}>
        <label className="workspace-field"><span>Weekly theme</span><input name="title" maxLength={120} required defaultValue={weekPlan?.title??'Our learning focus'}/></label>
        <label className="workspace-field"><span>Weekly notes (optional)</span><textarea name="focus" rows={3} maxLength={1500} defaultValue={weekPlan?.focus??''} placeholder="Add a custom focus or reminder…"/></label>
-       <CompetencyPicker items={availableCompetencies} selected={weekCompetencyIds} onChange={setWeekCompetencyIds} label="Choose this week’s priorities"/>
+       <CompetencyPicker items={availableCompetencies} selected={weekCompetencyIds} onChange={ids=>{if(ids.length<=2)setWeekCompetencyIds(ids);}} label="Choose this week’s priorities (up to two)"/>
        <label className="workspace-field"><span>Adaptations and supplies</span><textarea name="notes" rows={3} maxLength={1500} defaultValue={weekPlan?.notes??''}/></label>
        <button type="submit">{weekPlan?'Update weekly plan':'Save weekly plan'}</button>
       </fieldset>
