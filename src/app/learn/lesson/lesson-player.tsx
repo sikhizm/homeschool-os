@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import {useCallback,useEffect,useMemo,useState} from 'react';
+import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 import {subjectTint} from '@/lib/subject-tint';
 
 type TeachingLesson={
@@ -32,14 +32,6 @@ function persist(taskId:string,state:SavedPhase){
  try{localStorage.setItem(SAVE_PREFIX+taskId,JSON.stringify(state));}catch{}
 }
 
-function speak(text:string){
- if(typeof window==='undefined'||!('speechSynthesis' in window))return;
- window.speechSynthesis.cancel();
- const utterance=new SpeechSynthesisUtterance(text);
- utterance.rate=0.95;
- window.speechSynthesis.speak(utterance);
-}
-
 /**
  * Lesson Player: one concept at a time through
  * Discover → Understand → Explore → Practice → Reflect → Complete,
@@ -52,6 +44,32 @@ export function LessonPlayer({learnerId,taskId,learnerName}:{learnerId:string;ta
  const [saved,setSaved]=useState(false);
  const [savedState,setSavedState]=useState<SavedPhase>({phaseIndex:0,ratings:{},reflection:''});
  const [showParentHelp,setShowParentHelp]=useState(false);
+ const [isSpeaking,setIsSpeaking]=useState(false);
+ const speechRun=useRef(0);
+
+ const speak=useCallback((text:string)=>{
+  if(typeof window==='undefined'||!('speechSynthesis' in window))return;
+  const run=++speechRun.current;
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(text);
+  utterance.rate=0.95;
+  utterance.onstart=()=>{if(run===speechRun.current)setIsSpeaking(true);};
+  utterance.onend=()=>{if(run===speechRun.current)setIsSpeaking(false);};
+  utterance.onerror=()=>{if(run===speechRun.current)setIsSpeaking(false);};
+  setIsSpeaking(true);
+  window.speechSynthesis.speak(utterance);
+ },[]);
+
+ const stopSpeaking=useCallback(()=>{
+  speechRun.current+=1;
+  if(typeof window!=='undefined'&&'speechSynthesis' in window)window.speechSynthesis.cancel();
+  setIsSpeaking(false);
+ },[]);
+
+ useEffect(()=>()=>{
+  speechRun.current+=1;
+  if(typeof window!=='undefined'&&'speechSynthesis' in window)window.speechSynthesis.cancel();
+ },[]);
 
  useEffect(()=>{
   let alive=true;
@@ -120,6 +138,7 @@ export function LessonPlayer({learnerId,taskId,learnerName}:{learnerId:string;ta
     <div className="player-progress-track"><div className="player-progress-fill" style={{width:`${((phaseIndex+1)/PHASES.length)*100}%`}}/></div>
     <span>{phaseIndex+1}/{PHASES.length} · {phase}</span>
    </div>
+   {isSpeaking&&<button type="button" className="audio-btn audio-stop-btn" onClick={stopSpeaking} aria-label="Stop reading aloud">■ Stop reading</button>}
    <span className="mode-chip" style={{background:tint}}>{task.subject}</span>
   </header>
 

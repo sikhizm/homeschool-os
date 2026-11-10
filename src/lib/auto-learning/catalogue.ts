@@ -28,8 +28,93 @@ function annualTasks(grade:string):QueueTask[]{
  }));
 }
 
+
+/** Age-appropriate Class 2 scaffolding; prompts are original and never claim to reproduce textbook content. */
+function class2ChapterLesson(kind:'read'|'practice'|'review',title:string,subject:string,minutes:number,officialUrl:string|null):TeachingLesson{
+ const isMath=subject==='Mathematics';
+ const link=officialUrl?' Open the official NCERT chapter PDF from this chapter page.':' Open the official NCERT chapter from this chapter page.';
+ const common={
+  materials:isMath?'Official NCERT chapter, counters or household objects, paper and pencil':'Official NCERT chapter, a quiet reading space, paper and pencil',
+  minutes,
+  easier:isMath?'Use a smaller number of objects, model one example together, and accept an oral explanation.':'Read a shorter passage aloud together; accept a spoken retell, gesture or drawing.',
+  harder:isMath?'Ask the learner to represent the same idea in a second way and explain why both methods work.':'Invite the learner to retell independently, explain a new word and connect the chapter to an everyday example.',
+  revisionGuidance:'If the learner needs repeated hints, mark Needs another look and revisit this short section after a day or two.'
+ };
+ if(kind==='read')return{
+  ...common,
+  objective:isMath?`Explore the mathematical idea in "${title}" using objects, pictures and the chapter's own examples.`:`Read or listen to a short part of "${title}" and explain one idea in the learner's own words.`,
+  prep:isMath?'Preview the official chapter. Identify the first concept or worked example and gather a few safe objects that can help model it. Use only methods introduced by the chapter.':'Preview the official chapter and choose one short section. For Hindi reading, read together at the learner’s pace; explain unfamiliar words from the actual passage rather than guessing from the title.',
+  example:isMath?'“I can show this with objects first, then make a drawing, and finally explain what the numbers mean.”':'“I noticed ___. I think this part is about ___ because I saw ___.”',
+  steps:isMath?[
+   'Open the official chapter together.'+link,
+   'Look at one example or activity and say what it asks you to notice.',
+   'Model that example with a few safe counters, objects or a drawing, following the chapter’s approach.',
+   'Invite the learner to show the same idea and explain what each object or mark represents.',
+   'Ask the learner to say one thing that is clear and one question they still have.'
+  ]:[
+   'Open the official chapter together.'+link,
+   'Read one short passage or section aloud. Let the learner follow the words or take a comfortable turn reading.',
+   'Pause at one unfamiliar word that actually appears in the passage; use nearby words, pictures or a dictionary to work out its meaning.',
+   'Ask what happened, what was described or what the passage taught. Accept an answer in the learner’s own words.',
+   'Invite the learner to draw one scene or idea and label it with a word or short sentence.'
+  ],
+  questions:isMath?['Can you show the same idea with objects or a drawing?','What does each number, group or mark represent in this example?']:['What happened or what did you learn in this part?','Which word or sentence helped you understand it?'],
+  exercise:isMath?`Draw or build one example of the idea from "${title}" and explain it aloud.`:`Draw one scene or idea from "${title}" and tell a grown-up about it in one or two sentences.`,
+  expectedAnswer:isMath?'Expected: a representation that matches the worked example or activity in the official chapter, with a simple explanation. Check the chapter itself for the intended answer; do not invent an official answer.':'Expected: an age-appropriate retell or description grounded in the section actually read. Accept the learner’s own words; do not require memorised textbook wording.',
+  completionCriteria:isMath?'The learner can model one example and explain what the objects or drawing show. Otherwise choose Needs another look.':'The learner can describe one idea from the section in their own words, orally or through a drawing with explanation. Otherwise choose Needs another look.'
+ };
+ if(kind==='practice')return{
+  ...common,
+  objective:isMath?`Practise the skills introduced in "${title}" and explain the steps using objects, drawings or numbers.`:`Complete two suitable activities from "${title}" and explain the answers in the learner's own words.`,
+  prep:'Preview the chapter’s own examples and questions. Choose two short activities that match the section already explored. Do not add invented textbook questions or answers.',
+  example:isMath?'“I will try it with objects, draw what I did, and then check whether the numbers tell the same story.”':'“I will listen to the whole question, say what it is asking, and then explain how I found my answer.”',
+  steps:isMath?[
+   'Revisit the example explored in the previous session.'+link,
+   'Choose two suitable practice items from the official chapter.',
+   'Let the learner solve the first with objects or a drawing before writing number work.',
+   'Ask the learner to explain the method; offer one hint only if needed.',
+   'Check the work against the chapter’s own guidance where available and note one skill to revisit.'
+  ]:[
+   'Reopen the section explored in the previous session.'+link,
+   'Choose two short questions or activities printed in the official chapter.',
+   'Read each instruction together and ask the learner to explain what it is asking.',
+   'Let the learner answer orally, draw or write a short response as appropriate to the activity.',
+   'Check the response against the chapter and discuss one word or idea that needs more practice.'
+  ],
+  questions:isMath?['Can you solve this in another way?','How can you check that your answer makes sense?']:['What helped you decide on your answer?','Can you explain the answer without repeating the question?'],
+  exercise:`Attempt two selected activities from "${title}" and explain how you approached one of them.`,
+  expectedAnswer:'Expected: two genuine attempts and a simple explanation. Answers depend on the current official edition; use the chapter’s own guidance where provided.',
+  completionCriteria:'The learner attempts both selected activities and can explain at least one response or method. Otherwise choose Needs another look.'
+ };
+ return{
+  ...common,
+  objective:isMath?`Recall one idea from "${title}" and demonstrate it independently with a fresh example.`:`Recall the main idea from "${title}" and retell it without looking at the page.`,
+  prep:'Choose one short section already studied. Prepare a simple prompt based on the actual chapter, not on an assumed topic or an invented answer.',
+  example:isMath?'“I can show the idea again, explain what I did first, and check the result.”':'“The main idea was ___. One detail I remember is ___.”',
+  steps:isMath?[
+   'Close the book and ask the learner to show one idea they remember using objects or a drawing.',
+   'Ask them to explain what they did first and why.',
+   'Invite one new example using familiar objects, without introducing a new method.',
+   'Open the chapter again.'+link,
+   'Check the explanation together and choose one small point to revisit if needed.'
+  ]:[
+   'Close the book and invite the learner to retell the section in their own words.',
+   'Ask for one detail, character, event or fact that supports the retell.',
+   'Invite the learner to explain one new word from the passage and use it in a spoken sentence.',
+   'Open the chapter again.'+link,
+   'Check the retell together and name one part to revisit if needed.'
+  ],
+  questions:isMath?['Can you show the idea without looking at the example?','What would you do first if you tried a similar problem tomorrow?']:['What is the main idea you remember?','Which detail or word helps you remember it?'],
+  exercise:isMath?'Demonstrate one similar example and explain the steps aloud.':'Give a short oral retell and use one new word from the chapter in a sentence.',
+  expectedAnswer:isMath?'Expected: a sensible demonstration of the same skill using a familiar example. Accept a correct strategy, not only one written format.':'Expected: a short retell grounded in the section and one relevant supporting detail. Accept the learner’s own wording.',
+  completionCriteria:'The learner recalls one important idea independently and gives a relevant example or detail. Otherwise choose Needs another look.'
+ };
+}
+
 /** An original teaching script for an externally accessed official NCERT chapter. */
-function chapterLesson(kind:'read'|'practice'|'review',title:string,subject:string,minutes:number,officialUrl:string|null):TeachingLesson{
+function chapterLesson(kind:'read'|'practice'|'review',title:string,subject:string,minutes:number,officialUrl:string|null,grade=4):TeachingLesson{
+ if(grade===2)return class2ChapterLesson(kind,title,subject,minutes,officialUrl);
+
  const link=officialUrl?' Open the chapter through the official NCERT PDF link on the chapter page.':' Open the chapter through the chapter page link.';
  const common={
   materials:'The official NCERT chapter (opened through the chapter page), notebook, pencil',
@@ -106,8 +191,9 @@ export function queueCatalogue(grade:string):QueueTask[]{
   source:'Original grade-specific learning pathway · editor review recommended',href:'/curriculum-studio',
   instructions:[...m.steps],check:m.check,grade
  }));
- if(grade!=='Class 4')return [...annual,...structured,...original];
- const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle&&textbookById(c.bookId)?.grade===4).flatMap(c=>{
+ const chapterGrade=grade==='Class 2'?2:grade==='Class 4'?4:null;
+ if(chapterGrade===null)return [...annual,...structured,...original];
+ const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle&&textbookById(c.bookId)?.grade===chapterGrade).flatMap(c=>{
   const book=textbookById(c.bookId)!;
   const resource='/ncert-books/chapter/'+c.id;
   const base='ncert:'+c.id;
@@ -115,7 +201,7 @@ export function queueCatalogue(grade:string):QueueTask[]{
   const title=c.verifiedTitle as string;
   // Three short parent-led stages, not copied textbook exercises or an asserted chapter length.
   return ([['read',15],['practice',20],['review',10]] as const).map(([kind,minutes])=>{
-   const lesson=chapterLesson(kind,title,book.subject,minutes,officialUrl);
+   const lesson=chapterLesson(kind,title,book.subject,minutes,officialUrl,chapterGrade);
    return {id:base+':'+kind,
     title:title+' · '+(kind==='read'?'Read & explore':kind==='practice'?'Practice':'Understanding check'),
     subject:book.subject,minutes,

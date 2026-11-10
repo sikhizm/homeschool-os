@@ -1808,3 +1808,6 @@ button:active:not(:disabled){transform:translateY(1px)}
 .annual-footer-links a:hover{text-decoration:underline}
 @media(max-width:680px){.annual-grade-grid,.annual-footer-links{grid-template-columns:1fr}.annual-week{padding:13px}}
 @media print{.coach-view-tabs,.coach-actions,.lesson-card-summary,.annual-footer-links{display:none!important}.lesson-card{display:block!important}}
+
+.audio-stop-btn{border-color:#D6A27F;background:#FFF4EB;color:#7B3F1D;font-weight:900}
+.audio-stop-btn:hover{background:#FCE8D8}
