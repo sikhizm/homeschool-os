@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import { getSql } from '@/lib/db';
 import PlanningWorkspace from './planning-workspace';
+import { PrepareNextDay } from './prepare-next-day';
 export const dynamic='force-dynamic';
 export default async function PlanningPage(){
  const {data:session}=await auth.getSession();
@@ -17,6 +18,7 @@ export default async function PlanningPage(){
  const initialDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata'}).format(new Date());
  return <>
  <main className="family-dashboard"><div className="dashboard-welcome"><div><span className="tag">YOUR LEARNING PLANNER</span><h1>Plan your learning rhythm</h1><p className="muted">Sketch the year, focus each week, then plan and reflect on individual days.</p></div><SectionArtwork theme="plan"/><span className="daily-badge">✧ One shared hour of guided time</span></div>
+ <PrepareNextDay canEdit={family.role==='owner'}/>
  <PlanningWorkspace learners={learners.map(l=>({id:String(l.id),name:String(l.display_name),stage:String(l.stage||'Early Years')}))} canEdit={family.role==='owner'} initialDate={initialDate}/>
  </main></>;
 }

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {useEffect,useMemo,useState} from 'react';
 import {subjectTint} from '@/lib/subject-tint';
+import {revisionState} from '@/lib/revision-state';
 
 type Task={id:string;title:string;subject:string;minutes:number;mode?:string;href:string|null;status?:string};
 type Slot={learnerId:string;name:string;grade:string;task:Task;minutes:number;startMinute:number;mode:'guided'|'play'|'independent'};
@@ -173,7 +174,12 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     const next=derived?.nextActivity[learner.id]??null;
     const streak=derived?.streaks[learner.id]??0;
     const percent=learner.total>0?Math.round((learner.completed/learner.total)*100):0;
-    return <article className="family-learner-card card" key={learner.id}>
+    const view=revisionState({
+    completed:learner.assessment.completed,understood:learner.assessment.understood,
+    mastered:learner.assessment.mastered,independentRecall:learner.assessment.independentRecall,
+    hasRevisionQueue:(learner.tasks??[]).some(t=>t.status==='needs_revision'||t.id.startsWith('review:')),
+   });
+   return <article className="family-learner-card card" key={learner.id}>
      <header>
       <span className="learner-avatar" style={{background:subjectTint(next?.subject??'')}} aria-hidden="true">{learner.name.slice(0,1).toUpperCase()}</span>
       <div>
@@ -182,6 +188,11 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       </div>
       {streak>0&&<span className="streak-chip" title="Consecutive days with at least one finished activity">🔥 {streak}</span>}
      </header>
+     <p className={`revision-state state-${view.state}`}>
+      <span aria-hidden="true">{view.state==='confident'?'●':view.state==='needs-support'?'▲':'◐'}</span>
+      <strong>{view.label}</strong>
+      <span className="revision-hint">{view.recommendation}</span>
+     </p>
      <div className="learner-progress-row">
       <div className="progress-track"><div className="progress-fill" style={{width:`${percent}%`}}/></div>
       <span>{learner.completed}/{learner.total} activities</span>
