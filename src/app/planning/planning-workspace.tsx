@@ -1,12 +1,15 @@
 'use client';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import { competencies, type Competency } from '@/lib/curriculum/library';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
 type Learner={id:string;name:string;stage:string};
-type Period={id:string;kind:'year'|'week';start_date:string;end_date:string;title:string;focus:string;notes:string};
+type Period={id:string;kind:'year'|'week';start_date:string;end_date:string;title:string;focus:string;notes:string;competency_ids:string[]};
 type Day={date:string;activities:number;minutes:number;completed_minutes:number};
 type PlanningData={year:{startDate:string;endDate:string};week:string[];periods:Period[];days:Day[]};
 type Props={learners:Learner[];canEdit:boolean;initialDate:string};
+const stageKey=(stage:string)=>{const match=stage.toLowerCase().match(/^class\s+(\d+)$/);if(!match)return 'early';const grade=Number(match[1]);if(grade<=2)return 'class1-2';if(grade<=5)return 'class3-5';if(grade<=8)return 'class6-8';if(grade<=10)return 'class9-10';return 'class11-12';};
+function CompetencyPicker({items,selected,onChange,label}:{items:Competency[];selected:string[];onChange:(ids:string[])=>void;label:string}){const subjects=[...new Set(items.map(item=>item.subject))];return <section className="plan-curriculum-picker"><div className="plan-picker-heading"><strong>{label}</strong><span>{selected.length} selected</span></div>{subjects.map(subject=><div className="plan-picker-subject" key={subject}><h4>{subject}</h4><div className="plan-picker-options">{items.filter(item=>item.subject===subject).map(item=><label className="plan-competency-option" key={item.id}><input type="checkbox" checked={selected.includes(item.id)} onChange={event=>onChange(event.target.checked?[...selected,item.id]:selected.filter(id=>id!==item.id))}/><span><strong>{item.title}</strong><small>{item.outcome}</small></span></label>)}</div></div>)}</section>;}
 const display=(date:string)=>new Intl.DateTimeFormat('en-IN',{day:'numeric',month:'short',timeZone:'UTC'}).format(new Date(date+'T12:00:00Z'));
 export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  const [learnerId,setLearnerId]=useState(learners[0]?.id??'');
@@ -17,6 +20,8 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  const [notice,setNotice]=useState('');
  const [busy,setBusy]=useState(false);
  const [revision,setRevision]=useState(0);
+ const [yearCompetencyIds,setYearCompetencyIds]=useState<string[]>([]);
+ const [weekCompetencyIds,setWeekCompetencyIds]=useState<string[]>([]);
  const selected=learners.find(l=>l.id===learnerId);
  const y=academicYear(date);
  const weekStart=mondayOf(date);
@@ -25,6 +30,8 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  const yearPlan=data?.periods.find(p=>p.kind==='year'&&p.start_date===yearRange.startDate);
  const weekPlan=data?.periods.find(p=>p.kind==='week'&&p.start_date===weekStart);
  const endpoint='/api/planning';
+ const availableCompetencies=competencies.filter(item=>item.stage===stageKey(selected?.stage??''));
+ useEffect(()=>{if(!data)return;const yp=data.periods.find(p=>p.kind==='year'&&p.start_date===yearRange.startDate);const wp=data.periods.find(p=>p.kind==='week'&&p.start_date===weekStart);setYearCompetencyIds(yp?.competency_ids??[]);setWeekCompetencyIds(wp?.competency_ids??[]);},[data,yearRange.startDate,weekStart]);
  const load=useCallback(async(signal?:AbortSignal)=>{
   if(!learnerId)return null;
   const params=new URLSearchParams({learnerId,date});
@@ -48,7 +55,7 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
   setBusy(true);setError('');setNotice('');
   try{
    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
-    learnerId,kind,anchor:date,title:String(fields.get('title')??''),focus:String(fields.get('focus')??''),notes:String(fields.get('notes')??'')
+    learnerId,kind,anchor:date,title:String(fields.get('title')??''),focus:String(fields.get('focus')??''),notes:String(fields.get('notes')??''),competencyIds:kind==='year'?yearCompetencyIds:weekCompetencyIds
    })});
    const body=await response.json();
    if(!response.ok)throw new Error(body.error||'Unable to save plan.');
@@ -88,7 +95,8 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
      {canEdit?<form key={'year:'+learnerId+':'+y+':'+revision} onSubmit={event=>void save(event,'year')}>
       <fieldset disabled={busy}>
        <label className="workspace-field"><span>Year theme</span><input name="title" defaultValue={yearPlan?.title??'Learning, curiosity and confidence'} maxLength={120} required/></label>
-       <label className="workspace-field"><span>Learning priorities</span><textarea name="focus" rows={5} maxLength={1500} defaultValue={yearPlan?.focus??''} placeholder="Literacy foundations, practical maths, exploration, language and Sikh heritage…"/></label>
+       <label className="workspace-field"><span>Learning priorities</span><textarea name="focus" rows={5} maxLength={1500} defaultValue={yearPlan?.focus??''} placeholder="Add any personal notes or priorities…"/></label>
+       <CompetencyPicker items={availableCompetencies} selected={yearCompetencyIds} onChange={setYearCompetencyIds} label="Choose from this learner’s curriculum"/>
        <label className="workspace-field"><span>Resources and adjustments</span><textarea name="notes" rows={3} maxLength={1500} defaultValue={yearPlan?.notes??''}/></label>
        <button type="submit">{yearPlan?'Update year plan':'Save year plan'}</button>
       </fieldset>
@@ -101,7 +109,8 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
      {canEdit?<form key={'week:'+learnerId+':'+weekStart+':'+revision} onSubmit={event=>void save(event,'week')}>
       <fieldset disabled={busy}>
        <label className="workspace-field"><span>Weekly theme</span><input name="title" maxLength={120} required defaultValue={weekPlan?.title??'Our learning focus'}/></label>
-       <label className="workspace-field"><span>Weekly priorities</span><textarea name="focus" rows={5} maxLength={1500} defaultValue={weekPlan?.focus??''} placeholder="Choose one or two competencies to practise this week…"/></label>
+       <label className="workspace-field"><span>Weekly notes (optional)</span><textarea name="focus" rows={3} maxLength={1500} defaultValue={weekPlan?.focus??''} placeholder="Add a custom focus or reminder…"/></label>
+       <CompetencyPicker items={availableCompetencies} selected={weekCompetencyIds} onChange={ids=>{if(ids.length<=2)setWeekCompetencyIds(ids);}} label="Choose this week’s priorities (up to two)"/>
        <label className="workspace-field"><span>Adaptations and supplies</span><textarea name="notes" rows={3} maxLength={1500} defaultValue={weekPlan?.notes??''}/></label>
        <button type="submit">{weekPlan?'Update weekly plan':'Save weekly plan'}</button>
       </fieldset>
