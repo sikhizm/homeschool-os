@@ -4,13 +4,18 @@ import Link from 'next/link';
 import {useEffect,useMemo,useState} from 'react';
 import {subjectTint} from '@/lib/subject-tint';
 
-type Slot={startMinute:number;minutes:number;mode:'guided'|'play';taskId:string;learnerId:string;learnerName:string;title:string;subject:string;href:string|null};
+type Task={id:string;title:string;subject:string;minutes:number;mode?:string;href:string|null;status?:string};
+type Slot={learnerId:string;name:string;grade:string;task:Task;minutes:number;startMinute:number;mode:'guided'|'play'|'independent'};
+type Separate={learnerId:string;name:string;grade:string;task:Task};
 type Attention={id:string;tone:'revision'|'check'|'plan';text:string;href:string};
 type LearnerCard={
- id:string;name:string;grade:string;completed:number;total:number;
- recommended:{id:string;title:string;subject:string;minutes:number;href:string|null;status:string}[];
- history:{id:string;updatedAt:string}[];
- assessment:{completed:number;understood:number;mastered:number};
+ id:string;name:string;grade:string;canEdit:boolean;completed:number;total:number;
+ tasks:Task[];history:{id:string;updatedAt:string}[];
+ assessment:{completed:number;understood:number;mastered:number;independentRecall:number;recallWithHint:number};
+};
+type HomeData={
+ learners:LearnerCard[];
+ familyPlan:{slots:Slot[];separate:Separate[];budget:number;allocated:number;notes:string[]};
 };
 
 const DAY_NAMES=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
@@ -53,13 +58,15 @@ function streakDays(history:{updatedAt:string}[]):number{
  * the day's timeline and an "only urgent" attention list.
  */
 export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:boolean}){
- const [data,setData]=useState<null|{budget:number;family:{name:string;role:string}[];learners:LearnerCard[];familyPlan:{slots:Slot[];separate:{taskId:string;learnerId:string;learnerName:string;title:string;subject:string;mode:string;href:string|null}[];totalMinutes:number;notice:string|null};badges:{label:string}[]}>(null);
+ const [data,setData]=useState<HomeData|null>(null);
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
   fetch('/api/auto-learning',{cache:'no-store'})
    .then(r=>r.json())
-   .then(json=>{if(alive)setData(json);})
+   .then((json:{learners?:LearnerCard[];familyPlan?:HomeData['familyPlan']})=>{
+    if(alive)setData({learners:json.learners??[],familyPlan:json.familyPlan??{slots:[],separate:[],budget:60,allocated:0,notes:[]}});
+   })
    .catch(()=>{if(alive)setError('We could not load today’s plan. Try refreshing.');});
   return()=>{alive=false;};
  },[]);
@@ -68,18 +75,18 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
  const derived=useMemo(()=>{
   if(!data)return null;
   const todayKey=istDateKey(new Date());
-  const learners=data.learners??[];
+  const learners=data.learners;
   const todayDone=new Set<string>();
   for(const learner of learners){
    for(const h of learner.history??[]){
     if(istDateKey(new Date(h.updatedAt))===todayKey)todayDone.add(`${learner.id}:${h.id}`);
    }
   }
-  const outstanding=learners.reduce((sum,l)=>sum+(l.recommended?.length??0),0);
-  const planned=data.familyPlan?.slots.length??0;
+  const outstanding=learners.reduce((sum,l)=>sum+(l.tasks?.length??0),0);
+  const planned=data.familyPlan.slots.length;
   const attention:Attention[]=[];
   for(const learner of learners){
-   const revision=(learner.recommended??[]).filter(t=>t.status==='needs_revision'||t.id.startsWith('review:'));
+   const revision=(learner.tasks??[]).filter(t=>t.status==='needs_revision'||t.id.startsWith('review:'));
    if(revision[0])attention.push({id:`rev-${learner.id}`,tone:'revision',text:`${learner.name} is ready to revisit: ${revision[0].title}`,href:revision[0].href??'#today-plan'});
    const unchecked=learner.assessment.completed-learner.assessment.understood;
    if(unchecked>0)attention.push({id:`check-${learner.id}`,tone:'check',text:`${unchecked} finished ${unchecked===1?'activity':'activities'} from ${learner.name} still ${unchecked===1?'needs':'need'} a quick understanding check`,href:'#today-plan'});
@@ -90,34 +97,34 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    progress:Math.min(100,Math.round((todayDone.size/Math.max(1,todayDone.size+outstanding))*100)),
    attention:attention.slice(0,4),
    streaks:Object.fromEntries(learners.map(l=>[l.id,streakDays(l.history??[])])) as Record<string,number>,
-   nextActivity:Object.fromEntries(learners.map(l=>[l.id,l.recommended?.[0]??null])) as Record<string,LearnerCard['recommended'][0]|null>,
+   nextActivity:Object.fromEntries(learners.map(l=>[l.id,l.tasks?.[0]??null])) as Record<string,Task|null>,
   };
-  },[data]);
+ },[data]);
 
  const timeline=useMemo(()=>{
   if(!data)return [];
-  const rows:{key:string;range:string;phase:string;tone:string;title:string;learner:string;taskId:string;href:string|null}[]=[];
-  for(const slot of data.familyPlan?.slots??[]){
+  const rows:{key:string;range:string;phase:string;tone:string;title:string;learner:string;href:string|null}[]=[];
+  for(const slot of data.familyPlan.slots){
    const phase=slot.mode==='play'?'Shared family warm-up':'Parent-guided learning';
    rows.push({
-    key:slot.taskId,range:`${clock(slot.startMinute)} – ${clock(slot.startMinute+slot.minutes)}`,
-    phase,tone:slot.mode==='play'?'saffron':'mint',title:slot.title,learner:slot.learnerName,
-    taskId:slot.taskId,href:slot.href,
+    key:slot.task.id,range:`${clock(slot.startMinute)} – ${clock(slot.startMinute+slot.minutes)}`,
+    phase,tone:slot.mode==='play'?'saffron':'mint',title:slot.task.title,learner:slot.name,
+    href:slot.task.href,
    });
   }
-  for(const item of data.familyPlan?.separate??[]){
+  for(const entry of data.familyPlan.separate){
    rows.push({
-    key:item.taskId,range:'Any time',phase:item.mode==='independent'?'Independent learning':'Family play',
-    tone:item.mode==='independent'?'math':'creativity',title:item.title,learner:item.learnerName,
-    taskId:item.taskId,href:item.href,
+    key:entry.task.id,range:'Any time',phase:entry.task.mode==='independent'?'Independent learning':'Family play',
+    tone:entry.task.mode==='independent'?'math':'creativity',title:entry.task.title,learner:entry.name,
+    href:entry.task.href,
    });
   }
   const seen=new Set(rows.map(r=>r.key));
-  for(const learner of data.learners??[]){
-   for(const task of learner.recommended??[]){
+  for(const learner of data.learners){
+   for(const task of learner.tasks??[]){
     if((task.status==='needs_revision'||task.id.startsWith('review:'))&&!seen.has(task.id)){
      seen.add(task.id);
-     rows.push({key:task.id,range:'Later today',phase:'Revision',tone:'language',title:task.title,learner:learner.name,taskId:task.id,href:task.href});
+     rows.push({key:task.id,range:'Later today',phase:'Revision',tone:'language',title:task.title,learner:learner.name,href:task.href});
     }
    }
   }
@@ -128,7 +135,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
  return <section aria-labelledby="family-home-title" className="family-home">
   <header className="family-home-head">
    <div>
-    <p className="eyebrow">{greeting(now)}, {familyName?'the '+familyName+' family':'family'} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
+    <p className="eyebrow">{greeting(now)}, {familyName?`${familyName} family`:'family'} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
     <h1 id="family-home-title">Your family learning studio</h1>
    </div>
    <div className="family-home-head-right">
@@ -143,8 +150,8 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   <div className="family-hero card">
    <div className="family-hero-copy">
     <p className="eyebrow">Today’s Family Learning Plan</p>
-    <h2>{data?`${data.familyPlan?.totalMinutes??0} minutes ready — about ${data.budget} minutes guided`:'Preparing today’s plan…'}</h2>
-    <p className="muted">{error||(data?.familyPlan?.notice??'Every activity below was picked automatically from what each learner is ready for next. No manual planning needed.')}</p>
+    <h2>{data?`${data.familyPlan.allocated} of ${data.familyPlan.budget} guided minutes ready`:'Preparing today’s plan…'}</h2>
+    <p className="muted">{error||(data?`Every activity below was picked automatically from what each learner is ready for next. ${data.familyPlan.notes[0]??''}`:'No manual planning needed.')}</p>
     <div className="family-hero-progress" role="img" aria-label={`Today’s progress: ${derived?.todayDone??0} activities finished, ${heroPercent}% through the queue`}>
      <div className="progress-track"><div className="progress-fill" style={{width:`${heroPercent}%`}}/></div>
      <span>{derived?.todayDone??0} done today · {heroPercent}%</span>
@@ -155,8 +162,8 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     </div>
    </div>
    <ul className="family-hero-facts" aria-label="Today at a glance">
-    <li><strong>{data?.familyPlan?.slots.length??0}</strong><span>guided moments</span></li>
-    <li><strong>{data?.familyPlan?.separate.length??0}</strong><span>independent / play</span></li>
+    <li><strong>{data?.familyPlan.slots.length??0}</strong><span>guided moments</span></li>
+    <li><strong>{data?.familyPlan.separate.length??0}</strong><span>independent / play</span></li>
     <li><strong>{derived?.attention.length??0}</strong><span>need parent attention</span></li>
    </ul>
   </div>
