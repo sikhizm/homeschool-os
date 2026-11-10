@@ -46,3 +46,13 @@ The direct chapter-PDF pattern (`https://ncert.nic.in/textbook/pdf/<code><NN>.pd
 1. Third-party sites still list the legacy Class 2 series (Marigold/Raindrops/Maths Magic). The official CIET index governs the current 2026–27 series recorded here.
 2. The CIET Sarangi page header displays an inconsistent chapter count ("22" alongside a 26-entry enumeration); the enumeration (26) is used.
 3. Mridang: 13 titles enumerated on the CIET index; an earlier working note claimed 14. 13 recorded; re-check on next visit.
+
+## Learner-space integration
+
+All **61 indexed chapters** now have three original Class 2 parent-guided sessions in the learner path:
+
+- **Read & explore** — short, supported reading or a concrete maths exploration.
+- **Practice** — selected activities from the official chapter, with no invented textbook questions or answers.
+- **Understanding check** — oral recall, a relevant example and a parent-observed decision about what needs another look.
+
+That creates **183 chapter-level sessions**. Each session links back to the chapter page and its official NCERT resource. The app stores original teaching guidance only; it does not copy the textbook. These sessions are instructional scaffolding, not yet a formally approved chapter-to-learning-outcome mapping or proof of mastery.

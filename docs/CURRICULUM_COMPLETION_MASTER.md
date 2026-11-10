@@ -26,14 +26,14 @@ Real figures recalculated from the repo on 2026-11-10 (superseding all historica
 | DB migrations | 001–006 (learning_subjects, learner_objectives, learning_plan_starters, learning_activities, learning_planning_periods, learning_portfolio_entries, ncert_chapter_progress, auto_learning_progress, family_daily_plans) | `migrations/` |
 
 Auto-learning queue catalogue (tasks per stage — gap indicator, not a completion metric):
-Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · Class 1: 3 · Class 2: 3 · Class 3: 4 · Class 4: 239 · Class 5: 4 · Class 6–8: 3 each · Class 9–12: 2 each.
+Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · Class 1: 3 · Class 2: 186 (183 NCERT chapter sessions + 3 existing activities) · Class 3: 4 · Class 4: 239 · Class 5: 4 · Class 6–8: 3 each · Class 9–12: 2 each.
 
 ## NCERT library matrix (Classes 1–12)
 
 | Grade | Books catalogued | Chapter slots | Titles verified | Status | Evidence |
 |---|---:|---:|---:|---|---|
 | 1 | 6 (5 indexed + 1 catalogue-only) | 72 | 72 | Catalogued; Dilchasp Riyazi contents pending | `docs/NCERT_CLASS1_INDEX.md` |
-| 2 | 4 | 61 | 61 | **Catalogued 2026-11-10** | `docs/NCERT_CLASS2_INDEX.md` |
+| 2 | 4 | 61 | 61 | **Catalogued + 183 chapter-level learner sessions integrated 2026-11-10** | `docs/NCERT_CLASS2_INDEX.md` |
 | 3 | 7 | 98 | 98 | **Catalogued 2026-11-10** | `docs/NCERT_CLASS3_INDEX.md` |
 | 4 | 4 | 49 | 49 | Catalogued | `docs/NCERT_CLASS4_INDEX.md` |
 | 5 | 7 | 86 | 86 | Catalogued | `docs/NCERT_CLASS5_INDEX.md` |
@@ -43,6 +43,8 @@ Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · C
 | 9–10 | 0 | 0 | 0 | Not catalogued — pending | — |
 | 11–12 | 0 | 0 | 0 | Not catalogued — pending | — |
 | **Total** | **44** | **559** | **559** | 1 contents-pending book | `validateNcertCatalogue() === []` |
+
+Class 2 learner pathway: 61 indexed chapters × 3 original parent-guided sessions = **183 sessions** (read/explore, practice, understanding check). Scripts are age-appropriate and subject-aware; they refer learners to the official chapter and do not reproduce textbook content. This is a usable chapter sequence, not a formally approved chapter-to-outcome map or completed mastery assessment.
 
 Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 lenses (each skill carries an equivalence status — never auto-approved).
 
