@@ -65,7 +65,7 @@ function class2ChapterLesson(kind:'read'|'practice'|'review',title:string,subjec
  };
  if(kind==='practice')return{
   ...common,
-  objective:isMath?`Practise the skills introduced in "${title}" and explain the steps using objects, drawings or numbers.`:`Complete two suitable activities from "${title}" and explain the answers in the learner's own words.`,
+  objective:isMath?`Practise the mathematical ideas introduced in "${title}" and explain the steps using objects, drawings or numbers.`:`Complete two suitable activities from "${title}" and explain the answers in the learner's own words.`,
   prep:'Preview the chapter’s own examples and questions. Choose two short activities that match the section already explored. Do not add invented textbook questions or answers.',
   example:isMath?'“I will try it with objects, draw what I did, and then check whether the numbers tell the same story.”':'“I will listen to the whole question, say what it is asking, and then explain how I found my answer.”',
   steps:isMath?[
@@ -88,7 +88,7 @@ function class2ChapterLesson(kind:'read'|'practice'|'review',title:string,subjec
  };
  return{
   ...common,
-  objective:isMath?`Recall one idea from "${title}" and demonstrate it independently with a fresh example.`:`Recall the main idea from "${title}" and retell it without looking at the page.`,
+  objective:isMath?`Recall a mathematical idea from "${title}" and demonstrate it independently with a fresh example.`:`Recall the main idea from "${title}" and retell it without looking at the page.`,
   prep:'Choose one short section already studied. Prepare a simple prompt based on the actual chapter, not on an assumed topic or an invented answer.',
   example:isMath?'“I can show the idea again, explain what I did first, and check the result.”':'“The main idea was ___. One detail I remember is ___.”',
   steps:isMath?[
