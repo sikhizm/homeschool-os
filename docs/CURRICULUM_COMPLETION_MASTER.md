@@ -14,11 +14,11 @@ Real figures recalculated from the repo on 2026-11-10 (superseding all historica
 
 | Metric | Value | Source of truth |
 |---|---:|---|
-| NCERT book records | **44** | `ncertTextbooks` (`src/lib/ncert/textbooks.ts` + `data/grade2.ts` + `data/grade3.ts` + `data/grade6.ts` + `data/grade8.ts`) |
-| Numbered chapter slots | **559** | `ncertChapterSlots` |
-| Slots with source-verified titles | **559** (100%) | `textbookAudit()` |
+| NCERT book records | **56** | `ncertTextbooks` (`src/lib/ncert/textbooks.ts` + `data/grade2.ts` + `data/grade3.ts` + `data/grade6.ts` + `data/grade7.ts` + `data/grade8.ts`) |
+| Numbered chapter slots | **689** | `ncertChapterSlots` |
+| Slots with source-verified titles | **689** (100%) | `textbookAudit()` |
 | Books with contents pending | **1** | `chapterCount===0`: `ncert-1-dilchasp-riyazi` |
-| Grades with ≥1 book | **1, 2, 3, 4, 5, 6, 8** | `gradeCoverage()` |
+| Grades with ≥1 book | **1, 2, 3, 4, 5, 6, 7, 8** | `gradeCoverage()` |
 | Curriculum competencies | **37** | `src/lib/curriculum/library.ts` |
 | Global framework skills | **29** (7 frameworks) | `src/lib/global-curriculum/catalogue.ts` |
 | Original lessons | **20** | `src/lib/lessons/library.ts` |
@@ -38,11 +38,11 @@ Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · C
 | 4 | 4 | 49 | 49 | Catalogued | `docs/NCERT_CLASS4_INDEX.md` |
 | 5 | 7 | 86 | 86 | Catalogued | `docs/NCERT_CLASS5_INDEX.md` |
 | 6 | 10 | 128 | 128 | **Catalogued 2026-11-10** | `docs/NCERT_CLASS6_INDEX.md` |
-| 7 | 0 | 0 | 0 | Not catalogued — pending | — |
+| 7 | 12 | 130 | 130 | **Catalogued 2026-11-10** (incl. both Ganita Prakash and both Exploring Society parts) | `docs/NCERT_CLASS7_INDEX.md` |
 | 8 | 6 | 65 | 65 | **Catalogued 2026-11-10** (incl. Ganita Prakash Part-II); Exploring Society etc. not yet added | `docs/NCERT_CLASS8_INDEX.md` |
 | 9–10 | 0 | 0 | 0 | Not catalogued — pending | — |
 | 11–12 | 0 | 0 | 0 | Not catalogued — pending | — |
-| **Total** | **44** | **559** | **559** | 1 contents-pending book | `validateNcertCatalogue() === []` |
+| **Total** | **56** | **689** | **689** | 1 contents-pending book | `validateNcertCatalogue() === []` |
 
 Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 lenses (each skill carries an equivalence status — never auto-approved).
 
@@ -51,7 +51,7 @@ Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 len
 | Phase | Scope | Status |
 |---|---|---|
 | 1 | Full repo audit; this document; inventory script | **COMPLETE** (2026-11-10) |
-| 2 | NCERT library complete for all graded books (1–12), every book contents-verified | **IN PROGRESS** — grades 1, 2, 3, 4, 5, 6, 8 catalogued (44 books / 559 chapters, only Dilchasp Riyazi contents-pending); grades 7, 9–12 outstanding |
+| 2 | NCERT library complete for all graded books (1–12), every book contents-verified | **IN PROGRESS** — grades 1, 2, 3, 4, 5, 6, 7, 8 catalogued (56 books / 689 chapters, only Dilchasp Riyazi contents-pending); grades 9–12 outstanding |
 | 3 | Objectives/competencies mapped per grade (beyond today's 37) | NOT STARTED |
 | 4 | Ready-to-teach original lessons across all stages (beyond today's 20) | NOT STARTED |
 | 5 | Assessments with mastery evidence (never completion-only) | NOT STARTED |

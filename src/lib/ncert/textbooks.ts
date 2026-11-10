@@ -8,6 +8,7 @@ import{grade2ChapterTitles,grade2ContentSources,grade2Textbooks} from './data/gr
 import{grade3ChapterTitles,grade3ContentSources,grade3Textbooks} from './data/grade3';
 import{grade8ChapterTitles,grade8ContentSources,grade8Textbooks} from './data/grade8';
 import{grade6ChapterTitles,grade6ContentSources,grade6Textbooks} from './data/grade6';
+import{grade7ChapterTitles,grade7ContentSources,grade7Textbooks} from './data/grade7';
 export type{ChapterSlot,ReviewStatus,Textbook};
 export const ncertTextbooks:Textbook[]=[
   {
@@ -110,14 +111,16 @@ export const ncertTextbooks:Textbook[]=[
 {"id":"ncert-5-bansuri","grade":5,"subject":"Arts","title":"Bansuri","language":"English","textbookCode":"eebu1","sourceUrl":"https://ncert.nic.in/textbook.php?eebu1=0-19","publisher":"NCERT","chapterCount":19,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
 {"id":"ncert-5-khel-yoga","grade":5,"subject":"Physical Education","title":"Khel Yoga","language":"English","textbookCode":"eeky1","sourceUrl":"https://ncert.nic.in/textbook.php?eeky1=0-3","publisher":"NCERT","chapterCount":7,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT 2026–27 reprint; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
 {"id":"ncert-5-sitaan","grade":5,"subject":"Urdu","title":"Sitaar","language":"Urdu","textbookCode":"eust1","sourceUrl":"https://ncert.nic.in/textbook.php?eust1=0-14","publisher":"NCERT","chapterCount":13,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT first edition, June 2025; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
-...grade6Textbooks,
-...grade8Textbooks
+ ...grade6Textbooks,
+ ...grade7Textbooks,
+ ...grade8Textbooks
 ];
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
 export const verifiedChapterTitles:Record<string,readonly string[]>={
  ...grade2ChapterTitles,
  ...grade3ChapterTitles,
  ...grade6ChapterTitles,
+ ...grade7ChapterTitles,
  ...grade8ChapterTitles,
  'ncert-1-mridang':[
   'Two Little Hands','Greetings','Picture Time','The Cap Seller and the Monkeys','A Farm',
@@ -213,6 +216,7 @@ export const verifiedContentsSources:Record<string,string>={
  ...grade2ContentSources,
  ...grade3ContentSources,
  ...grade6ContentSources,
+ ...grade7ContentSources,
  ...grade8ContentSources,
  'ncert-4-maths-mela':'https://ncert.nic.in/textbook/pdf/demm1ps.pdf',
  'ncert-4-santoor':'https://ncert.nic.in/textbook/pdf/desa1ps.pdf',
