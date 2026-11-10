@@ -37,7 +37,7 @@ export function LearningPath({initialLearnerId}:{initialLearnerId?:string}){
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
-  fetch('/api/auto-learning?path=1',{cache:'no-store'})
+  fetch(initialLearnerId?'/api/auto-learning?path=1&learner='+encodeURIComponent(initialLearnerId):'/api/auto-learning?path=1',{cache:'no-store'})
    .then(r=>r.json())
    .then((json:{learners?:Learner[]})=>{
     if(!alive)return;
@@ -86,14 +86,14 @@ export function LearningPath({initialLearnerId}:{initialLearnerId?:string}){
    </div>
   </header>
 
-  <nav className="learner-switcher" aria-label="Choose learner">
+  {!initialLearnerId&&<nav className="learner-switcher" aria-label="Choose learner">
    {data.learners.map(l=><button key={l.id} type="button"
     className={l.id===learner.id?'learner-pill is-active':'learner-pill'}
     aria-pressed={l.id===learner.id} onClick={()=>setSelected(l.id)}>
     <span className="learner-avatar" aria-hidden="true">{l.name.slice(0,1).toUpperCase()}</span>
     <span>{l.name}</span>
    </button>)}
-  </nav>
+  </nav>}
 
   <div className="path-subjects">
    {groups.map((group,groupIndex)=>{
