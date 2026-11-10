@@ -4,10 +4,10 @@ import { redirect } from 'next/navigation';
 import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import LearningWorkspace from './learning-workspace';
+import { FamilyHome } from './family-home';
 import { competencies } from '@/lib/curriculum/library';
 import { globalSkillById } from '@/lib/global-curriculum/catalogue';
 import { validPlanningDate } from '@/lib/planning/periods';
-import LearningIllustration from '@/components/learning-illustration';
 import AutomaticLearning from './automatic-learning';
 
 export const dynamic = 'force-dynamic';
@@ -51,28 +51,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <>
       <main className="family-dashboard">
-        <div className="dashboard-welcome">
-          <div>
-            <span className="tag">PRIVATE FAMILY WORKSPACE</span>
-            <h1>{String(family.name)}</h1>
-            <p className="muted">
-              Small steps. Shared discoveries. A learning journey of your own.
-            </p>
-          </div>
-          <span className="daily-badge">✧ Around 60 minutes, together</span>
-        </div>
-        <AutomaticLearning />
-        <section className="learning-hero" aria-labelledby="hero-title">
-          <div className="learning-hero-content">
-            <span className="hero-kicker"><span aria-hidden="true">✦</span> YOUR FAMILY LEARNING HUB</span>
-            <h2 id="hero-title">A little wonder, <em>every day.</em></h2>
-            <p>A calm, joyful home for curious minds. Find today&apos;s rhythm, explore activities, and notice how each learner is growing.</p>
-            <div className="hero-actions">
-              <Link className="hero-action-primary" href="/lessons">Browse activities <span aria-hidden="true">↗</span></Link>
-              <Link className="hero-action-secondary" href="/planning">Adjust your week <span aria-hidden="true">→</span></Link>
-            </div>
-          </div>
-          <LearningIllustration/>
+        <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} />
+        <section id="today-plan" aria-label="Detailed learning coach">
+          <AutomaticLearning />
         </section>
         <section className="quick-start" aria-labelledby="quick-start-title">
           <div className="quick-start-heading"><div><span className="eyebrow">YOUR LEARNING TOOLS</span><h2 id="quick-start-title">Where shall we begin?</h2></div><p>Everything you need, one simple tap away.</p></div>

@@ -14,7 +14,8 @@ function permittedDate(value:string){
  const parsed=new Date(value+'T00:00:00Z');
  if(!Number.isFinite(parsed.getTime())||parsed.toISOString().slice(0,10)!==value)return false;
  const today=new Date(isoToday()+'T00:00:00Z').getTime();
- return parsed.getTime()<=today&&parsed.getTime()>=today-6*86400000;
+ // Today, tomorrow (prepare the next day), or the past week (review).
+ return parsed.getTime()<=today+86400000&&parsed.getTime()>=today-6*86400000;
 }
 async function membership(){
  const {data:session}=await auth.getSession();
@@ -26,8 +27,8 @@ async function membership(){
 export async function GET(request:Request){
  try{
   const member=await membership();if(!member)return reply({error:'Family sign-in required'},401);
-  const date=new URL(request.url).searchParams.get('date')??isoToday();
-  if(!permittedDate(date))return reply({error:'Choose a date within the past seven days'},400);
+ const date=new URL(request.url).searchParams.get('date')??isoToday();
+ if(!permittedDate(date))return reply({error:'Choose a date from the past seven days up to tomorrow'},400);
   const sql=getSql();
   const rows=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
   return reply({date,plan:rows[0]??null,canEdit:member.role==='owner'});
@@ -41,7 +42,7 @@ export async function POST(request:Request){
  let body:unknown;try{body=JSON.parse(raw)}catch{return reply({error:'Invalid JSON'},400)}
  if(!body||typeof body!=='object')return reply({error:'Invalid input'},400);
  const {date,budget}=body as Record<string,unknown>;
- if(typeof date!=='string'||date!==isoToday()||!permittedDate(date)||typeof budget!=='number'||!Number.isInteger(budget)||![20,40,60,90].includes(budget))return reply({error:'Only today can be planned, using an available time budget'},400);
+ if(typeof date!=='string'||!permittedDate(date)||date<isoToday()||typeof budget!=='number'||!Number.isInteger(budget)||![20,40,60,90].includes(budget))return reply({error:'Plan today or tomorrow, using an available time budget'},400);
  try{
   const member=await membership();if(!member)return reply({error:'Sign in required'},401);
   if(member.role!=='owner')return reply({error:'Family owner required'},403);

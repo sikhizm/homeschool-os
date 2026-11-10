@@ -18,10 +18,15 @@ async function access(){
  return session?.user?.id??null;
 }
 const budgets=[20,40,60,90] as const;
+type PathState='completed'|'ready'|'revision'|'needs-practice'|'upcoming';
 export async function GET(request:Request){
  const user=await access();if(!user)return send({error:'Sign in required'},401);
- const requested=new URL(request.url).searchParams.get('budget');
+ const url=new URL(request.url);
+ const requested=url.searchParams.get('budget');
  const budget=budgets.includes(Number(requested) as typeof budgets[number])?Number(requested):60;
+ const wantPath=url.searchParams.get('path')==='1';
+ const wantTask=url.searchParams.get('task');
+ const wantLearner=url.searchParams.get('learner');
  try{
   const sql=getSql();
   const rows=await sql`
@@ -67,11 +72,34 @@ export async function GET(request:Request){
    const annual=annualCoverageForStage(String(l.stage),done);
    const tasks=recommended.map(t=>({...t,status:revise.has(t.id)?'needs_revision':'pending'}));
    family.push({id:learnerId,name:String(l.display_name),grade:String(l.stage),tasks});
+   // Learning-path view: every catalogue node with its real state. No locks —
+   // upcoming lessons stay open; revision sits inline in the path.
+   let path:unknown=undefined;
+   if(wantPath){
+    const readyIds=new Set(recommended.filter(t=>!t.id.startsWith('review:')).map(t=>t.id));
+    const reviewBases=new Set(recommended.filter(t=>t.id.startsWith('review:')).map(t=>t.id.replace(/^review:[1-5]:/,'')));
+    path=all.map(t=>{
+     const state:PathState=done.has(t.id)?'completed'
+      :revise.has(t.id)?'needs-practice'
+      :reviewBases.has(t.id)?'revision'
+      :readyIds.has(t.id)?'ready'
+      :'upcoming';
+     return {id:t.id,title:t.title,subject:t.subject,minutes:t.minutes,href:t.href,
+      week:t.week??null,term:t.term??null,mode:t.mode??null,source:t.source,state};
+    });
+   }
+   let taskDetail:unknown=undefined;
+   if(wantTask&&wantLearner===learnerId){
+    const baseId=String(wantTask).replace(/^review:[1-5]:/,'');
+    const found=all.find(t=>t.id===baseId)||all.find(t=>t.id===wantTask);
+    if(found)taskDetail={...found,status:revise.has(found.id)?'needs_revision':'pending',
+     isReview:String(wantTask).startsWith('review:'),reviewId:String(wantTask)};
+   }
    return {id:learnerId,name:String(l.display_name),grade:String(l.stage),canEdit:l.role==='owner',
     completed:summary.completed,total:all.length,history,upcoming,subjects,annual,
     assessment:summary,understood:[...understood],mastered:[...mastered],
     earnedBadges:[...participationBadges(summary.completed),...masteryBadges(summary.understood,summary.mastered)],
-    tasks};
+    tasks,...(path?{path}:{}),...(taskDetail?{taskDetail}:{})};
   });
   const dayOfWeek=new Date(todayIST()+'T12:00:00Z').getUTCDay();
   const planned=buildFamilyPlan(sharedBudgetTasks(family),budget,dayOfWeek);

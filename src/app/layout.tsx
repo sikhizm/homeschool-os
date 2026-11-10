@@ -1,4 +1,6 @@
 import '@neondatabase/auth-ui/css';
+import '@fontsource-variable/nunito';
+import '@fontsource/noto-sans-gurmukhi';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import AppNavigation from '@/components/app-navigation';
@@ -27,7 +29,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#16664b',
+  themeColor: '#185B47',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -35,8 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <PwaRegistration />
-        <AppNavigation />
-        {children}
+        <AppNavigation>{children}</AppNavigation>
       </body>
     </html>
   );

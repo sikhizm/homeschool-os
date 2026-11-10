@@ -53,8 +53,7 @@ export function PwaRegistration() {
       if (active) registration?.update().catch(() => undefined);
     };
 
-    navigator.serviceWorker
-      .register('/sw.js', { scope: '/', updateViaCache: 'none' })
+    navigator.serviceWorker.register('/sw.js', { scope: '/', updateViaCache: 'none' })
       .then((registered) => {
         registration = registered;
         if (registered.waiting) registered.waiting.postMessage({ type: 'SKIP_WAITING' });
@@ -208,7 +207,7 @@ export function PwaInstallButton() {
                 minHeight: 44,
                 border: 0,
                 borderRadius: 11,
-                background: '#16664b',
+                background: '#185B47',
                 color: '#fff',
                 fontWeight: 800,
                 cursor: 'pointer',

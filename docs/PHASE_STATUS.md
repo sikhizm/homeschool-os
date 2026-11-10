@@ -62,6 +62,20 @@ See [NCERT_CLASS1_INDEX.md](NCERT_CLASS1_INDEX.md) for exact sources, edition no
 
 See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rules and safeguards.
 
+## Family Learning Studio — complete UI/UX redesign (this phase)
+- [x] Warm editorial visual identity: ivory `#F7F8F3`, forest `#185B47`, charcoal `#202C28`, subject tints (math/language/science/creativity/saffron), Nunito + Noto Sans Gurmukhi fonts, 16–21px card radii, 46–52px controls, focus outlines, reduced-motion rules
+- [x] App shell: collapsible desktop sidebar (Home, Learning Plan, Learners, Curriculum Library, Progress, Family Portfolio, Settings) + fixed mobile bottom nav (Home, Learn, Library, Progress, Profile) + parent/learner mode switch
+- [x] Parent Home (`FamilyHome`): greeting/date/avatar, "Today's Family Learning Plan" hero with progress and one big START TODAY'S LEARNING, per-learner cards (avatar, level, progress, next activity, streak, Continue, 3-state revision chip), day timeline (warm-up/guided/independent/revision), urgent-only Parent attention
+- [x] Age-adapted learner homes at `/learn`: toddler (parent-led screen-free), preschool (play tiles, one next action), early primary (subject cards, ask-a-parent), independent (paths, achievements, reading/reasoning)
+- [x] Learning path at `/learn/path`: subject-grouped nodes with completed/ready/revision/needs-practice/upcoming states, no locks, revision inline
+- [x] Lesson player at `/learn/lesson`: Discover → Understand → Explore → Practice → Reflect → Complete, progress bar, speech read-aloud, one question at a time, Ask-a-parent help, localStorage autosave, records completion/revision via existing `POST /api/auto-learning`
+- [x] Curriculum library at `/library`: grade/subject/type filters, Continue-reading strip, six discovery collections, verification-state legend; NCERT book detail keeps cover/publisher/edition/source/chapters with verified/pending badges
+- [x] Automated planner: one-tap "Prepare next day" (idempotent family-calendar POST now accepts today or tomorrow); completed lessons hidden, subjects balanced, shared guided budget respected
+- [x] Three-state adaptive revision (`revision-state.ts`): Confident / Practising / Needs support with recommendation copy
+- [x] `/settings` (account, family, PWA install, learning prefs, sign-out) and `/learners` (roster with instant switching)
+- [x] PWA: manifest/offline/brand colors retuned; middleware matcher covers `/learn`, `/library`, `/settings`, `/learners`
+- [x] Verification gates per step: `npm run lint`, `npm run typecheck`, `npm test` (106/106), CI-style `npm run build`, `npm run test:smoke` against the built server (all green). Browser `test:ui` runs in CI only (Playwright chromium cannot download in this sandbox)
+
 ## Still outstanding (next phases)
 - Human-reviewed Class 5 chapter-to-skill mapping with source edition, chapter evidence, rationale, reviewer and revision history; no automatic approval.
 - Official Class 2 and Class 3 book/contents audits, then systematic NCERT Classes 1–12 coverage; Class 8 contents and Class 1 Dilchasp Riyazi contents remain pending (see `NCERT_CLASS1_INDEX.md` and `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
