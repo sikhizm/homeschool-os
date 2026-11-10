@@ -18,7 +18,8 @@
     "db:migrate:portfolio": "node scripts/portfolio-migration.mjs",
     "db:migrate:ncert-progress": "node scripts/ncert-progress-migration.mjs",
     "db:migrate:auto-learning": "node scripts/auto-learning-migration.mjs",
-    "db:migrate:learner-archive": "node scripts/learner-archive-migration.mjs"
+    "db:migrate:learner-archive": "node scripts/learner-archive-migration.mjs",
+    "db:migrate:planning-competencies": "node scripts/planning-competencies-migration.mjs"
   },
   "dependencies": {
     "@fontsource-variable/nunito": "^5.3.0",
