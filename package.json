@@ -13,6 +13,7 @@
     "db:inspect": "node scripts/database.mjs inspect",
     "db:migrate": "node scripts/database.mjs migrate",
     "test:smoke": "node scripts/smoke.mjs",
+    "curriculum:inventory": "tsx scripts/curriculum-inventory.ts",
     "db:migrate:planning": "node scripts/planning-migration.mjs",
     "db:migrate:portfolio": "node scripts/portfolio-migration.mjs",
     "db:migrate:ncert-progress": "node scripts/ncert-progress-migration.mjs",

@@ -5,20 +5,20 @@ import {globalStages} from '../src/lib/global-curriculum/catalogue';
 import {ncertTextbooks,gradeCoverage,validateNcertCatalogue,chaptersFor} from '../src/lib/ncert/textbooks';
 test('integrated curriculum preserves source identity and no fabricated textbook chapters',()=>{
  assert.deepEqual(validateNcertCatalogue(),[]);
- assert.equal(ncertTextbooks.length,22);
- assert.equal(ncertTextbooks.filter(x=>x.chapterCount===0).length,6);
+ assert.equal(ncertTextbooks.length,44);
+ assert.equal(ncertTextbooks.filter(x=>x.chapterCount===0).length,1);
  for(const book of ncertTextbooks.filter(x=>x.chapterCount===0))assert.equal(chaptersFor(book.id).length,0);
- assert.deepEqual(gradeCoverage().filter(x=>x.cataloguedBooks>0).map(x=>x.grade),[1,4,5,8]);
+ assert.deepEqual(gradeCoverage().filter(x=>x.cataloguedBooks>0).map(x=>x.grade),[1,2,3,4,5,6,8]);
 });
 test('coverage honestly describes the partial programme',()=>{
  const c=curriculumCoverage();
- assert.equal(c.textbookRecords,22);
- assert.equal(c.chaptersIndexed,207);
- assert.equal(c.sourceCheckedTitles,207);
+ assert.equal(c.textbookRecords,44);
+ assert.equal(c.chaptersIndexed,559);
+ assert.equal(c.sourceCheckedTitles,559);
  assert.equal(c.approvedChapterMappings,0);
  assert.equal(c.completeBoards,0);
- assert.equal(c.gradesWithPartialCatalogue,4);
- assert.equal(c.gradesWithoutBooks,8);
+ assert.equal(c.gradesWithPartialCatalogue,7);
+ assert.equal(c.gradesWithoutBooks,5);
  assert.ok(c.originalSkills>0&&c.originalLessons>0);
 });
 test('parent review plan is deterministic, bounded and does not claim assessments',()=>{
