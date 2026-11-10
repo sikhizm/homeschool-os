@@ -19,10 +19,10 @@ test('inventory metrics stay internally consistent across modules',()=>{
  assert.equal(c.textbookRecords,a.books);
  assert.equal(c.chaptersIndexed,a.chapterSlots);
  assert.equal(c.sourceCheckedTitles,a.verifiedChapterTitles);
- assert.equal(a.books,44);
- assert.equal(a.chapterSlots,559);
- assert.equal(a.verifiedChapterTitles,559);
- assert.deepEqual(a.gradesCovered,[1,2,3,4,5,6,8]);
+ assert.equal(a.books,56);
+ assert.equal(a.chapterSlots,689);
+ assert.equal(a.verifiedChapterTitles,689);
+ assert.deepEqual(a.gradesCovered,[1,2,3,4,5,6,7,8]);
  assert.equal(annualGrades.length,4);
  for(const g of annualGrades) assert.ok(annualSteps(g.key).length>0,g.key);
  // Grow-only floors: raise deliberately as content lands, never lower.
@@ -30,8 +30,9 @@ test('inventory metrics stay internally consistent across modules',()=>{
 });
 test('known gaps are explicit so closing them requires updating this contract',()=>{
  // Grades with zero NCERT book records today (Phases 2 must flip these one by one).
- for(const grade of [7,9,10,11,12]) assert.equal(selectTextbooks(grade).length,0,`grade ${grade}`);
+ for(const grade of [9,10,11,12]) assert.equal(selectTextbooks(grade).length,0,`grade ${grade}`);
  assert.equal(gradeCoverage().find(g=>g.grade===6)?.contentsAudited,10);
+ assert.equal(gradeCoverage().find(g=>g.grade===7)?.contentsAudited,12);
  assert.equal(gradeCoverage().find(g=>g.grade===8)?.contentsAudited,6);
  assert.equal(ncertTextbooks.filter(b=>b.chapterCount===0).length,1); // Dilchasp Riyazi (Urdu) awaits a contents audit
  // Class 4 remains the only fully-integrated auto-learning queue today.

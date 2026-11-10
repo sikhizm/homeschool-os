@@ -4,9 +4,9 @@ import {ncertTextbooks,ncertChapterSlots,textbookById,chaptersFor,textbookAudit,
 
 test('Class 4 and Class 5 publisher catalogues form a valid bounded index',()=>{
  assert.deepEqual(validateNcertCatalogue(),[]);
- assert.equal(ncertTextbooks.length,44);
- assert.equal(ncertChapterSlots.length,559);
- assert.deepEqual(ncertTextbooks.map(x=>x.chapterCount),[9,19,13,13,18,0,13,26,11,11,18,12,14,20,20,7,7,14,12,13,10,15,10,12,10,19,7,13,16,13,10,12,14,16,14,22,5,6,15,7,7,10,13,13]);
+ assert.equal(ncertTextbooks.length,56);
+ assert.equal(ncertChapterSlots.length,689);
+ assert.deepEqual(ncertTextbooks.map(x=>x.chapterCount),[9,19,13,13,18,0,13,26,11,11,18,12,14,20,20,7,7,14,12,13,10,15,10,12,10,19,7,13,16,13,10,12,14,16,14,22,5,6,15,10,8,7,12,12,8,12,14,20,6,6,15,7,7,10,13,13]);
  assert.equal(textbookGrades.length,12);
 });
 test('chapter slots distinguish verified titles from books still awaiting contents',()=>{
@@ -21,12 +21,13 @@ test('chapter slots distinguish verified titles from books still awaiting conten
  }
 });
 test('audit metrics count only verified numbered titles and never manufacture mappings',()=>{
- assert.deepEqual(textbookAudit(),{books:44,chapterSlots:559,verifiedChapterTitles:559,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:1,gradesCovered:[1,2,3,4,5,6,8]});
+ assert.deepEqual(textbookAudit(),{books:56,chapterSlots:689,verifiedChapterTitles:689,approvedSkillMappings:0,unreviewedChapterSlots:0,booksPendingContents:1,gradesCovered:[1,2,3,4,5,6,7,8]});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===1),{grade:1,cataloguedBooks:6,contentsAudited:5,status:'partial'});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===2),{grade:2,cataloguedBooks:4,contentsAudited:4,status:'partial'});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===3),{grade:3,cataloguedBooks:7,contentsAudited:7,status:'partial'});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===5),{grade:5,cataloguedBooks:7,contentsAudited:7,status:'partial'});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===6),{grade:6,cataloguedBooks:10,contentsAudited:10,status:'partial'});
+ assert.deepEqual(gradeCoverage().find(x=>x.grade===7),{grade:7,cataloguedBooks:12,contentsAudited:12,status:'partial'});
  assert.deepEqual(gradeCoverage().find(x=>x.grade===8),{grade:8,cataloguedBooks:6,contentsAudited:6,status:'partial'});
 });
 test('Class 1 indexes five current NCERT/CIET books and preserves the Urdu catalogue-only title',()=>{
@@ -131,6 +132,34 @@ test('Grade 6 indexes ten prelims-verified NCERT books with verified numbered ch
  assert.equal(officialChapterPdf(chaptersFor('ncert-6-khel-yatra').at(-1)!),'https://ncert.nic.in/textbook/pdf/feky105.pdf');
  assert.equal(officialChapterPdf(chaptersFor('ncert-6-kaushal-bodh').at(-1)!),'https://ncert.nic.in/textbook/pdf/fekb106.pdf');
 });
+test('Grade 7 indexes twelve prelims-verified NCERT books with verified numbered chapter lists',()=>{
+ const grade7=selectTextbooks(7);assert.equal(grade7.length,12);
+ assert.deepEqual(grade7.map(b=>b.chapterCount),[15,10,8,7,12,12,8,12,14,20,6,6]);
+ assert.equal(grade7.reduce((sum,book)=>sum+book.chapterCount,0),130);
+ for(const book of grade7){
+  const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
+  assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'));
+  assert.ok(chapters.every(ch=>officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
+ }
+ assert.equal(chaptersFor('ncert-7-poorvi')[0].verifiedTitle,'The Day the River Spoke');
+ assert.equal(chaptersFor('ncert-7-poorvi').at(-1)?.verifiedTitle,'Rani Abbakka');
+ assert.equal(chaptersFor('ncert-7-malhar')[0].verifiedTitle,'माँ, कह एक कहानी');
+ assert.equal(chaptersFor('ncert-7-ganita-prakash')[0].verifiedTitle,'Large Numbers Around Us');
+ assert.equal(chaptersFor('ncert-7-ganita-prakash-2').at(-1)?.verifiedTitle,'Finding the Unknown');
+ assert.equal(chaptersFor('ncert-7-curiosity').at(-1)?.verifiedTitle,'Earth, Moon, and the Sun');
+ assert.equal(chaptersFor('ncert-7-exploring-society')[0].verifiedTitle,'Geographical Diversity of India');
+ assert.equal(chaptersFor('ncert-7-exploring-society-2').at(-1)?.verifiedTitle,'Banks and the Magic of Finance');
+ assert.equal(chaptersFor('ncert-7-deepakam')[0].verifiedTitle,'वन्दे भारतमातरम्');
+ assert.equal(chaptersFor('ncert-7-khayal')[0].verifiedTitle,'ترانۂ وحدت');
+ assert.equal(chaptersFor('ncert-7-khayal').at(-1)?.verifiedTitle,'ڈیجیٹل ٹیکنالوجی');
+ assert.equal(chaptersFor('ncert-7-kriti').length,20);
+ assert.equal(chaptersFor('ncert-7-khel-yatra').at(-1)?.verifiedTitle,'Yoga');
+ assert.equal(chaptersFor('ncert-7-kaushal-bodh')[0].verifiedTitle,'Plant Nursery');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-7-ganita-prakash')[0]),'https://ncert.nic.in/textbook/pdf/gegp101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-7-khayal').at(-1)!),'https://ncert.nic.in/textbook/pdf/guky114.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-7-khel-yatra')[0]),'https://ncert.nic.in/textbook/pdf/geky101.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-7-kaushal-bodh').at(-1)!),'https://ncert.nic.in/textbook/pdf/gekb106.pdf');
+});
 test('Class 8 indexes six prelims-verified NCERT books including both Ganita Prakash parts',()=>{
  const grade8=selectTextbooks(8);assert.equal(grade8.length,6);
  assert.deepEqual(grade8.map(b=>b.chapterCount),[15,7,7,10,13,13]);
@@ -156,7 +185,7 @@ test('textbook selection remains exact and unknown classes are not fabricated',(
  assert.equal(selectTextbooks(1).length,6);assert.equal(selectTextbooks(2).length,4);assert.equal(selectTextbooks(3).length,7);assert.equal(selectTextbooks(4,'English')[0].title,'Santoor');assert.equal(selectTextbooks(5).length,7);
  assert.equal(selectTextbooks(8).length,6);assert.equal(selectTextbooks(5,'Hindi')[0].textbookCode,'ehve1');
  assert.equal(chaptersFor('ncert-5-veena').length,12);assert.deepEqual(ncertChapterSlots.filter(c=>c.mappingStatus==='human-reviewed'),[]);
- assert.equal(selectTextbooks(6).length,10);assert.equal(textbookById('not-real'),undefined);assert.equal(chaptersFor('../secrets').length,0);
+ assert.equal(selectTextbooks(6).length,10);assert.equal(selectTextbooks(7).length,12);assert.equal(textbookById('not-real'),undefined);assert.equal(chaptersFor('../secrets').length,0);
 });
 test('verified Grade 4 and Grade 5 chapters generate official NCERT chapter PDF links',()=>{
  const veena4=chaptersFor('ncert-4-veena');
