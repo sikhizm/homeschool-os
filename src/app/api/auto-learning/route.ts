@@ -27,18 +27,22 @@ export async function GET(request:Request){
  const wantPath=url.searchParams.get('path')==='1';
  const wantTask=url.searchParams.get('task');
  const wantLearner=url.searchParams.get('learner');
+  const requestedLearner=url.searchParams.get('learner');
  try{
   const sql=getSql();
   const rows=await sql`
    SELECT l.id::text AS id,l.display_name,l.stage,fm.role
    FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
-   WHERE fm.auth_user_id=${user} ORDER BY l.created_at,l.id
+   WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL
+     AND (${requestedLearner}::text IS NULL OR l.id::text=${requestedLearner})
+   ORDER BY l.created_at,l.id
   `;
   const progress=await sql`
    SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at
    FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id
    JOIN family_members fm ON fm.family_id=l.family_id
-   WHERE fm.auth_user_id=${user}
+   WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL
+     AND (${requestedLearner}::text IS NULL OR l.id::text=${requestedLearner})
   `;
   const family: {id:string;name:string;grade:string;tasks:ReturnType<typeof prioritizedQueue>}[]=[];
   const learners=rows.map(l=>{
@@ -139,7 +143,7 @@ export async function POST(request:Request){
   const sql=getSql();
   const learners=await sql`
    SELECT l.stage FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
-   WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner' LIMIT 1
+   WHERE l.id::text=${learnerId} AND l.archived_at IS NULL AND fm.auth_user_id=${user} AND fm.role='owner' LIMIT 1
   `;
   if(!learners.length)return send({error:'Only a family owner can change progress'},403);
   const catalogue=queueCatalogue(String(learners[0].stage));
@@ -148,7 +152,7 @@ export async function POST(request:Request){
    SELECT p.task_id,p.status,p.updated_at FROM auto_learning_progress p
    WHERE p.learner_id::text=${learnerId}
    AND EXISTS(SELECT 1 FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
-    WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user} AND fm.role='owner')
+    WHERE l.id::text=${learnerId} AND l.archived_at IS NULL AND fm.auth_user_id=${user} AND fm.role='owner')
   `;
   const plan=assessmentPlan(taskId,action,verdict,records.map(r=>({task_id:String(r.task_id),status:String(r.status),updated_at:String(r.updated_at)})),recallQuality as 'independent'|'with_hint'|'not_yet'|undefined);
   for(const id of plan.deletes){
