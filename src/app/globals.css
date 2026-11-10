@@ -1811,3 +1811,18 @@ button:active:not(:disabled){transform:translateY(1px)}
 
 .audio-stop-btn{border-color:#D6A27F;background:#FFF4EB;color:#7B3F1D;font-weight:900}
 .audio-stop-btn:hover{background:#FCE8D8}
+
+
+.plan-curriculum-picker{margin:14px 0 18px;padding:14px;border:1px solid #dce9dc;border-radius:14px;background:#f8fbf7}
+.plan-picker-heading{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;color:#245d47}
+.plan-picker-heading span{font-size:.76rem;color:#61796a;background:#e8f2e9;border-radius:999px;padding:4px 9px}
+.plan-picker-subject{margin-top:12px}
+.plan-picker-subject h4{font-size:.82rem;color:#557260;margin:0 0 7px}
+.plan-picker-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.plan-competency-option{display:flex;gap:9px;align-items:flex-start;padding:10px;border:1px solid #e1eae0;border-radius:10px;background:#fff;cursor:pointer;min-width:0}
+.plan-competency-option input{margin-top:3px;accent-color:#21634e;flex:0 0 auto}
+.plan-competency-option span{display:grid;gap:3px;min-width:0}
+.plan-competency-option strong{font-size:.82rem;color:#234b3b}
+.plan-competency-option small{font-size:.72rem;line-height:1.45;color:#6b7d72}
+.plan-competency-option:has(input:checked){border-color:#70a889;background:#eff7f0}
+@media(max-width:680px){.plan-picker-options{grid-template-columns:1fr}}
