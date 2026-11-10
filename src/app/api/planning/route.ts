@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
 import { getSql } from '@/lib/db';
+import { competencies } from '@/lib/curriculum/library';
 import { academicYear, daysInWeek, parsePlanningInput, PlanInputError, validPlanningDate, yearDates } from '@/lib/planning/periods';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -32,7 +33,7 @@ export async function GET(request:Request){
   const year=yearDates(academicYear(anchor));
   const week=daysInWeek(anchor);
   const [periods,days]=await Promise.all([
-   sql`SELECT p.id::text,p.kind,p.start_date::text,p.end_date::text,p.title,p.focus,p.notes
+   sql`SELECT p.id::text,p.kind,p.start_date::text,p.end_date::text,p.title,p.focus,p.notes,p.competency_ids
      FROM learning_planning_periods p JOIN learners l ON l.id=p.learner_id
      WHERE l.id::text=${learnerId} AND p.start_date<=${year.endDate}::date AND p.end_date>=${year.startDate}::date
      AND EXISTS(SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${user})
@@ -64,14 +65,19 @@ export async function POST(request:Request){
   const obj=data as Record<string,unknown>;
   if(!validLearner(obj.learnerId))return respond({error:'Choose a valid learner.'},400);
   const plan=parsePlanningInput(obj);
+  const rawIds=Array.isArray(obj.competencyIds)?obj.competencyIds:[];
+  if(rawIds.length>60||rawIds.some(id=>typeof id!=='string'))return respond({error:'Choose valid curriculum competencies.'},400);
+  const selectedIds=[...new Set(rawIds as string[])];
+  const knownIds=new Set(competencies.map(item=>item.id));
+  if(selectedIds.some(id=>!knownIds.has(id)))return respond({error:'A selected curriculum competency is no longer available.'},400);
   const sql=getSql();
-  const rows=await sql`INSERT INTO learning_planning_periods(learner_id,kind,start_date,end_date,title,focus,notes)
-    SELECT l.id,${plan.kind},${plan.startDate}::date,${plan.endDate}::date,${plan.title},${plan.focus},${plan.notes}
+  const rows=await sql`INSERT INTO learning_planning_periods(learner_id,kind,start_date,end_date,title,focus,notes,competency_ids)
+    SELECT l.id,${plan.kind},${plan.startDate}::date,${plan.endDate}::date,${plan.title},${plan.focus},${plan.notes},${selectedIds}::text[]
     FROM learners l WHERE l.id::text=${obj.learnerId}
     AND l.family_id=(SELECT family_id FROM family_members WHERE auth_user_id=${user} ORDER BY created_at,family_id LIMIT 1)
     AND EXISTS(SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${user} AND fm.role='owner')
     ON CONFLICT(learner_id,kind,start_date)
-    DO UPDATE SET title=EXCLUDED.title,focus=EXCLUDED.focus,notes=EXCLUDED.notes,updated_at=now()
+    DO UPDATE SET title=EXCLUDED.title,focus=EXCLUDED.focus,notes=EXCLUDED.notes,competency_ids=EXCLUDED.competency_ids,updated_at=now()
     RETURNING id::text`;
   if(!rows.length)return respond({error:'Only a family owner can save plans for this learner.'},403);
   return respond({saved:true},200);
