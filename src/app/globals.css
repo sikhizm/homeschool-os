@@ -352,7 +352,7 @@ header {
 .learner-form button {
   grid-column: 1/-1;
   border: 0;
-  background: #16664b;
+  background: #185B47;
   border-radius: 10px;
   color: white;
   min-height: 46px;
@@ -480,8 +480,8 @@ header {
   font-weight: 700;
 }
 .workspace-tabs button[aria-current] {
-  border-bottom-color: #16664b;
-  color: #16664b;
+  border-bottom-color: #185B47;
+  color: #185B47;
 }
 .learning-workspace {
   display: grid;
@@ -651,7 +651,7 @@ header {
 .check-label input {
   width: 17px;
   height: 17px;
-  accent-color: #16664b;
+  accent-color: #185B47;
   flex-shrink: 0;
 }
 .guidance {
@@ -709,7 +709,7 @@ header {
 .workspace-empty button {
   border: 0;
   border-radius: 9px;
-  background: #16664b;
+  background: #185B47;
   color: #fff;
   padding: 12px 18px;
   min-height: 44px;
@@ -793,7 +793,7 @@ summary:focus-visible {
 .learning-workspace summary,
 .add-learner-panel summary {
   font-size: 13px;
-  color: #16664b;
+  color: #185B47;
   font-weight: 700;
   cursor: pointer;
   line-height: 1.6;
@@ -858,7 +858,7 @@ summary:focus-visible {
 }
 .save-status {
   font-size: 12px;
-  color: #16664b;
+  color: #185B47;
   min-height: 16px;
   margin-bottom: -8px;
 }
@@ -1166,7 +1166,7 @@ button:active:not(:disabled){transform:translateY(1px)}
  .quick-start-icon{width:39px;height:39px;font-size:20px}
  .dashboard-welcome{align-items:flex-start}
 }
-@media print{.app-shell,.app-topbar,.app-bottom-nav,.learning-hero,.quick-start{display:none!important}}
+@media print{.app-sidebar,.app-topbar,.app-bottom-nav,.app-context-wrap,.learning-hero,.quick-start{display:none!important}.app-shell-body{margin-left:0!important}}
 @media(prefers-reduced-motion:reduce){.quick-start-card,.app-nav-link,.app-bottom-link,button{transition:none!important}}
 
 /* ===== Desktop: compact collapsible left sidebar ===== */
@@ -1305,6 +1305,13 @@ button:active:not(:disabled){transform:translateY(1px)}
  .learn-home{padding:20px 15px 110px}
  .learner-pill{font-size:12.5px}
  .tier-grid{grid-template-columns:1fr}
+}
+@media(max-width:420px){
+ .app-topbar{padding:9px 12px;gap:8px}
+ .app-topbar .mode-chip{display:none}
+ .app-topbar .mode-switch{padding:6px 10px;font-size:11.5px}
+ .app-brand .brand-mark{width:36px;height:36px;font-size:19px}
+ .app-topbar .brand-copy strong{font-size:14px}
 }
 
 /* ===== Learning path (Duolingo-style) ===== */

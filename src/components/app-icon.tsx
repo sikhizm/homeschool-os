@@ -12,7 +12,7 @@ export default function AppIcon({ size = 512, maskable = false }: AppIconProps) 
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#16664b',
+        backgroundColor: '#185B47',
         borderRadius: maskable ? 0 : size * 0.22,
       }}
     >

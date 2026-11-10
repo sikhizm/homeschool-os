@@ -207,7 +207,7 @@ export function PwaInstallButton() {
                 minHeight: 44,
                 border: 0,
                 borderRadius: 11,
-                background: '#16664b',
+                background: '#185B47',
                 color: '#fff',
                 fontWeight: 800,
                 cursor: 'pointer',
