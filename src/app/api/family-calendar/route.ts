@@ -3,7 +3,7 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 import {prioritizedQueue} from '@/lib/auto-learning/revision';
-import {buildFamilyPlan,sharedBudgetTasks,carryForwardTasks,isValidRequiredSequence} from '@/lib/auto-learning/family-schedule';
+import {buildFamilyPlan,sharedBudgetTasks,carryForwardTasks} from '@/lib/auto-learning/family-schedule';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -41,11 +41,11 @@ export async function POST(request:Request){
  let raw:string;try{raw=await request.text();if(raw.length>1024)throw Error('large')}catch{return reply({error:'Invalid request'},400)}
  let body:unknown;try{body=JSON.parse(raw)}catch{return reply({error:'Invalid JSON'},400)}
  if(!body||typeof body!=='object')return reply({error:'Invalid input'},400);
- const {date,budget,budgetEnabled,taskIds,replace}=body as Record<string,unknown>;
+ const {date,budget,budgetEnabled,taskCounts,replace}=body as Record<string,unknown>;
  if(typeof date!=='string'||!permittedDate(date)||date<isoToday()||
   (budgetEnabled!==undefined&&typeof budgetEnabled!=='boolean')||(replace!==undefined&&typeof replace!=='boolean')||
   (budgetEnabled!==false&&(typeof budget!=='number'||!Number.isInteger(budget)||![20,40,60,90].includes(budget)))||
-  (taskIds!==undefined&&(!taskIds||typeof taskIds!=='object'||Array.isArray(taskIds))))return reply({error:'Choose a valid date, assignment sequence and time preference'},400);
+  (taskCounts!==undefined&&(!taskCounts||typeof taskCounts!=='object'||Array.isArray(taskCounts))))return reply({error:'Choose a valid date, assignment sequence and time preference'},400);
  const useBudget=budgetEnabled!==false;
  const selectedBudget=useBudget?Number(budget):null;
  const storedBudget=useBudget?selectedBudget!:180;
@@ -59,7 +59,7 @@ export async function POST(request:Request){
   const progress=await sql`SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id WHERE l.family_id::text=${member.id}`;
   const previous=await sql`SELECT slots FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date<${date}::date AND learning_date>=${date}::date-6 ORDER BY learning_date ASC`;
   const priorSlots=previous.flatMap(row=>Array.isArray(row.slots)?row.slots:[]);
-  const requested=taskIds as Record<string,unknown>|undefined;
+  const requested=taskCounts as Record<string,unknown>|undefined;
   const family=learners.map(l=>{
    const learnerId=String(l.id),grade=String(l.stage);
    const entries=progress.filter(p=>String(p.learner_id)===learnerId).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
@@ -71,8 +71,8 @@ export async function POST(request:Request){
    const carried=carriedIds.map(taskId=>queue.find(task=>task.id===taskId)).filter((task):task is typeof queue[number]=>Boolean(task));
    const tasks=carryForwardTasks(queue,carried,completed);
    const chosen=requested?.[learnerId];
-   if(chosen!==undefined&&(!Array.isArray(chosen)||!chosen.every(x=>typeof x==='string')||!isValidRequiredSequence(tasks,chosen as string[])))throw Error('Required activities must be assigned in their current learning order.');
-   return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.slice(0,(chosen as string[]).length)};
+   if(chosen!==undefined&&(typeof chosen!=='number'||!Number.isInteger(chosen)||chosen<0||chosen>tasks.length))throw Error('Choose a valid number of required activities.');
+   return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.slice(0,chosen as number)};
   });
   if(requested&&Object.keys(requested).some(key=>!learners.some(l=>String(l.id)===key)))return reply({error:'An assignment references an unknown learner'},400);
   const planned=buildFamilyPlan(sharedBudgetTasks(family),selectedBudget,new Date(date+'T12:00:00Z').getUTCDay(),true);
@@ -85,5 +85,5 @@ export async function POST(request:Request){
   if(saved.length)return reply({date,plan:saved[0],saved:true,budgetEnabled:useBudget});
   const concurrent=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
   return reply({date,plan:concurrent[0],saved:false,budgetEnabled:Number(concurrent[0]?.budget_minutes)!==180});
- }catch(error){if(error instanceof Error&&error.message.includes('Required activities'))return reply({error:error.message},400);return reply({error:'Unable to save daily plan. Verify migration 006.'},503);}
+ }catch(error){if(error instanceof Error&&error.message.includes('required activities'))return reply({error:error.message},400);if(error instanceof Error&&error.message.includes('number of required activities'))return reply({error:error.message},400);return reply({error:'Unable to save daily plan. Verify migration 006.'},503);}
 }
