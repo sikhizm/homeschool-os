@@ -74,7 +74,7 @@ export async function POST(request:Request){
    return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.filter((task,index)=>(chosen as string[]).includes(task.id)&&index<(chosen as string[]).length)};
   });
   if(requested&&Object.keys(requested).some(key=>!learners.some(l=>String(l.id)===key)))return reply({error:'An assignment references an unknown learner'},400);
-  const planned=buildFamilyPlan(sharedBudgetTasks(family),selectedBudget,new Date(date+'T12:00:00Z').getUTCDay());
+  const planned=buildFamilyPlan(sharedBudgetTasks(family),selectedBudget,new Date(date+'T12:00:00Z').getUTCDay(),true);
   const slots=planned.slots.map(slot=>({learnerId:slot.learnerId,name:slot.name,grade:slot.grade,task:slot.task,minutes:slot.minutes,startMinute:slot.startMinute,mode:slot.mode,budgetEnabled:useBudget}));
   // The unique key makes concurrent first-open requests idempotent; no silent replacement.
   const saved=await sql`INSERT INTO family_daily_plans(family_id,learning_date,budget_minutes,slots)
