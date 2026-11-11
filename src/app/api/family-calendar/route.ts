@@ -31,7 +31,7 @@ export async function GET(request:Request){
  if(!permittedDate(date))return reply({error:'Choose a date from the past seven days up to tomorrow'},400);
   const sql=getSql();
   const rows=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
-  return reply({date,plan:rows[0]??null,canEdit:member.role==='owner'});
+  return reply({date,plan:rows[0]??null,canEdit:member.role==='owner',budgetEnabled:rows.length?Number(rows[0].budget_minutes)!==180:true});
  }catch{return reply({error:'Family calendar is unavailable. Verify migration 006.'},503);}
 }
 export async function POST(request:Request){
@@ -41,9 +41,9 @@ export async function POST(request:Request){
  let raw:string;try{raw=await request.text();if(raw.length>1024)throw Error('large')}catch{return reply({error:'Invalid request'},400)}
  let body:unknown;try{body=JSON.parse(raw)}catch{return reply({error:'Invalid JSON'},400)}
  if(!body||typeof body!=='object')return reply({error:'Invalid input'},400);
- const {date,budget,budgetEnabled,taskIds}=body as Record<string,unknown>;
+ const {date,budget,budgetEnabled,taskIds,replace}=body as Record<string,unknown>;
  if(typeof date!=='string'||!permittedDate(date)||date<isoToday()||
-  (budgetEnabled!==undefined&&typeof budgetEnabled!=='boolean')||
+  (budgetEnabled!==undefined&&typeof budgetEnabled!=='boolean')||(replace!==undefined&&typeof replace!=='boolean')||
   (budgetEnabled!==false&&(typeof budget!=='number'||!Number.isInteger(budget)||![20,40,60,90].includes(budget)))||
   (taskIds!==undefined&&(!taskIds||typeof taskIds!=='object'||Array.isArray(taskIds))))return reply({error:'Choose a valid date, assignment sequence and time preference'},400);
  const useBudget=budgetEnabled!==false;
@@ -54,7 +54,7 @@ export async function POST(request:Request){
   if(member.role!=='owner')return reply({error:'Family owner required'},403);
   const sql=getSql();
   const existing=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
-  if(existing.length)return reply({date,plan:existing[0],saved:false,budgetEnabled:Number(existing[0].budget_minutes)!==180});
+  if(existing.length&&replace!==true)return reply({date,plan:existing[0],saved:false,budgetEnabled:Number(existing[0].budget_minutes)!==180});
   const learners=await sql`SELECT l.id::text AS id,l.display_name,l.stage FROM learners l WHERE l.family_id::text=${member.id} AND l.archived_at IS NULL ORDER BY l.created_at,l.id`;
   const progress=await sql`SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id WHERE l.family_id::text=${member.id}`;
   const previous=await sql`SELECT slots FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date<${date}::date AND learning_date>=${date}::date-6 ORDER BY learning_date ASC`;
@@ -79,7 +79,7 @@ export async function POST(request:Request){
   // The unique key makes concurrent first-open requests idempotent; no silent replacement.
   const saved=await sql`INSERT INTO family_daily_plans(family_id,learning_date,budget_minutes,slots)
    SELECT f.id,${date}::date,${storedBudget},${JSON.stringify(slots)}::jsonb FROM families f WHERE f.id::text=${member.id}
-   ON CONFLICT(family_id,learning_date) DO NOTHING
+   ON CONFLICT(family_id,learning_date) DO UPDATE SET budget_minutes=EXCLUDED.budget_minutes,slots=EXCLUDED.slots WHERE ${Boolean(replace)}
    RETURNING learning_date::text AS date,budget_minutes,slots,created_at`;
   if(saved.length)return reply({date,plan:saved[0],saved:true,budgetEnabled:useBudget});
   const concurrent=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
