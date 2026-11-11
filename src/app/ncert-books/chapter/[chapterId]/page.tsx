@@ -37,7 +37,7 @@ export default async function ChapterLearningPage({params}:{params:Promise<{chap
     </div>
     <p className="muted" style={{marginTop:'16px'}}>Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.</p>
    </section>
-   <ChapterSessions chapterId={chapter.id} eligible={Boolean(chapter.verifiedTitle)&&book.grade>=1&&book.grade<=8}/>
+   <ChapterSessions chapterId={chapter.id} grade={book.grade} eligible={Boolean(chapter.verifiedTitle)&&book.grade>=1&&book.grade<=8}/>
    <div className="ncert-info-grid">
     <section className="workspace-panel">
      <span className="eyebrow">PARENT-GUIDED STUDY</span><h2>Read · Discuss · Practise</h2>
