@@ -82,3 +82,11 @@ test('sequence-preserving family plan does not rotate or skip required steps',()
  const plan=buildFamilyPlan(learners,30,4,true);
  assert.deepEqual(plan.slots.map(s=>s.task.id),['read','practice','check']);
 });
+
+test('a required activity that does not fit the budget blocks later activities for that learner',()=>{
+ const plan=buildFamilyPlan([{id:'x',name:'X',grade:'Class 4',tasks:[
+  {id:'first',minutes:45},{id:'second',minutes:10}
+ ]}],20,0,true);
+ assert.deepEqual(plan.slots,[]);
+ assert.equal(plan.unallocated,20);
+});
