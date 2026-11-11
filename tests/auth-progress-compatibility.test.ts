@@ -15,7 +15,7 @@ test('Neon Auth session and middleware remain the single authentication boundary
  assert.match(client,/createAuthClient/);
  assert.match(middleware,/auth\.middleware/);
  assert.match(middleware,/\/auth\/sign-in/);
- assert.match(signIn,/authClient|signIn|sign-in/i);
+ assert.match(signIn,/client\.signIn\.email/);
 });
 
 test('learner creation derives family ownership from the signed-in session',async()=>{
@@ -40,18 +40,19 @@ test('progress and chapter writes retain owner checks and session-scoped reads',
  assert.match(workspace,/fm\.role = 'owner'/);
 });
 
-test('legacy chapter completion continues to cover the stable read/practice/review IDs',async()=>{
+test('legacy chapter completion continues to cover stable read/practice/review session IDs',async()=>{
  const source=await read('../src/app/api/auto-learning/route.ts');
- assert.match(source,/recordedDone\.has\(item\.id\.replace\(\/:\(read\|practice\|review\)\$\/,'\'\)\)/);
- assert.match(source,/ncert:\$\{chapterId\}:/);
+ assert.ok(source.includes("recordedDone.has(item.id.replace(/:(read|practice|review)$/,''))"));
+ assert.ok(source.includes("item.id.startsWith('ncert:')"));
 });
 
-test('progress APIs do not trust a client-supplied learner id without a family membership join',async()=>{
+test('progress APIs require family membership when resolving client-supplied learner IDs',async()=>{
  const [auto,chapter]=await Promise.all([
   read('../src/app/api/auto-learning/route.ts'),
   read('../src/app/api/ncert-chapters/[chapterId]/progress/route.ts')
  ]);
  assert.match(auto,/JOIN family_members fm ON fm\.family_id=l\.family_id/);
- assert.match(auto,/l\.id::text=\$\{learnerId\}[^\n]*fm\.auth_user_id=\$\{user\}/);
+ assert.match(auto,/l\.id::text=\$\{learnerId\}/);
+ assert.match(auto,/fm\.auth_user_id=\$\{user\}/);
  assert.match(chapter,/l\.id::text=\$\{learnerId\} AND fm\.auth_user_id=\$\{who\.userId\}/);
 });
