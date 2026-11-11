@@ -60,7 +60,7 @@ export default function FamilyCalendar({learners}:{learners:Learner[]}){
    {dates.map(d=><button key={d} type="button" className={'coach-learner-tab '+(date===d?'is-selected':'')} aria-pressed={date===d} onClick={()=>setDate(d)} style={{minWidth:88,justifyContent:'center'}}><span><strong>{new Date(d+'T00:00:00Z').toLocaleDateString('en-IN',{timeZone:'UTC',weekday:'short'})}</strong><small>{d.slice(8)}</small></span></button>)}
   </div>
   {plan&&!editing?<div>
-   <p><strong>{plan.slots.length} activities</strong> · {used} of {plan.budget_minutes} minutes planned {date===localToday()?'for today':'on this day'}</p>
+   <p><strong>{plan.slots.length} activities</strong> · {used} minutes planned {Number(plan.budget_minutes)===180?'with no time cap':`within ${plan.budget_minutes} minutes`}</p>
    <div className="coach-task-list">{plan.slots.map((slot,i)=><article className="coach-task" key={slot.learnerId+':'+slot.task.id+':'+i}>
     <span className="coach-task-index">{String(i+1).padStart(2,'0')}</span>
     <div className="coach-task-main"><div className="coach-task-tags"><span>{slot.name}</span><span>{slot.minutes} min</span><span>{slot.mode==='play'?'Play & explore':slot.task.subject}</span>{completed(slot)&&<span>✓ Complete</span>}</div>
