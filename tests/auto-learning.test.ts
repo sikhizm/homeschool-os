@@ -17,5 +17,6 @@ test('completed activities never appear in the next queue',()=>{
 });
 test('not-catalogued grades are not falsely represented as complete NCERT coverage',()=>{
  assert.equal(stageFor('Class 13'),null);
- assert.ok(queueCatalogue('Class 5').every(x=>!x.id.startsWith('ncert:')));
+ assert.ok(queueCatalogue('Class 5').some(x=>x.id.startsWith('ncert:')),'Class 5 has verified NCERT chapter sessions');
+ assert.ok(queueCatalogue('Class 9').every(x=>!x.id.startsWith('ncert:')),'NCERT chapter sessions remain limited to verified Grades 1–8');
 });
