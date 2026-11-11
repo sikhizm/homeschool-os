@@ -45,13 +45,16 @@ export async function GET(request:Request){
    WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL
      AND (${requestedLearner}::text IS NULL OR l.id::text=${requestedLearner})
   `;
-  const dailyRows=await sql`
-   SELECT p.slots FROM family_daily_plans p
-   WHERE p.learning_date=${todayIST()}::date
-    AND p.family_id IN (SELECT fm.family_id FROM family_members fm WHERE fm.auth_user_id=${user})
-   LIMIT 1
-  `;
-  const assignedSlots=Array.isArray(dailyRows[0]?.slots)?dailyRows[0].slots as {learnerId:string;task:Record<string,unknown>}[]:[];
+  let assignedSlots:{learnerId:string;task:Record<string,unknown>}[]=[];
+  try{
+   const dailyRows=await sql`
+    SELECT p.slots FROM family_daily_plans p
+    WHERE p.learning_date=${todayIST()}::date
+     AND p.family_id IN (SELECT fm.family_id FROM family_members fm WHERE fm.auth_user_id=${user})
+    LIMIT 1
+   `;
+   assignedSlots=Array.isArray(dailyRows[0]?.slots)?dailyRows[0].slots as {learnerId:string;task:Record<string,unknown>}[]:[];
+  }catch{/* Older deployments without migration 006 retain the ordinary learner queue. */}
   const family: {id:string;name:string;grade:string;tasks:ReturnType<typeof prioritizedQueue>}[]=[];
   const learners=rows.map(l=>{
    const learnerId=String(l.id);
