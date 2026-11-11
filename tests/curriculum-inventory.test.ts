@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import{ncertTextbooks,textbookAudit,gradeCoverage,validateNcertCatalogue,selectTextbooks} from '../src/lib/ncert/textbooks';
+import{ncertTextbooks,ncertChapterSlots,textbookAudit,gradeCoverage,validateNcertCatalogue,selectTextbooks} from '../src/lib/ncert/textbooks';
 import{annualGrades,annualSteps} from '../src/lib/curriculum/annual';
 import{validateCurriculum} from '../src/lib/curriculum/library';
 import{validateGlobalSkills} from '../src/lib/global-curriculum/catalogue';
@@ -54,5 +54,7 @@ test('known gaps are explicit so closing them requires updating this contract',(
  // Class 2 and Class 4 have chapter-level NCERT sessions; other grades retain their own pathways.
  assert.equal(queueCatalogue('Class 2').filter(task=>task.id.startsWith('ncert:')).length,183);
  assert.ok(queueCatalogue('Class 4').length>200);
- assert.ok(queueCatalogue('Class 4').length>queueCatalogue('Class 5').length);
+ const verifiedClass5Chapters=ncertChapterSlots.filter(chapter=>chapter.verifiedTitle&&ncertTextbooks.some(book=>book.id===chapter.bookId&&book.grade===5));
+ assert.equal(queueCatalogue('Class 5').filter(task=>task.id.startsWith('ncert:')).length,verifiedClass5Chapters.length*3,'each verified Class 5 chapter exposes read, practice and understanding-check sessions');
+ assert.equal(queueCatalogue('Class 9').filter(task=>task.id.startsWith('ncert:')).length,0,'chapter sessions are not generated for grades without verified chapter catalogues');
 });

@@ -36,8 +36,21 @@ test('progress and chapter writes retain owner checks and session-scoped reads',
  assert.match(auto,/fm\.auth_user_id=\$\{user\}/);
  assert.match(auto,/fm\.role='owner'/);
  assert.match(chapter,/fm\.auth_user_id=\$\{who\.userId\}/);
+ assert.match(chapter,/LEFT JOIN ncert_chapter_progress p/);
+ assert.match(chapter,/ON CONFLICT\(learner_id,chapter_id\) DO UPDATE/);
+ assert.match(chapter,/fm\.role='owner'/);
+ assert.match(chapter,/Cache-Control/);
  assert.match(chapter,/fm\.role='owner'/);
  assert.match(workspace,/fm\.role = 'owner'/);
+});
+
+test('planning API reads and writes the migrated competency_ids column under family ownership',async()=>{
+ const source=await read('../src/app/api/planning/route.ts');
+ assert.match(source,/p\.competency_ids/);
+ assert.match(source,/INSERT INTO learning_planning_periods\([^)]*competency_ids/);
+ assert.match(source,/\$\{selectedIds\}::text\[\]/);
+ assert.match(source,/fm\.auth_user_id=\$\{user\} AND fm\.role='owner'/);
+ assert.match(source,/ON CONFLICT\(learner_id,kind,start_date\)/);
 });
 
 test('legacy chapter completion continues to cover stable read/practice/review session IDs',async()=>{
