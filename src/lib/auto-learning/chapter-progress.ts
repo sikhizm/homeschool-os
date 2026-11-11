@@ -15,7 +15,7 @@ export function deriveChapterProgress(catalogue:QueueTask[],records:SavedProgres
   const legacy=byId.get('ncert:'+chapterId)?.status==='completed';
   const completed=(task:QueueTask)=>legacy||byId.get(task.id)?.status==='completed';
   const done=ordered.filter(completed).length;
-  const needsRevision=ordered.filter(t=>byId.get(t.id)?.status==='needs_revision'||records.some(record=>record.status==='needs_revision'&&new RegExp('^review:[1-5]:'+t.id.replace(/[.*+?^${}()|[\\]\\\\]/g,'\\\\const needsRevision=ordered.filter(t=>byId.get(t.id)?.status==='needs_revision').map(t=>t.id);')+'
+  const needsRevision=ordered.filter(t=>byId.get(t.id)?.status==='needs_revision'||records.some(record=>record.status==='needs_revision'&&/^review:[1-5]:/.test(record.task_id)&&record.task_id.endsWith(':'+t.id))).map(t=>t.id);
   const review=ordered.find(t=>t.id.endsWith(':review'));
   const retained=Boolean(review&&byId.get(masteryId(review.id))?.status==='completed');
   const read=ordered.find(t=>t.id.endsWith(':read'));
