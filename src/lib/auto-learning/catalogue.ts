@@ -191,8 +191,10 @@ export function queueCatalogue(grade:string):QueueTask[]{
   source:'Original grade-specific learning pathway · editor review recommended',href:'/curriculum-studio',
   instructions:[...m.steps],check:m.check,grade
  }));
- const chapterGrade=grade==='Class 2'?2:grade==='Class 4'?4:null;
- if(chapterGrade===null)return [...annual,...structured,...original];
+ const chapterGrade=Number(grade.replace('Class ',''));
+ // Chapter sessions are generated from verified metadata for every supported NCERT grade.
+ // Other authored pathways remain available after the chapter-first sequence.
+ if(!Number.isInteger(chapterGrade)||chapterGrade<1||chapterGrade>8)return [...annual,...structured,...original];
  const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle&&textbookById(c.bookId)?.grade===chapterGrade).flatMap(c=>{
   const book=textbookById(c.bookId)!;
   const resource='/ncert-books/chapter/'+c.id;
@@ -215,14 +217,9 @@ export function queueCatalogue(grade:string):QueueTask[]{
  for(const c of chapters)bySubject.set(c.subject,[...(bySubject.get(c.subject)??[]),c]);
  const interleaved:QueueTask[]=[];
  while([...bySubject.values()].some(x=>x.length))for(const tasks of bySubject.values()){const next=tasks.shift();if(next)interleaved.push(next);}
- // Mix enrichment into the NCERT sequence while keeping existing NCERT order stable.
- const blended:QueueTask[]=[];
- let enrichIndex=0;
- for(let index=0;index<interleaved.length;index++){
-  if(index%6===0&&enrichIndex<structured.length)blended.push(structured[enrichIndex++]);
-  blended.push(interleaved[index]);
- }
- return [...annual,...blended,...structured.slice(enrichIndex),...original];
+ // Keep the verified chapter sequence contiguous and primary. Annual pathways,
+ // structured modules and original lessons remain available as secondary enrichment.
+ return [...interleaved,...annual,...structured,...original];
 }
 export function nextQueueTasks(tasks:QueueTask[],completed:ReadonlySet<string>,limit=3){
  // Continue through the sequence without replaying completed tasks.
