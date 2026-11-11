@@ -28,13 +28,44 @@ jobs:
           NEON_AUTH_BASE_URL: http://127.0.0.1:4987
           NEXT_TELEMETRY_DISABLED: '1'
         run: |
+          set -eu
           export NEON_AUTH_COOKIE_SECRET="$(openssl rand -hex 32)"
           npm run build
-          npm start -- --hostname 127.0.0.1 --port 3000 > /tmp/homeschool-server.log 2>&1 &
+
+          server_log=/tmp/homeschool-server.log
+          server_pid=
+          cleanup() {
+            if [ -n "$server_pid" ]; then
+              kill "$server_pid" 2>/dev/null || true
+              wait "$server_pid" 2>/dev/null || true
+            fi
+          }
+          trap cleanup EXIT
+
+          # Launch Next directly so the tracked PID is the actual server process,
+          # not npm's intermediary shell process.
+          ./node_modules/.bin/next start --hostname 127.0.0.1 --port 3000 > "$server_log" 2>&1 < /dev/null &
           server_pid=$!
-          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
-          for attempt in $(seq 1 30); do
-            if curl --fail --silent http://127.0.0.1:3000/ > /dev/null; then break; fi
+
+          ready=0
+          for attempt in $(seq 1 60); do
+            if curl --connect-timeout 2 --max-time 5 --fail --silent http://127.0.0.1:3000/ > /dev/null; then
+              ready=1
+              break
+            fi
+            if ! kill -0 "$server_pid" 2>/dev/null; then
+              echo "Next.js server exited before becoming ready."
+              cat "$server_log"
+              exit 1
+            fi
             sleep 1
           done
+
+          if [ "$ready" -ne 1 ]; then
+            echo "Next.js server did not become ready within 60 seconds."
+            cat "$server_log"
+            exit 1
+          fi
+
+          echo "Next.js production server is ready."
           npm run test:smoke
