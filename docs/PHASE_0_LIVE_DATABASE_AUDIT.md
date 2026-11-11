@@ -62,13 +62,13 @@ There is no single unique numeric sequence for the two `006` files. Any future m
 
 ## Application compatibility risks
 
-### 1. NCERT chapter-progress API is not ready against this database
+### 1. NCERT chapter-progress API schema compatibility
 
 `src/app/api/ncert-chapters/[chapterId]/progress/route.ts` queries `ncert_chapter_progress` in GET and inserts/upserts it in POST. Its error responses explicitly tell operators to check migration 004.
 
 The production table now exists with the expected columns, constraints, learner foreign key, RLS enabled, and public privileges revoked. An isolated smoke insert and cleanup succeeded. Authenticated GET/POST and owner/family-isolation behaviour still require application-level verification.
 
-### 2. Planning competency migration is also outstanding
+### 2. Planning competency column compatibility
 
 The repository migration was applied to production after an isolated migration test. The resulting column is `text[] NOT NULL DEFAULT '{}'`. The table currently has zero rows, so no planning records required backfill.
 
