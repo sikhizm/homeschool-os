@@ -3,6 +3,7 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 import {prioritizedQueue,knownReviewTask} from '@/lib/auto-learning/revision';
+import {deriveChapterProgress} from '@/lib/auto-learning/chapter-progress';
 import {buildFamilyPlan,sharedBudgetTasks,separateTasks} from '@/lib/auto-learning/family-schedule';
 import {annualCoverageForStage} from '@/lib/curriculum/annual';
 import {
@@ -102,6 +103,7 @@ export async function GET(request:Request){
    return {id:learnerId,name:String(l.display_name),grade:String(l.stage),canEdit:l.role==='owner',
     completed:summary.completed,total:all.length,history,upcoming,subjects,annual,
     assessment:summary,understood:[...understood],mastered:[...mastered],
+    chapterProgress:deriveChapterProgress(all,myProgress.map(p=>({...p,updated_at:p.updated_at??''}))),
     earnedBadges:[...participationBadges(summary.completed),...masteryBadges(summary.understood,summary.mastered)],
     tasks,...(path?{path}:{}),...(taskDetail?{taskDetail}:{})};
   });
