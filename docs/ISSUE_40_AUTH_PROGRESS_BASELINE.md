@@ -26,14 +26,16 @@
 | NCERT progress | `GET /api/ncert-chapters/[chapterId]/progress` reads family learner rows; POST writes only for owner membership | Keep parent notes and owner writes protected |
 | Workspace mutations | `learnerAccess(..., write=true)` and each mutation require owner role | Do not make child access equivalent to parent administration |
 
-### Product direction recorded from the owner (not implemented in Phase 0)
+### Product direction clarified by the owner (future UX work; not an auth model)
 
-- One family owner login; parent controls all learner profiles.
-- Child profiles are distinct learner experiences, **not separate auth accounts** by default.
-- A selected child experience is scoped to that learner's grade/class and assigned activities.
-- Parent assigns curated chapter/activity work to a date; child completes that day's required work. Incomplete items roll forward; the child cannot skip the required sequence by changing the calendar date.
-- This requires a future explicit, secure learner-profile selection/session model. A client-side learner ID selector alone is not an authorization boundary. Parent-only APIs must remain parent-only; child progress submission should use a narrowly scoped learner capability or server-side active-profile context, with tests for cross-learner isolation.
-- Daily assignments/locks/rollover are not currently proven by the existing schema. Do not assume `family_daily_plans` or `ncert_chapter_progress` alone implements that workflow.
+- There is one user, one account, and one login. The parent/owner remains the authenticated user.
+- There are no child accounts, child credentials, child authentication sessions, or separate child logins to build.
+- When handing the device to a child, the owner switches to a dedicated **Learning Mode** (a presentation mode, not an identity or authorization role).
+- Learning Mode should show only age-appropriate assigned chapters, learning activities, approved resources, videos, exercises, tests and the learner's relevant progress. It must hide parent/management documentation, curriculum administration, configuration, and other adult-facing controls.
+- The owner can leave Learning Mode and return to the full management experience. A clear, deliberate exit/switch control is appropriate; avoid exposing it as a prominent child-facing action.
+- Learner/class selection may still be useful for choosing the right curriculum and progress context, but it does not represent a login or security boundary. Existing server authorization continues to rely on the single signed-in owner.
+- Daily assignments, locked sequence and automatic carry-forward are learning workflow requirements. They are not currently proven by the existing schema and should be designed separately from authentication.
+- Do not add child-user tables, child passwords, child sessions, or child-specific auth providers.
 
 ## Progress and assessment compatibility matrix
 
