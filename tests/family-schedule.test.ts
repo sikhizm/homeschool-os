@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {buildFamilySchedule,buildFamilyPlan} from '../src/lib/auto-learning/family-schedule';
+import {buildFamilySchedule,buildFamilyPlan,carryForwardTasks,isValidRequiredSequence} from '../src/lib/auto-learning/family-schedule';
 
 const learners=[
  {id:'a',name:'A',grade:'Class 4',tasks:[{id:'a1',minutes:20},{id:'a2',minutes:20}]},
@@ -61,17 +61,24 @@ test('unlimited guided time includes every eligible activity without inventing a
 });
 
 test('carry-forward keeps unfinished prior assignments first and removes duplicates/completed work',()=>{
- const {carryForwardTasks}=require('../src/lib/auto-learning/family-schedule');
  const queue=[{id:'a',minutes:10},{id:'b',minutes:10},{id:'c',minutes:10}];
  const previous=[{id:'b',minutes:10},{id:'a',minutes:10},{id:'b',minutes:10}];
  assert.deepEqual(carryForwardTasks(queue,previous,new Set(['a'])).map(x=>x.id),['b','c']);
 });
 
 test('required assignments cannot skip or reorder the learner queue',()=>{
- const {isValidRequiredSequence}=require('../src/lib/auto-learning/family-schedule');
  const queue=[{id:'read',minutes:10},{id:'practice',minutes:15},{id:'check',minutes:5}];
  assert.equal(isValidRequiredSequence(queue,['read','practice']),true);
  assert.equal(isValidRequiredSequence(queue,['practice']),false);
  assert.equal(isValidRequiredSequence(queue,['read','check']),false);
  assert.equal(isValidRequiredSequence(queue,['read','practice','check','extra']),false);
+});
+
+test('sequence-preserving family plan does not rotate or skip required steps',()=>{
+ const learners=[{id:'x',name:'X',grade:'Class 4',tasks:[
+  {id:'read',minutes:10,subject:'English'},{id:'practice',minutes:10,subject:'Mathematics'},
+  {id:'check',minutes:10,subject:'Science'}
+ ]}];
+ const plan=buildFamilyPlan(learners,30,4,true);
+ assert.deepEqual(plan.slots.map(s=>s.task.id),['read','practice','check']);
 });
