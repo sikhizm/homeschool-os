@@ -28,7 +28,7 @@ export default function ChapterSessions({chapterId,grade,eligible}:{chapterId:st
    })
    .then(data=>{
     if(!active)return;
-    const matching=(data.learners??[]).filter(learner=>Number(String(learner.stage).replace(/^Class\\s*/i,''))===grade);
+    const matching=(data.learners??[]).filter(learner=>Number(String(learner.stage).replace(/^Class\s*/i,''))===grade);
     setLearners(matching);
     setMessage(matching.length?'':data.learners?.length?`No learner is enrolled in Class ${grade} in this family yet.`:'Add a learner from the parent dashboard to start a chapter session.');
     const states:Record<string,boolean>={};
