@@ -13,7 +13,7 @@ const sessions:{kind:SessionKind;title:string;minutes:number;description:string}
  {kind:'review',title:'Understanding check',minutes:10,description:'Recall key ideas without looking back.'},
 ];
 
-export default function ChapterSessions({chapterId,eligible}:{chapterId:string;eligible:boolean}){
+export default function ChapterSessions({chapterId,grade,eligible}:{chapterId:string;grade:number;eligible:boolean}){
  const [learners,setLearners]=useState<Learner[]>([]);
  const [resume,setResume]=useState<Record<string,boolean>>({});
  const [message,setMessage]=useState('Loading learners…');
@@ -28,10 +28,11 @@ export default function ChapterSessions({chapterId,eligible}:{chapterId:string;e
    })
    .then(data=>{
     if(!active)return;
-    setLearners(data.learners??[]);
-    setMessage(data.learners?.length?'':'Add a learner from the parent dashboard to start a chapter session.');
+    const matching=(data.learners??[]).filter(learner=>Number(String(learner.stage).replace(/^Class\\s*/i,''))===grade);
+    setLearners(matching);
+    setMessage(matching.length?'':data.learners?.length?`No learner is enrolled in Class ${grade} in this family yet.`:'Add a learner from the parent dashboard to start a chapter session.');
     const states:Record<string,boolean>={};
-    for(const learner of data.learners??[]){
+    for(const learner of matching){
      for(const session of sessions){
       const taskId=`ncert:${chapterId}:${session.kind}`;
       try{
@@ -47,7 +48,7 @@ export default function ChapterSessions({chapterId,eligible}:{chapterId:string;e
    })
    .catch(error=>{if(active)setMessage(error instanceof Error?error.message:'Unable to load learners.');});
   return()=>{active=false;};
- },[chapterId]);
+ },[chapterId,grade]);
 
  if(!eligible)return <section className="workspace-panel"><span className="eyebrow">CHAPTER SESSIONS</span><h2>Learning sessions not published yet</h2><p className="muted">This chapter does not have a verified title in the current session catalogue. We will not generate a lesson from an unverified chapter label.</p></section>;
 
