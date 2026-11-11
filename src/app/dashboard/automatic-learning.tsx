@@ -157,7 +157,7 @@ export default function AutomaticLearning(){
     </div>}
     {familyPlan?.notes.map((note,index)=><p className="coach-next-note" key={index}>✦ {note}</p>)}
     <details className="coach-archive"><summary>Saved daily plan & seven-day overview</summary>
-     <FamilyCalendar learners={learners.map(l=>({id:l.id,history:l.history}))}/>
+     <FamilyCalendar learners={learners.map(l=>({id:l.id,name:l.name,grade:l.grade,canEdit:l.canEdit,tasks:l.tasks,history:l.history}))}/>
      <FamilyWeek/>
     </details>
    </div>}
