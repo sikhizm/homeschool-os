@@ -42,8 +42,8 @@ export default function FamilyCalendar({learners}:{learners:Learner[]}){
   if(date<localToday()||!learners.some(l=>l.canEdit))return;
   setWorking(true);setStatus('Saving today’s family plan…');
   try{
-   const taskIds=Object.fromEntries(learners.map(l=>[l.id,l.tasks.slice(0,Math.max(0,counts[l.id]??l.tasks.length)).map(t=>t.id)]));
-   const response=await fetch('/api/family-calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,budget,budgetEnabled,taskIds,replace:Boolean(plan)})});
+   const taskCounts=Object.fromEntries(learners.map(l=>[l.id,Math.max(0,counts[l.id]??l.tasks.length)]));
+   const response=await fetch('/api/family-calendar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({date,budget,budgetEnabled,taskCounts,replace:Boolean(plan)})});
    const data=await response.json();
    if(!response.ok)throw Error(data.error??'Could not save plan');
    setPlan({...data.plan,budget_minutes:Number(data.plan.budget_minutes)});
