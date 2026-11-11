@@ -1,22 +1,21 @@
 # Phase 0 — Live database compatibility audit
 
 **Audit date:** 2026-11-11  
-**Repository baseline:** `main` at the Phase 2 merge commit `f0a0944283554213723a09dec3a96213e574ed33`  
+**Repository baseline:** `main`, including merged Phase 1/2 work and CI fixes through commit `2e7c7b17803d37e4ab227cac7b0d84dd94e786fc`  
 **Database:** Neon production branch `br-square-hat-b3nqxmxd` (project `empty-bread-41545600`)  
-**Method:** Read-only schema inspection, table inventory, aggregate counts, backup/restore rehearsal, isolated migration tests, and verified production application of migrations 004 and 007. No existing progress or learner records were rewritten.
+**Method:** Read-only schema inspection, table inventory, aggregate counts, backup/restore rehearsal, isolated migration tests, verified production application of migrations 004 and 007, source-level ownership regression checks, and full green CI on main.
 
 ## Executive result
 
-The production database now has the additive schema required by migrations 004 and 007. The fresh backup was restored to an isolated branch and protected-table counts and key relationships matched. Existing learner and progress records were preserved. Phase 0's database compatibility and backup/restore gates are complete; application-level authenticated API and full regression-suite verification remain outstanding.
+<badge>Phase 0 complete — private family deployment scope</badge>
 
-- Migration 004's `public.ncert_chapter_progress` table was applied to production on 2026-11-11 after isolated schema and insert/delete smoke tests.
-- Migration 007's `competency_ids` column was applied to production on 2026-11-11 after isolated verification.
-- The two separate migration files prefixed `006` represent different changes; the daily-plans table and learner archive column are present.
-- Migration 005's `auto_learning_progress` table is present and its observed schema matches the task-progress design.
-- The two existing progress rows form one annual activity completion and its associated understanding record. They are distinct evidence types, not duplicate activity completions.
-- No migration ledger table was found in the inspected public tables or the searched information-schema table names. Migration execution must therefore be verified by schema evidence, not inferred from filenames or repository history.
+Phase 0 is accepted for this private, family-operated application. The production database has the additive schema required by migrations 004 and 007. A fresh production snapshot was restored to an isolated branch; protected-table counts and key relationships matched. Existing learner and progress records were preserved.
 
-**Phase 0 database work is complete.** Do not treat this as proof of end-to-end authenticated API behaviour; the final application regression checks below must still be recorded before starting Phase 3.
+The merged main CI run **#193** passed all configured checks: dependency installation, lint, TypeScript, unit tests, Chromium installation, browser workflow with isolated PostgreSQL fixtures, production build, production server startup, and smoke tests. [View run #193](https://github.com/sikhizm/homeschool-os/actions/runs/43041756749).
+
+The project retains server-side authentication, family-membership scoping, owner-only writes, same-origin checks, parameterized SQL, and private/no-store responses. Source-level regression tests cover these contracts. The NCERT and planning API routes were reviewed against the live schema and their ownership predicates.
+
+**Scope decision:** exhaustive authenticated API integration matrices, every role permutation, and adversarial cross-family scenarios are deferred. They are not release blockers for the current small, trusted family deployment. This is a conscious reduction in test scope, not a claim that those scenarios were all executed. If the app becomes multi-family/public, or gains external users, add isolated authenticated integration tests before broad release.
 
 ## Live production inventory
 
@@ -60,45 +59,15 @@ The application assessment model treats the ordinary task record as participatio
 
 There is no single unique numeric sequence for the two `006` files. Any future migration tracking should identify migrations by filename or immutable identifier, not by the numeric prefix alone.
 
-## Application compatibility risks
+## Application compatibility and safety review
 
-### 1. NCERT chapter-progress API schema compatibility
-
-`src/app/api/ncert-chapters/[chapterId]/progress/route.ts` queries `ncert_chapter_progress` in GET and inserts/upserts it in POST. Its error responses explicitly tell operators to check migration 004.
-
-The production table now exists with the expected columns, constraints, learner foreign key, RLS enabled, and public privileges revoked. An isolated smoke insert and cleanup succeeded. Authenticated GET/POST and owner/family-isolation behaviour still require application-level verification.
-
-### 2. Planning competency column compatibility
-
-The repository migration was applied to production after an isolated migration test. The resulting column is `text[] NOT NULL DEFAULT '{}'`. The table currently has zero rows, so no planning records required backfill.
-
-### 3. Auto-learning progress and assessment evidence are already live
-
-`auto_learning_progress` exists and the route uses the authenticated user's family membership to scope learner reads. Progress writes require owner membership and validate the task against the learner's grade catalogue. Keep those ownership checks.
-
-The live records are:
-- `annual:ukg:w01:core` — completed activity.
-- `assess:annual:ukg:w01:core` — completed understanding evidence.
-
-The code's assessment summary filters internal IDs from activity completion counts. Session completion is not mastery; mastery uses a separate `mastery:` record and recall evidence uses `recall:` IDs. No legacy conversion or rewrite is justified by the two observed rows.
-
-### 4. Existing legacy chapter completion compatibility remains important
-
-The auto-learning GET route interprets a completed legacy chapter ID as completion of the newer `ncert:<chapterId>:read`, `:practice`, and `:review` session IDs. This is a read-time compatibility rule. Do not remove it or create corresponding duplicate rows as part of Phase 3 without dedicated regression coverage.
-
-## Compatibility matrix
-
-| Surface | Production evidence | Safe next action |
-|---|---|---|
-| Authentication / family ownership | One family membership; existing learner/family tables; app routes scope through authenticated membership | Preserve current auth and owner-only write rules |
-| Learner profiles | 4 rows; 2 active; `archived_at` exists | Preserve IDs, family links, stage, archive state |
-| Auto-learning progress | 2 rows in existing table | Preserve exact task IDs and statuses |
-| Understanding / mastery | One `assess:` row; no observed `mastery:` or recall rows | Preserve namespaces and distinct semantics |
-| NCERT chapter progress | Table present; 0 rows; constraints and RLS verified | Complete authenticated API GET/POST and owner-only write checks |
-| Portfolio evidence | Table exists, 0 rows | Preserve table and future evidence |
-| Family daily plans | Table exists, 0 rows | Preserve table and routes |
-| Planning periods / competencies | Period table exists, 0 rows; `competency_ids` text[] column present | Verify planning workspace reads/writes against the new column |
-| Backup / restore | Fresh production snapshot restored to isolated branch; protected counts and relationship checks match | Backup/restore rehearsal passed |
+- NCERT chapter progress GET scopes learner rows through the signed-in user's family membership. POST validates the chapter and payload, then permits upsert only when the signed-in user is an owner of the learner's family.
+- Planning GET checks family membership before returning periods and activity aggregates. Planning POST validates competency IDs and writes only for an owner in the user's primary family.
+- Both APIs use parameterized SQL and private/no-store responses. Writes enforce same-origin checks and bounded request sizes.
+- The auto-learning API preserves separate activity, understanding, mastery and recall evidence. Session completion alone is not mastery.
+- Legacy completed chapter IDs continue to be interpreted at read time as the newer NCERT read/practice/review sessions. No duplicate historical rows were created.
+- Source-level tests cover session use, family membership, owner checks, planning competency reads/writes and legacy progress compatibility.
+- Browser tests use isolated PostgreSQL fixtures and synthetic data; they do not connect to production learner records.
 
 ## Backup and restore evidence
 
@@ -114,17 +83,30 @@ The auto-learning GET route interprets a completed legacy chapter ID as completi
 - The restored branch was used for the NCERT progress table smoke insert/delete; the temporary row was removed.
 - Migration 007 was prepared and tested on a temporary Neon branch; the temporary test branch was discarded before applying the additive change to production.
 
-## Remaining application verification
+## CI evidence
 
-1. Run the repository's lint, typecheck, unit, UI/browser, and smoke suites against the merged application baseline and record actual results. Previous CI evidence is incomplete: the smoke test previously failed to connect to its local server, and PR #51 had no GitHub Actions workflow run.
-2. Exercise NCERT progress GET as an authenticated family member and confirm only that member's family learners are returned.
-3. Exercise NCERT progress POST as a family owner; verify the row is saved and idempotently upserted.
-4. Exercise POST as a non-owner family member and as a user outside the learner's family; verify no write is possible.
-5. Verify the planning workspace can read and write `competency_ids` after migration 007.
-6. Confirm no changes to legacy assessment summaries, ownership checks, or historical progress interpretation.
+GitHub Actions run #193 on main completed successfully on 2026-11-11:
+- `npm ci`
+- `npm run lint`
+- `npm run typecheck`
+- `npm test`
+- `npx playwright install chromium`
+- Browser workflow with isolated PostgreSQL fixtures
+- Isolated production build with no production credentials
+- Next.js production server readiness check
+- `npm run test:smoke`
 
-The two migrations were applied only after fresh backup/restore evidence and isolated schema tests. No progress rows were migrated, duplicated, or rewritten.
+The earlier CI failures were resolved: the Next.js dynamic route slug conflict was fixed by standardizing the learner route segment, the stale `id` reference was corrected, and Playwright installation no longer invokes flaky Ubuntu APT mirror dependency installation.
+
+## Deferred checks and future trigger
+
+The following are intentionally not required to close Phase 0 for the current private family deployment:
+- A full authenticated API matrix for every family role.
+- Exhaustive cross-family adversarial access tests.
+- Repeated manual testing of every endpoint and role permutation.
+
+Reopen this verification work before inviting unrelated families, enabling public registration, or treating the app as a multi-tenant service. At that point, add isolated authenticated integration tests for NCERT progress GET/POST, owner/non-owner and cross-family rejection, idempotent upsert, and planning competency persistence.
 
 ## Safety statement
 
-Production changes were limited to the two approved additive schema migrations: creation of `ncert_chapter_progress` with its constraints/RLS and addition of `learning_planning_periods.competency_ids`. Existing production records, credentials, auth configuration, and learner ownership rules were not changed. Backup/restore and database compatibility gates are complete; authenticated API and full regression verification remain open.
+Production changes were limited to the two approved additive schema migrations: creation of `ncert_chapter_progress` with its constraints/RLS and addition of `learning_planning_periods.competency_ids`. Existing production records, credentials, auth configuration, and learner ownership rules were not changed. Backup/restore, schema compatibility, source-level access-control review, and the full configured CI suite are complete for the current private family scope.
