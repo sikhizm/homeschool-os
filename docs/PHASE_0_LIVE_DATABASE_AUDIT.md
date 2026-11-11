@@ -7,7 +7,7 @@
 
 ## Executive result
 
-<badge>Phase 0 complete — private family deployment scope</badge>
+**Status: COMPLETE — private family deployment scope**
 
 Phase 0 is accepted for this private, family-operated application. The production database has the additive schema required by migrations 004 and 007. A fresh production snapshot was restored to an isolated branch; protected-table counts and key relationships matched. Existing learner and progress records were preserved.
 
