@@ -31,14 +31,14 @@ function rotatedTasks<T extends FamilyTask>(tasks:T[],day:number){
  });
  return [...urgent,...pool,...tail];
 }
-export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[],budget:number|null=60,dayOfWeek=0):FamilyPlan<T>{
+export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[],budget:number|null=60,dayOfWeek=0,preserveSequence=false):FamilyPlan<T>{
  const available=learners.filter(l=>!isInfant(l.grade)).flatMap(l=>l.tasks).filter(t=>t.mode!=='independent').reduce((sum,t)=>sum+(Number.isFinite(t.minutes)&&t.minutes>0?Math.ceil(t.minutes):0),0);
  const limit=budget===null?available:Number.isFinite(budget)?Math.max(0,Math.floor(budget)):0;
  const eligible=learners.filter(l=>l.tasks.length&&!isInfant(l.grade));
  const notes:string[]=[];
  if(learners.some(l=>isInfant(l.grade)))notes.push('Infant care, conversation and responsive play are not scheduled as formal teaching tasks.');
  if(learners.some(l=>l.tasks.some(t=>t.mode==='independent')))notes.push('Independent practice is offered separately and does not use shared guided teaching minutes.');
- const candidates=eligible.map(l=>({...l,tasks:rotatedTasks(l.tasks,dayOfWeek)}));
+ const candidates=eligible.map(l=>({...l,tasks:preserveSequence?[...l.tasks]:rotatedTasks(l.tasks,dayOfWeek)}));
  const slots:FamilySlot<T>[]=[];
  let remaining=limit;
  const cursors=new Map(candidates.map(l=>[l.id,0]));
@@ -72,8 +72,9 @@ export function buildFamilySchedule<T extends FamilyTask>(learners:FamilyLearner
 export function carryForwardTasks<T extends FamilyTask>(queue:T[],previous:T[],completed:ReadonlySet<string>):T[]{
  const carried: T[]=[];
  const seen=new Set<string>();
+ const eligible=new Set(queue.map(task=>task.id));
  for(const task of previous){
-  if(completed.has(task.id)||seen.has(task.id))continue;
+  if(!eligible.has(task.id)||completed.has(task.id)||seen.has(task.id))continue;
   carried.push(task);seen.add(task.id);
  }
  return [...carried,...queue.filter(task=>!completed.has(task.id)&&!seen.has(task.id))];
