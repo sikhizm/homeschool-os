@@ -44,6 +44,15 @@ test('progress and chapter writes retain owner checks and session-scoped reads',
  assert.match(workspace,/fm\.role = 'owner'/);
 });
 
+test('planning API reads and writes the migrated competency_ids column under family ownership',async()=>{
+ const source=await read('../src/app/api/planning/route.ts');
+ assert.match(source,/p\.competency_ids/);
+ assert.match(source,/INSERT INTO learning_planning_periods\([^)]*competency_ids/);
+ assert.match(source,/\$\{selectedIds\}::text\[\]/);
+ assert.match(source,/fm\.auth_user_id=\$\{user\} AND fm\.role='owner'/);
+ assert.match(source,/ON CONFLICT\(learner_id,kind,start_date\)/);
+});
+
 test('legacy chapter completion continues to cover stable read/practice/review session IDs',async()=>{
  const source=await read('../src/app/api/auto-learning/route.ts');
  assert.ok(source.includes("recordedDone.has(item.id.replace(/:(read|practice|review)$/,''))"));
