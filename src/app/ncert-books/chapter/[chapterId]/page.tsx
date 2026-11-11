@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import ChapterProgress from './chapter-progress';
+import ChapterSessions from './chapter-sessions';
 import {notFound, redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {ncertChapterSlots, textbookById, chaptersFor, officialChapterPdf} from '@/lib/ncert/textbooks';
@@ -36,6 +37,7 @@ export default async function ChapterLearningPage({params}:{params:Promise<{chap
     </div>
     <p className="muted" style={{marginTop:'16px'}}>Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.</p>
    </section>
+   <ChapterSessions chapterId={chapter.id} eligible={Boolean(chapter.verifiedTitle)&&book.grade>=1&&book.grade<=8}/>
    <div className="ncert-info-grid">
     <section className="workspace-panel">
      <span className="eyebrow">PARENT-GUIDED STUDY</span><h2>Read · Discuss · Practise</h2>
