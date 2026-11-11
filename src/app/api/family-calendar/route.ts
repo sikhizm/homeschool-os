@@ -84,5 +84,5 @@ export async function POST(request:Request){
   if(saved.length)return reply({date,plan:saved[0],saved:true,budgetEnabled:useBudget});
   const concurrent=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
   return reply({date,plan:concurrent[0],saved:false,budgetEnabled:Number(concurrent[0]?.budget_minutes)!==180});
- }catch{return reply({error:'Unable to save daily plan. Verify migration 006.'},503);}
+ }catch(error){if(error instanceof Error&&error.message.includes('Required activities'))return reply({error:error.message},400);return reply({error:'Unable to save daily plan. Verify migration 006.'},503);}
 }
