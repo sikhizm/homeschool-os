@@ -25,13 +25,3 @@ export function deriveChapterProgress(catalogue:QueueTask[],records:SavedProgres
   return {chapterId,title:ordered[0]?.title.replace(/ · Read & explore$/,'')??chapterId,subject:ordered[0]?.subject??'',href:ordered[0]?.href??'',status,completedSessions:done,totalSessions:ordered.length,needsRevision,updatedAt:times.length?new Date(times[0]).toISOString():null};
  });
 }
-).test(record.task_id))).map(t=>t.id);
-  const review=ordered.find(t=>t.id.endsWith(':review'));
-  const retained=Boolean(review&&byId.get(masteryId(review.id))?.status==='completed');
-  const read=ordered.find(t=>t.id.endsWith(':read'));
-  const practice=ordered.find(t=>t.id.endsWith(':practice'));
-  const status:ChapterProgressStatus=needsRevision.length?'needs_revision':retained?'retained':ordered.length>0&&done===ordered.length?'completed':read&&completed(read)&&practice&&!completed(practice)?'practice_due':practice&&completed(practice)&&review&&!completed(review)?'understanding_check_due':done>0?'in_progress':'not_started';
-  const times=ordered.map(t=>byId.get(t.id)?.updated_at).filter(Boolean).map(v=>new Date(v as string|Date).getTime()).filter(Number.isFinite).sort((a,b)=>b-a);
-  return {chapterId,title:ordered[0]?.title.replace(/ · Read & explore$/,'')??chapterId,subject:ordered[0]?.subject??'',href:ordered[0]?.href??'',status,completedSessions:done,totalSessions:ordered.length,needsRevision,updatedAt:times.length?new Date(times[0]).toISOString():null};
- });
-}
