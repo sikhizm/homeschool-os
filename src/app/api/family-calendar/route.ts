@@ -65,13 +65,14 @@ export async function POST(request:Request){
    const entries=progress.filter(p=>String(p.learner_id)===learnerId).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
    const completed=new Set(entries.filter(p=>p.status==='completed').map(p=>p.task_id));
    const queue=prioritizedQueue(queueCatalogue(grade),entries,new Date(),50);
-   const carried=priorSlots.filter((slot:Record<string,unknown>)=>slot.learnerId===learnerId)
-    .map((slot:Record<string,unknown>)=>slot.task as {id:string;minutes:number;subject?:string;status?:string;mode?:'guided'|'play'|'independent'})
-    .filter(task=>task&&typeof task.id==='string'&&!completed.has(task.id));
+   const carriedIds=priorSlots.filter((slot:Record<string,unknown>)=>slot.learnerId===learnerId)
+    .map((slot:Record<string,unknown>)=>(slot.task as {id?:string}|undefined)?.id)
+    .filter((taskId):taskId is string=>typeof taskId==='string');
+   const carried=carriedIds.map(taskId=>queue.find(task=>task.id===taskId)).filter((task):task is typeof queue[number]=>Boolean(task));
    const tasks=carryForwardTasks(queue,carried,completed);
    const chosen=requested?.[learnerId];
    if(chosen!==undefined&&(!Array.isArray(chosen)||!chosen.every(x=>typeof x==='string')||!isValidRequiredSequence(tasks,chosen as string[])))throw Error('Required activities must be assigned in their current learning order.');
-   return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.filter((task,index)=>(chosen as string[]).includes(task.id)&&index<(chosen as string[]).length)};
+   return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.slice(0,(chosen as string[]).length)};
   });
   if(requested&&Object.keys(requested).some(key=>!learners.some(l=>String(l.id)===key)))return reply({error:'An assignment references an unknown learner'},400);
   const planned=buildFamilyPlan(sharedBudgetTasks(family),selectedBudget,new Date(date+'T12:00:00Z').getUTCDay(),true);
