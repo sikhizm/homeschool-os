@@ -20,8 +20,7 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  const [notice,setNotice]=useState('');
  const [busy,setBusy]=useState(false);
  const [revision,setRevision]=useState(0);
- const [yearCompetencyIds,setYearCompetencyIds]=useState<string[]>([]);
- const [weekCompetencyIds,setWeekCompetencyIds]=useState<string[]>([]);
+ const [competencySelections,setCompetencySelections]=useState<Record<string,string[]>>({});
  const selected=learners.find(l=>l.id===learnerId);
  const y=academicYear(date);
  const weekStart=mondayOf(date);
@@ -31,7 +30,12 @@ export default function PlanningWorkspace({learners,canEdit,initialDate}:Props){
  const weekPlan=data?.periods.find(p=>p.kind==='week'&&p.start_date===weekStart);
  const endpoint='/api/planning';
  const availableCompetencies=competencies.filter(item=>item.stage===stageKey(selected?.stage??''));
- useEffect(()=>{if(!data)return;const yp=data.periods.find(p=>p.kind==='year'&&p.start_date===yearRange.startDate);const wp=data.periods.find(p=>p.kind==='week'&&p.start_date===weekStart);setYearCompetencyIds(yp?.competency_ids??[]);setWeekCompetencyIds(wp?.competency_ids??[]);},[data,yearRange.startDate,weekStart]);
+ const yearSelectionKey='year:'+learnerId+':'+yearRange.startDate;
+ const weekSelectionKey='week:'+learnerId+':'+weekStart;
+ const yearCompetencyIds=competencySelections[yearSelectionKey]??yearPlan?.competency_ids??[];
+ const weekCompetencyIds=competencySelections[weekSelectionKey]??weekPlan?.competency_ids??[];
+ const setYearCompetencyIds=(ids:string[])=>setCompetencySelections(current=>({...current,[yearSelectionKey]:ids}));
+ const setWeekCompetencyIds=(ids:string[])=>setCompetencySelections(current=>({...current,[weekSelectionKey]:ids}));
  const load=useCallback(async(signal?:AbortSignal)=>{
   if(!learnerId)return null;
   const params=new URLSearchParams({learnerId,date});
