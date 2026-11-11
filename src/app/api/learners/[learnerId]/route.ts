@@ -21,7 +21,7 @@ async function changeArchive(request:Request,context:Context,restore:boolean){
       AND family_id IN (SELECT family_id FROM family_members WHERE auth_user_id=${session.user.id} AND role='owner')
       RETURNING id::text AS id`
    :await sql`UPDATE learners SET archived_at=now()
-      WHERE id::text=${id} AND archived_at IS NULL
+      WHERE id::text=${learnerId} AND archived_at IS NULL
       AND family_id IN (SELECT family_id FROM family_members WHERE auth_user_id=${session.user.id} AND role='owner')
       RETURNING id::text AS id`;
   if(!rows.length)return send({error:'Learner not found, already changed, or you do not have permission.'},404);
