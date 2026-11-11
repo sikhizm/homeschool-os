@@ -36,6 +36,10 @@ test('progress and chapter writes retain owner checks and session-scoped reads',
  assert.match(auto,/fm\.auth_user_id=\$\{user\}/);
  assert.match(auto,/fm\.role='owner'/);
  assert.match(chapter,/fm\.auth_user_id=\$\{who\.userId\}/);
+ assert.match(chapter,/LEFT JOIN ncert_chapter_progress p/);
+ assert.match(chapter,/ON CONFLICT\(learner_id,chapter_id\) DO UPDATE/);
+ assert.match(chapter,/fm\.role='owner'/);
+ assert.match(chapter,/Cache-Control/);
  assert.match(chapter,/fm\.role='owner'/);
  assert.match(workspace,/fm\.role = 'owner'/);
 });
