@@ -47,7 +47,9 @@ export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[
   for(const learner of candidates){
    let at=cursors.get(learner.id)??0;
    // Find a complete activity that fits; never truncate a lesson just to fill time.
-   const choice=learner.tasks.slice(at).findIndex(t=>Number.isFinite(t.minutes)&&t.minutes>=1&&Math.ceil(t.minutes)<=remaining);
+   const choice=preserveSequence
+    ?(learner.tasks[at]&&Number.isFinite(learner.tasks[at].minutes)&&learner.tasks[at].minutes>=1&&Math.ceil(learner.tasks[at].minutes)<=remaining?0:-1)
+    :learner.tasks.slice(at).findIndex(t=>Number.isFinite(t.minutes)&&t.minutes>=1&&Math.ceil(t.minutes)<=remaining);
    if(choice===-1)continue;
    at+=choice;
    const task=learner.tasks[at];
