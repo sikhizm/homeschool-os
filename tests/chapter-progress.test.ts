@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {test} from 'node:test';
+import {queueCatalogue} from '../src/lib/auto-learning/catalogue';
+import {assessmentId,masteryId} from '../src/lib/auto-learning/assessment';
+import {deriveChapterProgress} from '../src/lib/auto-learning/chapter-progress';
+const catalogue=queueCatalogue('Class 4');
+const first=catalogue.find(t=>t.id.startsWith('ncert:')&&t.id.endsWith(':read'))!;
+const chapterId=first.id.slice('ncert:'.length,-':read'.length);
+const read='ncert:'+chapterId+':read',practice='ncert:'+chapterId+':practice',review='ncert:'+chapterId+':review';
+const row=(task_id:string,status:string)=>({task_id,status,updated_at:'2026-11-01T10:00:00.000Z'});
+test('chapter starts not started and advances from read to practice to understanding check',()=>{assert.equal(deriveChapterProgress(catalogue,[]).find(x=>x.chapterId===chapterId)?.status,'not_started');assert.equal(deriveChapterProgress(catalogue,[row(read,'completed')]).find(x=>x.chapterId===chapterId)?.status,'practice_due');assert.equal(deriveChapterProgress(catalogue,[row(read,'completed'),row(practice,'completed')]).find(x=>x.chapterId===chapterId)?.status,'understanding_check_due');});
+test('needs revision takes priority over ordinary session progression',()=>{const result=deriveChapterProgress(catalogue,[row(read,'completed'),row(practice,'needs_revision')]).find(x=>x.chapterId===chapterId)!;assert.equal(result.status,'needs_revision');assert.deepEqual(result.needsRevision,[practice]);});
+test('all three completed sessions complete a chapter but do not imply retention',()=>{const result=deriveChapterProgress(catalogue,[row(read,'completed'),row(practice,'completed'),row(review,'completed')]).find(x=>x.chapterId===chapterId)!;assert.equal(result.status,'completed');assert.equal(result.completedSessions,3);});
+test('retained status requires explicit mastery evidence',()=>{const records=[row(read,'completed'),row(practice,'completed'),row(review,'completed'),row(masteryId(review),'completed')];assert.equal(deriveChapterProgress(catalogue,records).find(x=>x.chapterId===chapterId)?.status,'retained');});
+test('legacy chapter completion maps to sessions at read time without duplicate rows',()=>{const records=[row('ncert:'+chapterId,'completed')];const result=deriveChapterProgress(catalogue,records).find(x=>x.chapterId===chapterId)!;assert.equal(result.status,'completed');assert.equal(result.completedSessions,3);assert.equal(records.length,1);});
+test('assessment evidence alone never counts as a completed session or chapter',()=>{const result=deriveChapterProgress(catalogue,[row(assessmentId(read),'completed')]).find(x=>x.chapterId===chapterId)!;assert.equal(result.status,'not_started');assert.equal(result.completedSessions,0);});
