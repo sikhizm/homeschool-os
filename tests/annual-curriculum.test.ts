@@ -75,14 +75,20 @@ test('real stored learner stages resolve to the right annual pathway',()=>{
  assert.equal(annualGradeFor('UKG'),'ukg');
  assert.equal(annualGradeFor('Class 4'),'class4');
  assert.equal(annualGradeFor('Class 5'),null);
- assert.ok(queueCatalogue('Class 5').every(t=>!t.id.startsWith('annual:')&&!t.id.startsWith('ncert:')),'unsupported grades keep only the original activity library');
+ const class5=queueCatalogue('Class 5');
+ assert.ok(class5.some(t=>t.id.startsWith('ncert:')),'Class 5 now has verified NCERT chapter sessions');
+ assert.ok(class5.every(t=>!t.id.startsWith('annual:')),'Class 5 has no authored annual pathway yet');
+ assert.ok(class5.filter(t=>t.id.startsWith('ncert:')).every(t=>t.href.startsWith('/ncert-books/chapter/')));
 });
 
 test('all four learners now receive annual steps; the infant gets no academic queue',()=>{
  for(const stage of ['Infant (0–18 months)','Nursery','UKG','Class 4']){
   const tasks=queueCatalogue(stage);
   assert.ok(tasks.length>0,stage);
-  assert.equal(tasks[0].id.startsWith('annual:'),true,stage+' should begin with the annual pathway');
+  if(stage==='Class 4'){
+   assert.equal(tasks[0].id.startsWith('ncert:'),true,'Class 4 begins with its chapter-first NCERT sequence');
+   assert.ok(tasks.some(t=>t.id.startsWith('annual:')),'Class 4 keeps its annual pathway as secondary enrichment');
+  }else assert.equal(tasks[0].id.startsWith('annual:'),true,stage+' should begin with the annual pathway');
   assert.equal(new Set(tasks.map(t=>t.id)).size,tasks.length);
   assert.ok(tasks.filter(t=>t.lesson).length>=36,stage+' lessons must be ready to teach');
   assert.ok(tasks.filter(t=>t.id.startsWith('annual:')).every(t=>t.lesson&&t.week&&t.term));
