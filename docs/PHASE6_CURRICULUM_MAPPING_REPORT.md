@@ -176,10 +176,7 @@ CURRICULUM_MAPPING_ROLLBACK_CONFIRM=DROP_PHASE6_CURRICULUM_MAPPING_REVIEWS npm r
 It refuses to run without that exact acknowledgement and verifies that protected
 learner/history table counts remain unchanged.
 
-**Actual live migration state:** unavailable from this development sandbox
-because `DATABASE_URL` was not configured. No SQL was run against production,
-and no migration file was treated as already applied merely because it exists.
-The isolated PGlite tests did execute the real migration successfully.
+**Actual live migration state (updated 13 November 2026):** migration 008 has now been applied to the production Neon branch after an isolated production-derived branch test. The live verification query confirmed `curriculum_mapping_reviews` exists with 21 columns, RLS enabled, zero policies, and owner `neondb_owner`. Before/after protected-row counts were unchanged: 4 learners, 1 family and 2 `auto_learning_progress` rows. No review rows or learner/progress rows were inserted. The isolated branch also confirmed the schema and RLS structure. The app's signed-in owner workflow still needs a real production acceptance check.
 
 ---
 
