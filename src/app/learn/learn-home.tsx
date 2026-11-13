@@ -7,7 +7,7 @@ import {subjectTint} from '@/lib/subject-tint';
 
 type Task={id:string;title:string;subject:string;minutes:number;mode?:string;href:string|null;status?:string};
 type ApiLearner={
- id:string;name:string;grade:string;canEdit:boolean;tasks:Task[];upcoming:Task[];
+ id:string;name:string;grade:string;canEdit:boolean;tasks:Task[];assignedTasks?:Task[];upcoming:Task[];
  history:{id:string;updatedAt:string}[];
  subjects:{subject:string;completed:number;total:number}[];
  completed:number;total:number;
@@ -23,7 +23,7 @@ const TIER_INTRO:Record<LearnerTier,string>={
 };
 
 function nextTask(learner:ApiLearner):Task|null{
- return learner.tasks?.[0]??null;
+ return learner.assignedTasks!==undefined?(learner.assignedTasks[0]??null):(learner.tasks?.[0]??null);
 }
 
 /**
@@ -76,6 +76,16 @@ export function LearnHome({initialLearnerId}:{initialLearnerId?:string}){
     <span>{l.name}</span>
    </button>)}
   </nav>}
+  <section className="card" aria-labelledby="daily-workload-title">
+   <p className="tag">Today’s assigned learning</p>
+   <h2 id="daily-workload-title">Your daily workload</h2>
+   {learner.assignedTasks?.length?<ol className="idea-list">
+    {learner.assignedTasks.map((task,index)=>{
+     const done=learner.history.some(item=>item.id===task.id);
+     return <li key={task.id}><strong>{index+1}. {task.title}</strong><span>{task.subject} · {task.minutes} min · {done?'Completed':'Ready to learn'}</span></li>;
+    })}
+   </ol>:<p className="muted">No activities have been assigned for today yet. Ask a parent to prepare your daily learning plan.</p>}
+  </section>
 
   {tier==='toddler'&&<ToddlerHome learner={learner} canEdit={learner.canEdit}/>}
   {tier==='preschool'&&<PreschoolHome learner={learner} next={next}/>}

@@ -156,8 +156,8 @@ export default function AutomaticLearning(){
      <div className="coach-task-list">{familyPlan.separate.map((entry,index)=>renderTask(entry.task,entry.learnerId,learners.find(l=>l.id===entry.learnerId)?.canEdit??false,index,`${entry.name} · ${modeLabel(entry.task.mode)}`))}</div>
     </div>}
     {familyPlan?.notes.map((note,index)=><p className="coach-next-note" key={index}>✦ {note}</p>)}
-    <details className="coach-archive"><summary>Saved daily plan & seven-day overview</summary>
-     <FamilyCalendar learners={learners.map(l=>({id:l.id,history:l.history}))}/>
+    <details className="coach-archive"><summary>Manage daily assignments & seven-day overview</summary>
+     <FamilyCalendar learners={learners.map(l=>({id:l.id,name:l.name,grade:l.grade,canEdit:l.canEdit,tasks:l.tasks,history:l.history}))}/>
      <FamilyWeek/>
     </details>
    </div>}

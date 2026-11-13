@@ -3,7 +3,7 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 import {prioritizedQueue} from '@/lib/auto-learning/revision';
-import {buildFamilyPlan,sharedBudgetTasks} from '@/lib/auto-learning/family-schedule';
+import {buildFamilyPlan,sharedBudgetTasks,carryForwardTasks} from '@/lib/auto-learning/family-schedule';
 
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
@@ -31,7 +31,7 @@ export async function GET(request:Request){
  if(!permittedDate(date))return reply({error:'Choose a date from the past seven days up to tomorrow'},400);
   const sql=getSql();
   const rows=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
-  return reply({date,plan:rows[0]??null,canEdit:member.role==='owner'});
+  return reply({date,plan:rows[0]??null,canEdit:member.role==='owner',budgetEnabled:rows.length?Number(rows[0].budget_minutes)!==180:true});
  }catch{return reply({error:'Family calendar is unavailable. Verify migration 006.'},503);}
 }
 export async function POST(request:Request){
@@ -41,31 +41,49 @@ export async function POST(request:Request){
  let raw:string;try{raw=await request.text();if(raw.length>1024)throw Error('large')}catch{return reply({error:'Invalid request'},400)}
  let body:unknown;try{body=JSON.parse(raw)}catch{return reply({error:'Invalid JSON'},400)}
  if(!body||typeof body!=='object')return reply({error:'Invalid input'},400);
- const {date,budget}=body as Record<string,unknown>;
- if(typeof date!=='string'||!permittedDate(date)||date<isoToday()||typeof budget!=='number'||!Number.isInteger(budget)||![20,40,60,90].includes(budget))return reply({error:'Plan today or tomorrow, using an available time budget'},400);
+ const {date,budget,budgetEnabled,taskCounts,replace}=body as Record<string,unknown>;
+ if(typeof date!=='string'||!permittedDate(date)||date<isoToday()||
+  (budgetEnabled!==undefined&&typeof budgetEnabled!=='boolean')||(replace!==undefined&&typeof replace!=='boolean')||
+  (budgetEnabled!==false&&(typeof budget!=='number'||!Number.isInteger(budget)||![20,40,60,90].includes(budget)))||
+  (taskCounts!==undefined&&(!taskCounts||typeof taskCounts!=='object'||Array.isArray(taskCounts))))return reply({error:'Choose a valid date, assignment sequence and time preference'},400);
+ const useBudget=budgetEnabled!==false;
+ const selectedBudget=useBudget?Number(budget):null;
+ const storedBudget=useBudget?selectedBudget!:180;
  try{
   const member=await membership();if(!member)return reply({error:'Sign in required'},401);
   if(member.role!=='owner')return reply({error:'Family owner required'},403);
   const sql=getSql();
   const existing=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
-  if(existing.length)return reply({date,plan:existing[0],saved:false});
-  const learners=await sql`SELECT l.id::text AS id,l.display_name,l.stage FROM learners l WHERE l.family_id::text=${member.id} ORDER BY l.created_at,l.id`;
+  if(existing.length&&replace!==true)return reply({date,plan:existing[0],saved:false,budgetEnabled:Number(existing[0].budget_minutes)!==180});
+  const learners=await sql`SELECT l.id::text AS id,l.display_name,l.stage FROM learners l WHERE l.family_id::text=${member.id} AND l.archived_at IS NULL ORDER BY l.created_at,l.id`;
   const progress=await sql`SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id WHERE l.family_id::text=${member.id}`;
+  const previous=await sql`SELECT slots FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date<${date}::date AND learning_date>=${date}::date-6 ORDER BY learning_date ASC`;
+  const priorSlots=previous.flatMap(row=>Array.isArray(row.slots)?row.slots:[]);
+  const requested=taskCounts as Record<string,unknown>|undefined;
   const family=learners.map(l=>{
-   const id=String(l.id),grade=String(l.stage);
-   const entries=progress.filter(p=>String(p.learner_id)===id).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
-   const tasks=prioritizedQueue(queueCatalogue(grade),entries,new Date(),5);
-   return {id,name:String(l.display_name),grade,tasks};
+   const learnerId=String(l.id),grade=String(l.stage);
+   const entries=progress.filter(p=>String(p.learner_id)===learnerId).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
+   const completed=new Set(entries.filter(p=>p.status==='completed').map(p=>p.task_id));
+   const queue=prioritizedQueue(queueCatalogue(grade),entries,new Date(),50);
+   const carriedIds=priorSlots.filter((slot:Record<string,unknown>)=>slot.learnerId===learnerId)
+    .map((slot:Record<string,unknown>)=>(slot.task as {id?:string}|undefined)?.id)
+    .filter((taskId):taskId is string=>typeof taskId==='string');
+   const carried=carriedIds.map(taskId=>queue.find(task=>task.id===taskId)).filter((task):task is typeof queue[number]=>Boolean(task));
+   const tasks=carryForwardTasks(queue,carried,completed);
+   const chosen=requested?.[learnerId];
+   if(chosen!==undefined&&(typeof chosen!=='number'||!Number.isInteger(chosen)||chosen<0||chosen>tasks.length))throw Error('Choose a valid number of required activities.');
+   return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.slice(0,chosen as number)};
   });
-  const planned=buildFamilyPlan(sharedBudgetTasks(family),budget,new Date(date+'T12:00:00Z').getUTCDay());
-  const slots=planned.slots.map(slot=>({learnerId:slot.learnerId,name:slot.name,grade:slot.grade,task:slot.task,minutes:slot.minutes,startMinute:slot.startMinute,mode:slot.mode}));
+  if(requested&&Object.keys(requested).some(key=>!learners.some(l=>String(l.id)===key)))return reply({error:'An assignment references an unknown learner'},400);
+  const planned=buildFamilyPlan(sharedBudgetTasks(family),selectedBudget,new Date(date+'T12:00:00Z').getUTCDay(),true);
+  const slots=planned.slots.map(slot=>({learnerId:slot.learnerId,name:slot.name,grade:slot.grade,task:slot.task,minutes:slot.minutes,startMinute:slot.startMinute,mode:slot.mode,budgetEnabled:useBudget}));
   // The unique key makes concurrent first-open requests idempotent; no silent replacement.
   const saved=await sql`INSERT INTO family_daily_plans(family_id,learning_date,budget_minutes,slots)
-   SELECT f.id,${date}::date,${budget},${JSON.stringify(slots)}::jsonb FROM families f WHERE f.id::text=${member.id}
-   ON CONFLICT(family_id,learning_date) DO NOTHING
+   SELECT f.id,${date}::date,${storedBudget},${JSON.stringify(slots)}::jsonb FROM families f WHERE f.id::text=${member.id}
+   ON CONFLICT(family_id,learning_date) DO UPDATE SET budget_minutes=EXCLUDED.budget_minutes,slots=EXCLUDED.slots WHERE ${Boolean(replace)}
    RETURNING learning_date::text AS date,budget_minutes,slots,created_at`;
-  if(saved.length)return reply({date,plan:saved[0],saved:true});
+  if(saved.length)return reply({date,plan:saved[0],saved:true,budgetEnabled:useBudget});
   const concurrent=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
-  return reply({date,plan:concurrent[0],saved:false});
- }catch{return reply({error:'Unable to save daily plan. Verify migration 006.'},503);}
+  return reply({date,plan:concurrent[0],saved:false,budgetEnabled:Number(concurrent[0]?.budget_minutes)!==180});
+ }catch(error){if(error instanceof Error&&error.message.includes('required activities'))return reply({error:error.message},400);if(error instanceof Error&&error.message.includes('number of required activities'))return reply({error:error.message},400);return reply({error:'Unable to save daily plan. Verify migration 006.'},503);}
 }

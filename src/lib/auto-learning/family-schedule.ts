@@ -2,7 +2,7 @@
 export type FamilyTask={id:string;minutes:number;subject?:string;status?:string;mode?:'guided'|'play'|'independent'};
 export type FamilyLearner<T extends FamilyTask>={id:string;name:string;grade:string;tasks:T[]};
 export type FamilySlot<T>={learnerId:string;name:string;grade:string;task:T;minutes:number;startMinute:number;mode:'guided'|'play'|'independent'};
-export type FamilyPlan<T>={slots:FamilySlot<T>[];budget:number;allocated:number;unallocated:number;notes:string[]};
+export type FamilyPlan<T>={slots:FamilySlot<T>[];budget:number|null;allocated:number;unallocated:number;notes:string[]};
 const subjectHash=(value:string)=>[...value].reduce((sum,c)=>sum+c.charCodeAt(0),0);
 export function isInfant(stage:string){return /infant|baby|under\s*(1|2)\s*year|0\s*[-–]\s*(12|18|24)\s*month/i.test(stage.trim());}
 export function activityMode(stage:string):'guided'|'play'{return isInfant(stage)||/^(early years|nursery|lkg|toddler|preschool)/i.test(stage.trim())?'play':'guided';}
@@ -31,13 +31,14 @@ function rotatedTasks<T extends FamilyTask>(tasks:T[],day:number){
  });
  return [...urgent,...pool,...tail];
 }
-export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[],budget=60,dayOfWeek=0):FamilyPlan<T>{
- const limit=Number.isFinite(budget)?Math.max(0,Math.floor(budget)):0;
+export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[],budget:number|null=60,dayOfWeek=0,preserveSequence=false):FamilyPlan<T>{
+ const available=learners.filter(l=>!isInfant(l.grade)).flatMap(l=>l.tasks).filter(t=>t.mode!=='independent').reduce((sum,t)=>sum+(Number.isFinite(t.minutes)&&t.minutes>0?Math.ceil(t.minutes):0),0);
+ const limit=budget===null?available:Number.isFinite(budget)?Math.max(0,Math.floor(budget)):0;
  const eligible=learners.filter(l=>l.tasks.length&&!isInfant(l.grade));
  const notes:string[]=[];
  if(learners.some(l=>isInfant(l.grade)))notes.push('Infant care, conversation and responsive play are not scheduled as formal teaching tasks.');
  if(learners.some(l=>l.tasks.some(t=>t.mode==='independent')))notes.push('Independent practice is offered separately and does not use shared guided teaching minutes.');
- const candidates=eligible.map(l=>({...l,tasks:rotatedTasks(l.tasks,dayOfWeek)}));
+ const candidates=eligible.map(l=>({...l,tasks:preserveSequence?[...l.tasks]:rotatedTasks(l.tasks,dayOfWeek)}));
  const slots:FamilySlot<T>[]=[];
  let remaining=limit;
  const cursors=new Map(candidates.map(l=>[l.id,0]));
@@ -46,7 +47,9 @@ export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[
   for(const learner of candidates){
    let at=cursors.get(learner.id)??0;
    // Find a complete activity that fits; never truncate a lesson just to fill time.
-   const choice=learner.tasks.slice(at).findIndex(t=>Number.isFinite(t.minutes)&&t.minutes>=1&&Math.ceil(t.minutes)<=remaining);
+   const choice=preserveSequence
+    ?(learner.tasks[at]&&Number.isFinite(learner.tasks[at].minutes)&&learner.tasks[at].minutes>=1&&Math.ceil(learner.tasks[at].minutes)<=remaining?0:-1)
+    :learner.tasks.slice(at).findIndex(t=>Number.isFinite(t.minutes)&&t.minutes>=1&&Math.ceil(t.minutes)<=remaining);
    if(choice===-1)continue;
    at+=choice;
    const task=learner.tasks[at];
@@ -59,9 +62,28 @@ export function buildFamilyPlan<T extends FamilyTask>(learners:FamilyLearner<T>[
   if(!added)break;
  }
  if(remaining)notes.push(remaining+' minutes unallocated for breaks, transitions or responsive family time.');
- return {slots,budget:limit,allocated:limit-remaining,unallocated:remaining,notes};
+ return {slots,budget,allocated:limit-remaining,unallocated:remaining,notes};
 }
 /** Backwards-compatible API for existing consumers. */
 export function buildFamilySchedule<T extends FamilyTask>(learners:FamilyLearner<T>[],budget=60):FamilySlot<T>[]{
  return buildFamilyPlan(learners,budget).slots;
+}
+
+
+/** Carry unfinished required work ahead of newly suggested work without duplicating IDs. */
+export function carryForwardTasks<T extends FamilyTask>(queue:T[],previous:T[],completed:ReadonlySet<string>):T[]{
+ const carried: T[]=[];
+ const seen=new Set<string>();
+ const eligible=new Set(queue.map(task=>task.id));
+ for(const task of previous){
+  if(!eligible.has(task.id)||completed.has(task.id)||seen.has(task.id))continue;
+  carried.push(task);seen.add(task.id);
+ }
+ return [...carried,...queue.filter(task=>!completed.has(task.id)&&!seen.has(task.id))];
+}
+
+/** Required assignments must be a contiguous prefix of the learner's current queue. */
+export function isValidRequiredSequence<T extends FamilyTask>(queue:T[],assignedIds:string[]):boolean{
+ if(assignedIds.length>queue.length)return false;
+ return assignedIds.every((id,index)=>queue[index]?.id===id);
 }
