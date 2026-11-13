@@ -218,11 +218,13 @@ claim.
 | Production build | `npm run build` passed with non-production placeholder auth configuration only. An unconfigured build correctly stopped on the missing required auth cookie secret; no production secret was used. |
 | Local smoke | `npm run test:smoke` passed against the built server with placeholder auth configuration. It verifies `/curriculum-mapping` redirect plus unauthenticated and cross-origin API rejection. Database health was expected `503` because no database URL is configured. |
 | Browser test source | New `tests/curriculum-mapping.browser.ts` compiles its real client review component, fixture API and desktop/mobile assertions. |
-| Local browser execution | The final `npm run test:ui` attempt reached all **5** browser cases, but each failed before an assertion because neither Playwright Chromium nor `/usr/bin/chromium` exists. A previous `npx playwright install chromium` attempt was blocked by sandbox connection resets to `cdn.playwright.dev`. This is an environment limitation, not a passing result. CI must run the browser gate with its Playwright browser. |
+| Local browser execution | The final `npm run test:ui` attempt reached all **5** browser cases, but each failed before an assertion because neither Playwright Chromium nor `/usr/bin/chromium` exists. A previous `npx playwright install chromium` attempt was blocked by sandbox connection resets to `cdn.playwright.dev`. This is an environment limitation, not a passing result. |
+| CI browser execution | PR #61 GitHub Actions `verify` run `43397366690` passed after installing Playwright Chromium; its isolated browser workflow and production build both completed successfully. |
 
 No screenshot is represented as captured from this sandbox because the browser
-could not launch. The review browser test writes authenticated fixture screenshots
-when run in a browser-enabled CI environment.
+could not launch. The CI browser workflow passed, but its fixture screenshots are
+not published as PR artifacts; capture authenticated preview screenshots during
+production acceptance.
 
 ---
 
@@ -240,5 +242,6 @@ when run in a browser-enabled CI environment.
    do not bulk-infer mappings from title keywords.
 6. Add any international-framework mapping only through this same provenance and
    human-review workflow, with framework-specific evidence.
-7. Run the browser suite in CI and capture authenticated desktop/mobile review
-   screenshots once a browser-enabled environment is available.
+7. Capture authenticated desktop/mobile review screenshots during preview or
+   production acceptance; the isolated CI browser workflow passed, but does not
+   publish its fixture screenshots as artifacts.
