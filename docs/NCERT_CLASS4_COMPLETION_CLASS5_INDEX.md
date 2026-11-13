@@ -5,10 +5,10 @@
 - **Class 4:** four NCERT books and 49 numbered chapter titles checked against the 2026–27 publisher contents.
 - **Class 5:** seven NCERT books and 86 numbered chapter titles checked against the 2026–27 publisher contents.
 - **Class 1:** six book records; five CIET-indexed books with 72 source-verified numbered titles; the separate Urdu catalogue title Dilchasp Riyazi remains contents-pending.
-- **Combined:** 22 catalogued book records across Classes 1, 4, 5 and 8; 207 source-verified chapter titles; six records remain contents-pending (five Class 8 books and Class 1 Dilchasp Riyazi).
+- **This source-audit document’s scope:** Class 1, 4 and 5 records listed here retain their publisher-contents provenance. The wider live catalogue has since grown to 56 books / 689 verified titles across Classes 1–8; see `CURRICULUM_COMPLETION_MASTER.md` for the current total.
 - Every verified chapter title opens its own authenticated parent-guided learning page. The chapter page links to official NCERT material rather than copying or hosting textbook content.
-- All 135 chapter records remain `unmapped`; no chapter-to-skill equivalence has been approved.
-- No database migration, learner-data write, textbook download/rehosting or copyrighted textbook text is added.
+- Phase 6 now accounts for all 86 Class 5 records: 60 original-outcome candidates are `draft`, 26 are explicitly unmapped with reasons, and **0** are seed-approved. This is not an NCERT equivalence claim; see `PHASE6_CURRICULUM_MAPPING_REPORT.md`.
+- Migration 008 stores only family-owned review revisions. It does not seed learner data, download/rehost textbook material, or change learning evidence.
 
 ## Class 1 verified contents
 | Book | Subject | Numbered chapter titles |
@@ -67,16 +67,16 @@ Official NCERT textbook portal: https://ncert.nic.in/textbook.php
 - The title and position of each numbered chapter/lesson are verified against the publisher's own 2026–27 reprint contents.
 - A verified chapter title does **not** mean the chapter has been read, assessed, mapped to an outcome, or approved as a curriculum equivalence.
 - Original global skills remain illustrative parent-guided learning suggestions, not official NCERT learning outcomes.
-- The five Class 8 book records remain identity-only with `chapterCount: 0`; zero means no verified chapter list, not an empty book. Class 1's catalogue-only Dilchasp Riyazi record also remains at zero until its digital contents are verified.
+- This historical Class 1/4/5 source-audit document does not describe later Class 6–8 indexing. Refer to `CURRICULUM_COMPLETION_MASTER.md` and the per-grade indexes for the current 56-book catalogue. Class 1's catalogue-only Dilchasp Riyazi record remains at zero until its digital contents are verified.
 - Do not infer the existence or contents of books for classes not yet catalogued.
 
 ## Copyright and source use
 NCERT retains copyright in its textbooks. The application stores bibliographic metadata, numbered chapter titles and original parent-guided study prompts only. It opens official NCERT resources externally and does not mirror textbook pages or PDFs. Confirm current publisher terms before any future redistribution or ingestion.
 
-## Next sequential phase
-1. Build a parent/editor-only review queue for the 86 Class 5 chapters. Read the official chapter content and propose a mapping to an existing original learning skill only where the chapter evidence supports it; explicitly record “no suitable match” where it does not.
-2. Keep every proposal unapproved until a parent/editor reviews the chapter, rationale, source edition, reviewer and revision history. No mapping may be auto-approved or inferred from a title alone.
-3. Continue the sequential Class 2 and Class 3 book indexes and contents audits, then systematic Class 1–12 edition-by-edition coverage while keeping unknown classes visibly pending.
+## Mapping follow-up
+1. Phase 6 has added the parent-owner-only review queue for all 86 Class 5 chapters. Apply migration 008 in the target database before enabling it in production.
+2. Keep every seed proposal unapproved until an authorised parent reviews the official chapter, source edition, evidence and rationale. No proposal may be auto-approved or inferred from a title alone.
+3. Obtain language-specialist/source-section review for the 25 intentionally unmapped Hindi and Urdu chapters, then extend the same workflow to other verified grades one at a time.
 
 ## Release checks
-Run `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build` and `npm run test:smoke`. Confirm Class 4 and 5 show the verified titles, Class 8 still shows honest pending states, and chapter links open their learning pages. No production database migration is required.
+Run `npm ci`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run test:ui`, `npm run build`, `npm run test:smoke`, `npm run curriculum:inventory` and `npm run curriculum:mapping-audit`. Confirm Class 4/5 source titles remain verified, Class 5 drafts remain visibly unapproved, chapter links open their learning pages and review controls are owner-only. Migration 008 must be applied and verified before production review records can be used.

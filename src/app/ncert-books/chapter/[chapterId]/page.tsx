@@ -4,6 +4,7 @@ import ChapterSessions from './chapter-sessions';
 import {notFound, redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {ncertChapterSlots, textbookById, chaptersFor, officialChapterPdf} from '@/lib/ncert/textbooks';
+import {class5ChapterAccountById} from '@/lib/curriculum/class5-mapping';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,6 +23,7 @@ export default async function ChapterLearningPage({params}:{params:Promise<{chap
  const next=siblings[index+1];
  const bookHref=`/ncert-books?grade=${book.grade}&subject=${encodeURIComponent(book.subject)}&book=${encodeURIComponent(book.id)}`;
  const title=chapter.verifiedTitle??`Chapter ${chapter.chapterNumber}`;
+ const mappingAccount=book.grade===5?class5ChapterAccountById(chapter.id):undefined;
  return <>
   <header className="workspace-header"><Link href="/dashboard">✦ Homeschool OS</Link><span>CHAPTER LEARNING SPACE</span></header>
   <main className="family-dashboard">
@@ -30,9 +32,10 @@ export default async function ChapterLearningPage({params}:{params:Promise<{chap
     <span className="eyebrow">CLASS {book.grade} · {book.subject} · CHAPTER {chapter.chapterNumber} OF {siblings.length}</span>
     <h1>{title}</h1>
     <p className="muted">{book.title} · {book.publisher} · {book.language}</p>
-    <p>{chapter.verifiedTitle?'Chapter title checked against the publisher table of contents.':'Chapter title has not been verified yet.'} Chapter-to-skill alignment has not yet been approved.</p>
+    <p>{chapter.verifiedTitle?'Chapter title checked against the publisher table of contents.':'Chapter title has not been verified yet.'} {mappingAccount?.candidateMappingIds.length?`This Class 5 chapter has ${mappingAccount.candidateMappingIds.length} original-outcome draft proposal${mappingAccount.candidateMappingIds.length===1?'':'s'} awaiting a family owner’s source review.`:mappingAccount?.unmappedReason?'This Class 5 chapter is deliberately unmapped until stronger specialist and source evidence is available.':'No chapter-to-skill alignment has been approved.'}</p>
     <div style={{display:'flex',flexWrap:'wrap',gap:'12px',marginTop:'20px'}}>
      {officialPdf?<a className="ncert-chapter-open" href={officialPdf} target="_blank" rel="noopener noreferrer">Open official NCERT chapter PDF ↗</a>:<a className="ncert-chapter-open" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">Open official textbook portal ↗</a>}
+     {mappingAccount?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(chapter.id)}`}>Inspect mapping evidence</Link>:null}
      <Link className="ncert-chapter-open" href={bookHref}>← All chapters</Link>
     </div>
     <p className="muted" style={{marginTop:'16px'}}>Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.</p>

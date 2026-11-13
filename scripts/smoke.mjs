@@ -114,6 +114,18 @@ assert.ok([307,308].includes(studio.status));
 assert.ok(studio.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/curriculum-studio: requires signed-in family member');
 
+const mappingReview=await fetch(root+'/curriculum-mapping',{redirect:'manual'});
+assert.ok([307,308].includes(mappingReview.status));
+assert.ok(mappingReview.headers.get('location')?.includes('/auth/sign-in'));
+let mappingApi=await fetch(root+'/api/curriculum-mappings');
+assert.equal(mappingApi.status,401);
+assert.ok(mappingApi.headers.get('cache-control')?.includes('no-store'));
+mappingApi=await fetch(root+'/api/curriculum-mappings',{method:'POST',headers:{'Content-Type':'application/json',Origin:root},body:'{}'});
+assert.equal(mappingApi.status,401);
+mappingApi=await fetch(root+'/api/curriculum-mappings',{method:'POST',headers:{'Content-Type':'application/json',Origin:'https://attacker.invalid'},body:'{}'});
+assert.equal(mappingApi.status,403);
+console.log('Curriculum mapping review: private route and API reject unauthenticated/cross-origin access');
+
 const annual = await fetch(root + '/learning-pathways', { redirect: 'manual' });
 assert.ok([307, 308].includes(annual.status));
 assert.ok(annual.headers.get('location').includes('/auth/sign-in'));

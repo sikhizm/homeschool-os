@@ -51,7 +51,19 @@ See [ANNUAL_CURRICULUM_PHASE.md](ANNUAL_CURRICULUM_PHASE.md) for scope, provenan
 
 See [NCERT_CLASS1_INDEX.md](NCERT_CLASS1_INDEX.md) for exact sources, edition notes, scope and remaining gaps.
 
-## Phase 04 — Adaptive revision & retention (this phase)
+## Phase 6 — Evidence-backed Class 5 curriculum mapping (this phase)
+- [x] Reusable outcome registry separates official outcomes, original Homeschool OS outcomes and framework-context references; a source ID cannot turn an original outcome into an official one.
+- [x] Account for all 86 verified Class 5 chapter slots across seven books: 60 editorial original-outcome proposals remain **Draft**, 26 chapters are explicitly unmapped with a reason, and seed approvals remain **0**.
+- [x] Add parent-owner-only `/curriculum-mapping` review workspace with grade/subject/book/status filters, source/evidence/rationale cards, editable drafts, explicit approve/reject/unmapped decisions and revision history.
+- [x] Add append-only migration `008_curriculum_outcome_mapping.sql`, guarded table-only rollback, RLS/no-PUBLIC-grant checks and `npm run db:migrate:curriculum-mapping`; no learner, progress, assessment or textbook rows are rewritten or seeded.
+- [x] Keep mapping approval separate from learning evidence, completion, retention and mastery. Learner mode exposes no review controls.
+- [x] Add registry, isolated migration/workflow and browser-fixture tests plus `npm run curriculum:mapping-audit`.
+- [ ] Apply and verify migration 008 against the live database before enabling the queue in production. No live `DATABASE_URL` was available in the development sandbox.
+- [ ] Obtain section-level official NCERT outcome evidence and language-specialist review before creating official or Hindi/Urdu Class 5 mappings.
+
+See [PHASE6_CURRICULUM_MAPPING_REPORT.md](PHASE6_CURRICULUM_MAPPING_REPORT.md) for the 60/0/26 breakdown, source boundaries, migration procedure and actual validation evidence.
+
+## Phase 04 — Adaptive revision & retention (delivered)
 - [x] Replace fixed 3/10-day-only recall with parent-recorded independent / hinted / not-yet recall outcomes
 - [x] Adapt intervals: independent recall 10 days, recall with a hint 4 days, not-yet recall returns immediately for gentle revision
 - [x] Continue up to five spaced checks when independent retention has not yet been demonstrated
@@ -82,13 +94,15 @@ See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rul
 - [x] Phase 2 — Chapter Learning Studio: chapter pages launch sessions in the existing six-stage lesson player, scoped to learners of the chapter's class (PR #50)
 - [x] Phase 3 — Evidence-derived chapter statuses (`not_started → in_progress/practice_due/understanding_check_due → completed → retained`, plus `needs_revision`), legacy completion interpreted at read time, no duplicate rows (PRs #57, #58)
 - [x] Daily Assignment Workflow: parent-assigned dated workload exposed to learner mode with carry-forward and sequence guarantees (PR #59)
-- [x] Phase 4 — Learner-first dashboard: Continue Learning hero, Today's Learning (daily assignments), Active Chapter, My Books shelf, Revision Needed, Recent Learning, honest progress counts; learner switching refetches per-learner data; parent learner cards show active chapter and next session (this PR, issue #44)
-- [x] Phase 5 — Quality validation: representative curriculum audit across Classes 1–8 (24 books, 65 official links probed; 0 structural failures), Poorvi PDF gap found and capped, full-journey + data-integrity + browser tests, all gates green (this PR, issue #45)
+- [x] Phase 4 — Learner-first dashboard: Continue Learning hero, Today's Learning (daily assignments), Active Chapter, My Books shelf, Revision Needed, Recent Learning, honest progress counts; learner switching refetches per-learner data; parent learner cards show active chapter and next session (merged PR #60, issue #44 acceptance evidence in `PHASE4_5_COMPLETION_REPORT.md`)
+- [x] Phase 5 — Quality validation: representative curriculum audit across Classes 1–8 (24 books, 65 official links probed; 0 structural failures), Poorvi PDF gap found and capped, full-journey + data-integrity + browser tests, all gates green at delivery (merged PR #60, issue #45 evidence in `PHASE4_5_COMPLETION_REPORT.md`)
+- [ ] Issues #44 and #45 remain open pending a real production owner acceptance check. Their merged implementation and historical gate evidence are not a substitute for that live confirmation, so neither issue has been closed from this branch.
 
 See [PHASE4_5_COMPLETION_REPORT.md](PHASE4_5_COMPLETION_REPORT.md) for the validation evidence, known limitations and remaining pilot work.
 
 ## Still outstanding (next phases)
-- Human-reviewed Class 5 chapter-to-skill mapping with source edition, chapter evidence, rationale, reviewer and revision history; no automatic approval.
+- Apply migration 008 in production, then have an actual family owner review the 60 Class 5 drafts. Approved count must remain zero until that explicit action; Hindi/Urdu mappings need specialist and section-level evidence.
+- Section-level official NCERT outcome transcription and provenance review before any registry outcome can be classified official.
 - Systematic NCERT Classes 9–12 coverage (Classes 1–8 are catalogued: 56 books / 689 verified titles); Class 1 Dilchasp Riyazi contents and Poorvi (Class 8) chapter PDFs 6–15 remain pending on the publisher side (see `NCERT_CLASS1_INDEX.md` and `CURRICULUM_COMPLETION_MASTER.md`).
-- Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
+- Parent-reviewed international framework mapping with framework-specific editor evidence; no equivalence is inferred from this pilot (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.

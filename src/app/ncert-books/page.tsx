@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {selectTextbooks,chaptersFor,officialChapterPdf,textbookAudit,textbookGrades} from '@/lib/ncert/textbooks';
+import {class5ChapterAccountById} from '@/lib/curriculum/class5-mapping';
 import {globalSkills} from '@/lib/global-curriculum/catalogue';
 import SectionArtwork from '@/components/section-artwork';
 
@@ -35,7 +36,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
   </form>
   {books.length===0&&<p className="ncert-pending">No books are currently indexed for Class {selectedGrade} in this directory. The official NCERT textbook portal is available below; this does not mean textbooks do not exist.</p>}
   {selectedGrade===1&&<p className="ncert-pending">Five Class 1 books listed in the NCERT/CIET audio-book catalogue have all 72 numbered chapter titles checked. The separate NCERT Urdu publication catalogue also lists Dilchasp Riyazi (code 4109); its digital chapter contents remain pending. Chapter-to-skill mappings remain unapproved.</p>}
-  {selectedGrade===5&&<p className="ncert-pending">All seven catalogued Class 5 NCERT books have chapter titles checked against official publisher contents; printed edition details are recorded per book. Chapter-to-skill mappings remain unapproved.</p>}
+  {selectedGrade===5&&<p className="ncert-pending">All seven catalogued Class 5 NCERT books have chapter titles checked against official publisher contents; printed edition details are recorded per book. Draft original-outcome proposals remain unapproved until a family owner reviews the evidence in the <Link href="/curriculum-mapping">Class 5 mapping queue</Link>.</p>}
   {selectedGrade===8&&<p className="ncert-pending">Class 8 book identities are indexed, but individual chapter names and counts remain pending official NCERT contents review.</p>}
  </section>
  {books.length>0&&<div className="ncert-books-layout">
@@ -50,12 +51,13 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
   <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} chapter titles checked`:'Book identified · Chapter contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
   <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed chapter title to open its learning page. Checked chapters also link to official NCERT PDFs; unverified chapters do not receive guessed PDF links. Confirm the current edition before assigning skills.</p>
   {chapters.length===0&&<p className="ncert-pending">The chapter index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
-  <div className="ncert-chapter-list">{chapters.map(c=>{const chapterUrl=officialChapterPdf(c);return <div className="ncert-chapter-row" key={c.id}>
+  <div className="ncert-chapter-list">{chapters.map(c=>{const chapterUrl=officialChapterPdf(c);const mapping=selectedGrade===5?class5ChapterAccountById(c.id):undefined;const mappingNote=mapping?.candidateMappingIds.length?`${mapping.candidateMappingIds.length} draft outcome proposal${mapping.candidateMappingIds.length===1?'':'s'} awaiting parent review`:mapping?.unmappedReason?'Explicitly left unmapped pending specialist evidence':c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available';return <div className="ncert-chapter-row" key={c.id}>
     <span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span>
     <div className="ncert-chapter-description">
       <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for chapter ${c.chapterNumber}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
-      <small>{chapterUrl?'Learning page and official PDF available':'Learning page available · official PDF not yet verified'} · {c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available'}</small>
+      <small>{chapterUrl?'Learning page and official PDF available':'Learning page available · official PDF not yet verified'} · {mappingNote}</small>
     </div>
+    {mapping?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(c.id)}`}>Review mapping</Link>:null}
     {chapterUrl?<a className="ncert-chapter-open" href={chapterUrl} target="_blank" rel="noopener noreferrer">Read PDF <span aria-hidden="true">↗</span></a>:<span className="ncert-chapter-review">Review pending</span>}
   </div>})}</div></>}
  </section>
