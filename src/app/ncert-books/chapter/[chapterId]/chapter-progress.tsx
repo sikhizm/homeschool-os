@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 type Learner={learner_id:string;display_name:string;stage:string;status:string|null;parent_note:string|null;updated_at:string|null};
 const statuses=[{value:'assigned',label:'Assigned'},{value:'in_progress',label:'In progress'},{value:'completed',label:'Completed'}];
-export default function ChapterProgress({chapterId}:{chapterId:string}){
+export default function ChapterProgress({chapterId,contentLabel='Chapter',selectionRequired=false}:{chapterId:string;contentLabel?:string;selectionRequired?:boolean}){
  const [learners,setLearners]=useState<Learner[]>([]);
  const [selected,setSelected]=useState('');
  const [status,setStatus]=useState('assigned');
@@ -31,14 +31,14 @@ export default function ChapterProgress({chapterId}:{chapterId:string}){
   }catch(err){setMessage(err instanceof Error?err.message:'Unable to save progress.');}
   finally{setBusy(false);}
  }
- return <section className="workspace-panel" aria-label="Learner chapter progress">
-  <span className="eyebrow">PARENT-RECORDED PROGRESS</span><h2>Track this chapter</h2>
-  <p className="muted">Assign the chapter to a learner, then record progress after studying. Opening the PDF does not automatically mark it complete.</p>
+ return <section className="workspace-panel" aria-label={`Learner ${contentLabel.toLowerCase()} progress`}>
+  <span className="eyebrow">PARENT-RECORDED PROGRESS</span><h2>Track this {contentLabel.toLowerCase()}</h2>
+  <p className="muted">{selectionRequired?`You may record a learner’s work with this official ${contentLabel.toLowerCase()}. This progress record does not persist a family or school selection, exclude other alternatives, or create automatic learning sessions.`:`Assign the ${contentLabel.toLowerCase()} to a learner, then record progress after studying. Opening an official resource does not automatically mark it complete.`}</p>
   {learners.length>0&&<div style={{display:'grid',gap:14,maxWidth:540}}>
    <label className="workspace-field"><span>Learner</span><select value={selected} onChange={e=>setSelected(e.target.value)}>{learners.map(l=><option key={l.learner_id} value={l.learner_id}>{l.display_name} · {l.stage}</option>)}</select></label>
-   <label className="workspace-field"><span>Chapter status</span><select value={status} onChange={e=>setStatus(e.target.value)}>{statuses.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}</select></label>
+   <label className="workspace-field"><span>{contentLabel} status</span><select value={status} onChange={e=>setStatus(e.target.value)}>{statuses.map(s=><option key={s.value} value={s.value}>{s.label}</option>)}</select></label>
    <label className="workspace-field"><span>Parent notes (optional)</span><textarea style={{width:'100%',minHeight:90,padding:12,borderRadius:10}} maxLength={1000} value={note} onChange={e=>setNote(e.target.value)} placeholder="What did the learner understand? What needs another look?"/></label>
-   <button type="button" onClick={save} disabled={busy}>{busy?'Saving…':'Save chapter progress'}</button>
+   <button type="button" onClick={save} disabled={busy}>{busy?'Saving…':`Save ${contentLabel.toLowerCase()} progress`}</button>
    {current?.updated_at&&<small className="muted">Last recorded: {new Date(current.updated_at).toLocaleString()}</small>}
   </div>}
   <p role="status" aria-live="polite">{message}</p>

@@ -5,7 +5,7 @@
 - **Class 4:** four NCERT books and 49 numbered chapter titles checked against the 2026–27 publisher contents.
 - **Class 5:** seven NCERT books and 86 numbered chapter titles checked against the 2026–27 publisher contents.
 - **Class 1:** six book records; five CIET-indexed books with 72 source-verified numbered titles; the separate Urdu catalogue title Dilchasp Riyazi remains contents-pending.
-- **This source-audit document’s scope:** Class 1, 4 and 5 records listed here retain their publisher-contents provenance. The wider live catalogue has since grown to 56 books / 689 verified titles across Classes 1–8; see `CURRICULUM_COMPLETION_MASTER.md` for the current total.
+- **This source-audit document’s scope:** Class 1, 4 and 5 records listed here retain their publisher-contents provenance. The wider live catalogue has since grown to 77 books / 892 verified Contents titles across Classes 1–10; see `CURRICULUM_COMPLETION_MASTER.md` and `PHASE7_NCERT_EXPANSION_REPORT.md` for current totals and boundaries.
 - Every verified chapter title opens its own authenticated parent-guided learning page. The chapter page links to official NCERT material rather than copying or hosting textbook content.
 - Phase 6 now accounts for all 86 Class 5 records: 60 original-outcome candidates are `draft`, 26 are explicitly unmapped with reasons, and **0** are seed-approved. This is not an NCERT equivalence claim; see `PHASE6_CURRICULUM_MAPPING_REPORT.md`.
 - Migration 008 stores only family-owned review revisions. It does not seed learner data, download/rehost textbook material, or change learning evidence.
@@ -67,7 +67,7 @@ Official NCERT textbook portal: https://ncert.nic.in/textbook.php
 - The title and position of each numbered chapter/lesson are verified against the publisher's own 2026–27 reprint contents.
 - A verified chapter title does **not** mean the chapter has been read, assessed, mapped to an outcome, or approved as a curriculum equivalence.
 - Original global skills remain illustrative parent-guided learning suggestions, not official NCERT learning outcomes.
-- This historical Class 1/4/5 source-audit document does not describe later Class 6–8 indexing. Refer to `CURRICULUM_COMPLETION_MASTER.md` and the per-grade indexes for the current 56-book catalogue. Class 1's catalogue-only Dilchasp Riyazi record remains at zero until its digital contents are verified.
+- This historical Class 1/4/5 source-audit document does not describe later Class 6–10 indexing. Refer to `CURRICULUM_COMPLETION_MASTER.md`, `NCERT_CLASS8_INDEX.md`, `NCERT_CLASS9_INDEX.md` and `NCERT_CLASS10_INDEX.md` for the current 77-book catalogue. Class 1's catalogue-only Dilchasp Riyazi record remains at zero until its digital contents are verified.
 - Do not infer the existence or contents of books for classes not yet catalogued.
 
 ## Copyright and source use

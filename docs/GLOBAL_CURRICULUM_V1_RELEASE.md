@@ -1,5 +1,10 @@
 # Homeschool OS — Global Curriculum 1.0 Integrated Release
 
+> **Historical release note:** its Class 4/5/8 counts describe the original
+> Global Curriculum 1.0 release. The current Phase 7 NCERT catalogue is 77
+> books / 892 verified Contents titles across Classes 1–10; see
+> `PHASE7_NCERT_EXPANSION_REPORT.md`.
+
 ## Delivery
 One coherent parent-facing curriculum studio at `/curriculum-studio`: class/stage selection, optional family learner context, original NCERT-first global skill catalogue, lesson suggestions, 60-minute shared guided plan, observation prompts, official framework links and a live coverage audit.
 

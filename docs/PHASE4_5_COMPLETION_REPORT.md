@@ -1,5 +1,10 @@
 # Phase 4 + Phase 5 Completion Report
 
+> **Historical delivery evidence:** the Class 1–8 inventory numbers and checks in
+> this report are accurate for Phase 4–5 delivery, not the current catalogue.
+> Phase 7 now records 77 books / 892 verified Contents titles across Classes
+> 1–10; see `PHASE7_NCERT_EXPANSION_REPORT.md`.
+
 **Issues:** [#44 — Phase 4 Learner Dashboard](https://github.com/sikhizm/homeschool-os/issues/44) · [#45 — Phase 5 Curriculum Quality Validation and Pilot](https://github.com/sikhizm/homeschool-os/issues/45)
 **Base:** `main@13a3734` (includes PR #59, Daily Assignment Workflow — integrated, not duplicated)
 **Date:** 13 November 2026

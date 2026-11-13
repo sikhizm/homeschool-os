@@ -1,9 +1,9 @@
 # Chapter-First Learning: Implementation Specification
 
-**Status:** Implementation complete through Phase 5 (see `PHASE4_5_COMPLETION_REPORT.md` and `PHASE_STATUS.md`)  
-**Primary learning unit:** NCERT chapter  
-**Target curriculum baseline:** 56 books / 689 chapter titles across Classes 1–8 (inventory metadata; title verification remains authoritative)  
-**Repository:** `sikhizm/homeschool-os`  
+**Status:** Implemented through Phase 7 (see `PHASE7_NCERT_EXPANSION_REPORT.md` and `PHASE_STATUS.md`)
+**Primary learning unit:** NCERT Contents item (chapter, project or unit)
+**Current curriculum baseline:** 77 books / 892 verified Contents-item titles across Classes 1–10 (partial audit; title verification remains authoritative)
+**Repository:** `sikhizm/homeschool-os`
 **Branch:** `docs/chapter-first-learning-spec`
 
 ## 1. Product decision
@@ -29,7 +29,7 @@ Planning is supporting functionality only. Existing annual pathways and family p
 The implementation must be grounded in the existing architecture:
 
 - `src/lib/ncert/textbooks.ts` supplies textbook/chapter metadata, chapter slots, official resource links, and title verification. It deliberately does not reproduce copyrighted textbook contents.
-- `src/lib/auto-learning/catalogue.ts` currently builds a mixed queue from annual steps, original lessons, structured modules, and NCERT chapter sessions. Its chapter-session integration is currently limited to **Class 2 and Class 4**.
+- `src/lib/auto-learning/catalogue.ts` currently builds a mixed queue from annual steps, original lessons, structured modules, and NCERT chapter sessions. Its default-path chapter-session integration covers audited Classes **1–10**. Explicit official select-one alternatives remain discoverable but are not auto-assigned.
 - Existing chapter sessions use stable identifiers in the form `ncert:<chapterId>:<read|practice|review>`.
 - `src/app/api/auto-learning/route.ts` is the existing authenticated queue/progress API. It calculates completion, revision, and prioritization from stored progress.
 - `src/app/learn/lesson/lesson-player.tsx` is the existing six-stage player (Discover, Understand, Explore, Practice, Reflect, Complete), with autosave and speech read-aloud.
@@ -38,13 +38,13 @@ The implementation must be grounded in the existing architecture:
 - `src/app/dashboard/lesson-card.tsx` already contains reusable parent-facing teaching guidance.
 - Existing migrations include chapter progress (`004_ncert_chapter_progress.sql`), auto-learning queue (`005_auto_learning_queue.sql`), family daily plans (`006_family_daily_plans.sql`), learner archiving (`006_learner_archiving.sql`), and planning competencies (`007_planning_competencies.sql`).
 
-The inventory count is not a promise that every title is verified or every chapter has authored teaching content. Runtime chapter availability must respect the existing verified-title and official-resource metadata.
+The inventory count is not a promise that every title is verified or every chapter has authored teaching content. Runtime item availability must respect verified-title, official-resource and explicit select-one metadata.
 
 ## 3. Goals and non-goals
 
 ### Goals
 
-- Make every eligible, verified chapter in the existing Class 1–8 inventory discoverable and directly learnable.
+- Make every eligible, verified default-path Contents item in the existing Class 1–10 inventory discoverable and directly learnable, without turning a publisher selection into a compulsory task.
 - Provide one consistent chapter-learning experience across grades, with age-appropriate adaptations.
 - Preserve all existing user accounts, authentication/session behaviour, learner relationships, progress, assessment, and portfolio records.
 - Let learners resume an unfinished chapter session.
@@ -84,8 +84,8 @@ Navigation hierarchy:
 
 Each textbook view should show:
 - textbook title, class, subject, and edition/source metadata where available;
-- chapter title and sequence;
-- chapter availability (available, title unverified, official resource unavailable);
+- official Contents title and sequence, preserving chapter/project/unit labels;
+- item availability (available, title unverified, official resource unavailable, or official select-one alternative);
 - learner-specific status (not started, in progress, practice due, check due, needs revision, retained);
 - a clear **Start / Continue / Review** action.
 
@@ -494,3 +494,20 @@ The initiative is done only when all of the following are true:
 - Do not use chapter titles as the sole basis for inventing lesson content.
 - Do not mark a textbook/chapter verified unless the source has actually been checked.
 - Do not merge a phase without tests for its compatibility promises.
+
+## Phase 7 implementation note (2026-11-13)
+
+The current catalogue extends the engine through Class 10 with 77 books and 892
+source-verified Contents titles. It preserves the original stable `ncert:` IDs
+for all existing records. The default path generates three original parent-led
+sessions for 105 Class 8, 88 Class 9 and 60 Class 10 eligible items. Six Class 8
+Kaushal Bodh projects and nine Class 9 Kaushal Vikas vocation alternatives are
+explicit official select-one records: they stay browseable but are excluded from
+automatic task generation. A parent may record a learner’s actual work with an
+alternative, but that separate learner-progress record is not a persisted
+family/school choice and does not create alternative sessions. Direct PDF
+fallback remains the official book portal unless a per-item URL has been
+independently audited.
+
+See `PHASE7_NCERT_EXPANSION_REPORT.md` for the evidence matrix and remaining
+Class 8/10/11–12 backlog.

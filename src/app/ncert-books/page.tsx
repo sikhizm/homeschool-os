@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
-import {selectTextbooks,chaptersFor,officialChapterPdf,textbookAudit,textbookGrades} from '@/lib/ncert/textbooks';
+import {contentUnitLabelFor,isDefaultChapterSessionEligible,selectTextbooks,chaptersFor,officialChapterPdf,textbookAudit,textbookGrades} from '@/lib/ncert/textbooks';
 import {class5ChapterAccountById} from '@/lib/curriculum/class5-mapping';
 import {globalSkills} from '@/lib/global-curriculum/catalogue';
 import SectionArtwork from '@/components/section-artwork';
@@ -28,37 +28,38 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
   <div><strong>{stats.books}</strong><span>Books in catalogue</span></div><div><strong>{stats.chapterSlots}</strong><span>Numbered chapter slots</span></div><div><strong>{stats.verifiedChapterTitles}</strong><span>Titles fully verified</span></div><div><strong>{stats.approvedSkillMappings}</strong><span>Approved skill mappings</span></div>
  </div>
  <section className="workspace-panel">
-  <div className="ncert-heading"><div><span className="eyebrow">TEXTBOOK DIRECTORY</span><h2>Choose a class and book</h2><p className="muted">The catalogue currently includes books for Classes 1–8. Chapter-title verification varies by book: each entry below shows its own checked-title count and edition status. Books with pending contents remain identified separately.</p></div><span className="ncert-audit-note">Editorial audit active</span></div>
+  <div className="ncert-heading"><div><span className="eyebrow">TEXTBOOK DIRECTORY</span><h2>Choose a class and book</h2><p className="muted">The catalogue currently includes books for Classes 1–10. Every indexed chapter, project or unit title has an official Contents source; each book separately states its edition, language, category and direct-PDF availability. Books with pending contents remain identified separately.</p></div><span className="ncert-audit-note">Editorial audit active</span></div>
   <form action="/ncert-books" method="get" className="ncert-filter-grid">
-   <label className="workspace-field"><span>Class</span><select name="grade" defaultValue={selectedGrade}>{textbookGrades.map(grade=><option key={grade} value={grade}>Class {grade}{grade===1?' · 72 titles checked':[4,5].includes(grade)?' · chapters checked':grade===8?' · books indexed':''}</option>)}</select></label>
+   <label className="workspace-field"><span>Class</span><select name="grade" defaultValue={selectedGrade}>{textbookGrades.map(grade=><option key={grade} value={grade}>Class {grade}{grade===1?' · 72 titles checked':[4,5,6,7,8,9,10].includes(grade)?' · titles checked':''}</option>)}</select></label>
    <label className="workspace-field"><span>Subject</span><select name="subject" defaultValue={subject}><option value="">All subjects</option>{Array.from(new Set(selectTextbooks(selectedGrade).map(x=>x.subject))).map(name=><option key={name} value={name}>{name}</option>)}</select></label>
    <button type="submit">Show books</button>
   </form>
   {books.length===0&&<p className="ncert-pending">No books are currently indexed for Class {selectedGrade} in this directory. The official NCERT textbook portal is available below; this does not mean textbooks do not exist.</p>}
   {selectedGrade===1&&<p className="ncert-pending">Five Class 1 books listed in the NCERT/CIET audio-book catalogue have all 72 numbered chapter titles checked. The separate NCERT Urdu publication catalogue also lists Dilchasp Riyazi (code 4109); its digital chapter contents remain pending. Chapter-to-skill mappings remain unapproved.</p>}
   {selectedGrade===5&&<p className="ncert-pending">All seven catalogued Class 5 NCERT books have chapter titles checked against official publisher contents; printed edition details are recorded per book. Draft original-outcome proposals remain unapproved until a family owner reviews the evidence in the <Link href="/curriculum-mapping">Class 5 mapping queue</Link>.</p>}
-  {selectedGrade===8&&<p className="ncert-pending">Class 8 book identities are indexed, but individual chapter names and counts remain pending official NCERT contents review.</p>}
+  {selectedGrade===8&&<p className="ncert-pending">Eleven official-source Class 8 records are indexed, including core books plus Social Science, Arts, Vocational Education and Physical Education and Well-being. Their Contents structures are kept honest: chapter, project and unit titles are not silently treated as the same thing, and optional vocational projects are not auto-assigned.</p>}
+  {(selectedGrade===9||selectedGrade===10)&&<p className="ncert-pending">Class {selectedGrade} contains only the Phase 7 official-source audit set. Every listed title has a verified Contents entry and opens the book portal; direct chapter PDFs are withheld unless individually checked. No chapter-to-outcome mapping has been auto-created.</p>}
  </section>
  {books.length>0&&<div className="ncert-books-layout">
  <aside className="workspace-panel ncert-book-selector">
   <span className="eyebrow">CLASS {selectedGrade} · TEXTBOOKS</span><h2>Choose a book</h2>
   <div className="ncert-book-list">{books.map((book,i)=><Link key={book.id} href={`/ncert-books?grade=${selectedGrade}&subject=${encodeURIComponent(subject)}&book=${book.id}`} className={selectedBook?.id===book.id?'ncert-book-choice is-active':'ncert-book-choice'}>
-    <span className="ncert-book-letter" aria-hidden="true">{['∑','Aa','हि','✿'][i%4]}</span><span><strong>{book.title}</strong><small>{book.subject} · {book.chapterCount>0?`${book.chapterCount} chapter titles checked`:'Chapter index pending'}</small></span><span aria-hidden="true">›</span>
+    <span className="ncert-book-letter" aria-hidden="true">{['∑','Aa','हि','✿'][i%4]}</span><span><strong>{book.title}</strong><small>{book.subject} · {book.language} · {book.category?.replace(/-/g,' ')??'category pending'} · {book.chapterCount>0?`${book.chapterCount} ${contentUnitLabelFor(book).toLowerCase()} titles checked`:'Contents index pending'}</small></span><span aria-hidden="true">›</span>
    </Link>)}</div>
  </aside>
  <section className="workspace-panel ncert-chapter-panel">
-  {selectedBook&&<><div className="ncert-chapter-intro"><div><span className="eyebrow">OFFICIAL BOOK IDENTIFIED</span><h2>{selectedBook.title}</h2><p>Class {selectedBook.grade} · {selectedBook.subject} · {selectedBook.language} · NCERT</p></div><span className="ncert-mini-book" aria-hidden="true">▤</span></div>
-  <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} chapter titles checked`:'Book identified · Chapter contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
-  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed chapter title to open its learning page. Checked chapters also link to official NCERT PDFs; unverified chapters do not receive guessed PDF links. Confirm the current edition before assigning skills.</p>
-  {chapters.length===0&&<p className="ncert-pending">The chapter index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
-  <div className="ncert-chapter-list">{chapters.map(c=>{const chapterUrl=officialChapterPdf(c);const mapping=selectedGrade===5?class5ChapterAccountById(c.id):undefined;const mappingNote=mapping?.candidateMappingIds.length?`${mapping.candidateMappingIds.length} draft outcome proposal${mapping.candidateMappingIds.length===1?'':'s'} awaiting parent review`:mapping?.unmappedReason?'Explicitly left unmapped pending specialist evidence':c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available';return <div className="ncert-chapter-row" key={c.id}>
+  {selectedBook&&<><div className="ncert-chapter-intro"><div><span className="eyebrow">OFFICIAL BOOK IDENTIFIED</span><h2>{selectedBook.title}</h2><p>Class {selectedBook.grade} · {selectedBook.subject} · {selectedBook.language} · {selectedBook.category?.replace(/-/g,' ')??'category pending'}{selectedBook.volumeLabel?` · ${selectedBook.volumeLabel}`:''} · NCERT</p></div><span className="ncert-mini-book" aria-hidden="true">▤</span></div>
+  <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} ${contentUnitLabelFor(selectedBook).toLowerCase()} titles checked · ${chapters.filter(c=>Boolean(officialChapterPdf(c))).length} direct PDF links available`:'Book identified · Contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
+  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. Direct links follow their recorded audit policy; Phase 7 records expose a direct PDF only when it was individually checked. Every other indexed item falls back to the official book portal. Confirm the current edition before assigning skills.</p>
+  {chapters.length===0&&<p className="ncert-pending">The Contents index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
+  <div className="ncert-chapter-list">{chapters.map(c=>{const chapterUrl=officialChapterPdf(c);const mapping=selectedGrade===5?class5ChapterAccountById(c.id):undefined;const sessionEligible=isDefaultChapterSessionEligible(c);const mappingNote=mapping?.candidateMappingIds.length?`${mapping.candidateMappingIds.length} draft outcome proposal${mapping.candidateMappingIds.length===1?'':'s'} awaiting parent review`:mapping?.unmappedReason?'Explicitly left unmapped pending specialist evidence':c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available';const sessionNote=sessionEligible?(chapterUrl?'Learning page and official PDF link available':'Learning page available · official book portal fallback'):'Official selection required · not auto-assigned';return <div className="ncert-chapter-row" key={c.id}>
     <span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span>
     <div className="ncert-chapter-description">
-      <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for chapter ${c.chapterNumber}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
-      <small>{chapterUrl?'Learning page and official PDF available':'Learning page available · official PDF not yet verified'} · {mappingNote}</small>
+      <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for ${c.label.toLowerCase()}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
+      <small>{c.label} · {sessionNote} · {mappingNote}</small>
     </div>
     {mapping?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(c.id)}`}>Review mapping</Link>:null}
-    {chapterUrl?<a className="ncert-chapter-open" href={chapterUrl} target="_blank" rel="noopener noreferrer">Read PDF <span aria-hidden="true">↗</span></a>:<span className="ncert-chapter-review">Review pending</span>}
+    {chapterUrl?<a className="ncert-chapter-open" href={chapterUrl} target="_blank" rel="noopener noreferrer">Read PDF <span aria-hidden="true">↗</span></a>:<span className="ncert-chapter-review">{sessionEligible?'Portal fallback':'Choose in official source'}</span>}
   </div>})}</div></>}
  </section>
  </div>}
@@ -69,7 +70,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  </section>
  <section className="ncert-info-grid">
   <article className="workspace-panel"><span className="eyebrow">OFFICIAL MATERIALS</span><h2>Use original NCERT resources</h2><p>Our index does not embed copyrighted chapters or textbooks. Verify the latest available editions directly with the publisher.</p><a href="https://ncert.nic.in/textbook.php" target="_blank" rel="noopener noreferrer">Open NCERT textbook catalogue ↗</a></article>
-  <article className="workspace-panel"><span className="eyebrow">TRUST & TRANSPARENCY</span><h2>What remains unverified?</h2><p>Class 1 has 72 source-checked titles across five CIET-listed books; Dilchasp Riyazi remains catalogue-only pending contents verification. Class 4 and 5 titles are publisher-checked. Class 8 books are identity-indexed only, with chapter contents pending. No chapter-to-skill mapping is approved automatically.</p><Link href="/global-curriculum">Explore global learning objectives →</Link></article>
+  <article className="workspace-panel"><span className="eyebrow">TRUST & TRANSPARENCY</span><h2>What remains unverified?</h2><p>Class 1 has 72 source-checked titles across five CIET-listed books; Dilchasp Riyazi remains catalogue-only pending contents verification. Class 4 and 5 titles are publisher-checked. Classes 8–10 show only their individually audited official-source records; unverified direct PDFs remain portal-only. No chapter-to-skill mapping is approved automatically.</p><Link href="/global-curriculum">Explore global learning objectives →</Link></article>
  </section>
  </main></>;
 }

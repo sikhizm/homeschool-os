@@ -48,7 +48,7 @@ export async function GET(request:Request){
    books:class5Books.map(book=>({id:book.id,title:book.title,subject:book.subject,editionLabel:book.editionLabel,sourceUrl:book.sourceUrl})),
   });
  }catch{
-  return respond({error:'Curriculum mapping storage is not ready. Apply migration 008 before using the review queue.'},503);
+  return respond({error:'Curriculum mapping review storage has not been set up for this deployment. A trusted administrator must complete the documented Phase 6 setup before this separate parent-only queue can be used.'},503);
  }
 }
 
@@ -76,6 +76,6 @@ export async function POST(request:Request){
   if(!result.ok)return respond({error:result.message},result.code==='forbidden'?403:400);
   return respond({saved:true,revision:result.revision},201);
  }catch{
-  return respond({error:'Unable to save this mapping review. Confirm migration 008 is applied and try again.'},503);
+  return respond({error:'Unable to save this mapping review because the separate review-storage setup is unavailable. A trusted administrator must complete the documented Phase 6 setup before using this queue.'},503);
  }
 }

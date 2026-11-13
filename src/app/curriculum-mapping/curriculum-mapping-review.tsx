@@ -197,7 +197,7 @@ export default function CurriculumMappingReview({initialChapter=''}:{initialChap
    {filters.chapter&&<p className="mapping-filter-note">Showing the chapter selected from the NCERT catalogue. <button type="button" onClick={()=>changeFilters(current=>({...current,chapter:''}))}>Clear chapter filter</button></p>}
   </section>
   {notice&&<p className="mapping-notice" role="status">{notice}</p>}
-  {error&&<section className="workspace-panel mapping-error" role="alert"><h2>Review queue unavailable</h2><p>{error}</p><p className="muted">No mapping was approved or changed. Confirm that migration 008 has been applied before using this parent-only workspace.</p></section>}
+  {error&&<section className="workspace-panel mapping-error" role="alert"><h2>Review queue unavailable</h2><p>{error}</p><p className="muted">No mapping was approved or changed. This separate parent-only workspace requires the documented Phase 6 review-storage setup; it is not a catalogue or learner-data dependency.</p></section>}
   {loading?<section className="workspace-panel"><p className="muted">Loading Class 5 review records…</p></section>:data&&!error?<div className="mapping-review-list">{data.items.map(item=>item.kind==='mapping'
    ?<MappingCard key={`${item.id}-${item.effective.revision}-${item.status}`} item={item} outcomes={data.outcomes} saving={savingId===item.id} onSave={save}/>
    :<UnmappedCard key={item.id} item={item}/>)}</div>:null}

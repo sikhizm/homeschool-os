@@ -21,7 +21,8 @@ coverage without evidence and a human review.
 - Parent-reviewed goal handoff keeps suggested goal text editable and records no
   automatic learner progress or mastery.
 - Authenticated NCERT book catalogue and chapter-first learning engine for
-  verified Classes 1–8 records.
+  audited Classes 1–10 default-path records. Official select-one vocational
+  alternatives remain discoverable but are not converted into compulsory tasks.
 
 ## Phase 6 Class 5 mapping pilot
 
