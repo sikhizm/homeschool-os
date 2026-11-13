@@ -74,10 +74,21 @@ See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rul
 - [x] Three-state adaptive revision (`revision-state.ts`): Confident / Practising / Needs support with recommendation copy
 - [x] `/settings` (account, family, PWA install, learning prefs, sign-out) and `/learners` (roster with instant switching)
 - [x] PWA: manifest/offline/brand colors retuned; middleware matcher covers `/learn`, `/library`, `/settings`, `/learners`
-- [x] Verification gates per step: `npm run lint`, `npm run typecheck`, `npm test` (106/106), CI-style `npm run build`, `npm run test:smoke` against the built server (all green). Browser `test:ui` runs in CI only (Playwright chromium cannot download in this sandbox)
+- [x] Verification gates: `npm run lint`, `npm run typecheck`, `npm test` (**157/157** as of Phase 5), CI-style `npm run build`, `npm run test:smoke` against the built server, and `npm run test:ui` (4/4 browser tests; runs in CI, and locally with a `CHROMIUM_PATH` pointing at a downloaded Playwright browser)
+
+## Chapter-first learning (Phases 0–5, issues #40–#45)
+- [x] Phase 0 — Progress/authentication compatibility audit, live-database audit, regression contracts, isolated smoke reliability (PRs #51–#55; `docs/PHASE_0_LIVE_DATABASE_AUDIT.md`)
+- [x] Phase 1 — Universal chapter engine: every verified Class 1–8 chapter generates read/practice/understanding-check sessions from one catalogue path; stable `ncert:<chapterId>:<kind>` IDs preserved (PR #49)
+- [x] Phase 2 — Chapter Learning Studio: chapter pages launch sessions in the existing six-stage lesson player, scoped to learners of the chapter's class (PR #50)
+- [x] Phase 3 — Evidence-derived chapter statuses (`not_started → in_progress/practice_due/understanding_check_due → completed → retained`, plus `needs_revision`), legacy completion interpreted at read time, no duplicate rows (PRs #57, #58)
+- [x] Daily Assignment Workflow: parent-assigned dated workload exposed to learner mode with carry-forward and sequence guarantees (PR #59)
+- [x] Phase 4 — Learner-first dashboard: Continue Learning hero, Today's Learning (daily assignments), Active Chapter, My Books shelf, Revision Needed, Recent Learning, honest progress counts; learner switching refetches per-learner data; parent learner cards show active chapter and next session (this PR, issue #44)
+- [x] Phase 5 — Quality validation: representative curriculum audit across Classes 1–8 (24 books, 65 official links probed; 0 structural failures), Poorvi PDF gap found and capped, full-journey + data-integrity + browser tests, all gates green (this PR, issue #45)
+
+See [PHASE4_5_COMPLETION_REPORT.md](PHASE4_5_COMPLETION_REPORT.md) for the validation evidence, known limitations and remaining pilot work.
 
 ## Still outstanding (next phases)
 - Human-reviewed Class 5 chapter-to-skill mapping with source edition, chapter evidence, rationale, reviewer and revision history; no automatic approval.
-- Official Class 2 and Class 3 book/contents audits, then systematic NCERT Classes 1–12 coverage; Class 8 contents and Class 1 Dilchasp Riyazi contents remain pending (see `NCERT_CLASS1_INDEX.md` and `NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`).
+- Systematic NCERT Classes 9–12 coverage (Classes 1–8 are catalogued: 56 books / 689 verified titles); Class 1 Dilchasp Riyazi contents and Poorvi (Class 8) chapter PDFs 6–15 remain pending on the publisher side (see `NCERT_CLASS1_INDEX.md` and `CURRICULUM_COMPLETION_MASTER.md`).
 - Parent-reviewed international framework mapping with editor evidence (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.

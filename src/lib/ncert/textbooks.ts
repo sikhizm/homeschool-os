@@ -292,5 +292,8 @@ export function officialChapterPdf(chapter:ChapterSlot):string|null {
  if(!book||book.chapterCount<1||!chapter.verifiedTitle||chapter.status==='chapter-title-pending')return null;
  if(!/^[a-z]{4}[1-9]$/.test(book.textbookCode))return null;
  if(!Number.isInteger(chapter.chapterNumber)||chapter.chapterNumber<1||chapter.chapterNumber>book.chapterCount)return null;
+ // Books whose later chapter PDFs are not yet on the NCERT server expose links
+ // only up to the highest chapter actually confirmed online.
+ if(book.verifiedPdfChapters!==undefined&&chapter.chapterNumber>book.verifiedPdfChapters)return null;
  return `https://ncert.nic.in/textbook/pdf/${book.textbookCode}${String(chapter.chapterNumber).padStart(2,'0')}.pdf`;
 }

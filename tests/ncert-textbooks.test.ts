@@ -167,7 +167,10 @@ test('Class 8 indexes six prelims-verified NCERT books including both Ganita Pra
  for(const book of grade8){
   const chapters=chaptersFor(book.id);assert.equal(chapters.length,book.chapterCount,book.id);
   assert.ok(chapters.every(ch=>ch.verifiedTitle&&ch.status==='source-verified'));
-  assert.ok(chapters.every(ch=>officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
+  // Poorvi chapters 6–15 are the documented exception: NCERT hosts hepr101–105 only (audit 13 Nov 2026).
+  assert.ok(chapters.every(ch=>book.id==='ncert-8-poorvi'&&ch.chapterNumber>5
+   ?officialChapterPdf(ch)===null
+   :officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
  }
  assert.equal(chaptersFor('ncert-8-curiosity')[0].verifiedTitle,'Exploring the Investigative World of Science');
  assert.equal(chaptersFor('ncert-8-curiosity').at(-1)?.verifiedTitle,'Our Home: Earth, a Unique Life Sustaining Planet');
@@ -205,8 +208,30 @@ test('verified Grade 4 and Grade 5 chapters generate official NCERT chapter PDF 
  assert.equal(officialChapterPdf(chaptersFor('ncert-1-joyful-mathematics')[0]),'https://ncert.nic.in/textbook/pdf/aejm101.pdf');
  assert.equal(officialChapterPdf(chaptersFor('ncert-1-anandmay-ganit')[0]),'https://ncert.nic.in/textbook/pdf/ahjm101.pdf');
  assert.equal(officialChapterPdf(chaptersFor('ncert-1-shehnai')[0]),null,'Do not guess a direct Urdu chapter PDF path');
- assert.ok(ncertChapterSlots.filter(ch=>ch.bookId!=='ncert-1-shehnai').every(ch=>officialChapterPdf(ch)?.startsWith('https://ncert.nic.in/textbook/pdf/')));
  assert.equal(officialChapterPdf({...veena4[0],verifiedTitle:null}),null);
  assert.equal(officialChapterPdf({...veena4[0],chapterNumber:99}),null);
  assert.equal(officialChapterPdf({...veena4[0],bookId:'unknown'}),null);
+});
+test('official PDF links exist for every chapter except the documented exceptions',()=>{
+ // Exceptions (verified by scripts/curriculum-audit.ts, 13 Nov 2026):
+ //  - ncert-1-shehnai: Urdu chapter-PDF pattern never verified;
+ //  - ncert-8-poorvi chapters 6–15: NCERT hosts hepr101–hepr105.pdf only (rest 404).
+ const without=ncertChapterSlots.filter(ch=>officialChapterPdf(ch)===null);
+ assert.ok(without.every(ch=>ch.bookId==='ncert-1-shehnai'
+  ||(ch.bookId==='ncert-8-poorvi'&&ch.chapterNumber>5)),
+  'unexpected chapters without an official PDF link: '+without.filter(ch=>!(ch.bookId==='ncert-1-shehnai'||(ch.bookId==='ncert-8-poorvi'&&ch.chapterNumber>5))).map(ch=>ch.id).join(','));
+ assert.ok(ncertChapterSlots.filter(ch=>officialChapterPdf(ch)!==null).every(ch=>officialChapterPdf(ch)!.startsWith('https://ncert.nic.in/textbook/pdf/')));
+});
+test('Poorvi exposes official PDFs only for chapters confirmed on the NCERT server',()=>{
+ const poorvi=chaptersFor('ncert-8-poorvi');
+ assert.equal(poorvi.length,15);
+ assert.equal(officialChapterPdf(poorvi[0]),'https://ncert.nic.in/textbook/pdf/hepr101.pdf');
+ assert.equal(officialChapterPdf(poorvi[4]),'https://ncert.nic.in/textbook/pdf/hepr105.pdf');
+ for(let index=5;index<15;index++)assert.equal(officialChapterPdf(poorvi[index]),null,`hepr1 chapter ${index+1} PDF is not hosted yet`);
+ // The remaining Class 8 books keep full chapter-PDF coverage.
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-deepakam').at(-1)!),'https://ncert.nic.in/textbook/pdf/hsde113.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-curiosity').at(-1)!),'https://ncert.nic.in/textbook/pdf/hecu113.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-ganita-prakash').at(-1)!),'https://ncert.nic.in/textbook/pdf/hegp107.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-ganita-prakash-2').at(-1)!),'https://ncert.nic.in/textbook/pdf/hegp207.pdf');
+ assert.equal(officialChapterPdf(chaptersFor('ncert-8-malhar').at(-1)!),'https://ncert.nic.in/textbook/pdf/hhml110.pdf');
 });

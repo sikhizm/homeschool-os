@@ -8,6 +8,12 @@ export type Textbook={
  id:string;grade:number;subject:string;title:string;language:string;publisher:'NCERT';
  textbookCode:string;chapterCount:number;sourceUrl:string;referenceUrl:string;
  editionLabel:string;status:string;
+ /**
+  * Highest chapter number whose `textbookCode+NN` PDF was actually confirmed
+  * on the NCERT server. When set, chapters beyond it never receive a guessed
+  * PDF link. Omit when every chapter PDF of the book has been confirmed.
+  */
+ verifiedPdfChapters?:number;
 };
 export type ChapterSlot={
  id:string;bookId:string;chapterNumber:number;label:string;verifiedTitle:string|null;
