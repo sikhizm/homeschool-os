@@ -54,6 +54,43 @@ Class 5 outcomes.
 See [PHASE6_CURRICULUM_MAPPING_REPORT.md](PHASE6_CURRICULUM_MAPPING_REPORT.md)
 for source boundaries, counts, migration details and actual validation results.
 
+
+## Phase 8 — Framework source evidence register (foundation delivered)
+
+The authenticated explorer now distinguishes source identity and scope from any
+claim of standards alignment. The framework-evidence module records all seven
+visible lenses:
+
+- NCERT NCF-SE 2023: Indian school framework across foundational, preparatory,
+  middle and secondary stages; its seven curricular areas are recorded as scope,
+  not converted into app-grade equivalencies.
+- Cambridge Primary: typically ages 5–11 across six stages, with flexible
+  subject-specific frameworks. The overview is verified; individual stage
+  outcomes have not been transcribed.
+- IB PYP: ages 3–12, inquiry-based and transdisciplinary, with a school-developed
+  programme of inquiry. It is not represented as a fixed chapter-by-grade list.
+- Singapore MOE Primary Mathematics: mathematics only, Primary 1–6; the official
+  2021 syllabus PDF updated October 2025 is the current source snapshot used here.
+- US Common Core: English Language Arts/literacy and mathematics references,
+  not a complete national curriculum.
+- ePathshala: an official textbook-access resource, not a standards framework.
+- Original HomeSchool OS enrichment: internally authored, with no external
+  framework source.
+
+The Global Curriculum page shows source scope, review boundaries and how many
+original learning themes carry a context tag. That count is not a mapping count.
+All five external framework records remain blocked from outcome-level mapping
+until exact editioned standards are transcribed with source location and a human
+reviewer approves the evidence. Current totals are **0 outcome-level crosswalks**
+and **0 approved equivalencies**.
+
+Run npm run curriculum:framework-audit to validate source records, HTTPS links,
+framework references and context-only skill labels. No database migration,
+learner-data write, assessment change or mapping approval is part of this phase.
+
+See [PHASE8_FRAMEWORK_EVIDENCE_REPORT.md](PHASE8_FRAMEWORK_EVIDENCE_REPORT.md)
+for the source-by-source audit and remaining work.
+
 ## Sources and their limits
 
 - National Curriculum Framework for School Education, NCERT:
@@ -63,7 +100,7 @@ for source boundaries, counts, migration details and actual validation results.
   https://www.cambridgeinternational.org/programmes-and-qualifications/cambridge-primary/curriculum/
 - IB Primary Years Programme: https://www.ibo.org/programmes/primary-years-programme/
 - Singapore MOE primary mathematics syllabus:
-  https://www.moe.gov.sg/-/media/files/primary/2021-primary-mathematics-syllabus-p1-to-p6-updated-dec-2024.pdf
+  https://www.moe.gov.sg/-/media/files/primary/2021-primary-mathematics-syllabus-p1-to-p6-updated-october-2025.pdf
 - US Common Core: https://corestandards.org/
 
 Cambridge framework objectives may require authorised access. The PYP is

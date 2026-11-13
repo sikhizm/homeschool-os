@@ -116,6 +116,17 @@ See [PHASE4_5_COMPLETION_REPORT.md](PHASE4_5_COMPLETION_REPORT.md) for the histo
 
 See [PHASE7_NCERT_EXPANSION_REPORT.md](PHASE7_NCERT_EXPANSION_REPORT.md) for evidence, direct-PDF policy, selection boundaries and excluded records.
 
+## Phase 8 — International framework evidence and crosswalk safeguards (foundation delivered)
+- [x] Add a source-evidence record for each of the seven existing lenses, distinguishing five curriculum frameworks, the ePathshala access resource and original HomeSchool OS content.
+- [x] Verify official overview scope and limitations for NCERT NCF-SE, Cambridge Primary, IB PYP, Singapore MOE Primary Mathematics and US Common Core; refresh the Singapore syllabus source to the official October 2025 update.
+- [x] Correct the original enrichment record so it no longer points to the NCERT framework as if it were an external source.
+- [x] Show source scope, evidence state, review boundary and context-tag counts in the authenticated Global Curriculum explorer.
+- [x] Add npm run curriculum:framework-audit and regression tests. Framework tags remain context-only.
+- [ ] Transcribe exact, editioned framework outcomes and complete source-specific, human-reviewed crosswalks. This foundation intentionally creates **0 outcome-level crosswalks and 0 approved equivalencies**.
+- [x] No database migration, learner-data write, automatic mapping approval or curriculum progress change.
+
+See [PHASE8_FRAMEWORK_EVIDENCE_REPORT.md](PHASE8_FRAMEWORK_EVIDENCE_REPORT.md) for source scope, review gates and limitations.
+
 ## Still outstanding (next phases)
 - Apply migration 008 in production, then have an actual family owner review the 60 Class 5 drafts. Approved count must remain zero until that explicit action; Hindi/Urdu mappings need specialist and section-level evidence.
 - Section-level official NCERT outcome transcription and provenance review before any registry outcome can be classified official.
