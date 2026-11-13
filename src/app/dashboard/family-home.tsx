@@ -13,6 +13,8 @@ type LearnerCard={
  id:string;name:string;grade:string;canEdit:boolean;completed:number;total:number;
  tasks:Task[];history:{id:string;updatedAt:string}[];
  assessment:{completed:number;understood:number;mastered:number;independentRecall:number;recallWithHint:number};
+ activeChapter?:{chapterId:string;title:string;subject:string;bookTitle:string;status:string;completedSessions:number;totalSessions:number;nextSessionKind:'read'|'practice'|'review'|null}|null;
+ continueSession?:{taskId:string;chapterId:string;chapterTitle:string;bookTitle:string;kind:'read'|'practice'|'review';label:string}|null;
 };
 type HomeData={
  learners:LearnerCard[];
@@ -197,12 +199,20 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       <div className="progress-track"><div className="progress-fill" style={{width:`${percent}%`}}/></div>
       <span>{learner.completed}/{learner.total} activities</span>
      </div>
+     {learner.activeChapter&&<p className="learner-chapter-row">
+      <span className="learner-next-label">Chapter</span>
+      <a href={`/ncert-books/chapter/${learner.activeChapter.chapterId}`}>
+       {learner.activeChapter.bookTitle} · {learner.activeChapter.title}
+      </a>
+      <small>{learner.activeChapter.completedSessions}/{learner.activeChapter.totalSessions} sessions{learner.activeChapter.nextSessionKind?` · next: ${learner.activeChapter.nextSessionKind==='read'?'Read & explore':learner.activeChapter.nextSessionKind==='practice'?'Practice':'Understanding check'}`:''}</small>
+     </p>}
      <p className="learner-next">
       <span className="learner-next-label">Up next</span>
       {next?`${next.title} · ${next.minutes} min`:'All recommended activities are finished — lovely work.'}
      </p>
      <footer>
-     {next&&next.href?<a className="learner-continue" href={next.href}>Continue <span aria-hidden="true">→</span></a>
+     {learner.continueSession?<a className="learner-continue" href={`/learn/lesson?learner=${learner.id}&task=${encodeURIComponent(learner.continueSession.taskId)}`}>Continue chapter <span aria-hidden="true">→</span></a>
+      :next&&next.href?<a className="learner-continue" href={next.href}>Continue <span aria-hidden="true">→</span></a>
       :next?<a className="learner-continue" href="#today-plan">Continue <span aria-hidden="true">→</span></a>
       :<Link className="learner-continue" href={`/learn?learner=${learner.id}`}>Open learner mode <span aria-hidden="true">→</span></Link>}
      </footer>

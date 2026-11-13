@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "typecheck": "next typegen && tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "test:ui": "tsx --test tests/workspace.browser.ts",
+    "test:ui": "tsx --test tests/workspace.browser.ts tests/learner-dashboard.browser.ts",
     "db:inspect": "node scripts/database.mjs inspect",
     "db:migrate": "node scripts/database.mjs migrate",
     "test:smoke": "node scripts/smoke.mjs",

@@ -2,7 +2,7 @@
 
 > Single source of truth for curriculum completeness. **Every number here is regenerated from the repo**, never estimated: run `npm run curriculum:inventory` after any catalogue change and update this file in the same commit.
 >
-> Last audit: **2026-11-10** · Base `main@42677290` (includes Class 7) · Gates before this change: lint 0 · typecheck 0 · **tests 114/114** · build 0 errors · smoke pass.
+> Last audit: **2026-11-13** · Base `main@13a3734` + Phase 4/5 branch (chapter-first engine, universal across Classes 1–8) · Gates before this change: lint 0 errors · typecheck 0 · **tests 157/157** · browser tests 4/4 · build 0 errors · smoke pass · `scripts/curriculum-audit.ts` 0 structural failures.
 
 ## Completion rule
 
@@ -25,8 +25,10 @@ Real figures recalculated from the repo on 2026-11-10 (superseding all historica
 | Annual pathways (weekly steps) | infant 36 · nursery 72 · ukg 72 · class4 72 | `annualGrades` |
 | DB migrations | 001–006 (learning_subjects, learner_objectives, learning_plan_starters, learning_activities, learning_planning_periods, learning_portfolio_entries, ncert_chapter_progress, auto_learning_progress, family_daily_plans) | `migrations/` |
 
-Auto-learning queue catalogue (tasks per stage — gap indicator, not a completion metric):
-Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · Class 1: 3 · Class 2: 186 (183 NCERT chapter sessions + 3 existing activities) · Class 3: 4 · Class 4: 239 · Class 5: 4 · Class 6–8: 3 each · Class 9–12: 2 each.
+Auto-learning queue catalogue (tasks per stage — gap indicator, not a completion metric; regenerated 2026-11-13):
+Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · Class 1: 219 (216 NCERT chapter sessions + existing activities) · Class 2: 186 (183 NCERT chapter sessions + 3 existing activities) · Class 3: 298 · Class 4: 239 (147 chapter sessions + pathway steps) · Class 5: 262 · Class 6: 387 · Class 7: 393 · Class 8: 198 · Class 9–12: 2 each (no NCERT books catalogued above Class 8).
+
+The Class 2-only learner pathway note below is historical: since the universal chapter engine (Phase 1, PR #49), every verified chapter in Classes 1–8 has the same three original parent-led sessions.
 
 ## NCERT library matrix (Classes 1–12)
 
@@ -55,7 +57,7 @@ Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 len
 | 1 | Full repo audit; this document; inventory script | **COMPLETE** (2026-11-10) |
 | 2 | NCERT library complete for all graded books (1–12), every book contents-verified | **IN PROGRESS** — grades 1, 2, 3, 4, 5, 6, 7, 8 catalogued (56 books / 689 chapters, only Dilchasp Riyazi contents-pending); grades 9–12 outstanding |
 | 3 | Objectives/competencies mapped per grade (beyond today's 37) | NOT STARTED |
-| 4 | Ready-to-teach original lessons across all stages (beyond today's 20) | **PARTIAL** — Class 2 has 183 chapter-level original teaching sessions; Class 4 has chapter sessions; full grade/stage coverage pending |
+| 4 | Ready-to-teach original lessons across all stages (beyond today's 20) | **PARTIAL** — every verified chapter in Classes 1–8 has three original parent-led sessions (read/practice/understanding check) via the universal chapter engine; the 20-lesson curated library and Class 4 pathway scripts remain; full authored depth per chapter still pending |
 | 5 | Assessments with mastery evidence (never completion-only) | NOT STARTED |
 | 6 | Adaptive revision (3-state `revisionState()` exists; behaviour layer pending) | NOT STARTED |
 | 7 | Daily planner honouring the 60-min shared parent-guided budget | NOT STARTED |
@@ -71,6 +73,8 @@ Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 len
 1. **Legacy vs current Class 2 series**: third-party sources still list Marigold/Raindrops/Maths Magic for Class 2; NCERT's official CIET index (2026–27) lists Mridang/Sarangi/Joyful Mathematics/Anandmay Ganit. The official index governs.
 2. **CIET Sarangi index display**: page shows "अध्याय 26" in the header while repeating a "22" count; the enumerated chapter list has 26 entries — 26 used (enumeration wins, typo noted).
 3. **Mridang Class 2 chapter count**: CIET enumerates 13 titles; an earlier working note claimed 14. 13 recorded (enumeration wins). Re-check on next CIET visit.
+4. **Poorvi (Class 8 English, hepr1) chapter PDFs are partially hosted** (found by `scripts/curriculum-audit.ts`, 13 Nov 2026): NCERT serves `hepr101.pdf`–`hepr105.pdf` (200) but `hepr106.pdf`–`hepr115.pdf` return 404, even though the book has 15 verified chapter titles and its portal page and CIET audio-book (129) are live. `verifiedPdfChapters: 5` now caps PDF links at chapter 5; chapters 6–15 keep their verified titles, learning sessions and book-portal link. Re-audit when NCERT uploads the remaining chapter PDFs.
+5. **ncert.nic.in TLS chain**: as observed from the audit host (13 Nov 2026), `ncert.nic.in` does not send its Let's Encrypt intermediate certificate, so strict TLS clients fail verification while the content itself returns 200. This is a publisher-side/network condition, not a bad-URL condition; the audit records both strict and lenient results. CIET (`ciet.ncert.gov.in`) verifies cleanly.
 
 ## Provenance rules (standing)
 

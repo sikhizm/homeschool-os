@@ -10,6 +10,9 @@
  * - Chapter titles: official Contents pages inside those prelims PDFs.
  * - Chapter PDF link pattern: chapter 01 downloaded and matched for all six
  *   books (hecu101, hepr101, hegp101, hegp201, hhml101, hsde101).
+ * - Phase 5 audit (13 Nov 2026, scripts/curriculum-audit.ts): every chapter
+ *   PDF confirmed 200 except Poorvi hepr106–hepr115 (404 — NCERT hosts only
+ *   chapters 01–05 so far). Poorvi is therefore capped via verifiedPdfChapters.
  *
  * Notes:
  * - Curiosity has 13 numbered chapters (earlier portal range said 12).
@@ -29,7 +32,10 @@ export const grade8Textbooks:Textbook[]=[
   "id":"ncert-8-poorvi","grade":8,"subject":"English","title":"Poorvi","language":"English","publisher":"NCERT","textbookCode":"hepr1","chapterCount":15,
   "sourceUrl":"https://ncert.nic.in/textbook.php?hepr1=0-15","referenceUrl":"https://ciet.ncert.gov.in/audio-book/129",
   "editionLabel":"NCERT 2026–27 reprint (0873, ISBN 978-93-5729-940-4; first edition May 2025, reprinted January 2026); edition and chapter titles checked against official textbook prelims PDF",
-  "status":"source-verified-chapter-titles"
+  "status":"source-verified-chapter-titles",
+  // Phase 5 audit (13 Nov 2026): NCERT hosts hepr101–hepr105.pdf only;
+  // hepr106–hepr115.pdf returned 404, so chapter PDFs stop at 5 until NCERT uploads the rest.
+  "verifiedPdfChapters":5
  },
  {
   "id":"ncert-8-ganita-prakash","grade":8,"subject":"Mathematics","title":"Ganita Prakash","language":"English","publisher":"NCERT","textbookCode":"hegp1","chapterCount":7,

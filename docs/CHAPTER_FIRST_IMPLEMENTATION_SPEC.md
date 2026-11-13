@@ -1,6 +1,6 @@
 # Chapter-First Learning: Implementation Specification
 
-**Status:** Approved product direction; implementation not started  
+**Status:** Implementation complete through Phase 5 (see `PHASE4_5_COMPLETION_REPORT.md` and `PHASE_STATUS.md`)  
 **Primary learning unit:** NCERT chapter  
 **Target curriculum baseline:** 56 books / 689 chapter titles across Classes 1–8 (inventory metadata; title verification remains authoritative)  
 **Repository:** `sikhizm/homeschool-os`  
