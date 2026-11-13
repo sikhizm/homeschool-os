@@ -58,7 +58,7 @@ See [NCERT_CLASS1_INDEX.md](NCERT_CLASS1_INDEX.md) for exact sources, edition no
 - [x] Add append-only migration `008_curriculum_outcome_mapping.sql`, guarded table-only rollback, RLS/no-PUBLIC-grant checks and `npm run db:migrate:curriculum-mapping`; no learner, progress, assessment or textbook rows are rewritten or seeded.
 - [x] Keep mapping approval separate from learning evidence, completion, retention and mastery. Learner mode exposes no review controls.
 - [x] Add registry, isolated migration/workflow and browser-fixture tests plus `npm run curriculum:mapping-audit`.
-- [ ] Apply and verify migration 008 against the live database before enabling the queue in production. No live `DATABASE_URL` was available in the development sandbox.
+- [x] Applied migration 008 to the production Neon branch after successfully exercising the additive schema on an isolated production-derived branch. Verified the live table has 21 columns, RLS enabled, zero policies, and is owned by `neondb_owner`; learner/family/progress counts remained 4 / 1 / 2. No learner or progress rows were written.
 - [ ] Obtain section-level official NCERT outcome evidence and language-specialist review before creating official or Hindi/Urdu Class 5 mappings.
 
 See [PHASE6_CURRICULUM_MAPPING_REPORT.md](PHASE6_CURRICULUM_MAPPING_REPORT.md) for the 60/0/26 breakdown, source boundaries, migration procedure and actual validation evidence.
@@ -128,7 +128,7 @@ See [PHASE7_NCERT_EXPANSION_REPORT.md](PHASE7_NCERT_EXPANSION_REPORT.md) for evi
 See [PHASE8_FRAMEWORK_EVIDENCE_REPORT.md](PHASE8_FRAMEWORK_EVIDENCE_REPORT.md) for source scope, review gates and limitations.
 
 ## Still outstanding (next phases)
-- Apply migration 008 in production, then have an actual family owner review the 60 Class 5 drafts. Approved count must remain zero until that explicit action; Hindi/Urdu mappings need specialist and section-level evidence.
+- Have an actual family owner review the 60 Class 5 drafts. Approved count must remain zero until that explicit action; Hindi/Urdu mappings need specialist and section-level evidence.
 - Section-level official NCERT outcome transcription and provenance review before any registry outcome can be classified official.
 - Systematic source-by-source NCERT Class 11–12 coverage. Class 8 Urdu Khayal, Class 10 Contemporary India-II and Class 10 Health and Physical Education also remain excluded pending formal Contents capture; Class 1 Dilchasp Riyazi and Poorvi (Class 8) direct PDFs 6–15 remain publisher-side follow-up (see `PHASE7_NCERT_EXPANSION_REPORT.md`).
 - Parent-reviewed international framework mapping with framework-specific editor evidence; no equivalence is inferred from this pilot (see `GLOBAL_CURRICULUM_ENGINE.md`).
