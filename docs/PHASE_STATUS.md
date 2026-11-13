@@ -111,7 +111,7 @@ See [PHASE4_5_COMPLETION_REPORT.md](PHASE4_5_COMPLETION_REPORT.md) for the histo
 - [x] Run `npm run typecheck`, `npm test` (**163/163**), `npm run curriculum:inventory` and `npm run curriculum:catalogue-audit` in this branch.
 - [x] Complete lint, placeholder-auth production build and local smoke validation.
 - [x] Run the browser cases in GitHub Actions on PR #62: the `verify` job passed lint, typecheck, `npm test`, `npm run test:ui` against isolated PostgreSQL fixtures, the credential-free production build and `npm run test:smoke`. The sandbox itself lacks Playwright Chromium and `/usr/bin/chromium`, so its local `npm run test:ui` attempt stopped before assertions and is not a pass.
-- [ ] Human review and merge approval. The automated `Entire Gates` check reports only that no reviewer has approved the trail; the Vercel preview deployment exists but is protected by Vercel authentication and cannot be inspected from this environment.
+- [x] Human review and merge approval completed; PR #62 is merged to `main` at `d20acfa3b750d3f08f5b10c0290b572798c277a6`. CI evidence and merge status are recorded in the PR. Production deployment and signed-in owner acceptance remain separate checks.
 - [x] No database migration, production operation, learner-data migration, outcome mapping or bulk senior-secondary import was performed.
 
 See [PHASE7_NCERT_EXPANSION_REPORT.md](PHASE7_NCERT_EXPANSION_REPORT.md) for evidence, direct-PDF policy, selection boundaries and excluded records.
