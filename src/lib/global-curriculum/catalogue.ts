@@ -5,7 +5,7 @@ export const globalFrameworks=[
     "label": "NCERT / Indian foundation",
     "title": "National Curriculum Framework and ePathshala",
     "url": "https://ncf.ncert.gov.in/",
-    "description": "Indian educational backbone",
+    "description": "Indian school framework spanning foundational through secondary stages",
     "classification": "framework-context"
   },
   {
@@ -21,7 +21,7 @@ export const globalFrameworks=[
     "label": "Cambridge Primary",
     "title": "Cambridge Primary curriculum",
     "url": "https://www.cambridgeinternational.org/programmes-and-qualifications/cambridge-primary/curriculum/",
-    "description": "International primary progression and breadth",
+    "description": "Flexible primary subject frameworks, typically ages 5–11 across six stages",
     "classification": "framework-context"
   },
   {
@@ -29,14 +29,14 @@ export const globalFrameworks=[
     "label": "IB Primary Years Programme",
     "title": "PYP curriculum framework",
     "url": "https://www.ibo.org/programmes/primary-years-programme/",
-    "description": "Inquiry, reflection, learner agency",
+    "description": "Inquiry-based, transdisciplinary learning for ages 3–12",
     "classification": "pedagogy"
   },
   {
     "id": "singapore",
     "label": "Singapore MOE Mathematics",
     "title": "Primary Mathematics 2021 syllabus",
-    "url": "https://www.moe.gov.sg/-/media/files/primary/2021-primary-mathematics-syllabus-p1-to-p6-updated-dec-2024.pdf",
+    "url": "https://www.moe.gov.sg/-/media/files/primary/2021-primary-mathematics-syllabus-p1-to-p6-updated-october-2025.pdf",
     "description": "Concrete–pictorial–abstract mathematical reasoning",
     "classification": "framework-context"
   },
@@ -52,8 +52,8 @@ export const globalFrameworks=[
     "id": "original",
     "label": "Original Homeschool OS enrichment",
     "title": "Parent-led original activities",
-    "url": "https://ncf.ncert.gov.in/",
-    "description": "Locally authored educational suggestions",
+    "url": null,
+    "description": "Locally authored educational suggestions; not an external framework",
     "classification": "original"
   }
 ] as const;

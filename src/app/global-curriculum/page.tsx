@@ -2,6 +2,7 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {globalFrameworks,globalSkills,globalStages,globalSubjects,selectGlobalSkills,globalSkillById} from '@/lib/global-curriculum/catalogue';
+import {frameworkEvidenceFor,frameworkEvidenceSummary} from '@/lib/global-curriculum/framework-evidence';
 import SectionArtwork from '@/components/section-artwork';
 
 export const dynamic='force-dynamic';
@@ -15,6 +16,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
  const query=(params.query||'').slice(0,80);
  const skills=selectGlobalSkills({stage,subject,framework,query});
  const total=globalSkills.filter(s=>s.stage===stage).length;
+ const evidenceSummary=frameworkEvidenceSummary();
  return <>
  <main className="family-dashboard">
  <div className="dashboard-welcome"><div><span className="tag">CURRICULUM ENGINE · FOUNDATION</span><h1>Rooted here. Ready for the world.</h1><p className="muted">One thoughtful learning journey, informed by international education approaches and grounded in your family&apos;s needs.</p></div><SectionArtwork theme="explore"/></div>
@@ -22,11 +24,34 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
   <div><span className="eyebrow">ONE FOUNDATION, MANY PERSPECTIVES</span><h2>Learn deeply, not endlessly.</h2><p>NCERT/Indian frameworks guide the core. International frameworks help us choose teaching approaches, inquiry questions and stretch opportunities. No child needs to complete six boards at once.</p></div>
   <div className="global-intro-art" aria-hidden="true"><span>✳</span><strong>Explore</strong><small>Understand · Practice · Apply</small></div>
  </section>
- <div className="ncert-global-link"><div><span className="eyebrow">OFFICIAL NCERT BOOK DIRECTORY</span><h2>Explore chapters by class and subject</h2><p>Browse source-identified textbook records with transparent verification and mapping status.</p></div><Link href="/ncert-books">Open NCERT book index →</Link></div><div className="global-framework-grid" aria-label="Curriculum reference frameworks">
-  {globalFrameworks.filter(f=>f.id!=='original'&&f.id!=='epathshala').map((framework,index)=><article className="global-framework" key={framework.id}>
-   <span className="global-framework-icon" aria-hidden="true">{['✦','✳','◎','∑','◈'][index]}</span>
-   <div><h3>{framework.label}</h3><p>{framework.description}</p><a href={framework.url} target="_blank" rel="noopener noreferrer">Official framework ↗</a></div>
-  </article>)}
+ <div className="ncert-global-link"><div><span className="eyebrow">OFFICIAL NCERT BOOK DIRECTORY</span><h2>Explore chapters by class and subject</h2><p>Browse source-identified textbook records with transparent verification and mapping status.</p></div><Link href="/ncert-books">Open NCERT book index →</Link></div><section className="workspace-panel" aria-labelledby="framework-evidence-title">
+  <span className="eyebrow">PHASE 8 · SOURCE EVIDENCE REGISTER</span>
+  <h2 id="framework-evidence-title">Framework references are context, not equivalencies</h2>
+  <p className="muted">Each source has a stated scope and limitation. Current learning themes use these sources as teaching context only; no international outcome has been transcribed, mapped to an NCERT chapter or approved as equivalent.</p>
+  <div className="ncert-stats" aria-label="Framework review status">
+   <div><strong>{evidenceSummary.sourceRecords}</strong><span>Evidence records</span></div>
+   <div><strong>{evidenceSummary.frameworkLenses}</strong><span>Framework lenses</span></div>
+   <div><strong>{evidenceSummary.outcomeLevelCrosswalks}</strong><span>Outcome crosswalks</span></div>
+   <div><strong>{evidenceSummary.approvedEquivalencies}</strong><span>Approved equivalencies</span></div>
+  </div>
+ </section>
+ <div className="global-framework-grid" aria-label="Curriculum source evidence">
+  {globalFrameworks.map((framework,index)=>{
+   const evidence=frameworkEvidenceFor(framework.id)!;
+   const contextCount=globalSkills.filter(skill=>skill.frameworks.includes(framework.id)).length;
+   return <article className="global-framework" key={framework.id}>
+    <span className="global-framework-icon" aria-hidden="true">{['✦','✳','◎','∑','◈','▤','✎'][index%7]}</span>
+    <div>
+     <h3>{framework.label}</h3>
+     <p>{framework.description}</p>
+     <span className="verify-badge pending">{evidence.statusLabel}</span>
+     <p><strong>Scope:</strong> {evidence.scope}</p>
+     <p><strong>Review boundary:</strong> {evidence.limits[0]}</p>
+     <p className="muted">{contextCount} learning theme(s) carry this context tag; this is not a standards mapping.</p>
+     {evidence.sourceUrls.length>0?<p>{evidence.sourceUrls.map((url,sourceIndex)=><span key={url}><a href={url} target="_blank" rel="noopener noreferrer">{evidence.sourceUrls.length>1?('Official source '+(sourceIndex+1)+' ↗'):'Open official source ↗'}</a>{sourceIndex<evidence.sourceUrls.length-1?' · ':''}</span>)}</p>:<p className="muted">Internally authored content; no external standard or source mapping.</p>}
+    </div>
+   </article>;
+  })}
  </div>
  <section className="workspace-panel global-filter-panel">
   <div><span className="eyebrow">CURATED STARTER LIBRARY</span><h2>Explore learning pathways</h2><p className="muted">{globalSkills.length} original objectives across six stages. This is a starter catalogue, <strong>not complete coverage</strong> of NCERT textbooks or international board syllabi.</p></div>
