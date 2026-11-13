@@ -19,6 +19,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: npm run curriculum:framework-audit
       # GitHub-hosted Ubuntu runners provide the system libraries Chromium needs.
       # Avoid --with-deps here: it invokes apt against Ubuntu mirrors, which can
       # fail independently of the project when runner DNS/mirrors are unavailable.
