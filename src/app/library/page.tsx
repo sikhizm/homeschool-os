@@ -3,14 +3,15 @@ import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import SectionArtwork from '@/components/section-artwork';
 import {ContinueReading} from './continue-reading';
+import {libraryGradeOptions} from '@/lib/library/grade-options';
 
 export const dynamic='force-dynamic';
 
 const FILTERS=[
- {label:'Grade',options:['Early Years','Nursery','UKG','Class 1','Class 4','Class 5','Class 8','Class 9','Class 10'],href:'/ncert-books'},
- {label:'Subject',options:['English','Mathematics','Science','Social Science','Hindi','Vocational Education'],href:'/lessons'},
- {label:'Learning type',options:['Read','Practice','Play','Create'],href:'/lessons'},
-] as const;
+ {label:'Grade',options:libraryGradeOptions},
+ {label:'Subject',options:['English','Mathematics','Science','Social Science','Hindi','Vocational Education'].map(label=>({label,href:'/lessons'}))},
+ {label:'Learning type',options:['Read','Practice','Play','Create'].map(label=>({label,href:'/lessons'}))},
+];
 
 const SECTIONS=[
  {title:'NCERT textbooks',description:'Official book identities, chapter indexes and source-checked titles — with verification state on every entry.',href:'/ncert-books',glyph:'📚',tint:'var(--math)'},
@@ -41,7 +42,7 @@ export default async function LibraryPage(){
    {FILTERS.map(filter=><div className="library-filter" key={filter.label}>
     <span className="library-filter-label">{filter.label}</span>
     <div className="library-filter-chips">
-     {filter.options.map(option=><Link key={option} href={filter.href} className="library-chip">{option}</Link>)}
+     {filter.options.map(option=><Link key={option.label} href={option.href} className="library-chip">{option.label}</Link>)}
     </div>
    </div>)}
   </section>
