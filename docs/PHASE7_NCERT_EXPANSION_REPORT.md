@@ -164,11 +164,13 @@ secondary catalogues.
 | `npm run curriculum:catalogue-audit` | Passed: source/direct-PDF/selection safeguards hold |
 | `NEON_AUTH_BASE_URL=… NEON_AUTH_COOKIE_SECRET=… npm run build` | Passed with a non-production local placeholder secret; the unconfigured build correctly rejects a missing required auth cookie secret |
 | `npm run test:smoke` | Passed against the local built server; database health correctly returned 503 because no database URL is configured |
-| `npm run test:ui` | Attempted but **not executable in this sandbox**: Playwright Chromium and `/usr/bin/chromium` are absent. All five cases stopped before assertions; this is not represented as a pass. |
+| `npm run test:ui` | **Not executable in this sandbox**: Playwright Chromium and `/usr/bin/chromium` are absent, so all five cases stopped before assertions. It **passed in CI** instead: the `verify` job of run 43445130639 on PR #62 installed Chromium and ran the browser workflow against isolated PostgreSQL fixtures. |
 
-The remaining release gates are browser execution in CI/with a provisioned browser,
-GitHub Actions and a deployment preview. Require those to pass before merge; no
-result above implies deployment or production-database readiness.
+The remaining release gates are human review and merge approval. The automated
+`Entire Gates` check reports only that no reviewer has approved the trail; the
+Vercel preview deployment exists but is protected by Vercel authentication, so it
+could not be inspected from this environment. No result above implies deployment
+or production-database readiness.
 
 ## 9. Follow-up work
 
