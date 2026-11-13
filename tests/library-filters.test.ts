@@ -17,5 +17,5 @@ test('Class 2 and Class 3 quick filters open their own textbook catalogue',()=>{
 test('each class quick filter has a distinct grade-specific destination',()=>{
  const options=libraryGradeOptions.filter(option=>option.label.startsWith('Class '));
  assert.equal(new Set(options.map(option=>option.href)).size,options.length);
- assert.ok(options.every(option=>/^\\/ncert-books\\?grade=\\d+$/.test(option.href)));
+ assert.ok(options.every(option=>/^\/ncert-books\?grade=\d+$/.test(option.href)));
 });
