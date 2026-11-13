@@ -83,7 +83,7 @@ const frameworkSources:CurriculumOutcomeSource[]=globalFrameworks.map(framework=
  id:`framework-${framework.id}`,
  authority:framework.label,
  title:framework.title,
- url:framework.url,
+ url:framework.url??'https://github.com/sikhizm/homeschool-os',
  edition:'Framework context reference; no chapter-level equivalence asserted',
  verificationStatus:'framework-context-only',
  lastVerifiedDate:null,
