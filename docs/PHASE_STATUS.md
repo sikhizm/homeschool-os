@@ -74,7 +74,7 @@ See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rul
 - [x] Three-state adaptive revision (`revision-state.ts`): Confident / Practising / Needs support with recommendation copy
 - [x] `/settings` (account, family, PWA install, learning prefs, sign-out) and `/learners` (roster with instant switching)
 - [x] PWA: manifest/offline/brand colors retuned; middleware matcher covers `/learn`, `/library`, `/settings`, `/learners`
-- [x] Verification gates per step: `npm run lint`, `npm run typecheck`, `npm test` (106/106), CI-style `npm run build`, `npm run test:smoke` against the built server (all green). Browser `test:ui` runs in CI only (Playwright chromium cannot download in this sandbox)
+- [x] Verification gates: `npm run lint`, `npm run typecheck`, `npm test` (**157/157** as of Phase 5), CI-style `npm run build`, `npm run test:smoke` against the built server, and `npm run test:ui` (4/4 browser tests; runs in CI, and locally with a `CHROMIUM_PATH` pointing at a downloaded Playwright browser)
 
 ## Chapter-first learning (Phases 0–5, issues #40–#45)
 - [x] Phase 0 — Progress/authentication compatibility audit, live-database audit, regression contracts, isolated smoke reliability (PRs #51–#55; `docs/PHASE_0_LIVE_DATABASE_AUDIT.md`)
