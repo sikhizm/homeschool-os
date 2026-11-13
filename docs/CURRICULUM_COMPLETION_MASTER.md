@@ -2,7 +2,7 @@
 
 > Single source of truth for curriculum completeness. **Every number here is regenerated from the repo**, never estimated: run `npm run curriculum:inventory` after any catalogue change and update this file in the same commit.
 >
-> Last audit: **2026-11-13** · Base `main@13a3734` + Phase 4/5 branch (chapter-first engine, universal across Classes 1–8) · Gates before this change: lint 0 errors · typecheck 0 · **tests 157/157** · browser tests 4/4 · build 0 errors · smoke pass · `scripts/curriculum-audit.ts` 0 structural failures.
+> Last audit: **2026-11-13** · Base `main@906d774` (PR #59 Daily Assignment Workflow and PR #60 learner dashboard/quality validation merged) · Phase 6 Class 5 mapping pilot is documented separately in `PHASE6_CURRICULUM_MAPPING_REPORT.md`. Historical Phase 4/5 gate counts remain historical; each phase records its own actual gate results rather than inheriting a green claim.
 
 ## Completion rule
 
@@ -20,10 +20,12 @@ Real figures recalculated from the repo on 2026-11-10 (superseding all historica
 | Books with contents pending | **1** | `chapterCount===0`: `ncert-1-dilchasp-riyazi` |
 | Grades with ≥1 book | **1, 2, 3, 4, 5, 6, 7, 8** | `gradeCoverage()` |
 | Curriculum competencies | **37** | `src/lib/curriculum/library.ts` |
-| Global framework skills | **29** (7 frameworks) | `src/lib/global-curriculum/catalogue.ts` |
+| Global framework skills | **29** (7 frameworks) | `src/lib/global-curriculum/catalogue.ts` — illustrative framework context, not official grade equivalencies |
+| Phase 6 Class 5 outcome registry | **25 original outcomes; 0 official seeded; 0 framework equivalencies** | `src/lib/curriculum/outcome-registry.ts` |
+| Phase 6 Class 5 mapping pilot | **86 chapters accounted: 60 drafts, 0 approved, 26 unmapped with reasons** | `src/lib/curriculum/class5-mapping.ts`; `npm run curriculum:mapping-audit` |
 | Original lessons | **20** | `src/lib/lessons/library.ts` |
 | Annual pathways (weekly steps) | infant 36 · nursery 72 · ukg 72 · class4 72 | `annualGrades` |
-| DB migrations | 001–006 (learning_subjects, learner_objectives, learning_plan_starters, learning_activities, learning_planning_periods, learning_portfolio_entries, ncert_chapter_progress, auto_learning_progress, family_daily_plans) | `migrations/` |
+| DB migration files | 001–008 (including planning competencies, learner archive support and append-only curriculum mapping review history) | `migrations/` — file presence is not proof of live application; Phase 6 requires `npm run db:migrate:curriculum-mapping` |
 
 Auto-learning queue catalogue (tasks per stage — gap indicator, not a completion metric; regenerated 2026-11-13):
 Infant 36 · Toddler 72 · Early Years 78 · Nursery 94 · LKG 78 · UKG 94 · Class 1: 219 (216 NCERT chapter sessions + existing activities) · Class 2: 186 (183 NCERT chapter sessions + 3 existing activities) · Class 3: 298 · Class 4: 239 (147 chapter sessions + pathway steps) · Class 5: 262 · Class 6: 387 · Class 7: 393 · Class 8: 198 · Class 9–12: 2 each (no NCERT books catalogued above Class 8).
@@ -38,7 +40,7 @@ The Class 2-only learner pathway note below is historical: since the universal c
 | 2 | 4 | 61 | 61 | **Catalogued + 183 chapter-level learner sessions integrated 2026-11-10** | `docs/NCERT_CLASS2_INDEX.md` |
 | 3 | 7 | 98 | 98 | **Catalogued 2026-11-10** | `docs/NCERT_CLASS3_INDEX.md` |
 | 4 | 4 | 49 | 49 | Catalogued | `docs/NCERT_CLASS4_INDEX.md` |
-| 5 | 7 | 86 | 86 | Catalogued | `docs/NCERT_CLASS5_INDEX.md` |
+| 5 | 7 | 86 | 86 | Catalogued; Phase 6 review queue accounts for all chapters (60 draft original-outcome proposals; 26 intentionally unmapped; 0 approved) | `docs/NCERT_CLASS4_COMPLETION_CLASS5_INDEX.md`; `docs/PHASE6_CURRICULUM_MAPPING_REPORT.md` |
 | 6 | 10 | 128 | 128 | **Catalogued 2026-11-10** | `docs/NCERT_CLASS6_INDEX.md` |
 | 7 | 12 | 130 | 130 | **Catalogued 2026-11-10** (incl. both Ganita Prakash and both Exploring Society parts) | `docs/NCERT_CLASS7_INDEX.md` |
 | 8 | 6 | 65 | 65 | **Catalogued 2026-11-10** (incl. Ganita Prakash Part-II); Exploring Society etc. not yet added | `docs/NCERT_CLASS8_INDEX.md` |
@@ -48,7 +50,7 @@ The Class 2-only learner pathway note below is historical: since the universal c
 
 Class 2 learner pathway: 61 indexed chapters × 3 original parent-guided sessions = **183 sessions** (read/explore, practice, understanding check). Scripts are age-appropriate and subject-aware; they refer learners to the official chapter and do not reproduce textbook content. This is a usable chapter sequence, not a formally approved chapter-to-outcome map or completed mastery assessment.
 
-Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 lenses (each skill carries an equivalence status — never auto-approved).
+Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 original illustrative skills across 7 lenses. Framework tags are context-only editorial references, never equivalence statuses or auto-approved standards mappings.
 
 ## Phase roadmap (honest statuses)
 
@@ -56,17 +58,17 @@ Crosswalk frameworks in `global-curriculum/catalogue.ts`: 29 skills across 7 len
 |---|---|---|
 | 1 | Full repo audit; this document; inventory script | **COMPLETE** (2026-11-10) |
 | 2 | NCERT library complete for all graded books (1–12), every book contents-verified | **IN PROGRESS** — grades 1, 2, 3, 4, 5, 6, 7, 8 catalogued (56 books / 689 chapters, only Dilchasp Riyazi contents-pending); grades 9–12 outstanding |
-| 3 | Objectives/competencies mapped per grade (beyond today's 37) | NOT STARTED |
+| 3 | Provenance-aware objectives/outcomes mapped per grade | **PILOT IN REVIEW** — reusable registry + Class 5 queue exist (25 original outcomes; 60 draft mappings; 26 documented gaps; 0 seed approvals). Official Class 5 outcomes still require source-section transcription and human review. |
 | 4 | Ready-to-teach original lessons across all stages (beyond today's 20) | **PARTIAL** — every verified chapter in Classes 1–8 has three original parent-led sessions (read/practice/understanding check) via the universal chapter engine; the 20-lesson curated library and Class 4 pathway scripts remain; full authored depth per chapter still pending |
-| 5 | Assessments with mastery evidence (never completion-only) | NOT STARTED |
-| 6 | Adaptive revision (3-state `revisionState()` exists; behaviour layer pending) | NOT STARTED |
-| 7 | Daily planner honouring the 60-min shared parent-guided budget | NOT STARTED |
-| 8 | International crosswalks documented with equivalence statuses | PARTIAL — 7 lenses in catalogue; per-grade mapping pending |
-| 9 | Sikh heritage / Punjabi / Gurmukhi strand (accurate Gurbani only, labelled interpretation) | PARTIAL — Punjabi lessons exist in the 20-lesson library |
+| 5 | Assessments with mastery evidence (never completion-only) | **PARTIAL** — chapter understanding and later independent recall produce evidence-derived `completed`/`retained` status; broader curriculum-outcome assessment remains deliberately separate from mapping approval. |
+| 6 | Adaptive revision and retention | **COMPLETE for the current chapter-first engine** — adaptive independent/hinted/not-yet recall, five spaced checks, undo and evidence-derived mastery are implemented; see `ADAPTIVE_RETENTION_PHASE.md`. |
+| 7 | Daily planner honouring the shared parent-guided budget | **COMPLETE for the current daily-assignment workflow** — dated family plans, carry-forward and sequence guarantees were merged in PR #59; wider long-term planning remains iterative. |
+| 8 | International crosswalk context and review safeguards | **PARTIAL** — 7 lenses are documented as framework context only; Phase 6 creates no equivalence and requires provenance/human review for any future mapping. |
+| 9 | Sikh heritage / Punjabi / Gurmukhi strand (accurate Gurbani only, labelled interpretation) | PARTIAL — Punjabi lessons exist in the 20-lesson library; Phase 6 intentionally leaves 25 Hindi/Urdu Class 5 chapters unmapped pending specialist review. |
 | 10 | Enrichment: reasoning, coding, life skills | PARTIAL — strands inside existing skills/lessons |
-| 11 | Safe DB migrations for new data | PARTIAL — migrations 001–006 exist; new phases extend via further migrations only |
-| 12 | Gates after every phase (lint, typecheck, tests, build, smoke) | Ongoing — last run green |
-| 13 | Documentation upkeep + deployment verification | Ongoing — this file + phase docs |
+| 11 | Safe DB migrations for new data | PARTIAL — additive files through 008 exist; migration application must be verified per environment. Phase 6 adds an RLS-protected append-only review table and runner. |
+| 12 | Gates after every phase (lint, typecheck, tests, build, smoke) | Ongoing — report actual command results per phase; browser execution depends on a provisioned Playwright browser. |
+| 13 | Documentation upkeep + deployment verification | Ongoing — this file, phase reports and environment-specific deployment evidence |
 
 ## Open discrepancies (documented, never silently resolved)
 

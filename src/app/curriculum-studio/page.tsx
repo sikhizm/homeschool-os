@@ -63,6 +63,6 @@ export default async function CurriculumStudio({searchParams}:{searchParams:Prom
    <div className="gcv1-sources">{globalFrameworks.filter(f=>f.id!=='original'&&f.id!=='epathshala').map(f=><article key={f.id}><h3>{f.label}</h3><p>{f.description}</p><a href={f.url} target="_blank" rel="noopener noreferrer">Official reference ↗</a></article>)}</div>
    <p className="muted">External curriculum sites are provided for source review; nothing here asserts accreditation, licence rights or verified equivalence to their official standards.</p>
   </section>
-  <div className="gcv1-footer-links"><Link href="/ncert-books">Explore NCERT book index →</Link><Link href="/global-curriculum">Browse original skills →</Link><Link href="/reports">Review parent-recorded evidence →</Link><Link href="/planning">Open weekly planner →</Link></div>
+  <div className="gcv1-footer-links"><Link href="/ncert-books">Explore NCERT book index →</Link><Link href="/curriculum-mapping">Review Class 5 mapping drafts →</Link><Link href="/global-curriculum">Browse original skills →</Link><Link href="/reports">Review parent-recorded evidence →</Link><Link href="/planning">Open weekly planner →</Link></div>
  </main></>;
 }
