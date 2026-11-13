@@ -1216,7 +1216,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 .family-hero-facts strong{font-size:23px;letter-spacing:-.03em;color:#185B47}
 .family-hero-facts span{font-size:11.5px;font-weight:700;color:#6A7B72}
 .start-today{min-height:50px;font-size:14px;padding:14px 24px;border-radius:15px;box-shadow:0 10px 20px rgba(37,107,82,.2)}
-.family-learner-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(275px,1fr));gap:16px}
+.family-learner-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,275px),1fr));gap:16px}
 .family-learner-card{display:grid;gap:13px;align-content:start}
 .family-learner-card header{display:flex;align-items:center;gap:11px}
 .family-learner-card header>div{min-width:0;flex:1}
@@ -1499,7 +1499,8 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:620px){.prepare-next{padding:20px}.prepare-next-actions{width:100%}.prepare-next-actions .learner-continue{width:100%;justify-content:center}}
 
 /* ===== Settings + Learners ===== */
-.settings-page,.learners-page{max-width:960px;margin:0 auto;padding:30px clamp(16px,3vw,36px) 110px;display:grid;gap:18px}
+.settings-page{max-width:960px;margin:0 auto;padding:30px clamp(16px,3vw,36px) 110px;display:grid;gap:18px}
+.learners-page{width:100%;max-width:1240px;margin:0 auto;padding:30px clamp(16px,3vw,36px) 110px;display:grid;gap:18px}
 .settings-card{display:grid;gap:11px}
 .settings-card h2{margin:0;font-size:clamp(18px,2vw,24px);letter-spacing:-.03em}
 .settings-list{list-style:none;margin:0;padding:0;display:grid;gap:9px}
