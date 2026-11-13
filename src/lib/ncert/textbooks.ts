@@ -6,7 +6,9 @@
 import type{ChapterSlot,ReviewStatus,Textbook} from './types';
 import{grade2ChapterTitles,grade2ContentSources,grade2Textbooks} from './data/grade2';
 import{grade3ChapterTitles,grade3ContentSources,grade3Textbooks} from './data/grade3';
-import{grade8ChapterTitles,grade8ContentSources,grade8Textbooks} from './data/grade8';
+import{grade8ChapterSelections,grade8ChapterTitles,grade8ContentSources,grade8Textbooks} from './data/grade8';
+import{grade9ChapterSelections,grade9ChapterTitles,grade9ContentSources,grade9Textbooks} from './data/grade9';
+import{grade10ChapterTitles,grade10ContentSources,grade10Textbooks} from './data/grade10';
 import{grade6ChapterTitles,grade6ContentSources,grade6Textbooks} from './data/grade6';
 import{grade7ChapterTitles,grade7ContentSources,grade7Textbooks} from './data/grade7';
 export type{ChapterSlot,ReviewStatus,Textbook};
@@ -113,7 +115,9 @@ export const ncertTextbooks:Textbook[]=[
 {"id":"ncert-5-sitaan","grade":5,"subject":"Urdu","title":"Sitaar","language":"Urdu","textbookCode":"eust1","sourceUrl":"https://ncert.nic.in/textbook.php?eust1=0-14","publisher":"NCERT","chapterCount":13,"referenceUrl":"https://www.cbseacademic.nic.in/web_material/Circulars/2025/48_Circular_2025.pdf","editionLabel":"NCERT first edition, June 2025; chapter titles checked against official publisher contents","status":"source-verified-chapter-titles"},
  ...grade6Textbooks,
  ...grade7Textbooks,
- ...grade8Textbooks
+ ...grade8Textbooks,
+ ...grade9Textbooks,
+ ...grade10Textbooks
 ];
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
 export const verifiedChapterTitles:Record<string,readonly string[]>={
@@ -122,6 +126,8 @@ export const verifiedChapterTitles:Record<string,readonly string[]>={
  ...grade6ChapterTitles,
  ...grade7ChapterTitles,
  ...grade8ChapterTitles,
+ ...grade9ChapterTitles,
+ ...grade10ChapterTitles,
  'ncert-1-mridang':[
   'Two Little Hands','Greetings','Picture Time','The Cap Seller and the Monkeys','A Farm',
   'Fun with Pictures','The Food We Eat','The Four Seasons',"Anandi's Rainbow"
@@ -218,6 +224,8 @@ export const verifiedContentsSources:Record<string,string>={
  ...grade6ContentSources,
  ...grade7ContentSources,
  ...grade8ContentSources,
+ ...grade9ContentSources,
+ ...grade10ContentSources,
  'ncert-4-maths-mela':'https://ncert.nic.in/textbook/pdf/demm1ps.pdf',
  'ncert-4-santoor':'https://ncert.nic.in/textbook/pdf/desa1ps.pdf',
  'ncert-4-veena':'https://ncert.nic.in/textbook/pdf/dhve1ps.pdf',
@@ -236,13 +244,27 @@ export const verifiedContentsSources:Record<string,string>={
  'ncert-1-shehnai':'https://ciet.ncert.gov.in/audio-book/123'
 };
 
+
+/** Official non-linear selection metadata; omitted slots are ordinary required items. */
+const chapterSelectionMetadata={...grade8ChapterSelections,...grade9ChapterSelections};
+/** Human-facing type for a book's Contents item; defaults to Chapter for legacy records. */
+export function contentUnitLabelFor(book:Textbook){return book.contentUnitLabel??'Chapter';}
+/** A selected official alternative remains browseable, but is never auto-scheduled as a required lesson. */
+export function isDefaultChapterSessionEligible(chapter:ChapterSlot){return Boolean(chapter.verifiedTitle)&&chapter.selection!=='choose-one';}
+
 export const ncertChapterSlots:ChapterSlot[]=ncertTextbooks.flatMap(book=>
- Array.from({length:book.chapterCount},(_,index)=>({
-  id:`${book.id}-ch-${String(index+1).padStart(2,'0')}`,
-  bookId:book.id,chapterNumber:index+1,label:`Chapter ${index+1}`,verifiedTitle:verifiedChapterTitles[book.id]?.[index]??null,
-  status:verifiedChapterTitles[book.id]?.[index]?'source-verified' as const:'chapter-title-pending' as const,
-  sourceUrl:verifiedContentsSources[book.id]??book.sourceUrl,skillIds:[],mappingStatus:'unmapped' as const
- }))
+ Array.from({length:book.chapterCount},(_,index)=>{
+  const chapterNumber=index+1;
+  const officialPdf=book.verifiedPdfReferences?.[chapterNumber];
+  const selection=chapterSelectionMetadata[book.id]?.[chapterNumber];
+  return {
+   id:`${book.id}-ch-${String(chapterNumber).padStart(2,'0')}`,
+   bookId:book.id,chapterNumber,label:`${contentUnitLabelFor(book)} ${chapterNumber}`,verifiedTitle:verifiedChapterTitles[book.id]?.[index]??null,
+   status:verifiedChapterTitles[book.id]?.[index]?'source-verified' as const:'chapter-title-pending' as const,
+   sourceUrl:verifiedContentsSources[book.id]??book.sourceUrl,skillIds:[],mappingStatus:'unmapped' as const,
+   ...(officialPdf?{officialPdf}:{}),...(selection??{}),
+  };
+ })
 );
 export const textbookGrades=Array.from({length:12},(_,index)=>index+1);
 export function gradeCoverage(){
@@ -278,22 +300,30 @@ export function validateNcertCatalogue(){
   if((c.status==='human-reviewed'||c.status==='source-verified')&&!c.verifiedTitle)issues.push('missing verified title '+c.id);
   if(c.mappingStatus==='human-reviewed'&&!c.skillIds.length)issues.push('empty reviewed mapping '+c.id);
   if(c.mappingStatus==='unmapped'&&c.skillIds.length)issues.push('unreviewed mapping attached '+c.id);
+  if(c.selection==='choose-one'&&!c.selectionGroupId)issues.push('choice missing group '+c.id);
+  if(c.selection==='choose-one'&&!c.selectionNote)issues.push('choice missing evidence note '+c.id);
+  if(c.selection!=='choose-one'&&c.selectionGroupId)issues.push('unexpected selection group '+c.id);
  }
  return issues;
 }
 
 /**
  * Official NCERT chapter PDF URL for source-checked chapter records only.
- * NCERT's publisher uses {textbookCode}{two-digit chapter}.pdf for these series.
- * Do not invent chapter links for books whose contents have not been verified.
+ *
+ * Phase 7 records individually checked URLs on `ChapterSlot.officialPdf`.
+ * The code-pattern fallback exists solely for pre-Phase-7 records whose URLs
+ * were already audited together; it is never used for later additions.
  */
 export function officialChapterPdf(chapter:ChapterSlot):string|null {
  const book=textbookById(chapter.bookId);
  if(!book||book.chapterCount<1||!chapter.verifiedTitle||chapter.status==='chapter-title-pending')return null;
- if(!/^[a-z]{4}[1-9]$/.test(book.textbookCode))return null;
  if(!Number.isInteger(chapter.chapterNumber)||chapter.chapterNumber<1||chapter.chapterNumber>book.chapterCount)return null;
- // Books whose later chapter PDFs are not yet on the NCERT server expose links
- // only up to the highest chapter actually confirmed online.
+ if(chapter.officialPdf)return chapter.officialPdf.url;
+ // Explicit references mean an audited Phase 7-style record. Do not derive a
+ // second URL for an omitted/non-contiguous chapter.
+ if(book.verifiedPdfReferences||book.directPdfAuditComplete)return null;
+ if(!/^[a-z]{4}[1-9]$/.test(book.textbookCode))return null;
+ // Pre-Phase-7 compatibility only. See the catalogue data provenance.
  if(book.verifiedPdfChapters!==undefined&&chapter.chapterNumber>book.verifiedPdfChapters)return null;
  return `https://ncert.nic.in/textbook/pdf/${book.textbookCode}${String(chapter.chapterNumber).padStart(2,'0')}.pdf`;
 }

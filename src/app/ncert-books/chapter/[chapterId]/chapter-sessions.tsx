@@ -9,11 +9,11 @@ type SavedPhase={phaseIndex:number};
 
 const sessions:{kind:SessionKind;title:string;minutes:number;description:string}[]=[
  {kind:'read',title:'Read & explore',minutes:15,description:'Read a short section together and retell its main idea.'},
- {kind:'practice',title:'Practice',minutes:20,description:'Try selected activities from the official chapter.'},
+ {kind:'practice',title:'Practice',minutes:20,description:'Try selected activities from the official resource.'},
  {kind:'review',title:'Understanding check',minutes:10,description:'Recall key ideas without looking back.'},
 ];
 
-export default function ChapterSessions({chapterId,grade,eligible}:{chapterId:string;grade:number;eligible:boolean}){
+export default function ChapterSessions({chapterId,grade,eligible,contentLabel,selectionNote}:{chapterId:string;grade:number;eligible:boolean;contentLabel:string;selectionNote?:string}){
  const [learners,setLearners]=useState<Learner[]>([]);
  const [resume,setResume]=useState<Record<string,boolean>>({});
  const [message,setMessage]=useState('Loading learners…');
@@ -50,12 +50,12 @@ export default function ChapterSessions({chapterId,grade,eligible}:{chapterId:st
   return()=>{active=false;};
  },[chapterId,grade]);
 
- if(!eligible)return <section className="workspace-panel"><span className="eyebrow">CHAPTER SESSIONS</span><h2>Learning sessions not published yet</h2><p className="muted">This chapter does not have a verified title in the current session catalogue. We will not generate a lesson from an unverified chapter label.</p></section>;
+ if(!eligible)return <section className="workspace-panel"><span className="eyebrow">{contentLabel.toUpperCase()} SESSIONS</span><h2>{selectionNote?'Official selection required — not auto-assigned':'Learning sessions not published yet'}</h2><p className="muted">{selectionNote??`This ${contentLabel.toLowerCase()} does not have a verified title in the current session catalogue. We will not generate a lesson from an unverified label.`}</p>{selectionNote&&<p className="muted">It remains visible with its official source, but HomeSchool OS will not turn a publisher choice into a compulsory linear lesson. A parent or school may use the official material outside this queue; this app does not yet persist a selection or create sessions for an alternative.</p>}</section>;
 
  return <section className="workspace-panel" aria-labelledby="chapter-sessions-title">
-  <span className="eyebrow">CHAPTER LEARNING STUDIO</span>
+  <span className="eyebrow">{contentLabel.toUpperCase()} LEARNING STUDIO</span>
   <h2 id="chapter-sessions-title">Choose a session</h2>
-  <p className="muted">These are original HomeSchool OS study prompts that guide you through the official chapter. They are not copied NCERT lessons, exercises or answer keys. Your place in each session is saved in this browser.</p>
+  <p className="muted">These are original HomeSchool OS study prompts that guide you through the official {contentLabel.toLowerCase()}. They are not copied NCERT lessons, exercises or answer keys. Your place in each session is saved in this browser.</p>
   {learners.map(learner=><div key={learner.learner_id} style={{marginTop:22}}>
    <h3 style={{fontSize:18,marginBottom:12}}>{learner.display_name} <span className="muted" style={{fontSize:13,fontWeight:400}}>· {learner.stage}</span></h3>
    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(min(100%,220px),1fr))',gap:12}}>

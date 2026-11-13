@@ -1,5 +1,10 @@
 # NCERT Textbook & Chapter Catalogue — Verified Catalogue Phase
 
+> **Historical phase snapshot:** the original delivery counts in this document
+> remain evidence for that phase. The current Phase 7 catalogue is 77 books / 892
+> source-verified Contents titles across Classes 1–10; see
+> `PHASE7_NCERT_EXPANSION_REPORT.md` and `CURRICULUM_COMPLETION_MASTER.md`.
+
 ## Delivered
 - Parent-authenticated `/ncert-books` directory with class/subject/book filters, official source links, responsive book shelf, chapter positions and audit status.
 - Class 1: six book records; five CIET-indexed NCERT books and 72 numbered chapter titles checked against official NCERT/CIET sources; one Urdu catalogue-only title remains contents-pending.

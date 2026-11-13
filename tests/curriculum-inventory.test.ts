@@ -19,10 +19,10 @@ test('inventory metrics stay internally consistent across modules',()=>{
  assert.equal(c.textbookRecords,a.books);
  assert.equal(c.chaptersIndexed,a.chapterSlots);
  assert.equal(c.sourceCheckedTitles,a.verifiedChapterTitles);
- assert.equal(a.books,56);
- assert.equal(a.chapterSlots,689);
- assert.equal(a.verifiedChapterTitles,689);
- assert.deepEqual(a.gradesCovered,[1,2,3,4,5,6,7,8]);
+ assert.equal(a.books,77);
+ assert.equal(a.chapterSlots,892);
+ assert.equal(a.verifiedChapterTitles,892);
+ assert.deepEqual(a.gradesCovered,[1,2,3,4,5,6,7,8,9,10]);
  assert.equal(annualGrades.length,4);
  for(const g of annualGrades) assert.ok(annualSteps(g.key).length>0,g.key);
  // Grow-only floors: raise deliberately as content lands, never lower.
@@ -45,16 +45,20 @@ test('Class 2 NCERT chapters each expose read, practice and understanding-check 
 });
 
 test('known gaps are explicit so closing them requires updating this contract',()=>{
- // Grades with zero NCERT book records today (Phases 2 must flip these one by one).
- for(const grade of [9,10,11,12]) assert.equal(selectTextbooks(grade).length,0,`grade ${grade}`);
+ // Classes 9–10 are audited in Phase 7; Classes 11–12 remain backlog-only.
+ for(const grade of [9,10]) assert.ok(selectTextbooks(grade).length>0,`grade ${grade}`);
+ for(const grade of [11,12]) assert.equal(selectTextbooks(grade).length,0,`grade ${grade}`);
  assert.equal(gradeCoverage().find(g=>g.grade===6)?.contentsAudited,10);
  assert.equal(gradeCoverage().find(g=>g.grade===7)?.contentsAudited,12);
- assert.equal(gradeCoverage().find(g=>g.grade===8)?.contentsAudited,6);
+ assert.equal(gradeCoverage().find(g=>g.grade===8)?.contentsAudited,11);
  assert.equal(ncertTextbooks.filter(b=>b.chapterCount===0).length,1); // Dilchasp Riyazi (Urdu) awaits a contents audit
  // Class 2 and Class 4 have chapter-level NCERT sessions; other grades retain their own pathways.
  assert.equal(queueCatalogue('Class 2').filter(task=>task.id.startsWith('ncert:')).length,183);
  assert.ok(queueCatalogue('Class 4').length>200);
  const verifiedClass5Chapters=ncertChapterSlots.filter(chapter=>chapter.verifiedTitle&&ncertTextbooks.some(book=>book.id===chapter.bookId&&book.grade===5));
  assert.equal(queueCatalogue('Class 5').filter(task=>task.id.startsWith('ncert:')).length,verifiedClass5Chapters.length*3,'each verified Class 5 chapter exposes read, practice and understanding-check sessions');
- assert.equal(queueCatalogue('Class 9').filter(task=>task.id.startsWith('ncert:')).length,0,'chapter sessions are not generated for grades without verified chapter catalogues');
+ assert.equal(queueCatalogue('Class 8').filter(task=>task.id.startsWith('ncert:')).length,105*3,'Class 8 required chapters and units have three stable sessions; unselected projects stay out of the default path');
+ assert.equal(queueCatalogue('Class 9').filter(task=>task.id.startsWith('ncert:')).length,88*3,'required Class 9 slots have three stable sessions; vocational alternatives stay out of the default path');
+ assert.equal(queueCatalogue('Class 10').filter(task=>task.id.startsWith('ncert:')).length,60*3,'each audited Class 10 slot has three stable sessions');
+ assert.equal(queueCatalogue('Class 11').filter(task=>task.id.startsWith('ncert:')).length,0,'chapter sessions are not generated for unsourced senior-secondary backlog records');
 });

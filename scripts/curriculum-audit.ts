@@ -3,7 +3,7 @@
  *
  * Run: npx tsx scripts/curriculum-audit.ts [--offline]
  *
- * Samples books and chapters across Classes 1–8 and multiple subjects, then:
+ * Samples books and Contents items across Classes 1–10 and multiple subjects, then:
  *  1. validates catalogue structure (no fabricated verified flags, stable ids);
  *  2. checks every sampled chapter's metadata and derived session guidance;
  *  3. asserts original-guidance guardrails (no invented answers, official text
@@ -26,7 +26,7 @@ type LinkResult={url:string;strict:string;lenient:string;final:string};
 
 function sampleBooks(){
  const picked:BookCheck[]=[];
- for(let grade=1;grade<=8;grade++){
+ for(let grade=1;grade<=10;grade++){
   const books=ncertTextbooks.filter(b=>b.grade===grade&&b.chapterCount>0);
   const bySubject=new Map<string,typeof books>();
   for(const b of books){const list=bySubject.get(b.subject)??[];list.push(b);bySubject.set(b.subject,list);}
@@ -67,7 +67,7 @@ async function main(){
  const fail=(message:string)=>{out.push('  ✗ '+message);structuralFailures+=1;};
  let structuralFailures=0;
 
- out.push('# Curriculum audit — representative sample across Classes 1–8');
+ out.push('# Curriculum audit — representative sample across Classes 1–10');
  out.push(`Run at ${new Date().toISOString()} · offline=${offline}`);
 
  // 1. Structural integrity
@@ -84,7 +84,7 @@ async function main(){
  for(const c of ncertChapterSlots){if(dupIds.has(c.id))fail('duplicate chapter id '+c.id);dupIds.add(c.id);}
 
  // 2 + 3. Sampled chapters and lesson-guidance guardrails
- out.push('\n## 2. Representative chapter sample (grades 1–8, multiple subjects)');
+ out.push('\n## 2. Representative chapter sample (grades 1–10, multiple subjects)');
  const samples=sampleBooks();
  const linkTargets:string[]=[];
  for(const sample of samples){
@@ -104,7 +104,7 @@ async function main(){
  for(const s of samples)out.push(`  Class ${s.grade} · ${s.subject.padEnd(24)} · ${s.title} (${s.chaptersSampled} chapters sampled)`);
 
  out.push('\n## 3. Lesson-guidance guardrails (original guidance, no invented content)');
- for(const grade of [1,2,3,4,5,6,7,8]){
+ for(const grade of [1,2,3,4,5,6,7,8,9,10]){
   const stage='Class '+grade;
   const catalogue=queueCatalogue(stage);
   const chapterTasks=catalogue.filter(t=>t.id.startsWith('ncert:'));
@@ -116,7 +116,7 @@ async function main(){
    const text=[lesson.prep,lesson.steps.join(' '),lesson.expectedAnswer].join(' ');
    if(!task.source.includes('official text accessed externally'))problems++;
    if(!task.source.includes('original parent-led'))problems++;
-   if(!/official (ncert )?(chapter|textbook|ncert chapter pdf)/i.test(text))problems++;
+   if(!/official (ncert )?(chapter|textbook|ncert chapter pdf|project|unit|resource)/i.test(text))problems++;
    if(/the answer is|correct answer:|answer key/i.test(lesson.expectedAnswer))problems++;
    const minutes=task.id.endsWith(':read')?15:task.id.endsWith(':practice')?20:10;
    if(task.minutes>minutes)problems++;
@@ -144,9 +144,9 @@ async function main(){
 
  out.push('\n## Summary');
  out.push(`  structural failures: ${structuralFailures}`);
- out.push(`  sampled books: ${samples.length} across grades 1–8`);
+ out.push(`  sampled books: ${samples.length} across grades 1–10`);
  out.push(`  links probed: ${results.length} (${results.filter(r=>r.final.startsWith('2')).length} confirmed 2xx, ${blocked.length} unresolved)`);
- out.push('  This sample does not claim complete NCERT coverage: the catalogue is a partial Classes 1–8 inventory.');
+ out.push('  This sample does not claim complete NCERT coverage: the catalogue is a partial Classes 1–10 inventory.');
  console.log(out.join('\n'));
  if(structuralFailures)process.exitCode=1;
 }

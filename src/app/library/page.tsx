@@ -7,8 +7,8 @@ import {ContinueReading} from './continue-reading';
 export const dynamic='force-dynamic';
 
 const FILTERS=[
- {label:'Grade',options:['Early Years','Nursery','UKG','Class 1','Class 4','Class 5','Class 8'],href:'/ncert-books'},
- {label:'Subject',options:['English','Mathematics','Science','Punjabi','Hindi','Reasoning'],href:'/lessons'},
+ {label:'Grade',options:['Early Years','Nursery','UKG','Class 1','Class 4','Class 5','Class 8','Class 9','Class 10'],href:'/ncert-books'},
+ {label:'Subject',options:['English','Mathematics','Science','Social Science','Hindi','Vocational Education'],href:'/lessons'},
  {label:'Learning type',options:['Read','Practice','Play','Create'],href:'/lessons'},
 ] as const;
 

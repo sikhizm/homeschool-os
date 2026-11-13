@@ -88,9 +88,9 @@ See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rul
 - [x] PWA: manifest/offline/brand colors retuned; middleware matcher covers `/learn`, `/library`, `/settings`, `/learners`
 - [x] Verification gates: `npm run lint`, `npm run typecheck`, `npm test` (**157/157** as of Phase 5), CI-style `npm run build`, `npm run test:smoke` against the built server, and `npm run test:ui` (4/4 browser tests; runs in CI, and locally with a `CHROMIUM_PATH` pointing at a downloaded Playwright browser)
 
-## Chapter-first learning (Phases 0–5, issues #40–#45)
+## Chapter-first learning (Phases 0–7, issues #40–#45 plus Phase 7 catalogue work)
 - [x] Phase 0 — Progress/authentication compatibility audit, live-database audit, regression contracts, isolated smoke reliability (PRs #51–#55; `docs/PHASE_0_LIVE_DATABASE_AUDIT.md`)
-- [x] Phase 1 — Universal chapter engine: every verified Class 1–8 chapter generates read/practice/understanding-check sessions from one catalogue path; stable `ncert:<chapterId>:<kind>` IDs preserved (PR #49)
+- [x] Phase 1 — Universal chapter engine: every then-catalogued verified Class 1–8 chapter generated read/practice/understanding-check sessions from one catalogue path; stable `ncert:<chapterId>:<kind>` IDs preserved (PR #49). Phase 7 extends that same engine through Class 10 for default-path items.
 - [x] Phase 2 — Chapter Learning Studio: chapter pages launch sessions in the existing six-stage lesson player, scoped to learners of the chapter's class (PR #50)
 - [x] Phase 3 — Evidence-derived chapter statuses (`not_started → in_progress/practice_due/understanding_check_due → completed → retained`, plus `needs_revision`), legacy completion interpreted at read time, no duplicate rows (PRs #57, #58)
 - [x] Daily Assignment Workflow: parent-assigned dated workload exposed to learner mode with carry-forward and sequence guarantees (PR #59)
@@ -98,11 +98,26 @@ See [ADAPTIVE_RETENTION_PHASE.md](ADAPTIVE_RETENTION_PHASE.md) for the exact rul
 - [x] Phase 5 — Quality validation: representative curriculum audit across Classes 1–8 (24 books, 65 official links probed; 0 structural failures), Poorvi PDF gap found and capped, full-journey + data-integrity + browser tests, all gates green at delivery (merged PR #60, issue #45 evidence in `PHASE4_5_COMPLETION_REPORT.md`)
 - [ ] Issues #44 and #45 remain open pending a real production owner acceptance check. Their merged implementation and historical gate evidence are not a substitute for that live confirmation, so neither issue has been closed from this branch.
 
-See [PHASE4_5_COMPLETION_REPORT.md](PHASE4_5_COMPLETION_REPORT.md) for the validation evidence, known limitations and remaining pilot work.
+See [PHASE4_5_COMPLETION_REPORT.md](PHASE4_5_COMPLETION_REPORT.md) for the historical Phase 4–5 validation evidence, known limitations and remaining pilot work.
+
+## Phase 7 — NCERT Class 8 index completion and Class 9–10 expansion
+- [x] Add five official-source Class 8 records: Exploring Society Parts I–II, Kaushal Bodh, Khel Yatra and Kriti; preserve 7/8 chapters, 6 projects, 6 units and 19 chapters respectively rather than fabricating one uniform structure.
+- [x] Expand the audited catalogue to **77 books / 892 source-verified Contents titles** across Classes 1–10; retain the single Class 1 Dilchasp Riyazi contents-pending record.
+- [x] Add 9 Class 9 records / 97 titles and 7 Class 10 records / 60 titles only where formal official Contents were captured.
+- [x] Add explicit `choose-one` structures for six Kaushal Bodh projects and nine Kaushal Vikas vocation alternatives. They remain visible but are not auto-assigned as compulsory `ncert:` session tasks.
+- [x] Extend default-path sessions through Class 10 with stable IDs; preserve all existing IDs, progress, evidence and adaptive-retention behavior.
+- [x] Add explicit direct-PDF provenance support and suppress code-pattern inference for Phase 7 records. New Class 8 additions and all Class 9–10 items use official book-portal fallback until individually validated.
+- [x] Update the Class 8/9/10 indexes, completion master and Phase 7 evidence report; add `npm run curriculum:catalogue-audit`.
+- [x] Run `npm run typecheck`, `npm test` (**163/163**), `npm run curriculum:inventory` and `npm run curriculum:catalogue-audit` in this branch.
+- [x] Complete lint, placeholder-auth production build and local smoke validation.
+- [ ] Execute browser cases in CI/a provisioned browser, validate a deployment preview and require GitHub CI before merge. The sandbox lacks both Playwright Chromium and `/usr/bin/chromium`, so its `npm run test:ui` attempt stopped before assertions and is not a pass.
+- [x] No database migration, production operation, learner-data migration, outcome mapping or bulk senior-secondary import was performed.
+
+See [PHASE7_NCERT_EXPANSION_REPORT.md](PHASE7_NCERT_EXPANSION_REPORT.md) for evidence, direct-PDF policy, selection boundaries and excluded records.
 
 ## Still outstanding (next phases)
 - Apply migration 008 in production, then have an actual family owner review the 60 Class 5 drafts. Approved count must remain zero until that explicit action; Hindi/Urdu mappings need specialist and section-level evidence.
 - Section-level official NCERT outcome transcription and provenance review before any registry outcome can be classified official.
-- Systematic NCERT Classes 9–12 coverage (Classes 1–8 are catalogued: 56 books / 689 verified titles); Class 1 Dilchasp Riyazi contents and Poorvi (Class 8) chapter PDFs 6–15 remain pending on the publisher side (see `NCERT_CLASS1_INDEX.md` and `CURRICULUM_COMPLETION_MASTER.md`).
+- Systematic source-by-source NCERT Class 11–12 coverage. Class 8 Urdu Khayal, Class 10 Contemporary India-II and Class 10 Health and Physical Education also remain excluded pending formal Contents capture; Class 1 Dilchasp Riyazi and Poorvi (Class 8) direct PDFs 6–15 remain publisher-side follow-up (see `PHASE7_NCERT_EXPANSION_REPORT.md`).
 - Parent-reviewed international framework mapping with framework-specific editor evidence; no equivalence is inferred from this pilot (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.

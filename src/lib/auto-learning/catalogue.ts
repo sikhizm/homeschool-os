@@ -1,6 +1,6 @@
 import {modulesForGrade} from './pathways';
 import {lessons} from '@/lib/lessons/library';
-import {ncertChapterSlots,textbookById,officialChapterPdf} from '@/lib/ncert/textbooks';
+import {contentUnitLabelFor,isDefaultChapterSessionEligible,ncertChapterSlots,textbookById,officialChapterPdf} from '@/lib/ncert/textbooks';
 import {annualStepsForStage,type AnnualStep,type TeachingLesson,type LessonMode} from '@/lib/curriculum/annual';
 
 export type QueueTask={
@@ -111,25 +111,26 @@ function class2ChapterLesson(kind:'read'|'practice'|'review',title:string,subjec
  };
 }
 
-/** An original teaching script for an externally accessed official NCERT chapter. */
-function chapterLesson(kind:'read'|'practice'|'review',title:string,subject:string,minutes:number,officialUrl:string|null,grade=4):TeachingLesson{
+/** An original teaching script for an externally accessed official NCERT Contents item. */
+function chapterLesson(kind:'read'|'practice'|'review',title:string,subject:string,minutes:number,officialUrl:string|null,grade=4,contentLabel='Chapter'):TeachingLesson{
  if(grade===2)return class2ChapterLesson(kind,title,subject,minutes,officialUrl);
 
- const link=officialUrl?' Open the chapter through the official NCERT PDF link on the chapter page.':' Open the chapter through the chapter page link.';
+ const resource=contentLabel.toLowerCase();
+ const link=officialUrl?` Open the ${resource} through the official NCERT PDF link on the ${resource} page.`:` Open the ${resource} through its Homeschool OS page.`;
  const common={
-  materials:'The official NCERT chapter (opened through the chapter page), notebook, pencil',
+  materials:`The official NCERT ${resource} (opened through its page), notebook, pencil`,
   minutes,
   easier:'Read a shorter part together, allow oral answers, and stop before the learner tires. Revisit the same section next time.',
-  harder:'Ask for a second example from the chapter and a written two-sentence explanation without looking back.',
+  harder:`Ask for a second example from the ${resource} and a written two-sentence explanation without looking back.`,
   revisionGuidance:'If the learner cannot explain the idea without looking, mark this session Needs revision and repeat the read-and-explore script after two days.',
  };
  if(kind==='read')return{
   ...common,
   objective:`Read a manageable part of "${title}" together and retell its main idea in the learner's own words.`,
-  prep:'Preview the official chapter yourself first. Choose one short section and one idea worth stopping at. This script is original HomeSchool OS guidance; the textbook text stays on the official NCERT site.',
+  prep:`Preview the official ${resource} yourself first. Choose one short section and one idea worth stopping at. This script is original HomeSchool OS guidance; the textbook text stays on the official NCERT site.`,
   example:'Model a think-aloud after one paragraph: "I think this part is about ___ because the words ___ and ___ keep appearing." Then let the learner try the next paragraph.',
   steps:[
-   'Open the official chapter together.'+link,
+   `Open the official ${resource} together.`+link,
    'Read one short section aloud, pausing once to name an unfamiliar word and what it might mean from context.',
    'Model the think-aloud example above on the first paragraph, speaking your reasoning out loud.',
    'Ask the learner to read or listen to the next short part and retell what it was about in one sentence.',
@@ -137,35 +138,35 @@ function chapterLesson(kind:'read'|'practice'|'review',title:string,subject:stri
   ],
   questions:['What is the main idea of the part we read, and which words give you that idea?','Which word or sentence was confusing, and what could we do about it?'],
   exercise:`In your notebook, write or draw one sentence explaining the main idea of the first part of "${title}".`,
-  expectedAnswer:'Expected: a short retell in the learner\'s own words that names the central idea and points to at least one word or sentence from the chapter. The official chapter content is not reproduced here, so accept any accurate retell rather than a memorised line.',
+  expectedAnswer:`Expected: a short retell in the learner's own words that names the central idea and points to at least one word or sentence from the ${resource}. The official NCERT content is not reproduced here, so accept any accurate retell rather than a memorised line.`,
   completionCriteria:'The learner can retell the main idea of the section without reading it aloud word for word. Otherwise choose Needs revision.',
  };
  if(kind==='practice')return{
   ...common,
   objective:`Work through suitable questions or activities from "${title}" with the learner explaining their method.`,
-  prep:'Look at the chapter\'s own questions or activities and choose two or three that match the section already read. Do not invent official answers or copy textbook exercises into this app.',
+  prep:`Look at the ${resource}'s own questions or activities and choose two or three that match the section already read. Do not invent official answers or copy textbook exercises into this app.`,
   example:'Before starting, model one: "I will read the question twice, underline what it asks, then say how I will check my answer."',
   steps:[
    'Reopen the section read in the previous session and recall its main idea together.'+link,
-   'Choose two suitable questions or activities from the official chapter and read each twice.',
+   `Choose two suitable questions or activities from the official ${resource} and read each twice.`,
    'Ask the learner to explain how they will start before they write or draw anything.',
    'Let them work; give one hint only when they ask, and note which part needed a hint.',
-   'Compare the attempt with the chapter\'s own guidance where available and record one thing to revisit.',
+   `Compare the attempt with the ${resource}'s own guidance where available and record one thing to revisit.`,
   ],
   questions:['How did you decide what to do first?','How can you check whether your answer makes sense?'],
   exercise:`Attempt two selected questions or activities from "${title}" and write one sentence about your method.`,
-  expectedAnswer:'Expected: a genuine attempt plus an explanation of the method. Answers depend on the current official edition, so use the chapter\'s own answer guidance where provided; never fabricate an "official" answer here.',
+  expectedAnswer:`Expected: a genuine attempt plus an explanation of the method. Answers depend on the current official edition, so use the ${resource}'s own answer guidance where provided; never fabricate an official answer here.`,
   completionCriteria:'The learner attempts both chosen tasks and can explain at least one method. Effortful work should be marked Needs revision rather than Completed.',
  };
  return{
   ...common,
   objective:`Check understanding of "${title}" by asking the learner to explain two important ideas without looking back.`,
-  prep:'Close the chapter before starting. Prepare two prompts based on the sections actually read. This is a parent-observed understanding check, not a graded test.',
-  example:'Prompt: "Explain the two most important ideas from this chapter and give one example of each." Accept their own words; do not supply the first word.',
+  prep:`Close the ${resource} before starting. Prepare two prompts based on the sections actually read. This is a parent-observed understanding check, not a graded test.`,
+  example:`Prompt: "Explain the two most important ideas from this ${resource} and give one example of each." Accept their own words; do not supply the first word.`,
   steps:[
-   'Ask the learner what they remember from the chapter before reopening anything.',
+   `Ask the learner what they remember from the ${resource} before reopening anything.`,
    'Ask for two important ideas and one example of each, in their own words.',
-   'Reopen the official chapter only to check the one idea they were least sure about.'+link,
+   `Reopen the official ${resource} only to check the one idea they were least sure about.`+link,
    'Together, name one part that is now clear and one part that still needs practice.',
    'If understanding is incomplete, choose Needs revision instead of Completed so the spaced-revision pathway can help.',
   ],
@@ -192,10 +193,13 @@ export function queueCatalogue(grade:string):QueueTask[]{
   instructions:[...m.steps],check:m.check,grade
  }));
  const chapterGrade=Number(grade.replace('Class ',''));
- // Chapter sessions are generated from verified metadata for every supported NCERT grade.
+ // Chapter sessions are generated from verified metadata for every catalogued NCERT grade.
  // Other authored pathways remain available after the chapter-first sequence.
- if(!Number.isInteger(chapterGrade)||chapterGrade<1||chapterGrade>8)return [...annual,...structured,...original];
- const chapters=ncertChapterSlots.filter(c=>c.verifiedTitle&&textbookById(c.bookId)?.grade===chapterGrade).flatMap(c=>{
+ if(!Number.isInteger(chapterGrade)||chapterGrade<1||chapterGrade>10)return [...annual,...structured,...original];
+ // `choose-one` Contents entries stay discoverable in the book index but are not
+ // silently turned into compulsory auto-learning tasks. A parent/school must
+ // select an official option before it is treated as a learning path item.
+ const chapters=ncertChapterSlots.filter(c=>isDefaultChapterSessionEligible(c)&&textbookById(c.bookId)?.grade===chapterGrade).flatMap(c=>{
   const book=textbookById(c.bookId)!;
   const resource='/ncert-books/chapter/'+c.id;
   const base='ncert:'+c.id;
@@ -203,11 +207,12 @@ export function queueCatalogue(grade:string):QueueTask[]{
   const title=c.verifiedTitle as string;
   // Three short parent-led stages, not copied textbook exercises or an asserted chapter length.
   return ([['read',15],['practice',20],['review',10]] as const).map(([kind,minutes])=>{
-   const lesson=chapterLesson(kind,title,book.subject,minutes,officialUrl,chapterGrade);
+   const contentLabel=contentUnitLabelFor(book);
+   const lesson=chapterLesson(kind,title,book.subject,minutes,officialUrl,chapterGrade,contentLabel);
    return {id:base+':'+kind,
     title:title+' · '+(kind==='read'?'Read & explore':kind==='practice'?'Practice':'Understanding check'),
     subject:book.subject,minutes,
-    source:'NCERT chapter (official text accessed externally) · original parent-led '+kind+' script',
+    source:`NCERT ${contentLabel.toLowerCase()} (official text accessed externally) · original parent-led ${kind} script`,
     href:resource,instructions:lesson.steps,check:lesson.completionCriteria,
     grade,lesson,officialUrl};
   });

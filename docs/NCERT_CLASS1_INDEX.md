@@ -1,5 +1,10 @@
 # NCERT Class 1 — Publisher-verified textbook index
 
+> **Historical Class 1 audit scope:** the combined figures below describe this
+> document's original delivery snapshot. The live Phase 7 catalogue is now 77
+> books / 892 verified Contents titles across Classes 1–10; see
+> `CURRICULUM_COMPLETION_MASTER.md` and `PHASE7_NCERT_EXPANSION_REPORT.md`.
+
 ## Delivery summary
 
 - Six Class 1 NCERT book records are catalogued.

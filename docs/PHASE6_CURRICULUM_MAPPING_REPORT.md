@@ -209,7 +209,7 @@ claim.
 |---|---|
 | Required base ancestry | `906d774` is the current branch ancestor at implementation start. |
 | Dependency install | `npm ci` completed successfully (the lockfile’s existing peer-dependency/deprecation notices were reported; no dependency was changed for Phase 6). |
-| Class 5 catalogue audit | `npm run curriculum:inventory` passed: 56 catalogue books / 689 verified titles overall; Class 5 remains 7 books / 86 verified titles. |
+| Class 5 catalogue audit | **Historical Phase 6 delivery result:** `npm run curriculum:inventory` passed with 56 catalogue books / 689 verified titles overall; Class 5 remains 7 books / 86 verified titles. Phase 7 later expanded the live catalogue to 77 books / 892 titles without changing this Class 5 mapping set; see `PHASE7_NCERT_EXPANSION_REPORT.md`. |
 | Registry + mapping audit | `npm run curriculum:mapping-audit` passed: 25 original outcomes, 60 drafts, 0 approved, 26 unmapped; all 86 chapters accounted for. |
 | Isolated migration + workflow test | `tests/curriculum-mapping.test.ts`: **4/4 pass**. Exercises the real forward/rollback migration schema, owner-only approval/rejection/unmapped decisions, append-only revisions, family separation, supersession integrity, no auto-approval and no learner-progress write. |
 | Unit suite | `npm test`: **161/161 pass** (157 previous + 4 Phase 6 tests). |
