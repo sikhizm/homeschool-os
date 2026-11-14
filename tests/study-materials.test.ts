@@ -7,14 +7,15 @@ import {textbookById,chaptersFor,officialChapterPdf} from '../src/lib/ncert/text
 test('chapter prompt includes verified catalogue metadata and explicit source gate',()=>{
  const book=textbookById('ncert-5-maths-mela')!;const chapter=chaptersFor(book.id)[0];
  const prompt=buildStudyPrompt({student:'Learner Example',stage:'Class 5',book,chapter,resourceUrl:officialChapterPdf(chapter)??book.sourceUrl,materials:['full-notes','chapter-test','answer-key'],difficulty:'supportive',language:'English'});
- for(const item of ['Learner Example','Class 5','Mathematics','Maths Mela',chapter.verifiedTitle!,book.sourceUrl,'STOP','upload the chapter PDF/pages','never','A4 portrait','black-and-white'])assert.ok(prompt.toLowerCase().includes(item.toLowerCase()),item);
+ for(const item of ['Learner Example','Class 5','Mathematics','Maths Mela',chapter.verifiedTitle!,book.sourceUrl,'STOP','upload the chapter PDF/pages','never','A4 portrait','black-and-white','actual downloadable PDF file','Do NOT return HTML','Attach the completed PDF file'])assert.ok(prompt.toLowerCase().includes(item.toLowerCase()),item);
+ assert.ok(!prompt.includes('Create one self-contained HTML document'));
  assert.ok(prompt.includes('Full Chapter Notes; Chapter Test; Separate Answer Key'));
  assert.ok(!prompt.includes('Complete Chapter Mastery Pack'));
 });
 test('complete pack expands the full selected catalogue and difficulty presets stay distinct',()=>{
  const book=textbookById('ncert-3-santoor')!;const chapter=chaptersFor(book.id)[0];
  const make=(difficulty:'supportive'|'standard'|'stretch')=>buildStudyPrompt({student:'Child',stage:'Class 3',book,chapter,resourceUrl:book.sourceUrl,materials:['complete-pack'],difficulty,language:'Punjabi'});
- const p=make('supportive');assert.ok(p.includes('Parent feedback sheet'));assert.ok(p.includes('Practice worksheet — Level 1'));assert.ok(p.includes('Practice worksheet — Level 2'));assert.ok(p.includes('Challenge worksheet — Level 3'));assert.ok(p.includes('Punjabi'));assert.ok(p.includes('independently selected/printed'));assert.ok(!p.includes('Oral Quiz Cards'));
+ const p=make('supportive');assert.ok(p.includes('Parent feedback sheet'));assert.ok(p.includes('Practice worksheet — Level 1'));assert.ok(p.includes('Practice worksheet — Level 2'));assert.ok(p.includes('Challenge worksheet — Level 3'));assert.ok(p.includes('Punjabi'));assert.ok(p.includes('one combined PDF'));assert.ok(p.includes('proper Gurmukhi glyphs'));assert.ok(!p.includes('Oral Quiz Cards'));
  assert.notEqual(p,make('standard'));assert.notEqual(make('standard'),make('stretch'));
  assert.equal(MATERIALS.length,28);
 });
