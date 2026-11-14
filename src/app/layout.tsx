@@ -1,8 +1,10 @@
 import '@neondatabase/auth-ui/css';
 import '@fontsource-variable/nunito';
 import '@fontsource/noto-sans-gurmukhi';
+import '@fontsource/noto-sans-devanagari';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './study-material-studio.css';
 import AppNavigation from '@/components/app-navigation';
 import { PwaRegistration } from '@/components/pwa-tools';
 

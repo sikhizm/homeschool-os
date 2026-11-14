@@ -21,12 +21,12 @@ export async function GET(_request:Request,context:Context){
  try{
   const sql=getSql();
   const rows=await sql`
-   SELECT l.id::text AS learner_id,l.display_name,l.stage,
+   SELECT l.id::text AS learner_id,l.display_name,l.stage,fm.role,
      p.status,p.parent_note,p.updated_at,p.completed_at
    FROM learners l
    JOIN family_members fm ON fm.family_id=l.family_id
    LEFT JOIN ncert_chapter_progress p ON p.learner_id=l.id AND p.chapter_id=${chapterId}
-   WHERE fm.auth_user_id=${who.userId}
+   WHERE fm.auth_user_id=${who.userId} AND l.archived_at IS NULL
    ORDER BY l.created_at,l.id
   `;
   return respond({learners:rows});
