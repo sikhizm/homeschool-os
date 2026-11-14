@@ -93,6 +93,7 @@ export default async function LearnersPage() {
                   <Link href={`/learn/path?learner=${encodeURIComponent(id)}`}>Learning path →</Link>
                   <Link href="/portfolio">Portfolio →</Link>
                   <Link href={`/reports?learner=${encodeURIComponent(id)}`}>Progress review →</Link>
+                  <Link href={`/learners/${encodeURIComponent(id)}/study-library`}>Study library →</Link>
                 </div>
 
                 <footer className="learner-card-footer">

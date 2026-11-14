@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import ChapterProgress from './chapter-progress';
 import ChapterSessions from './chapter-sessions';
+import StudyMaterialStudio from './study-material-studio';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import {
@@ -93,6 +94,10 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
           </p>
         </div>
       </section>
+
+      {sessionEligible && chapter.verifiedTitle ? (
+        <StudyMaterialStudio chapter={chapter} book={book} grade={book.grade} resourceUrl={officialPdf ?? book.sourceUrl} />
+      ) : null}
 
       <ChapterSessions
         chapterId={chapter.id}
