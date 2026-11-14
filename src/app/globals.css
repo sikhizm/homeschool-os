@@ -2673,7 +2673,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media (max-width: 620px) {
   .app-topbar {
     gap: 8px;
-    padding: 9px 12px;
+    padding: calc(9px + env(safe-area-inset-top)) 12px 9px;
   }
 
   .app-topbar-actions {
