@@ -40,6 +40,8 @@ test('mobile PWA keeps install action in header flow and respects bottom safe ar
   assert.match(mobile,/@media \(max-width: 1023px\)/);
   assert.match(mobile,/\.app-topbar \.app-nav-actions\s*\{[^}]*position:\s*static/s);
   assert.match(mobile,/padding-bottom:\s*calc\(88px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(mobile,/padding-top:\s*calc\(10px \+ env\(safe-area-inset-top\)\)/);
+  assert.match(mobile,/padding:\s*calc\(9px \+ env\(safe-area-inset-top\)\) 12px 9px/);
   assert.match(mobile,/\.app-bottom-nav\s*\{[^}]*env\(safe-area-inset-bottom\)/s);
 });
 
