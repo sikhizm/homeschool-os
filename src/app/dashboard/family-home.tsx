@@ -38,6 +38,11 @@ function greeting(date:Date):string{
  const h=date.getHours();
  return h<12?'Good morning':h<17?'Good afternoon':'Good evening';
 }
+function formatFamilyGreetingName(familyName:string|null):string{
+ const trimmed=(familyName??'').trim();
+ if(!trimmed)return 'family';
+ return /\bfamily$/i.test(trimmed)?trimmed:`${trimmed} family`;
+}
 function streakDays(history:{updatedAt:string}[]):number{
  const days=new Set(history.map(h=>istDateKey(new Date(h.updatedAt))));
  if(!days.size)return 0;
@@ -136,13 +141,13 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
 
  const heroPercent=derived?.progress??0;
  return <section aria-labelledby="family-home-title" className="family-home">
-  <header className="family-home-head">
+  <header className="family-home-head studio-page-head">
    <div>
-    <p className="eyebrow">{greeting(now)}, {familyName?`${familyName} family`:'family'} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
+    <p className="eyebrow">{greeting(now)}, {formatFamilyGreetingName(familyName)} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
     <h1 id="family-home-title">Your family learning studio</h1>
    </div>
    <div className="family-home-head-right">
-    <span className="family-avatar" aria-hidden="true">{(familyName??'F').slice(0,1).toUpperCase()}</span>
+    <span className="family-avatar" aria-hidden="true">{(familyName??'F').trim().slice(0,1).toUpperCase()||'F'}</span>
     {derived&&derived.attention.length>0&&<a className="attention-pill" href="#parent-attention">
      <span aria-hidden="true">●</span> {derived.attention.length} {derived.attention.length===1?'item needs':'items need'} you
     </a>}

@@ -106,7 +106,7 @@ export function LearnHome({initialLearnerId}:{initialLearnerId?:string}){
  </main>;
 
  return <main className="learn-home" data-tier={tier}>
-  <header className="learn-head">
+  <header className="learn-head studio-page-head">
    <div>
     <p className="eyebrow">Learner mode · {tierLabel(tier)}</p>
     <h1>{learner.name}&rsquo;s space</h1>
