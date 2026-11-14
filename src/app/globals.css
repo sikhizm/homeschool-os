@@ -2517,3 +2517,236 @@ button:active:not(:disabled){transform:translateY(1px)}
   }
 }
 
+/* Mobile PWA layout hardening after the unified studio redesign.
+   Keep the desktop studio/sidebar rules untouched; these overrides apply
+   only below the desktop navigation breakpoint. */
+@media (max-width: 1023px) {
+  .app-shell,
+  .app-shell-body,
+  .app-shell-content {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .app-shell-content {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  }
+
+  /* Keep the install action in the header's normal flex flow. The old
+     absolute positioning could cover the mode switch on narrow screens. */
+  .app-topbar {
+    width: 100%;
+    min-width: 0;
+    min-height: 58px;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .app-brand-mobile {
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+
+  .app-topbar-actions {
+    min-width: 0;
+    flex: 0 1 auto;
+    gap: 7px;
+  }
+
+  .app-topbar .app-nav-actions {
+    position: static;
+    inset: auto;
+    z-index: auto;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+  }
+
+  .app-topbar .app-nav-actions .pwa-install-trigger {
+    min-height: 36px !important;
+    padding: 7px 10px !important;
+    font-size: 11px !important;
+  }
+
+  .app-bottom-nav {
+    padding-bottom: calc(8px + env(safe-area-inset-bottom));
+  }
+
+  .app-bottom-link {
+    min-width: 0;
+    font-size: clamp(9px, 2.8vw, 11px);
+  }
+
+  .app-context-wrap,
+  .app-context-nav,
+  .studio-stack,
+  .studio-stack > * {
+    min-width: 0;
+  }
+
+  .family-dashboard,
+  .library-page,
+  .learners-page,
+  .settings-page,
+  .learn-home,
+  .learn-path {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    padding-left: clamp(14px, 4vw, 24px);
+    padding-right: clamp(14px, 4vw, 24px);
+  }
+
+  .studio-stack {
+    gap: 16px;
+  }
+
+  .studio-page-head {
+    align-items: flex-start;
+  }
+
+  .studio-page-head > div:first-child {
+    min-width: 0;
+    flex: 1 1 220px;
+  }
+
+  .family-home-head-right,
+  .family-home-head,
+  .learner-card-footer,
+  .report-period-pills,
+  .portfolio-form-actions {
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .family-learner-grid,
+  .settings-bento-grid,
+  .learner-add-studio,
+  .verify-legend-grid,
+  .reflection-prompt-grid,
+  .subject-grid,
+  .portfolio-form-pair,
+  .lesson-signoff-row,
+  .planning-bar-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .week-strip-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .learner-quick-links {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .learner-quick-links a {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .workspace-panel,
+  .card {
+    min-width: 0;
+  }
+
+  .workspace-panel table,
+  .card table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .workspace-panel input,
+  .workspace-panel select,
+  .workspace-panel textarea,
+  .workspace-panel button,
+  .card input,
+  .card select,
+  .card textarea {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 620px) {
+  .app-topbar {
+    gap: 8px;
+    padding: 9px 12px;
+  }
+
+  .app-topbar-actions {
+    gap: 5px;
+  }
+
+  .app-topbar .mode-chip {
+    display: none;
+  }
+
+  .app-topbar .mode-switch {
+    padding: 6px 9px;
+    font-size: 11px;
+  }
+
+  .app-topbar .app-nav-actions .pwa-install-trigger {
+    padding: 7px 9px !important;
+    font-size: 10.5px !important;
+  }
+
+  .app-brand-mobile .brand-mark {
+    width: 36px;
+    height: 36px;
+    font-size: 19px;
+  }
+
+  .app-brand-mobile .brand-copy strong {
+    font-size: 14px;
+  }
+
+  .dashboard-welcome:has(.section-art) {
+    padding: 18px;
+    gap: 8px;
+  }
+
+  .section-art {
+    width: 76px;
+    height: 76px;
+    flex-basis: 76px;
+  }
+
+  .workspace-panel {
+    padding: 18px;
+  }
+
+  .family-learner-card header {
+    flex-wrap: wrap;
+  }
+
+  .family-learner-card header > div {
+    min-width: 0;
+    flex: 1 1 130px;
+  }
+
+  .family-learner-card header > .pill {
+    font-size: 10px;
+    padding: 5px 8px;
+  }
+
+  .week-strip-grid {
+    gap: 8px;
+  }
+}
+
+@media (max-width: 380px) {
+  .app-brand-mobile .brand-copy {
+    display: none;
+  }
+
+  .app-topbar-actions {
+    gap: 4px;
+  }
+
+  .learner-quick-links {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
