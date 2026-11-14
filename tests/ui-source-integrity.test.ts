@@ -32,3 +32,26 @@ test('reports, lessons and pilot pages use styled reflection lines instead of ra
     assert.doesNotMatch(source,/_{6,}/,`${rel} should not render raw underscore lines`);
   }
 });
+
+
+test('mobile PWA keeps install action in header flow and respects bottom safe area',()=>{
+  const css=readFileSync(resolve(process.cwd(),'src/app/globals.css'),'utf8');
+  const mobile=css.slice(css.lastIndexOf('/* Mobile PWA layout hardening'));
+  assert.match(mobile,/@media \(max-width: 1023px\)/);
+  assert.match(mobile,/\.app-topbar \.app-nav-actions\s*\{[^}]*position:\s*static/s);
+  assert.match(mobile,/padding-bottom:\s*calc\(88px \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(mobile,/\.app-bottom-nav\s*\{[^}]*env\(safe-area-inset-bottom\)/s);
+});
+
+test('desktop studio grids collapse cleanly for mobile widths',()=>{
+  const css=readFileSync(resolve(process.cwd(),'src/app/globals.css'),'utf8');
+  const mobile=css.slice(css.lastIndexOf('/* Mobile PWA layout hardening'));
+  for(const selector of [
+    '.family-learner-grid',
+    '.settings-bento-grid',
+    '.learner-add-studio',
+    '.reflection-prompt-grid',
+    '.planning-bar-row',
+  ]) assert.ok(mobile.includes(selector),selector);
+  assert.match(mobile,/grid-template-columns:\s*minmax\(0, 1fr\)/);
+});
