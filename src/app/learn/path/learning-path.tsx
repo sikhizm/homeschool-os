@@ -69,7 +69,7 @@ export function LearningPath({initialLearnerId}:{initialLearnerId?:string}){
  const ready=learner.path?.filter(n=>n.state==='ready').length??0;
 
  return <main className="learn-path">
-  <header className="learn-head">
+  <header className="learn-head studio-page-head">
    <div>
     <p className="eyebrow">Learning path · {learner.grade}</p>
     <h1>{learner.name}&rsquo;s journey</h1>
