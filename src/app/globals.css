@@ -2752,3 +2752,107 @@ button:active:not(:disabled){transform:translateY(1px)}
   }
 }
 
+
+/* Learner profile editing */
+.learner-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.learner-edit-action {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.learner-edit-trigger {
+  min-height: 38px;
+  padding: 8px 13px;
+  border: 1px solid #b9cec0;
+  border-radius: 9px;
+  background: #fff;
+  color: #185B47;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.learner-edit-trigger:hover {
+  background: #f1f7f2;
+}
+.learner-edit-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  width: min(100%, 520px);
+  padding: 16px;
+  border: 1px solid #dce8e0;
+  border-radius: 12px;
+  background: #fbfdf9;
+}
+.learner-edit-form .learner-field {
+  min-width: 0;
+}
+.learner-edit-form .learner-field label {
+  display: block;
+  margin-bottom: 7px;
+  font-size: 12px;
+  font-weight: 750;
+}
+.learner-edit-form .learner-field input,
+.learner-edit-form .learner-field select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 9px 10px;
+  border: 1px solid #cbdcd1;
+  border-radius: 9px;
+  background: #fff;
+  color: #203b32;
+  font: inherit;
+  font-size: 14px;
+}
+.learner-edit-form > button {
+  grid-column: 1 / -1;
+  justify-self: start;
+  min-height: 40px;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 9px;
+  background: #185B47;
+  color: white;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.learner-edit-form > button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+.learner-edit-form .learner-error {
+  grid-column: 1 / -1;
+}
+.learner-edit-saved {
+  color: #185B47;
+  font-size: 12px;
+  font-weight: 700;
+}
+@media (max-width: 600px) {
+  .learner-card-actions {
+    justify-content: flex-start;
+    width: 100%;
+  }
+  .learner-edit-action {
+    width: 100%;
+  }
+  .learner-edit-form {
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+  .learner-edit-form > button,
+  .learner-edit-form .learner-error {
+    grid-column: 1;
+  }
+}
