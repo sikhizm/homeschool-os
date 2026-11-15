@@ -15,7 +15,7 @@ export function buildStudyPrompt(input:StudyPromptInput):string {
  const layout=subject.includes('math')?'Show clear equations, numbered working and generous calculation space; include number lines or geometry only when supported by the source.':subject.includes('science')||subject.includes('environment')?'Use scientific vocabulary, observation tables and safe practical activities; diagrams must be original, labelled and source-supported.':subject.includes('english')||subject.includes('hindi')||subject.includes('punjabi')?'Include suitable reading, vocabulary, grammar or writing practice, and respect the script and language requested.':subject.includes('social')?'Use timelines, comparisons or map activities only when relevant and supported by the chapter.':'Use a structure appropriate to this subject and avoid unsupported visuals.';
  const output=input.outputFormat??'pdf';
  const fileRules=output==='pdf'
- ? `Create and attach one actual downloadable PDF file. Do not return HTML/Markdown source or a long text substitute. Filename: ${input.stage.replace(/\\s+/g,'-')}-${input.book.subject.replace(/[^a-z0-9]+/gi,'-')}-${input.chapter.label.replace(/[^a-z0-9]+/gi,'-')}-study-material.pdf. If PDF attachment is unavailable, say so; do not silently switch formats.`
+ ? `Create and attach one actual downloadable PDF file. For a complete pack, provide one combined PDF with clearly separated, titled sections. Do NOT return HTML, Markdown source, or a long text substitute. Filename: ${input.stage.replace(/\\s+/g,'-')}-${input.book.subject.replace(/[^a-z0-9]+/gi,'-')}-${input.chapter.label.replace(/[^a-z0-9]+/gi,'-')}-study-material.pdf. If PDF attachment is unavailable, say so; do not silently switch formats.`
  : output==='html'
  ? `Create and attach one downloadable, self-contained .html file, not a long HTML code block in chat. Include all CSS inline, responsive browser styling and A4 print styles; no remote assets, scripts, trackers or external dependencies. Filename: ${input.stage.replace(/\\s+/g,'-')}-${input.book.subject.replace(/[^a-z0-9]+/gi,'-')}-${input.chapter.label.replace(/[^a-z0-9]+/gi,'-')}-study-material.html. If file attachment is unavailable, say so; do not paste the entire source into chat.`
  : `Create and attach BOTH a downloadable PDF and a downloadable self-contained .html file containing the same learning material. The PDF is the print-ready version; the HTML must have inline CSS, responsive browser styling and A4 print styles, with no remote assets, scripts, trackers or external dependencies. Do not paste either complete source/document into chat. If both files cannot be attached, say exactly which format is unavailable rather than silently substituting.`;
@@ -46,7 +46,7 @@ ${fileRules}
 DOCUMENT DESIGN
 - Use A4 portrait with print-safe margins for printable content; responsive layout for HTML.
 - Strictly monochrome black-and-white printing; readable typography, consistent heading hierarchy and comfortable line spacing.
-- Embed or use fonts that correctly render the requested language and script. Verify Gurmukhi/Devanagari glyphs.
+- Embed or use fonts that correctly render the requested language and script. For Punjabi, use a font with proper Gurmukhi glyphs; for Hindi, use a font with proper Devanagari glyphs. Verify no glyphs are missing.
 - Include student, class, subject, textbook, chapter, document type and a blank date field.
 - Include a small Homeschool OS footer and printed page numbers in the PDF/HTML print layout.
 - Keep test questions and answer keys in separate sections; never put answers immediately below student-facing questions.
@@ -55,5 +55,5 @@ DOCUMENT DESIGN
 - Use accessible headings, lists and simple tables. ${layout}${input.largePrint?' Use large-print layout: at least 16pt body text, extra spacing and simplified page density.':''}
 
 FINAL RESPONSE
-Attach the requested downloadable file(s). Keep the accompanying message brief and identify each filename and its contents. Do not include the complete document source in chat.`;
+${output==='pdf'?'Attach the completed PDF file.':output==='html'?'Attach the completed HTML file.':'Attach both completed files.'} Keep the accompanying message brief and identify each filename and its contents. Do not include the complete document source in chat.`;
 }
