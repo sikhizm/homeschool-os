@@ -21,7 +21,6 @@ export function navigationForPath(pathname:string){
  ]};
  else if(['/curriculum-studio','/curriculum','/curriculum-mapping','/global-curriculum','/ncert-books','/learning-pathways','/roadmap'].some(route=>within(pathname,route)))context={label:'Explore learning',links:[
   {href:'/curriculum-studio',label:'Curriculum studio'},
-  {href:'/curriculum-mapping',label:'Mapping review'},
   {href:'/learning-pathways',label:'Annual pathways'},
   {href:'/curriculum',label:'Competencies'},
   {href:'/global-curriculum',label:'Global pathways'},

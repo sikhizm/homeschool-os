@@ -1,0 +1,11 @@
+.ncert-filter-grid {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto;
+}
+
+.ncert-filter-grid .workspace-field { min-width: 0; }
+.ncert-filter-grid select { width: 100%; min-width: 0; }
+#ncert-title-review-note { font-size: 14px; line-height: 1.5; }
+
+@media (max-width: 680px) {
+  .ncert-filter-grid { grid-template-columns: minmax(0, 1fr); }
+}

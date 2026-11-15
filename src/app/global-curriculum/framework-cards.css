@@ -1,0 +1,90 @@
+.framework-evidence-layout {
+  container: framework-evidence / inline-size;
+  min-width: 0;
+  margin-bottom: 27px;
+}
+
+.framework-evidence-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+@container framework-evidence (min-width: 620px) {
+  .framework-evidence-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@container framework-evidence (min-width: 870px) {
+  .framework-evidence-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+@container framework-evidence (min-width: 1120px) {
+  .framework-evidence-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+.framework-evidence-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #e5e9de;
+  border-radius: 18px;
+  background: #fffefa;
+  color: #3e5549;
+  overflow-wrap: anywhere;
+}
+
+.framework-evidence-card:nth-child(5n + 2) { background: #fdf6ed; }
+.framework-evidence-card:nth-child(5n + 3) { background: #f6f4fb; }
+.framework-evidence-card:nth-child(5n + 4) { background: #eff6ee; }
+.framework-evidence-card:nth-child(5n + 5) { background: #f6f7e9; }
+
+.framework-evidence-card h3 {
+  margin: 0 0 5px;
+  color: var(--ink, #202c28);
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+.framework-evidence-card p {
+  margin: 0;
+  line-height: 1.55;
+  font-size: 14px;
+}
+
+.framework-evidence-card .framework-evidence-badge {
+  box-sizing: border-box;
+  max-width: 100%;
+  padding: 5px 9px;
+  border-radius: 9px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.framework-evidence-details {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.framework-evidence-details dt { font-weight: 800; }
+.framework-evidence-details dd { margin: 2px 0 0; }
+
+.framework-evidence-card footer {
+  display: grid;
+  gap: 8px;
+  padding-top: 10px;
+  margin-top: auto;
+  border-top: 1px solid #e0e6dc;
+  width: 100%;
+}
+
+.framework-evidence-card footer .muted { color: #4d6357; }
+.framework-evidence-card a { font-size: 14px; font-weight: 800; color: #185b47; text-decoration: underline; }

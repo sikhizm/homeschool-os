@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import {
- class5MappingProposalById,class5ReviewQueue,mappingRelationshipTypes,mappingReviewStatuses,
+ class5MappingProposalById,class5ReviewQueue,class5ReviewQueueMetrics,mappingRelationshipTypes,mappingReviewStatuses,
  type MappingRelationshipType,type MappingRevision,type MappingReviewStatus,
 } from './class5-mapping';
 import {outcomeById} from './outcome-registry';
@@ -114,6 +114,19 @@ export async function readClass5ReviewQueue(sql:MappingSql,userId:string){
  if(!family)return {authorized:false as const,items:[],revisions:[]};
  const revisions=await revisionsForFamily(sql,family.id);
  return {authorized:true as const,items:class5ReviewQueue(revisions),revisions};
+}
+
+/** Owner-only overview for Library discovery. A storage failure is not an empty queue. */
+export async function readClass5ReviewOverview(sql:MappingSql,userId:string){
+ const family=await ownerFamily(sql,userId);
+ if(!family)return null;
+ try{
+  const revisions=await revisionsForFamily(sql,family.id);
+  const {draftMappings,inReviewMappings}=class5ReviewQueueMetrics(class5ReviewQueue(revisions));
+  return {pending:draftMappings+inReviewMappings};
+ }catch{
+  return {pending:null};
+ }
 }
 
 function actionStatus(action:MappingReviewAction):MappingReviewStatus{
