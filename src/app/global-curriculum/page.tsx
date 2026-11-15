@@ -41,7 +41,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
   {globalFrameworks.map((framework,index)=>{
    const evidence=frameworkEvidenceFor(framework.id)!;
    const contextCount=globalSkills.filter(skill=>skill.frameworks.includes(framework.id)).length;
-   return <article className="framework-evidence-card" key={framework.id}>
+   return <article className="framework-evidence-card" key={framework.id} id={'framework-'+framework.id}>
     <span className="global-framework-icon" aria-hidden="true">{['✦','✳','◎','∑','◈','▤','✎'][index%7]}</span>
     <header>
      <h3>{framework.label}</h3>
@@ -71,7 +71,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
   </form>
   <p className="muted">{skills.length} matching suggestions · {total} in this stage. Framework filters select editorially relevant themes, not official standards mapped line-by-line.</p>
  </section>
- <div className="global-skill-grid">{skills.map(s=><article className="global-skill-card" key={s.id}>
+ <div className="global-skill-grid">{skills.map(s=><article className="global-skill-card" key={s.id} id={'skill-'+s.id}>
    <div className="global-skill-top"><span className="global-skill-symbol" aria-hidden="true">{s.subject==='Mathematics'?'∑':s.subject==='English'?'Aa':s.subject==='Our world'?'✿':'ੴ'}</span><span className="eyebrow">{s.subject}</span></div>
    <h3>{s.title}</h3><p className="global-skill-outcome">{s.outcome}</p>
    <div className="global-framework-tags">{s.frameworks.map(f=><span key={f}>{globalFrameworks.find(fr=>fr.id===f)?.label}</span>)}</div>

@@ -7,7 +7,7 @@ import LessonStudio from './lesson-studio';
 
 export const dynamic = 'force-dynamic';
 
-export default async function LessonsPage() {
+export default async function LessonsPage({ searchParams }: { searchParams: Promise<{ activity?: string }> }) {
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -34,6 +34,7 @@ export default async function LessonsPage() {
     WHERE l.family_id = ${families[0].id} AND l.archived_at IS NULL
     ORDER BY l.created_at, l.id
   `;
+  const { activity } = await searchParams;
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
   return (
     <main className="family-dashboard studio-stack">
@@ -48,6 +49,8 @@ export default async function LessonsPage() {
         <SectionArtwork theme="create" />
       </div>
       <LessonStudio
+        key={activity ?? ''}
+        initialActivity={activity}
         learners={learners.map((l) => ({
           id: String(l.id),
           name: String(l.display_name),

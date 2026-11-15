@@ -62,7 +62,7 @@ export function activeShellDestination(pathname:string,destinations:ShellDestina
  return destinations.find(destination=>shellDestinationIsActive(pathname,destination))??null;
 }
 /** Routes that render inside the authenticated app shell. */
-export const privateRoutes=['/learning-pathways','/roadmap','/dashboard','/planning','/learners','/library','/settings','/learn','/curriculum','/curriculum-mapping','/global-curriculum','/curriculum-studio','/ncert-books','/lessons','/portfolio','/reports','/november-pilot'];
+export const privateRoutes=['/learning-pathways','/roadmap','/dashboard','/planning','/learners','/library','/settings','/learn','/curriculum','/curriculum-mapping','/global-curriculum','/curriculum-studio','/ncert-books','/lessons','/portfolio','/reports','/november-pilot','/study-reader'];
 export function isPrivateRoute(pathname:string){
  return privateRoutes.some(route=>within(pathname,route));
 }

@@ -7,6 +7,7 @@ import {
  activeShellDestination,bottomDestinations,isPrivateRoute,navigationForPath,
  navigationLinkIsActive,shellDestinationIsActive,sidebarDestinations,
 } from '@/lib/navigation';
+import GlobalSearch from '@/components/global-search';
 import {PwaInstallButton} from '@/components/pwa-tools';
 
 const COLLAPSE_KEY='homeschool-os-sidebar-collapsed';
@@ -76,6 +77,7 @@ export default function AppNavigation({children}:{children:ReactNode}){
      <span aria-hidden="true">{collapsed?'»':'«'}</span>
     </button>
    </div>
+   <GlobalSearch placement="sidebar"/>
    <nav className="app-primary-nav" aria-label="Primary navigation">
     {sidebarDestinations.map(destination=>{
      const active=shellDestinationIsActive(pathname,destination);
@@ -101,6 +103,7 @@ export default function AppNavigation({children}:{children:ReactNode}){
      <span className="brand-copy"><strong>Homeschool<span>OS</span></strong></span>
     </Link>
     <div className="app-topbar-actions">
+     <GlobalSearch placement="topbar"/>
      <span className="mode-chip" title={inLearnerMode?'You are browsing learner mode':'You are browsing parent tools'}>
       {inLearnerMode?'Learner mode':'Parent mode'}
      </span>

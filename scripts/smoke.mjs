@@ -181,3 +181,9 @@ const enrichment = await fetch(root + '/library/enrichment?stage=ukg', { redirec
 assert.ok([307, 308].includes(enrichment.status));
 assert.ok(enrichment.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/library/enrichment: unauthenticated visitor redirected to sign-in');
+
+const globalSearch = await fetch(root + '/api/search?q=Class%204&category=books');
+assert.equal(globalSearch.status, 401);
+assert.ok(globalSearch.headers.get('cache-control')?.includes('no-store'));
+assert.deepEqual(await globalSearch.json(), { error: 'Sign in to search HomeSchool OS.' });
+console.log('Global search: unauthenticated access blocked, no-store');
