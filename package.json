@@ -26,7 +26,8 @@
     "db:migrate:planning-competencies": "node scripts/planning-competencies-migration.mjs",
     "curriculum:catalogue-audit": "tsx scripts/curriculum-catalogue-audit.ts",
     "curriculum:framework-audit": "tsx scripts/framework-evidence-audit.ts",
-    "phase6:quality": "tsx scripts/phase6-quality-audit.ts"
+    "phase6:quality": "tsx scripts/phase6-quality-audit.ts",
+    "db:migrate:study-material-pdf": "node scripts/study-material-pdf-migration.mjs"
   },
   "dependencies": {
     "@fontsource-variable/nunito": "^5.3.0",
