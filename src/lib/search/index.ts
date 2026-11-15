@@ -197,7 +197,7 @@ export function searchCatalogue(query: string, category: SearchFilter = 'all', o
     });
     if (weights.includes(0)) return [];
     const bonus = title === phrase ? 10000 : title.startsWith(phrase) ? 1000 : title.includes(phrase) ? 200 : 0;
-    return [{ doc, score: bonus + weights.reduce((sum, weight) => sum + weight, 0) + (doc.id.startsWith('book:') ? 1 : 0) }];
+    return [{ doc, score: bonus + weights.reduce<number>((sum, weight) => sum + weight, 0) + (doc.id.startsWith('book:') ? 1 : 0) }];
   });
   hits.sort((a, b) => b.score - a.score);
   const offset = options.offset ?? 0;
