@@ -57,7 +57,12 @@ export const ncertTextbooks:Textbook[]=[
     "sourceUrl": "https://ncert.nic.in/textbook.php?demm1=0-14",
     "referenceUrl": "https://scertharyana.gov.in/document-category/textbooks-class-4/",
     "editionLabel": "2025 first edition; current reprint to verify",
-    "status": "book-confirmed-chapter-titles-pending"
+    "status": "book-confirmed-chapter-titles-pending",
+    pdfAuditAttempts:{
+      1:{inconclusive:true,evidence:'15 November 2026: the web fetch service returned HTTP 502 for the official chapter URL.'},
+      2:{inconclusive:true,evidence:'15 November 2026: the web fetch service timed out on the official chapter URL.'},
+      3:{inconclusive:true,evidence:'15 November 2026: the web fetch service returned HTTP 502 for the official chapter URL.'},
+    }
   },
   {
     "id": "ncert-4-santoor",
@@ -321,7 +326,7 @@ export function officialChapterPdf(chapter:ChapterSlot):string|null {
  if(chapter.officialPdf)return chapter.officialPdf.url;
  // Explicit references mean an audited Phase 7-style record. Do not derive a
  // second URL for an omitted/non-contiguous chapter.
- if(book.verifiedPdfReferences||book.directPdfAuditComplete)return null;
+ if(book.directPdfAuditComplete||(book.verifiedPdfReferences&&!book.legacyPdfPatternFallback))return null;
  if(!/^[a-z]{4}[1-9]$/.test(book.textbookCode))return null;
  // Pre-Phase-7 compatibility only. See the catalogue data provenance.
  if(book.verifiedPdfChapters!==undefined&&chapter.chapterNumber>book.verifiedPdfChapters)return null;

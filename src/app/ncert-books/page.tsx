@@ -1,7 +1,10 @@
 import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
-import {contentUnitLabelFor,isDefaultChapterSessionEligible,selectTextbooks,chaptersFor,officialChapterPdf,textbookAudit} from '@/lib/ncert/textbooks';
+import {contentUnitLabelFor,isDefaultChapterSessionEligible,selectTextbooks,chaptersFor,textbookAudit} from '@/lib/ncert/textbooks';
+import {chapterPdfEvidence,mappingEvidence,mappingLabels,pdfLabels} from '@/lib/ncert/catalogue-evidence';
+import {familyMappingEvidence} from '@/lib/ncert/family-catalogue-evidence';
+import './evidence.css';
 import {class5ChapterAccountById} from '@/lib/curriculum/class5-mapping';
 import {globalSkills} from '@/lib/global-curriculum/catalogue';
 import {classesWithoutTextbooks,textbookGradeOptions} from '@/lib/library/grade-options';
@@ -15,6 +18,8 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  const {data:session}=await auth.getSession();if(!session?.user)redirect('/auth/sign-in');
  const p=await searchParams;
  const selectedGrade=textbookGradeOptions.some(option=>option.grade===Number(p.grade))?Number(p.grade):4;
+ const evidence = selectedGrade === 5 ? await familyMappingEvidence(session.user.id) : null;
+ const statusFor = mappingEvidence(evidence?.revisions);
  const subject=currentSubject(selectedGrade,p.subject);
  const books=selectTextbooks(selectedGrade,subject);
  const selectedBook=books.find(x=>x.id===p.book)??books[0]??null;
@@ -27,7 +32,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM ENGINE · TEXTBOOK INDEX</span><h1>One chapter at a time</h1><p className="muted">Find the right NCERT book, view its chapter index and separate verified textbook facts from learning suggestions awaiting editorial review.</p></div><SectionArtwork theme="explore"/></div>
  <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span>/</span><Link href="/global-curriculum">Global curriculum</Link><span>/</span><strong>NCERT books</strong></nav>
  <div className="ncert-stats" aria-label="Catalogue audit summary">
-  <div><strong>{stats.books}</strong><span>Books in catalogue</span></div><div><strong>{stats.chapterSlots}</strong><span>Numbered chapter slots</span></div><div><strong>{stats.verifiedChapterTitles}</strong><span>Verified Contents entries</span></div><div><strong>{stats.approvedSkillMappings}</strong><span>Approved skill mappings</span></div>
+  <div><strong>{stats.books}</strong><span>Books in catalogue</span></div><div><strong>{stats.chapterSlots}</strong><span>Numbered chapter slots</span></div><div><strong>{stats.verifiedChapterTitles}</strong><span>Verified Contents entries</span></div><div><Link href="/ncert-books/audit">View catalogue audit →</Link></div>
  </div>
  <section className="workspace-panel">
   <div className="ncert-heading"><div><span className="eyebrow">TEXTBOOK DIRECTORY</span><h2>Choose a class and book</h2><p className="muted">The catalogue currently includes books for Classes 1–10. Every indexed chapter, project or unit title has an official Contents source; each book separately states its edition, language, category and direct-PDF availability. Books with pending contents remain identified separately.</p></div><span className="ncert-audit-note">Editorial audit active</span></div>
@@ -55,17 +60,25 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  </aside>
  <section className="workspace-panel ncert-chapter-panel">
   {selectedBook&&<><div className="ncert-chapter-intro"><div><span className="eyebrow">OFFICIAL BOOK IDENTIFIED</span><h2>{selectedBook.title}</h2><p>Class {selectedBook.grade} · {selectedBook.subject} · {selectedBook.language} · {selectedBook.category?.replace(/-/g,' ')??'category pending'}{selectedBook.volumeLabel?` · ${selectedBook.volumeLabel}`:''} · NCERT</p></div><span className="ncert-mini-book" aria-hidden="true">▤</span></div>
-  <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} ${contentUnitLabelFor(selectedBook).toLowerCase()} titles checked · ${chapters.filter(c=>Boolean(officialChapterPdf(c))).length} direct PDF links available`:'Book identified · Contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
-  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. Direct links follow their recorded audit policy; Phase 7 records expose a direct PDF only when it was individually checked. Every other indexed item falls back to the official book portal. Confirm the current edition before assigning skills.</p>
+  <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} ${contentUnitLabelFor(selectedBook).toLowerCase()} titles checked · ${chapters.filter(c=>chapterPdfEvidence(selectedBook,c).status==='verified').length} individually verified PDFs`:'Book identified · Contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
+  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. Individually verified PDFs open directly. Other entries link to the official book portal. Confirm the current edition before assigning skills.</p>
   {chapters.length===0&&<p className="ncert-pending">The Contents index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
-  <div className="ncert-chapter-list">{chapters.map(c=>{const chapterUrl=officialChapterPdf(c);const mapping=selectedGrade===5?class5ChapterAccountById(c.id):undefined;const sessionEligible=isDefaultChapterSessionEligible(c);const mappingNote=mapping?.candidateMappingIds.length?`${mapping.candidateMappingIds.length} draft outcome proposal${mapping.candidateMappingIds.length===1?'':'s'} awaiting parent review`:mapping?.unmappedReason?'Explicitly left unmapped pending specialist evidence':c.mappingStatus==='unmapped'?'No approved competency link':'Competency link available';const sessionNote=sessionEligible?(chapterUrl?'Learning page and official PDF link available':'Learning page available · official book portal fallback'):'Official selection required · not auto-assigned';return <div className="ncert-chapter-row" key={c.id}>
+  <div className="ncert-chapter-list">{chapters.map(c=>{
+    const resource=chapterPdfEvidence(selectedBook,c);
+    const mapping=selectedGrade===5?class5ChapterAccountById(c.id):undefined;
+    const eligible=isDefaultChapterSessionEligible(c);
+    return <div className="ncert-chapter-row ncert-evidence-row" key={c.id}>
     <span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span>
     <div className="ncert-chapter-description">
       <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for ${c.label.toLowerCase()}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
-      <small>{c.label} · {sessionNote} · {mappingNote}</small>
+      <dl className="ncert-evidence-list">
+       <div><dt>Learning page</dt><dd>Available{!eligible&&c.selection==='choose-one'?' · choose in official source':''}</dd></div>
+       <div><dt>NCERT resource</dt><dd title={resource.evidence}>{pdfLabels[resource.status]}</dd></div>
+       <div><dt>Competency</dt><dd>{mappingLabels[statusFor(c)]}</dd></div>
+      </dl>
     </div>
-    {mapping?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(c.id)}`}>Review mapping</Link>:null}
-    <a className="ncert-chapter-open" href={chapterUrl??selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Open on NCERT <span aria-hidden="true">↗</span></a>
+    {mapping&&evidence?.familyReviewsVisible?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(c.id)}`}>Review mapping</Link>:null}
+    <a className="ncert-chapter-open" href={resource.href} target="_blank" rel="noopener noreferrer">{resource.status==='verified'?'Open NCERT PDF':'Open NCERT portal'} <span aria-hidden="true">↗</span></a>
   </div>})}</div></>}
  </section>
  </div>}

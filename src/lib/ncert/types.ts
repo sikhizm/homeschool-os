@@ -15,6 +15,8 @@ export type OfficialPdfReference={
  /** Brief factual audit note; never an inferred code-pattern claim. */
  verificationNote:string;
 };
+export type PdfAuditAttempt = { evidence: string; inconclusive?: true };
+
 export type Textbook={
  id:string;grade:number;subject:string;title:string;language:string;publisher:'NCERT';
  textbookCode:string;chapterCount:number;sourceUrl:string;referenceUrl:string;
@@ -32,6 +34,9 @@ export type Textbook={
   * must use `verifiedPdfReferences` instead: PDFs are never inferred from a code.
   */
  verifiedPdfChapters?:number;
+ /** Numbered entries whose direct PDF could not be confirmed in an actual check. */
+ legacyPdfPatternFallback?:true;
+ pdfAuditAttempts?:Readonly<Record<number,PdfAuditAttempt>>;
  /** Individually verified direct PDFs keyed by numbered chapter. May be non-contiguous. */
  verifiedPdfReferences?:Readonly<Record<number,OfficialPdfReference>>;
  /** Opts out of the legacy code-pattern fallback when no direct PDFs were individually checked. */

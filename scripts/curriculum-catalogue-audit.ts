@@ -6,15 +6,18 @@
  * Phase 7 direct URL, and a portal fallback is valid when none is recorded.
  */
 import {
- chaptersFor,ncertTextbooks,officialChapterPdf,textbookAudit,validateNcertCatalogue,
+ chaptersFor,ncertTextbooks,officialChapterPdf,textbookAudit,
 } from '../src/lib/ncert/textbooks';
+
+import { catalogueEvidenceAudit, validateCatalogueEvidence } from '../src/lib/ncert/catalogue-evidence';
 
 const phase7Grades=new Set([8,9,10]);
 const issues:string[]=[];
 const out:string[]=[];
 const fail=(message:string)=>issues.push(message);
 
-for(const issue of validateNcertCatalogue())fail(issue);
+const evidence=validateCatalogueEvidence();
+for(const issue of evidence.errors)fail(issue);
 for(const book of ncertTextbooks){
  if(!phase7Grades.has(book.grade))continue;
  const phase7Record=Boolean(book.directPdfAuditComplete||book.verifiedPdfReferences);
@@ -61,6 +64,11 @@ for(const grade of [8,9,10]){
  const selected=slots.filter(slot=>slot.selection==='choose-one').length;
  out.push(`| ${grade} | ${books.length} | ${slots.filter(slot=>Boolean(slot.verifiedTitle)).length} | ${slots.length-selected} | ${selected} | ${direct.length-explicit} / ${explicit} | ${slots.length-direct.length} |`);
 }
+out.push('');
+out.push('## Catalogue-wide evidence summary');
+const summary=catalogueEvidenceAudit();
+out.push(JSON.stringify({total:summary.total,classes:Object.fromEntries(summary.classes),subjects:Object.fromEntries(summary.subjects)}));
+for(const warning of evidence.warnings)out.push('- Editorial: '+warning);
 out.push('');
 out.push('## Safeguards');
 out.push('- A portal fallback means no direct item PDF was individually verified; it is not a broken or inferred link.');
