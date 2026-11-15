@@ -7,7 +7,7 @@
  * those activities.
  */
 import assert from 'node:assert/strict';
-import { readFile } from 'node:fs/promises';
+import { readFileSync } from 'node:fs';
 import {
   validateNcertCatalogue,
 } from '../src/lib/ncert/textbooks';
@@ -52,7 +52,7 @@ for (let grade = 1; grade <= 10; grade += 1) {
   }
 }
 
-const css = await readFile(new URL('../src/app/globals.css', import.meta.url), 'utf8');
+const css = readFileSync(new URL('../src/app/globals.css', import.meta.url), 'utf8');
 for (const breakpoint of ['1023px', '620px', '380px']) {
   check(css.includes(`max-width: ${breakpoint}`), `responsive CSS is missing the ${breakpoint} breakpoint`);
 }
