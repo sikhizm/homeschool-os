@@ -2856,3 +2856,90 @@ button:active:not(:disabled){transform:translateY(1px)}
     grid-column: 1;
   }
 }
+
+
+/* Global Curriculum: content-first responsive grids.
+   The previous fixed column counts squeezed long framework descriptions and
+   learning outcomes into narrow cards between tablet and desktop widths. */
+.global-framework-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 218px), 1fr));
+  align-items: stretch;
+}
+.global-skill-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  align-items: stretch;
+}
+.global-filter-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+}
+.global-filter-grid button {
+  grid-column: 1 / -1;
+}
+.global-bottom-row {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+.global-framework,
+.global-skill-card,
+.global-bottom-row > *,
+.global-filter-panel {
+  min-width: 0;
+}
+.global-framework p,
+.global-skill-outcome,
+.global-skill-card h3 {
+  overflow-wrap: anywhere;
+}
+.global-crosslink,
+.global-intro,
+.ncert-global-link {
+  min-width: 0;
+}
+.global-crosslink > *,
+.global-intro > *,
+.ncert-global-link > * {
+  min-width: 0;
+}
+
+@media (max-width: 740px) {
+  .family-dashboard {
+    padding: 22px 16px calc(96px + env(safe-area-inset-bottom));
+  }
+  .dashboard-welcome,
+  .global-intro,
+  .global-crosslink,
+  .ncert-global-link {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .global-crosslink > a,
+  .ncert-global-link > a {
+    white-space: normal;
+    max-width: 100%;
+  }
+  .global-framework-grid,
+  .global-skill-grid,
+  .global-filter-grid,
+  .global-bottom-row {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .global-framework,
+  .global-skill-card {
+    padding: 18px;
+  }
+  .global-filter-grid button {
+    grid-column: 1;
+    width: 100%;
+  }
+  .ncert-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 741px) and (max-width: 1100px) {
+  .global-framework-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .global-skill-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
