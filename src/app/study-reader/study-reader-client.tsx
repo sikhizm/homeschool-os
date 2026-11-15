@@ -5,11 +5,12 @@ import {useEffect, useState} from 'react';
 import styles from './study-reader.module.css';
 
 type Props = {sourceUrl: string | null; title: string; grade: string};
+const MAX_PDF_BYTES = 100 * 1024 * 1024;
 
 export default function StudyReaderClient({sourceUrl, title, grade}: Props) {
   const [localPdfUrl, setLocalPdfUrl] = useState<string | null>(null);
   const [localFileName, setLocalFileName] = useState('');
-  const [reloadKey, setReloadKey] = useState(0);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     return () => {
@@ -18,22 +19,32 @@ export default function StudyReaderClient({sourceUrl, title, grade}: Props) {
   }, [localPdfUrl]);
 
   const handleFile = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+    const input = event.currentTarget;
+    const file = input.files?.[0];
     if (!file) return;
-    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
-      event.target.value = '';
+
+    const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+    if (!isPdf) {
+      setError('Choose a PDF file to read.');
+      input.value = '';
       return;
     }
-    const nextUrl = URL.createObjectURL(file);
-    setLocalPdfUrl(nextUrl);
+    if (file.size > MAX_PDF_BYTES) {
+      setError('This PDF is larger than 100 MB. Choose a smaller file.');
+      input.value = '';
+      return;
+    }
+
+    setError('');
+    setLocalPdfUrl(URL.createObjectURL(file));
     setLocalFileName(file.name);
-    setReloadKey((value) => value + 1);
   };
 
-  const remoteViewerUrl = sourceUrl
-    ? `https://docs.google.com/gview?embedded=1&url=${encodeURIComponent(sourceUrl)}`
-    : null;
-  const viewerUrl = localPdfUrl ?? remoteViewerUrl;
+  const clearFile = () => {
+    setLocalPdfUrl(null);
+    setLocalFileName('');
+    setError('');
+  };
 
   return (
     <main className={styles.page}>
@@ -47,7 +58,7 @@ export default function StudyReaderClient({sourceUrl, title, grade}: Props) {
         <div>
           <span className={styles.eyebrow}>HOMESCHOOL OS · STUDY READER</span>
           <h1>{title || 'Read textbook'}</h1>
-          <p>{grade ? `Class ${grade} · ` : ''}Read an authorised textbook preview inside your learning space.</p>
+          <p>{grade ? `Class ${grade} · ` : ''}Read a downloaded textbook PDF inside Homeschool OS.</p>
         </div>
         <Link className={styles.backLink} href="/ncert-books">Back to book index</Link>
       </header>
@@ -62,67 +73,62 @@ export default function StudyReaderClient({sourceUrl, title, grade}: Props) {
           </div>
         </section>
       ) : (
-        <>
-          <section className={styles.readerCard} aria-label="Textbook preview">
-            <div className={styles.readerToolbar}>
-              <div className={styles.sourceIdentity}>
-                <span className={styles.documentMark} aria-hidden="true">▤</span>
-                <div>
-                  <strong>{localPdfUrl ? 'Your downloaded PDF' : 'NCERT official document'}</strong>
-                  <span>{localPdfUrl ? localFileName : 'Preview provided by Google Docs Viewer'}</span>
-                </div>
-              </div>
-              <div className={styles.actions}>
-                {sourceUrl && (
-                  <a className={styles.secondaryAction} href={sourceUrl} target="_blank" rel="noopener noreferrer">
-                    Open official PDF ↗
-                  </a>
-                )}
-                <label className={styles.primaryAction}>
-                  <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={handleFile} />
-                  {localPdfUrl ? 'Choose another PDF' : 'Open downloaded PDF'}
-                </label>
+        <section className={styles.readerCard} aria-label="Textbook reader">
+          <div className={styles.readerToolbar}>
+            <div className={styles.sourceIdentity}>
+              <span className={styles.documentMark} aria-hidden="true">▤</span>
+              <div>
+                <strong>{localPdfUrl ? 'Textbook ready to read' : 'No textbook opened yet'}</strong>
+                <span>{localPdfUrl ? localFileName : 'Download the official PDF, then open it here'}</span>
               </div>
             </div>
-
-            {viewerUrl ? (
-              <div className={styles.viewerFrame}>
-                <iframe
-                  key={`${reloadKey}-${localPdfUrl ? 'local' : 'remote'}`}
-                  title={`PDF preview: ${title}`}
-                  src={viewerUrl}
-                  className={styles.viewer}
-                  allow="fullscreen"
-                />
-              </div>
-            ) : null}
-
-            <div className={styles.readerFooter}>
-              <p>
-                {localPdfUrl
-                  ? 'Showing the PDF selected from your device. The file stays in this browser session and is not uploaded to HomeSchool OS.'
-                  : 'The official PDF is not embedded directly. Google Docs Viewer attempts to display the public document; availability depends on the publisher and viewer service.'}
-              </p>
+            <div className={styles.actions}>
+              <a className={styles.secondaryAction} href={sourceUrl} target="_blank" rel="noopener noreferrer">
+                Get official PDF ↗
+              </a>
+              <label className={styles.primaryAction}>
+                <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={handleFile} />
+                {localPdfUrl ? 'Choose another PDF' : 'Open downloaded PDF'}
+              </label>
               {localPdfUrl ? (
-                <button type="button" className={styles.textAction} onClick={() => {setLocalPdfUrl(null);setLocalFileName('');setReloadKey((value) => value + 1);}}>
-                  Return to online preview
-                </button>
-              ) : (
-                <button type="button" className={styles.textAction} onClick={() => setReloadKey((value) => value + 1)}>
-                  Retry preview
-                </button>
-              )}
+                <button type="button" className={styles.secondaryAction} onClick={clearFile}>Close book</button>
+              ) : null}
             </div>
-          </section>
+          </div>
 
-          <aside className={styles.helpCard}>
-            <span className={styles.helpIcon} aria-hidden="true">↗</span>
-            <div>
-              <strong>Preview not appearing?</strong>
-              <p>Some publisher documents cannot be displayed by third-party viewers. Open the official PDF in a new tab, download it if permitted, then choose the downloaded file above to read it here.</p>
+          {error ? <p className={styles.errorMessage} role="alert">{error}</p> : null}
+
+          {localPdfUrl ? (
+            <div className={styles.viewerFrame}>
+              <iframe
+                key={localPdfUrl}
+                title={`PDF reader: ${title}`}
+                src={localPdfUrl}
+                className={styles.viewer}
+                allow="fullscreen"
+              />
             </div>
-          </aside>
-        </>
+          ) : (
+            <div className={styles.emptyReader}>
+              <span className={styles.emptyDocument} aria-hidden="true">▤</span>
+              <h2>Your reading space is ready</h2>
+              <p>NCERT controls how its PDFs can be embedded, so Homeschool OS does not proxy or embed the publisher&apos;s PDF. Open the official file, download it if permitted, then select it here. Your browser will display it in this reading space.</p>
+              <label className={styles.emptyAction}>
+                <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={handleFile} />
+                Select a PDF from your device
+              </label>
+            </div>
+          )}
+
+          <div className={styles.readerFooter}>
+            <p>
+              {localPdfUrl
+                ? 'This PDF is displayed locally in your browser. It is not uploaded to Homeschool OS or stored in your account.'
+                : 'Your textbook is not uploaded to Homeschool OS. Choose a downloaded PDF to start reading; the file remains on your device.'}
+            </p>
+            {localPdfUrl ? <button type="button" className={styles.textAction} onClick={clearFile}>Close reader</button> : null}
+          </div>
+        </section>
       )}
     </main>
   );
