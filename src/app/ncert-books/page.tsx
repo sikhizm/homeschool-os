@@ -59,7 +59,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
       <small>{c.label} · {sessionNote} · {mappingNote}</small>
     </div>
     {mapping?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(c.id)}`}>Review mapping</Link>:null}
-    {chapterUrl?<a className="ncert-chapter-open" href={chapterUrl} target="_blank" rel="noopener noreferrer">Read PDF <span aria-hidden="true">↗</span></a>:<span className="ncert-chapter-review">{sessionEligible?'Portal fallback':'Choose in official source'}</span>}
+    {chapterUrl?<Link className="ncert-chapter-open" href={`/study-reader?url=${encodeURIComponent(chapterUrl)}&title=${encodeURIComponent(`${selectedBook.title} — ${c.verifiedTitle??c.label}`)}&grade=${selectedGrade}`}>Read in app <span aria-hidden="true">→</span></Link>:<span className="ncert-chapter-review">{sessionEligible?'Portal fallback':'Choose in official source'}</span>}
   </div>})}</div></>}
  </section>
  </div>}
