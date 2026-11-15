@@ -133,3 +133,12 @@ See [PHASE8_FRAMEWORK_EVIDENCE_REPORT.md](PHASE8_FRAMEWORK_EVIDENCE_REPORT.md) f
 - Systematic source-by-source NCERT Class 11–12 coverage. Class 8 Urdu Khayal, Class 10 Contemporary India-II and Class 10 Health and Physical Education also remain excluded pending formal Contents capture; Class 1 Dilchasp Riyazi and Poorvi (Class 8) direct PDFs 6–15 remain publisher-side follow-up (see `PHASE7_NCERT_EXPANSION_REPORT.md`).
 - Parent-reviewed international framework mapping with framework-specific editor evidence; no equivalence is inferred from this pilot (see `GLOBAL_CURRICULUM_ENGINE.md`).
 - Optional richer portfolios, longitudinal charts and parent-entered assessment archives.
+
+## Phase 5 — Supplementary curriculum and enrichment
+
+- The annual Nursery, UKG and Class 4 pathways already included original play, reasoning, home language and heritage work. Nursery already had Punjabi and Sikh values, and UKG and Class 4 also included Hindi.
+- The authenticated Curriculum Library now has a supplementary catalogue with publisher, source location, verification date and parent-use guidance for six references. In-app activities are labelled as original.
+- Preschool and UKG reasoning uses hands-on play. Class 4 includes three untimed Olympiad-style examples with worked answers and an optional organiser sample-paper link.
+- Preschool, UKG and Class 4 each have two home-language activities (Punjabi and Hindi) and one Sikh heritage activity, with connected references for parents.
+- The early-years scope review keeps Nursery play-based and oral-first, with UKG adding optional representation and early literacy and number sense when the learner is ready. Refer to NCERT's Foundational Stage framework, sections 1.4.2 and 4.1, and the existing 36-week pathways. The stage suggestions use the app's existing labels.
+- The enrichment collection is optional and sits alongside the NCERT index and existing pathways. It does not auto-assign activities, claim official outcome mappings, or write progress, assessment or learner records.

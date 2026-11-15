@@ -72,6 +72,13 @@ const SECTIONS = [
     tint: '#F9EDE3',
   },
   {
+    title: 'Supplementary resources and enrichment',
+    description: 'Verified parent references, reasoning practice, Punjabi and Hindi activities, Sikh heritage and early-years play.',
+    href: '/library/enrichment',
+    glyph: '✧',
+    tint: 'var(--science)',
+  },
+  {
     title: 'Class 5 mapping review',
     description: 'Parent-owner editorial queue for inspecting chapter evidence and append-only outcome mapping drafts.',
     href: '/curriculum-mapping',
