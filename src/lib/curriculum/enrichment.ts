@@ -14,18 +14,32 @@ export const enrichmentTopics = {
 export type EnrichmentStage = keyof typeof enrichmentStages;
 export type EnrichmentTopic = keyof typeof enrichmentTopics;
 
+export const resourceVerificationLabels = {
+  verified: 'Verified',
+  pending: 'Pending verification',
+  'temporarily-inaccessible': 'Temporarily inaccessible',
+  broken: 'Broken / unavailable',
+} as const;
+
+type ResourceVerification =
+  | { status: 'verified'; lastVerifiedOn: string; evidence: string }
+  | {
+      status: Exclude<keyof typeof resourceVerificationLabels, 'verified'>;
+      lastVerifiedOn?: never;
+      evidence: string;
+    };
+
 type Resource = {
   id: string;
   title: string;
   publisher: string;
+  verification: ResourceVerification;
   sourceLocation: string;
   url: string;
   stages: readonly EnrichmentStage[];
   topic: EnrichmentTopic;
   parentUse: string;
 };
-
-export const sourceVerifiedOn = '2026-11-15';
 
 export const supplementaryResources: readonly Resource[] = [
   {
@@ -39,7 +53,11 @@ export const supplementaryResources: readonly Resource[] = [
       "ukg"
     ],
     "topic": "early-years",
-    "parentUse": "Parent reference for choosing play, conversation, movement and concrete materials."
+    "parentUse": "Parent reference for choosing play, conversation, movement and concrete materials.",
+    "verification": {
+      "status": "temporarily-inaccessible",
+      "evidence": "The fetch service returned HTTP 502 for the exact NCERT PDF. An indexed copy identifies sections 1.4.2 and 4.1. Direct access needs rechecking."
+    }
   },
   {
     "id": "jaadui-pitara",
@@ -52,7 +70,12 @@ export const supplementaryResources: readonly Resource[] = [
       "ukg"
     ],
     "topic": "early-years",
-    "parentUse": "Choose a story, song or play idea in advance and share it offline. The portal also advertises app and messaging-bot access."
+    "parentUse": "Choose a story, song or play idea in advance and share it offline. The portal also advertises app and messaging-bot access.",
+    "verification": {
+      "status": "verified",
+      "lastVerifiedOn": "2026-11-15",
+      "evidence": "Opened the NCERT portal and confirmed its parent and teacher resource access options."
+    }
   },
   {
     "id": "sof-class4",
@@ -64,7 +87,12 @@ export const supplementaryResources: readonly Resource[] = [
       "class4"
     ],
     "topic": "reasoning",
-    "parentUse": "Use one sample question to discuss strategies after core maths. The page also links to commercial preparation material."
+    "parentUse": "Use one sample question to discuss strategies after core maths. The page also links to commercial preparation material.",
+    "verification": {
+      "status": "verified",
+      "lastVerifiedOn": "2026-11-15",
+      "evidence": "Opened the organiser’s Class 4 IMO sample-paper page and confirmed it advertises a download."
+    }
   },
   {
     "id": "punjab-educare",
@@ -76,7 +104,12 @@ export const supplementaryResources: readonly Resource[] = [
       "class4"
     ],
     "topic": "home-languages",
-    "parentUse": "Use the beginner-level index for Gurmukhi review when needed. A parent should preview linked media and select material at the learner’s reading level."
+    "parentUse": "Use the beginner-level index for Gurmukhi review when needed. A parent should preview linked media and select material at the learner’s reading level.",
+    "verification": {
+      "status": "verified",
+      "lastVerifiedOn": "2026-11-15",
+      "evidence": "Opened the Punjab Educare Class 1 Punjabi index and confirmed its introductory materials."
+    }
   },
   {
     "id": "ncert-hindi",
@@ -89,7 +122,11 @@ export const supplementaryResources: readonly Resource[] = [
       "class4"
     ],
     "topic": "home-languages",
-    "parentUse": "The reference lists Sarangi for Classes 1 and 2. Use it to locate beginner reading material for an older learner or read aloud to a younger child."
+    "parentUse": "The reference lists Sarangi for Classes 1 and 2. Use it to locate beginner reading material for an older learner or read aloud to a younger child.",
+    "verification": {
+      "status": "temporarily-inaccessible",
+      "evidence": "The fetch service returned HTTP 502 for the exact NCERT PDF. Its indexed teaching references list Sarangi for Classes 1 and 2. Direct access needs rechecking."
+    }
   },
   {
     "id": "sgpc-langar",
@@ -103,7 +140,11 @@ export const supplementaryResources: readonly Resource[] = [
       "class4"
     ],
     "topic": "sikh-heritage",
-    "parentUse": "Parent reference for explaining langar, service and sharing a meal together."
+    "parentUse": "Parent reference for explaining langar, service and sharing a meal together.",
+    "verification": {
+      "status": "pending",
+      "evidence": "The PDF exceeded the fetch service’s size limit. Indexed text confirms Article XXI. Direct access still needs a browser check."
+    }
   }
 ];
 
@@ -308,6 +349,18 @@ export const earlyYearsScope = {
     support: 'Begin with objects, pictures and movement. Invite drawing or writing when the child is ready. Observe during play and avoid timed drills.',
   },
 };
+
+export type EnrichmentQuery = { stage?: string | string[]; topic?: string | string[] };
+
+export function resolveEnrichmentFilters(query: EnrichmentQuery) {
+  const topic = (Object.keys(enrichmentTopics) as EnrichmentTopic[]).find(key => key === query.topic);
+  const selectedStage = query.stage === 'all'
+    ? 'all'
+    : (Object.keys(enrichmentStages) as EnrichmentStage[]).find(key => key === query.stage) ?? '';
+  const recommendedStage = topic === 'reasoning' ? 'class4' : undefined;
+  const stage = selectedStage === 'all' ? undefined : selectedStage || recommendedStage;
+  return { selectedStage, stage, topic };
+}
 
 export function filterEnrichment(stage?: EnrichmentStage, topic?: EnrichmentTopic) {
   const activities = enrichmentActivities.filter(activity =>
