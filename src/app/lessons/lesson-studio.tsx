@@ -6,7 +6,7 @@ import { filterLessons, lessonStages, lessons, type Lesson } from '@/lib/lessons
 import { validDate } from '@/lib/learning/model';
 
 type Learner = { id: string; name: string; stage: string };
-type Props = { learners: Learner[]; canEdit: boolean; initialDate: string };
+type Props = { learners: Learner[]; canEdit: boolean; initialDate: string; initialActivity?: string };
 
 const subjects = ['English', 'Mathematics', 'Our world', 'Punjabi & Sikh heritage'] as const;
 
@@ -21,12 +21,12 @@ const stageFor = (stage: string) => {
   return 'early';
 };
 
-export default function LessonStudio({ learners, canEdit, initialDate }: Props) {
+export default function LessonStudio({ learners, canEdit, initialDate, initialActivity }: Props) {
   const [learnerId, setLearnerId] = useState(learners[0]?.id ?? '');
   const [stage, setStage] = useState('');
   const [subject, setSubject] = useState('');
   const [search, setSearch] = useState('');
-  const [selectedId, setSelectedId] = useState(lessons[0]?.id ?? '');
+  const [selectedId, setSelectedId] = useState(() => lessons.find(lesson => lesson.id === initialActivity)?.id ?? lessons[0]?.id ?? '');
   const [date, setDate] = useState(initialDate);
   const [title, setTitle] = useState(lessons[0]?.title ?? '');
   const [minutes, setMinutes] = useState(lessons[0]?.minutes ?? 15);
@@ -162,7 +162,7 @@ export default function LessonStudio({ learners, canEdit, initialDate }: Props) 
 
         <div className="lesson-main studio-stack">
           {selected ? (
-            <article className="workspace-panel lesson-print-sheet" aria-label="Printable lesson sheet">
+            <article id="activity-detail" className="workspace-panel lesson-print-sheet" aria-label="Printable lesson sheet">
               <div className="lesson-print-heading">
                 <span className="eyebrow">HOMESCHOOL OS · LEARNING SHEET</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

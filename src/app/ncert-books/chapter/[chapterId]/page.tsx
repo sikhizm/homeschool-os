@@ -96,7 +96,9 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
       </section>
 
       {sessionEligible && chapter.verifiedTitle ? (
-        <StudyMaterialStudio chapter={chapter} book={book} grade={book.grade} resourceUrl={officialPdf ?? book.sourceUrl} />
+        <div id="study-material-studio">
+          <StudyMaterialStudio chapter={chapter} book={book} grade={book.grade} resourceUrl={officialPdf ?? book.sourceUrl} />
+        </div>
       ) : null}
 
       <ChapterSessions
