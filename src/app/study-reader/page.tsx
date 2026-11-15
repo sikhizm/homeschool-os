@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import StudyReaderClient from './study-reader-client';
