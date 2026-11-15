@@ -33,9 +33,14 @@ export async function POST(request:Request){
   if(!learners.length)return send({error:'Only a family owner can import material for this learner.'},403);
   const learner=learners[0];
   if(String(learner.stage)!==`Class ${book.grade}`)return send({error:'This learner is enrolled in a different class.'},403);
-  const inserted=await sql`INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version)
-   VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${learner.stage},${book.subject},${book.id},${chapterId},${title},${documentType},'<p>PDF attachment stored in the Study Library.</p>',${chapter.sourceUrl},${book.editionLabel}) RETURNING id::text,version`;
-  await sql`INSERT INTO study_material_pdf_files(document_id,file_name,mime_type,file_size_bytes,file_data) VALUES (${inserted[0].id}::uuid,${fileName},'application/pdf',${bytes.length},decode(${bytes.toString('base64')},'base64'))`;
-  return send({saved:true,document:{id:inserted[0].id,version:inserted[0].version,fileName}},201);
+  const inserted=await sql`WITH new_document AS (
+    INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version)
+    VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${learner.stage},${book.subject},${book.id},${chapterId},${title},${documentType},'<p>PDF attachment stored in the Study Library.</p>',${chapter.sourceUrl},${book.editionLabel})
+    RETURNING id,version
+   )
+   INSERT INTO study_material_pdf_files(document_id,file_name,mime_type,file_size_bytes,file_data)
+   SELECT id,${fileName},'application/pdf',${bytes.length},decode(${bytes.toString('base64')},'base64') FROM new_document
+   RETURNING document_id::text id,file_name`;
+  return send({saved:true,document:{id:inserted[0].id,fileName:inserted[0].file_name}},201);
  }catch{return send({error:'Unable to store this PDF. Confirm database migration 010 has been applied.'},503);}
 }
