@@ -29,6 +29,9 @@ export default async function AnnualPathways({searchParams}:{searchParams:Promis
   <section className="annual-intro workspace-panel">
    <h2>What is actually here</h2>
    <p>Each of the four stages has an original, fully written 36-week pathway. Every core session includes the objective, materials, parent preparation, a worked example, step-by-step teaching, questions, your child&apos;s activity, expected answers, easier and harder variations, completion criteria and revision guidance. A shorter practice or play session follows each teaching week where appropriate.</p>
+   {chosen.key !== 'infant' && (
+    <p><Link href={'/library/enrichment?stage='+chosen.key}>Browse optional enrichment for {chosen.grade} →</Link></p>
+   )}
    <p className="annual-honesty"><strong>Honest scope:</strong> this is original HomeSchool OS parent-guided content. Official NCERT Class 4 book and chapter titles are indexed separately at <Link href="/ncert-books">NCERT books</Link>; no chapter text is copied and no chapter-to-lesson alignment is claimed. International frameworks are used only as general pedagogical inspiration, not as accreditation or grade equivalence.</p>
   </section>
   <section className="workspace-panel">

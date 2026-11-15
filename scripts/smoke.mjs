@@ -176,3 +176,8 @@ const offline = await fetch(root + '/offline.html');
 assert.equal(offline.status, 200, 'offline fallback');
 assert.ok((await offline.text()).includes("You're offline"));
 console.log('PWA service worker and offline fallback: public routes verified');
+
+const enrichment = await fetch(root + '/library/enrichment?stage=ukg', { redirect: 'manual' });
+assert.ok([307, 308].includes(enrichment.status));
+assert.ok(enrichment.headers.get('location')?.includes('/auth/sign-in'));
+console.log('/library/enrichment: unauthenticated visitor redirected to sign-in');
