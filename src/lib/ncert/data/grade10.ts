@@ -19,7 +19,11 @@ export const grade10Textbooks:Textbook[]=[
   id:'ncert-10-mathematics',grade:10,subject:'Mathematics',title:'Mathematics',language:'English',publisher:'NCERT',textbookCode:'jemh1',chapterCount:14,
   sourceUrl:'https://ncert.nic.in/textbook.php?jemh1=0-14',referenceUrl:'https://ncert.nic.in/textbook/pdf/jemh1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/jemh1ps.pdf',
   editionLabel:'NCERT revised edition October 2022; reprint December 2025 (1062, ISBN 81-7450-634-9); 14 numbered chapters. Two mathematical appendices and answers are back matter, not chapter slots.',status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'core',
-  verifiedPdfReferences:{6:{url:'https://ncert.nic.in/textbook/pdf/jemh106.pdf',verificationNote:'The indexed official NCERT PDF identifies Mathematics Chapter 6, Triangles, on page 73 of the 2026–27 reprint. NCERT ePathshala identifies the same chapter as 1062CH06.'}}
+  verifiedPdfReferences:{6:{url:'https://ncert.nic.in/textbook/pdf/jemh106.pdf',verificationNote:'The indexed official NCERT PDF identifies Mathematics Chapter 6, Triangles, on page 73 of the 2026–27 reprint. NCERT ePathshala identifies the same chapter as 1062CH06.'},
+   8:{url:'https://ncert.nic.in/textbook/pdf/jemh108.pdf',verificationNote:'The indexed official NCERT PDF identifies Class 10 Mathematics Chapter 8, Introduction to Trigonometry, in its opening heading.'},
+   9:{url:'https://ncert.nic.in/textbook/pdf/jemh109.pdf',verificationNote:'The indexed official NCERT PDF identifies Class 10 Mathematics Chapter 9, Some Applications of Trigonometry, in its opening heading.'},
+   12:{url:'https://ncert.nic.in/textbook/pdf/jemh112.pdf',verificationNote:'The indexed official NCERT PDF identifies Class 10 Mathematics Chapter 12, Surface Areas and Volumes, in its opening heading.'}
+  }
  },
  {
   id:'ncert-10-first-flight',grade:10,subject:'English',title:'First Flight',language:'English',publisher:'NCERT',textbookCode:'jeff1',chapterCount:9,
