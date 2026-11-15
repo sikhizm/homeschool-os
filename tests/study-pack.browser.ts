@@ -133,12 +133,10 @@ test('study pack tiles preserve all material and document actions', async () => 
 
     await page.getByRole('button', { name: 'Use complete pack' }).click();
     assert.equal(await preview.inputValue(), expectedPrompt(['complete-pack'], true));
-    await page.evaluate(() => {
-      Object.defineProperty(navigator.clipboard, 'writeText', {
-        configurable: true,
-        value: async (text: string) => { sessionStorage.setItem('copied-study-prompt', text); },
-      });
-    });
+    await page.evaluate(`Object.defineProperty(navigator.clipboard, 'writeText', {
+      configurable: true,
+      value: async text => sessionStorage.setItem('copied-study-prompt', text)
+    })`);
     await page.getByRole('button', { name: 'Copy prompt' }).click();
     await page.getByText('Prompt copied.', { exact: false }).waitFor();
     assert.equal(await page.evaluate(() => sessionStorage.getItem('copied-study-prompt')), expectedPrompt(['complete-pack'], true));
