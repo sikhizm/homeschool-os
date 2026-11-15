@@ -11,6 +11,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: actions/setup-node@v4
         with:
           node-version: 24
@@ -25,6 +27,8 @@ jobs:
       # fail independently of the project when runner DNS/mirrors are unavailable.
       - run: npx playwright install chromium
       - name: Browser workflow with isolated PostgreSQL fixtures
+        env:
+          STUDY_PACK_BASELINE: ${{ github.event.pull_request.base.sha }}
         run: |
           CHROMIUM_PATH="$(node -e 'process.stdout.write(require("playwright").chromium.executablePath())')" npm run test:ui
       - name: Upload global search screenshots
@@ -33,6 +37,13 @@ jobs:
         with:
           name: global-search-screenshots
           path: /tmp/homeschool-global-search-*.png
+          if-no-files-found: ignore
+      - name: Upload study pack before and after screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-pack-before-after
+          path: /tmp/study-pack-*.png
           if-no-files-found: ignore
       - name: Isolated production build (no production credentials)
         env:

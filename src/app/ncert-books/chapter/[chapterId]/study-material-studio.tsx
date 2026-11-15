@@ -1,5 +1,5 @@
 'use client';
-import {useEffect,useMemo,useRef,useState} from 'react';
+import {useEffect,useId,useMemo,useRef,useState} from 'react';
 import {buildStudyPrompt,MATERIALS,type Difficulty,type MaterialId} from '@/lib/study-materials/prompt';
 import type {ChapterSlot,Textbook} from '@/lib/ncert/types';
 
@@ -9,18 +9,20 @@ const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 function previewDoc(content:string,student:string,grade:string,book:Textbook,chapter:ChapterSlot,type:string,large:boolean){return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:"><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:18mm 16mm 20mm;@bottom-center{content:counter(page);font:9pt Arial;color:#000}}*{box-sizing:border-box}body{margin:0;background:#fff;color:#000;font:12pt/1.55 Arial,'Noto Sans Gurmukhi','Noto Sans Devanagari',sans-serif}header{border-bottom:1px solid #222;padding-bottom:8mm;margin-bottom:8mm}header h1{font-size:20pt;margin:0 0 4mm}header p{margin:1mm 0;font-size:10pt}h2,h3,h4{break-after:avoid;page-break-after:avoid}table{width:100%;border-collapse:collapse;break-inside:auto}tr{break-inside:avoid}th,td{border:1px solid #333;padding:5px;text-align:left;vertical-align:top}p,li{orphans:3;widows:3}img,iframe,video,svg,canvas{max-width:100%;max-height:70mm}footer{margin-top:12mm;border-top:1px solid #777;padding-top:3mm;font-size:9pt;text-align:center}@media screen{body{padding:18mm 16mm;max-width:210mm;margin:0 auto}}${large?'body{font-size:16pt;line-height:1.8}header p{font-size:13pt}':''}</style></head><body><header><h1>${esc(type)}</h1><p><b>STUDENT NAME:</b> ${esc(student)} &nbsp; <b>CLASS:</b> ${esc(grade)}</p><p><b>SUBJECT:</b> ${esc(book.subject)} &nbsp; <b>TEXTBOOK:</b> ${esc(book.title)}</p><p><b>CHAPTER:</b> ${esc(chapter.verifiedTitle??chapter.label)} &nbsp; <b>DOCUMENT TYPE:</b> ${esc(type)} &nbsp; <b>DATE:</b> __________</p></header><main>${content}</main><footer>Homeschool OS · Family learning resource</footer></body></html>`;}
 
 type IndividualMaterialId = Exclude<MaterialId,'complete-pack'>;
-const MATERIAL_GROUPS: {id:string;title:string;description:string;items:IndividualMaterialId[]}[] = [
- {id:'core',title:'Learn & understand',description:'Build a clear understanding of the chapter.',items:['full-notes','concepts','definitions','facts','solved-examples','activities']},
- {id:'revision',title:'Revise & remember',description:'Short formats for recall and quick review.',items:['revision-notes','quick-sheet','flashcards','mind-map','mistakes']},
- {id:'practice',title:'Practice & apply',description:'Question formats for guided and independent practice.',items:['worksheets','mcq','fill-blanks','true-false','matching','short-answer','long-answer','competency','reasoning','real-life']},
- {id:'assessment',title:'Test & assess',description:'Tests, answer materials and marking support.',items:['chapter-test','exam-paper','answer-key','solutions','answer-sheet']},
- {id:'parent',title:'Parent & child activities',description:'Conversation-led learning activities to do together.',items:['oral-cards']},
+const MATERIAL_GROUPS: {id:string;title:string;icon:string;items:IndividualMaterialId[]}[] = [
+ {id:'core',title:'Learn & understand',icon:'▤',items:['full-notes','concepts','definitions','facts','solved-examples','activities']},
+ {id:'revision',title:'Revise & remember',icon:'↺',items:['revision-notes','quick-sheet','flashcards','mind-map','mistakes']},
+ {id:'practice',title:'Practice & apply',icon:'✎',items:['worksheets','mcq','fill-blanks','true-false','matching','short-answer','long-answer','competency','reasoning','real-life']},
+ {id:'assessment',title:'Test & assess',icon:'✓',items:['chapter-test','exam-paper','answer-key','solutions','answer-sheet']},
+ {id:'parent',title:'Parent & child activities',icon:'♧',items:['oral-cards']},
 ];
 
 const emptyMessage='No matching learners are available. Only learners enrolled in this chapter class can use this studio.';
 export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{chapter:ChapterSlot;book:Textbook;grade:number;resourceUrl:string}){
  const [learners,setLearners]=useState<Learner[]>([]),[learnerId,setLearnerId]=useState(''),[loading,setLoading]=useState(true);
  const [chosen,setChosen]=useState<MaterialId[]>(['full-notes']),[difficulty,setDifficulty]=useState<Difficulty>('standard'),[language,setLanguage]=useState(book.language||'English'),[large,setLarge]=useState(false);
+ const [expandedGroup,setExpandedGroup]=useState<string|null>(MATERIAL_GROUPS[0].id);
+ const groupPanelId=useId();
  const [promptOpen,setPromptOpen]=useState(false),[promptMessage,setPromptMessage]=useState(''),[importOpen,setImportOpen]=useState(false),[libraryOpen,setLibraryOpen]=useState(false);
  const [title,setTitle]=useState('Chapter study material'),[type,setType]=useState('Notes'),[format,setFormat]=useState<'html'|'markdown'>('html'),[content,setContent]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[docs,setDocs]=useState<Doc[]>([]),[canEdit,setCanEdit]=useState(false),[selectedDoc,setSelectedDoc]=useState(''),[zoom,setZoom]=useState(100),[page,setPage]=useState(1),[preview,setPreview]=useState(false);
  const fileRef=useRef<HTMLInputElement>(null),frame=useRef<HTMLIFrameElement>(null);
@@ -47,15 +49,52 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{ch
   <button type="button" className="btn-primary" onClick={()=>setChosen(['complete-pack'])}>{chosen.includes('complete-pack')?'Selected ✓':'Use complete pack'}</button>
  </section>
  <section className="study-selection-panel" aria-label="Choose study materials">
-  <div className="study-selection-heading"><div><span className="eyebrow">BUILD YOUR OWN PACK</span><h3>Choose individual materials</h3><p className="muted">Open a category to browse. Select only what your learner needs.</p></div><span className="study-selected-count">{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`}</span></div>
-  <div className="study-group-grid">{MATERIAL_GROUPS.map((group,index)=>{const selectedCount=group.items.filter(id=>chosen.includes(id)).length;return <details className="study-material-group" key={group.id} open={index===0}>
-   <summary><span className="study-group-title"><strong>{group.title}</strong><small>{group.description}</small></span><span className="study-group-meta">{selectedCount>0?`${selectedCount}/${group.items.length} selected`:`${group.items.length} options`}<span aria-hidden="true">⌄</span></span></summary>
-   <div className="study-group-options">{group.items.map(id=>{const label=MATERIALS.find(item=>item[0]===id)?.[1]??id;return <label className={chosen.includes(id)?'study-material-choice is-selected':'study-material-choice'} key={id}><input type="checkbox" checked={chosen.includes(id)} onChange={()=>setChosen(old=>{const base=old.filter(x=>x!=='complete-pack');return base.includes(id)?base.filter(x=>x!==id):[...base,id]})}/><span>{label}</span></label>})}</div>
-  </details>})}</div>
-  <div className="study-selection-tools"><span>Quick actions</span><button type="button" className="btn-secondary" onClick={()=>setChosen(MATERIALS.slice(1).map(x=>x[0]))}>Select all</button><button type="button" className="btn-secondary" onClick={()=>setChosen(['full-notes','quick-sheet','worksheets','chapter-test','answer-key'])}>Balanced study pack</button><button type="button" className="btn-secondary" onClick={()=>setChosen([])}>Clear selection</button></div>
+  <div className="study-selection-heading">
+   <h3>Choose individual materials</h3>
+   <span className="study-selected-count" role="status">{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`}</span>
+  </div>
+  <div className="study-group-grid">
+   {MATERIAL_GROUPS.map(group=>{
+    const selectedCount=group.items.filter(id=>chosen.includes(id)).length;
+    return <button className={'study-category-tile'+(selectedCount>0?' has-selection':'')} key={group.id} type="button"
+     aria-expanded={expandedGroup===group.id} aria-controls={groupPanelId+'-'+group.id}
+     onClick={()=>setExpandedGroup(current=>current===group.id?null:group.id)}>
+     <span className="study-category-icon" aria-hidden="true">{group.icon}</span>
+     <strong>{group.title}</strong>
+     <span className="study-category-count">{group.items.length} {group.items.length===1?'option':'options'}</span>
+     {selectedCount>0&&<span className="study-category-selected">{selectedCount} selected</span>}
+    </button>;
+   })}
+  </div>
+  {MATERIAL_GROUPS.map(group=>(
+   <div key={group.id} id={groupPanelId+'-'+group.id} hidden={expandedGroup!==group.id}>
+    {expandedGroup===group.id&&<fieldset className="study-category-options">
+     <legend>{group.title}</legend>
+     <div className="study-group-options">
+      {group.items.map(id=>{
+       const label=MATERIALS.find(item=>item[0]===id)?.[1]??id;
+       return <label className={chosen.includes(id)?'study-material-choice is-selected':'study-material-choice'} key={id}>
+        <input type="checkbox" checked={chosen.includes(id)} onChange={()=>setChosen(old=>{
+         const base=old.filter(x=>x!=='complete-pack');
+         return base.includes(id)?base.filter(x=>x!==id):[...base,id];
+        })}/>
+        <span>{label}</span>
+       </label>;
+      })}
+     </div>
+    </fieldset>}
+   </div>
+  ))}
+  <div className="study-selection-tools">
+   <label className="study-option"><input type="checkbox" checked={large} onChange={e=>setLarge(e.target.checked)}/> Large print</label>
+   <button type="button" className="btn-secondary" onClick={()=>setChosen(MATERIALS.slice(1).map(x=>x[0]))}>Select all</button>
+   <button type="button" className="btn-secondary" onClick={()=>setChosen(['full-notes','quick-sheet','worksheets','chapter-test','answer-key'])}>Balanced study pack</button>
+   <button type="button" className="btn-secondary" onClick={()=>setChosen([])}>Clear selection</button>
+   <button className="btn-primary" type="button" disabled={!learner||!chosen.length}
+    onClick={()=>{setPromptOpen(!promptOpen);setPromptMessage('');}}>{promptOpen?'Hide prompt preview':'Preview prompt'}</button>
+  </div>
  </section>
- <div className="study-extra-options"><label className="study-option"><input type="checkbox" checked={large} onChange={e=>setLarge(e.target.checked)}/> Large-print layout for the generated document</label></div>
-<div className="study-actions"><button className="btn-primary" type="button" disabled={!learner||!chosen.length} onClick={()=>{setPromptOpen(!promptOpen);setPromptMessage('');}}>{promptOpen?'Hide prompt preview':'Preview prompt'}</button><button className="btn-secondary" type="button" disabled={!learner||!chosen.length} onClick={copy}>Copy prompt</button>{learner?.role==='owner'&&<button className="btn-secondary" type="button" onClick={()=>{setImportOpen(true);setPreview(false);setSelectedDoc('');}}>Import generated document</button>}<button className="btn-secondary" type="button" disabled={!learner} onClick={loadLibrary}>Open Study Library</button></div>
+ <div className="study-actions"><button className="btn-secondary" type="button" disabled={!learner||!chosen.length} onClick={copy}>Copy prompt</button>{learner?.role==='owner'&&<button className="btn-secondary" type="button" onClick={()=>{setImportOpen(true);setPreview(false);setSelectedDoc('');}}>Import generated document</button>}<button className="btn-secondary" type="button" disabled={!learner} onClick={loadLibrary}>Open Study Library</button></div>
  {promptMessage&&<p role="status" className="recorded-note">{promptMessage}</p>}{promptOpen&&<label className="workspace-field study-prompt-preview"><span>Complete prompt · select all to copy manually</span><textarea readOnly rows={20} value={prompt} onFocus={e=>e.currentTarget.select()} /></label>}
  {importOpen&&<div className="study-import"><div className="study-import-top"><div><span className="eyebrow">PRIVATE DOCUMENT WORKSPACE</span><h3>{selectedDoc?'Edit saved version':'Import AI-generated material'}</h3><p className="muted">The AI prompt now requests a downloadable PDF. Paste HTML or Markdown here only if you want an editable copy in the Study Library. Imported markup is sanitised server-side; PDF files are not imported.</p></div><button type="button" className="btn-secondary" onClick={()=>{setImportOpen(false);setPreview(false)}}>Close</button></div>
  <div className="study-studio-controls"><label className="workspace-field"><span>Document title</span><input maxLength={180} value={title} onChange={e=>setTitle(e.target.value)}/></label><label className="workspace-field"><span>Document type</span><input maxLength={80} value={type} onChange={e=>setType(e.target.value)}/></label><label className="workspace-field"><span>Content format</span><select value={format} onChange={e=>setFormat(e.target.value as 'html'|'markdown')}><option value="html">HTML</option><option value="markdown">Markdown</option></select></label></div>
