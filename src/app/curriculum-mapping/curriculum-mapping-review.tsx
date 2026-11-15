@@ -175,7 +175,7 @@ export default function CurriculumMappingReview({initialChapter=''}:{initialChap
   finally{setSavingId('');}
  };
  return <main className="family-dashboard mapping-review-page">
-  <div className="dashboard-welcome"><div><span className="tag">CURRICULUM LIBRARY · PARENT REVIEW</span><h1>Class 5 outcome mapping</h1><p className="muted">Review evidence before accepting a relationship. Draft mappings are editorial proposals, not official NCERT outcomes, curriculum equivalencies or evidence of what a learner knows.</p></div><span className="mapping-hero-mark" aria-hidden="true">⌁</span></div>
+  <div className="dashboard-welcome"><div><span className="tag">CURRICULUM LIBRARY · PARENT REVIEW</span><h1>Curriculum Mapping Review</h1><p className="muted">Review suggested links between Class 5 chapters and learning outcomes. Draft mappings are editorial proposals, not official NCERT outcomes, curriculum equivalencies or evidence of what a learner knows.</p></div><span className="mapping-hero-mark" aria-hidden="true">⌁</span></div>
   <section className="mapping-honesty-panel">
    <div><span className="eyebrow">HUMAN DECISION REQUIRED</span><h2>Mapping curriculum is not assessing a learner</h2><p>Approving a mapping records a parent’s curriculum decision for this family. It never marks a chapter complete, awards mastery, changes revision rules, or creates learner evidence.</p></div>
    <Link href="/ncert-books?grade=5">Open Class 5 book index →</Link>

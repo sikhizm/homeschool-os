@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
+import { getSql } from '@/lib/db';
+import { readClass5ReviewOverview, type MappingSql } from '@/lib/curriculum/mapping-review-service';
 import SectionArtwork from '@/components/section-artwork';
 import { ContinueReading } from './continue-reading';
 import { libraryGradeOptions } from '@/lib/library/grade-options';
@@ -78,13 +80,6 @@ const SECTIONS = [
     glyph: '✧',
     tint: 'var(--science)',
   },
-  {
-    title: 'Class 5 mapping review',
-    description: 'Parent-owner editorial queue for inspecting chapter evidence and append-only outcome mapping drafts.',
-    href: '/curriculum-mapping',
-    glyph: '✓',
-    tint: '#EFF6FF',
-  },
 ] as const;
 
 /**
@@ -93,6 +88,12 @@ const SECTIONS = [
 export default async function LibraryPage() {
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
+  let mappingOverview = null;
+  try {
+    mappingOverview = await readClass5ReviewOverview(getSql() as unknown as MappingSql, session.user.id);
+  } catch {
+    // The library stays available when owner access cannot be determined.
+  }
   return (
     <main className="library-page studio-stack">
       <div className="dashboard-welcome library-welcome">
@@ -157,6 +158,22 @@ export default async function LibraryPage() {
           ))}
         </div>
       </section>
+
+      {mappingOverview && (
+        <section className="workspace-panel" aria-labelledby="curriculum-admin-title">
+          <h2 id="curriculum-admin-title">Curriculum Administration &amp; Quality</h2>
+          <Link className="library-card card" href="/curriculum-mapping">
+            <strong>Curriculum Mapping Review</strong>
+            <p>Help check which skills a Class 5 chapter can teach. Family owners can review the evidence before approving a suggested link.</p>
+            <p>
+              {mappingOverview.pending === null
+                ? 'Review count unavailable'
+                : `${mappingOverview.pending} ${mappingOverview.pending === 1 ? 'proposal' : 'proposals'} awaiting review`}
+            </p>
+            <span className="library-card-arrow" aria-hidden="true">Open review queue →</span>
+          </Link>
+        </section>
+      )}
 
       <section className="card library-legend" aria-labelledby="legend-title">
         <p className="eyebrow" style={{ margin: 0 }}>EDITORIAL TRUST</p>

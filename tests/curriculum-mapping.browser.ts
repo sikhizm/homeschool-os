@@ -75,7 +75,7 @@ test('Class 5 mapping review renders evidence, records an explicit approval, and
   const page=await browser.newPage({viewport:{width:1280,height:980}});
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
   await page.goto(`http://127.0.0.1:${address.port}`);
-  await page.getByRole('heading',{name:'Class 5 outcome mapping'}).waitFor();
+  await page.getByRole('heading',{name:'Curriculum Mapping Review'}).waitFor();
   await page.getByText('Verified Class 5 chapters accounted for').waitFor();
   await page.getByText('Draft mapping proposals').waitFor();
   assert.equal(await page.locator('.mapping-review-card').count(),86,'all Class 5 chapter accounts render');

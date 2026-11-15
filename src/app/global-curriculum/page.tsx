@@ -4,6 +4,7 @@ import {auth} from '@/lib/auth/server';
 import {globalFrameworks,globalSkills,globalStages,globalSubjects,selectGlobalSkills,globalSkillById} from '@/lib/global-curriculum/catalogue';
 import {frameworkEvidenceFor,frameworkEvidenceSummary} from '@/lib/global-curriculum/framework-evidence';
 import SectionArtwork from '@/components/section-artwork';
+import './framework-cards.css';
 
 export const dynamic='force-dynamic';
 type Search={stage?:string;subject?:string;framework?:string;query?:string};
@@ -35,24 +36,30 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
    <div><strong>{evidenceSummary.approvedEquivalencies}</strong><span>Approved equivalencies</span></div>
   </div>
  </section>
- <div className="global-framework-grid" aria-label="Curriculum source evidence">
+ <section className="framework-evidence-layout" aria-label="Curriculum source evidence">
+ <div className="framework-evidence-grid">
   {globalFrameworks.map((framework,index)=>{
    const evidence=frameworkEvidenceFor(framework.id)!;
    const contextCount=globalSkills.filter(skill=>skill.frameworks.includes(framework.id)).length;
-   return <article className="global-framework" key={framework.id}>
+   return <article className="framework-evidence-card" key={framework.id}>
     <span className="global-framework-icon" aria-hidden="true">{['✦','✳','◎','∑','◈','▤','✎'][index%7]}</span>
-    <div>
+    <header>
      <h3>{framework.label}</h3>
      <p>{framework.description}</p>
-     <span className="verify-badge pending">{evidence.statusLabel}</span>
-     <p><strong>Scope:</strong> {evidence.scope}</p>
-     <p><strong>Review boundary:</strong> {evidence.limits[0]}</p>
+    </header>
+    <span className={'verify-badge framework-evidence-badge '+(evidence.status==='overview-verified'?'verified':evidence.status==='resource-only'?'pending':'mapping-pending')}>{evidence.statusLabel}</span>
+    <dl className="framework-evidence-details">
+     <div><dt>Scope</dt><dd>{evidence.scope}</dd></div>
+     <div><dt>Review boundary</dt><dd>{evidence.limits[0]}</dd></div>
+    </dl>
+    <footer>
      <p className="muted">{contextCount} learning theme(s) carry this context tag; this is not a standards mapping.</p>
      {evidence.sourceUrls.length>0?<p>{evidence.sourceUrls.map((url,sourceIndex)=><span key={url}><a href={url} target="_blank" rel="noopener noreferrer">{evidence.sourceUrls.length>1?('Official source '+(sourceIndex+1)+' ↗'):'Open official source ↗'}</a>{sourceIndex<evidence.sourceUrls.length-1?' · ':''}</span>)}</p>:<p className="muted">Internally authored content; no external standard or source mapping.</p>}
-    </div>
+    </footer>
    </article>;
   })}
  </div>
+ </section>
  <section className="workspace-panel global-filter-panel">
   <div><span className="eyebrow">CURATED STARTER LIBRARY</span><h2>Explore learning pathways</h2><p className="muted">{globalSkills.length} original objectives across six stages. This is a starter catalogue, <strong>not complete coverage</strong> of NCERT textbooks or international board syllabi.</p></div>
   <form action="/global-curriculum" method="get" className="global-filter-grid">
