@@ -71,11 +71,6 @@ test('study pack tiles preserve all material and document actions', async () => 
   try {
     browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, headless: true, args: ['--no-sandbox'] });
     const page = await browser.newPage();
-    await page.addInitScript(() => {
-      Object.defineProperty(navigator, 'clipboard', {
-        value: { writeText: async (text: string) => { sessionStorage.setItem('copied-study-prompt', text); } },
-      });
-    });
     const root = 'http://127.0.0.1:' + address.port;
     for (const [width, columns, label] of [[375, 2, 'mobile'], [768, 3, 'tablet'], [1440, 5, 'desktop']] as const) {
       await page.setViewportSize({ width, height: 900 });
@@ -138,6 +133,12 @@ test('study pack tiles preserve all material and document actions', async () => 
 
     await page.getByRole('button', { name: 'Use complete pack' }).click();
     assert.equal(await preview.inputValue(), expectedPrompt(['complete-pack'], true));
+    await page.evaluate(() => {
+      Object.defineProperty(navigator.clipboard, 'writeText', {
+        configurable: true,
+        value: async (text: string) => { sessionStorage.setItem('copied-study-prompt', text); },
+      });
+    });
     await page.getByRole('button', { name: 'Copy prompt' }).click();
     await page.getByText('Prompt copied.', { exact: false }).waitFor();
     assert.equal(await page.evaluate(() => sessionStorage.getItem('copied-study-prompt')), expectedPrompt(['complete-pack'], true));
