@@ -4,3 +4,40 @@
 @media(max-width:760px){.study-studio-controls{grid-template-columns:1fr}.study-material-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.study-pack-callout{align-items:flex-start;flex-direction:column}.study-import-top{flex-direction:column}.study-preview-toolbar strong{flex-basis:100%}.study-paper-stage{height:560px}}
 @media(max-width:440px){.study-material-grid{grid-template-columns:1fr}.study-library-list article>div{flex-basis:100%}.study-preview-toolbar{gap:5px}.study-preview-toolbar button{font-size:11px;padding:7px}.study-paper-stage{justify-content:flex-start}}
 @media print{.study-studio{display:none!important}}
+
+
+/* Guided material selection: grouped, compact and progressive disclosure. */
+.study-pack-callout{padding:20px 22px;border:1px solid #cfe2d5;background:linear-gradient(110deg,#f1f7f0 0%,#fffdf8 72%);border-radius:16px}
+.study-pack-copy{min-width:0}
+.study-pack-kicker{display:block;margin-bottom:7px;color:#3d7558;font-size:10px;font-weight:850;letter-spacing:.12em}
+.study-pack-callout strong{display:block;font-size:17px;line-height:1.3}
+.study-pack-callout p{max-width:680px;line-height:1.55}
+.study-pack-callout .btn-primary{flex-shrink:0;white-space:nowrap}
+.study-selection-panel{display:grid;gap:16px;padding:19px;border:1px solid #e1e8e1;border-radius:15px;background:#fff}
+.study-selection-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.study-selection-heading h3{margin:4px 0 4px;font-size:19px;letter-spacing:-.02em}
+.study-selection-heading p{margin:0;font-size:13px}
+.study-selected-count{flex-shrink:0;padding:7px 11px;border:1px solid #d8e6dc;border-radius:999px;background:#f2f7f1;color:#245b45;font-size:12px;font-weight:800;white-space:nowrap}
+.study-group-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;align-items:start}
+.study-material-group{min-width:0;border:1px solid #e4eae3;border-radius:12px;background:#fff;overflow:hidden}
+.study-material-group[open]{border-color:#cbded0}
+.study-material-group summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:68px;padding:13px 14px;cursor:pointer;list-style:none}
+.study-material-group summary::-webkit-details-marker{display:none}
+.study-group-title{display:grid;gap:4px;min-width:0}
+.study-group-title strong{font-size:13px;color:#263d32}
+.study-group-title small{font-size:11px;line-height:1.4;color:#718078;font-weight:450}
+.study-group-meta{display:flex;align-items:center;gap:7px;flex-shrink:0;color:#61746a;font-size:10px;font-weight:750;white-space:nowrap}
+.study-material-group[open] .study-group-meta>span{transform:rotate(180deg)}
+.study-group-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:0 12px 13px}
+.study-material-choice{display:flex;align-items:center;gap:9px;min-width:0;min-height:40px;padding:8px 10px;border:1px solid #edf0eb;border-radius:9px;background:#fbfcfa;color:#3d5046;font-size:12px;line-height:1.35;cursor:pointer;transition:background .15s,border-color .15s}
+.study-material-choice:hover{border-color:#cbded0;background:#f5f9f4}
+.study-material-choice.is-selected{border-color:#9fc8ad;background:#edf6ef;color:#245b45}
+.study-material-choice input{width:15px;height:15px;flex:0 0 15px;margin:0;accent-color:#185b47}
+.study-material-choice span{min-width:0}
+.study-selection-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:13px;border-top:1px solid #edf0eb}
+.study-selection-tools>span{margin-right:auto;color:#728078;font-size:11px;font-weight:750}
+.study-selection-tools button{min-height:36px;padding:8px 11px;font-size:11px}
+.study-extra-options{display:flex;align-items:center;justify-content:flex-start}
+.study-extra-options .study-option{width:max-content;max-width:100%;background:#f8faf7}
+@media(max-width:900px){.study-group-grid{grid-template-columns:1fr}}
+@media(max-width:600px){.study-selection-panel{padding:14px}.study-selection-heading{flex-direction:column;gap:9px}.study-group-options{grid-template-columns:1fr}.study-pack-callout{align-items:flex-start;flex-direction:column}.study-selection-tools>span{flex-basis:100%}.study-selection-tools button{flex:1}}
