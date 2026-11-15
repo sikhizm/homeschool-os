@@ -112,7 +112,7 @@ export default function StudyReaderClient({sourceUrl, title, grade}: Props) {
             <div className={styles.emptyReader}>
               <span className={styles.emptyDocument} aria-hidden="true">▤</span>
               <h2>Your reading space is ready</h2>
-              <p>NCERT controls how its PDFs can be embedded, so Homeschool OS does not proxy or embed the publisher's PDF. Open the official file, download it if permitted, then select it here. Your browser will display it in this reading space.</p>
+              <p>NCERT controls how its PDFs can be embedded, so Homeschool OS does not proxy or embed the publisher&apos;s PDF. Open the official file, download it if permitted, then select it here. Your browser will display it in this reading space.</p>
               <label className={styles.emptyAction}>
                 <input className={styles.fileInput} type="file" accept="application/pdf,.pdf" onChange={handleFile} />
                 Select a PDF from your device
