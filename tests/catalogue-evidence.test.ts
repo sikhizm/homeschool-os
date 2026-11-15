@@ -34,3 +34,15 @@ test('approval and unmapped decisions stay family-specific', () => {
   assert.equal(mappingEvidence([{...revision,reviewStatus:'unmapped'}])(chapter),'unmapped');
   assert.equal(mappingEvidence()(ncertChapterSlots[0]),'pending');
 });
+
+test('Class 10 mathematics opens its individually recorded PDFs and keeps the portal for other chapters', () => {
+  const book = textbookById('ncert-10-mathematics')!;
+  for (const number of [6, 8, 9, 12]) {
+    const chapter = ncertChapterSlots.find(slot => slot.bookId === book.id && slot.chapterNumber === number)!;
+    const resource = chapterPdfEvidence(book, chapter);
+    assert.equal(resource.status, 'verified');
+    assert.equal(resource.href, 'https://ncert.nic.in/textbook/pdf/jemh1' + String(number).padStart(2, '0') + '.pdf');
+  }
+  const unverified = ncertChapterSlots.find(slot => slot.bookId === book.id && slot.chapterNumber === 7)!;
+  assert.equal(chapterPdfEvidence(book, unverified).href, book.sourceUrl);
+});
