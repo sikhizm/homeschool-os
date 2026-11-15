@@ -27,7 +27,7 @@ test('global search works in the desktop and mobile shell', async () => {
             : path === 'next/navigation'
               ? "export const usePathname=()=>window.location.pathname;"
               : 'export const PwaInstallButton=()=>null;',
-          loader: 'jsx',
+          loader: 'jsx', resolveDir: process.cwd(),
         }));
       },
     }],
