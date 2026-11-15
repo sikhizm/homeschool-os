@@ -26,7 +26,10 @@ test('book and chapter results rank correctly and preserve real deep links', () 
   const location = new URL(book.href, 'http://fixture');
   assert.deepEqual(Object.fromEntries(location.searchParams), { grade: '4', subject: 'Mathematics', book: 'ncert-4-maths-mela' });
   assert.equal(searchCatalogue('Maths Mela', 'books').results[0].title, 'Maths Mela');
-  assert.ok(searchCatalogue('Class 1 Hindi', 'books').results.every(result => result.metadata?.startsWith('Class 1 · Hindi')));
+  const classOneHindi = searchCatalogue('Class 1 Hindi', 'books', { limit: 100 }).results;
+  assert.ok(classOneHindi.some(result => result.id === 'book:ncert-1-sarangi'));
+  assert.ok(classOneHindi.some(result => result.id === 'book:ncert-1-anandmay-ganit'));
+  assert.ok(classOneHindi.every(result => result.metadata?.startsWith('Class 1 ·') && result.metadata.split(' · ').includes('Hindi')));
   assert.equal(searchCatalogue('shapes around us', 'books').results[0].title, 'Shapes Around Us');
   assert.ok(searchCatalogue('shape', 'books').results.some(hit => /^Shapes/.test(hit.title)));
   assert.ok(searchCatalogue('class 4 mathematics chapter 01', 'books').results.some(hit =>
