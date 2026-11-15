@@ -18,7 +18,7 @@ export async function GET(request:Request){
  if(!learnerId||learnerId.length>100)return send({error:'Choose a learner.'},400);
  const learners=await learnerAccess(sql,user,learnerId);if(!learners.length)return send({error:'Learner not found in your family.'},404);
  const rows=await sql`SELECT id::text,learner_id::text,grade,subject,book_id,chapter_id,title,document_type,source_reference,source_version,version,approval_status,archived_at,created_at,updated_at,CASE WHEN p.document_id IS NULL THEN 'html' ELSE 'pdf' END storage_format,p.file_name FROM study_material_documents d LEFT JOIN study_material_pdf_files p ON p.document_id=d.id WHERE learner_id::text=${learnerId} ORDER BY archived_at NULLS FIRST,updated_at DESC`;
- return send({learner:learners[0],documents:rows});}catch{return send({error:'Study library is not ready. Apply migration 009.'},503);}
+ return send({learner:learners[0],documents:rows});}catch{return send({error:'Study library is not ready. Apply migrations 009 and 010.'},503);}
 }
 export async function POST(request:Request){
  const url=new URL(request.url);if(request.headers.get('origin')!==url.origin)return send({error:'Same-origin request required.'},403);
