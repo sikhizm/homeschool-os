@@ -19,22 +19,30 @@ export const grade2Textbooks:Textbook[]=[
  {
   "id":"ncert-2-mridang","grade":2,"subject":"English","title":"Mridang","language":"English","publisher":"NCERT","textbookCode":"bemr1","chapterCount":13,
   "sourceUrl":"https://ncert.nic.in/textbook.php?bemr1=0-13","referenceUrl":"https://ciet.ncert.gov.in/audio-book/116",
-  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles",
+  legacyPdfPatternFallback:true,
+  verifiedPdfReferences:{1:{url:'https://ncert.nic.in/textbook/pdf/bemr101.pdf',verificationNote:'Class 2 audit, 10 November 2026: chapter 01 downloaded and matched against the official CIET index and book identity.'}}
  },
  {
   "id":"ncert-2-sarangi","grade":2,"subject":"Hindi","title":"Sarangi","language":"Hindi","publisher":"NCERT","textbookCode":"bhsr1","chapterCount":26,
   "sourceUrl":"https://ncert.nic.in/textbook.php?bhsr1=0-26","referenceUrl":"https://ciet.ncert.gov.in/audio-book/120",
-  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles",
+  legacyPdfPatternFallback:true,
+  verifiedPdfReferences:{1:{url:'https://ncert.nic.in/textbook/pdf/bhsr101.pdf',verificationNote:'Class 2 audit, 10 November 2026: chapter 01 downloaded and matched against the official CIET index and book identity.'}}
  },
  {
   "id":"ncert-2-joyful-mathematics","grade":2,"subject":"Mathematics","title":"Joyful Mathematics","language":"English","publisher":"NCERT","textbookCode":"bejm1","chapterCount":11,
   "sourceUrl":"https://ncert.nic.in/textbook.php?bejm1=0-11","referenceUrl":"https://ciet.ncert.gov.in/audio-book/121",
-  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles",
+  legacyPdfPatternFallback:true,
+  verifiedPdfReferences:{1:{url:'https://ncert.nic.in/textbook/pdf/bejm101.pdf',verificationNote:'Class 2 audit, 10 November 2026: chapter 01 downloaded and matched against the official CIET index and book identity.'}}
  },
  {
   "id":"ncert-2-anandmay-ganit","grade":2,"subject":"Mathematics","title":"Anandmay Ganit","language":"Hindi","publisher":"NCERT","textbookCode":"bhjm1","chapterCount":11,
   "sourceUrl":"https://ncert.nic.in/textbook.php?bhjm1=0-11","referenceUrl":"https://ciet.ncert.gov.in/audio-book/122",
-  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles"
+  "editionLabel":"NCERT 2026–27 reprint; edition checked against official textbook prelims; chapter titles checked against the CIET NCERT audio-book index","status":"source-verified-chapter-titles",
+  legacyPdfPatternFallback:true,
+  verifiedPdfReferences:{1:{url:'https://ncert.nic.in/textbook/pdf/bhjm101.pdf',verificationNote:'Class 2 audit, 10 November 2026: chapter 01 downloaded and matched against the official CIET index and book identity.'}}
  },
 ];
 

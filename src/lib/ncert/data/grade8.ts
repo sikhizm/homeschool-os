@@ -37,7 +37,10 @@ export const grade8Textbooks:Textbook[]=[
   "status":"source-verified-chapter-titles",
   // Phase 5 audit (13 Nov 2026): NCERT hosts hepr101–hepr105.pdf only;
   // hepr106–hepr115.pdf returned 404, so chapter PDFs stop at 5 until NCERT uploads the rest.
-  "verifiedPdfChapters":5
+  "verifiedPdfChapters":5,
+  pdfAuditAttempts:Object.fromEntries(Array.from({length:10},(_,index)=>[
+    index+6,{evidence:'Class 8 audit, 13 November 2026: the direct chapter URL returned HTTP 404. Recheck via NCERT; the book portal remains available.'},
+  ]))
  },
  {
   "id":"ncert-8-ganita-prakash","grade":8,"subject":"Mathematics","title":"Ganita Prakash","language":"English","publisher":"NCERT","textbookCode":"hegp1","chapterCount":7,

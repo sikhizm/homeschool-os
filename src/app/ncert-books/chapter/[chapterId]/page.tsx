@@ -10,8 +10,9 @@ import {
   ncertChapterSlots,
   textbookById,
   chaptersFor,
-  officialChapterPdf,
 } from '@/lib/ncert/textbooks';
+import { chapterPdfEvidence, mappingEvidence, mappingLabels, pdfLabels } from '@/lib/ncert/catalogue-evidence';
+import { familyMappingEvidence } from '@/lib/ncert/family-catalogue-evidence';
 import { class5ChapterAccountById } from '@/lib/curriculum/class5-mapping';
 
 export const dynamic = 'force-dynamic';
@@ -24,7 +25,10 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
   if (!chapter) notFound();
   const book = textbookById(chapter.bookId);
   if (!book) notFound();
-  const officialPdf = officialChapterPdf(chapter);
+  const pdf = chapterPdfEvidence(book, chapter);
+  const officialPdf = pdf.status === 'verified' ? pdf.href : null;
+  const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
+  const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
   const siblings = chaptersFor(book.id);
   const index = siblings.findIndex((c) => c.id === chapter.id);
   const previous = siblings[index - 1];
@@ -64,11 +68,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
             {chapter.selection === 'choose-one'
               ? `Official selection note: ${selectionNote} This option remains browseable, but is intentionally excluded from the default auto-learning path. HomeSchool OS does not yet persist a parent or school selection of an alternative, so it will not claim that one has been chosen.`
               : ''}{' '}
-            {mappingAccount?.candidateMappingIds.length
-              ? `This Class 5 chapter has ${mappingAccount.candidateMappingIds.length} original-outcome draft proposal${mappingAccount.candidateMappingIds.length === 1 ? '' : 's'} awaiting a family owner’s source review.`
-              : mappingAccount?.unmappedReason
-                ? 'This Class 5 chapter is deliberately unmapped until stronger specialist and source evidence is available.'
-                : 'No chapter-to-skill alignment has been approved.'}
+            {mappingLabels[mappingStatus]}. {pdfLabels[pdf.status]}.
           </p>
           <div className="hero-actions">
             {officialPdf ? (
@@ -80,7 +80,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
                 Open official textbook portal ↗
               </a>
             )}
-            {mappingAccount ? (
+            {mappingAccount && mappingReview?.familyReviewsVisible ? (
               <Link className="hero-action-secondary" href={`/curriculum-mapping?chapter=${encodeURIComponent(chapter.id)}`}>
                 Inspect mapping evidence
               </Link>

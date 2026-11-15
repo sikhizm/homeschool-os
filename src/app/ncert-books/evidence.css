@@ -1,0 +1,9 @@
+.ncert-evidence-row {flex-wrap:wrap}
+.ncert-evidence-row .ncert-chapter-description {flex:1 1 230px}
+.ncert-evidence-list {display:flex;flex-wrap:wrap;gap:6px 16px;margin:4px 0 0;font-size:12px;line-height:1.4;color:#425d50}
+.ncert-evidence-list dt {font-weight:800}
+.ncert-evidence-list dd {margin:0}
+.ncert-evidence-audit {overflow-wrap:anywhere}
+.ncert-evidence-table {overflow-x:auto}
+.ncert-evidence-table table {width:100%;border-collapse:collapse;font-size:13px}
+.ncert-evidence-table :is(th,td) {padding:8px;text-align:left;border-bottom:1px solid var(--line,#dce5df)}
