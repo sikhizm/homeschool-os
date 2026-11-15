@@ -5,6 +5,7 @@ import { getSql } from '@/lib/db';
 import LearnerForm from '../dashboard/learner-form';
 import { learnerTier, tierLabel, type LearnerTier } from '@/lib/learner-tier';
 import LearnerArchiveAction from './learner-archive-action';
+import LearnerEditAction from './learner-edit-action';
 
 export const dynamic = 'force-dynamic';
 
@@ -100,7 +101,12 @@ export default async function LearnersPage() {
                   <Link className="learner-continue" href={`/learn?learner=${encodeURIComponent(id)}`}>
                     Learner home <span aria-hidden="true">→</span>
                   </Link>
-                  {isOwner && <LearnerArchiveAction id={id} name={name} />}
+                  {isOwner && (
+                    <div className="learner-card-actions">
+                      <LearnerEditAction id={id} name={name} stage={stage} />
+                      <LearnerArchiveAction id={id} name={name} />
+                    </div>
+                  )}
                 </footer>
               </article>
             );
