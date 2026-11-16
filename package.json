@@ -24,6 +24,7 @@
     "db:migrate:auto-learning": "node scripts/auto-learning-migration.mjs",
     "db:migrate:learner-archive": "node scripts/learner-archive-migration.mjs",
     "db:migrate:planning-competencies": "node scripts/planning-competencies-migration.mjs",
+    "curriculum:check-pdfs": "tsx scripts/check-ncert-chapter-pdfs.ts",
     "curriculum:catalogue-audit": "tsx scripts/curriculum-catalogue-audit.ts",
     "curriculum:framework-audit": "tsx scripts/framework-evidence-audit.ts",
     "phase6:quality": "tsx scripts/phase6-quality-audit.ts",

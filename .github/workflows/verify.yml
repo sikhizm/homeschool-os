@@ -93,3 +93,22 @@ jobs:
 
           echo "Next.js production server is ready."
           npm run test:smoke
+
+  audit-ncert-pdfs:
+    if: github.event_name == 'pull_request' && startsWith(github.head_ref, 'fix/ncert-batch-pdf-verification')
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Check Class 10 chapter PDF candidates
+        run: npm run --silent curriculum:check-pdfs -- --grade 10 > /tmp/ncert-pdf-audit.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ncert-pdf-audit
+          path: /tmp/ncert-pdf-audit.json
+          if-no-files-found: error
