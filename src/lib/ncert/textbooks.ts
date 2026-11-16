@@ -3,6 +3,7 @@
  * No embedded copyrighted textbook contents. Unverified chapter slots remain clearly labelled.
  * Source snapshots need ongoing revalidation against the current NCERT edition.
  */
+import { middleGradePublisherPdfLinks } from './data/middle-grade-publisher-pdfs';
 import { primaryPublisherPdfLinks } from './data/primary-publisher-pdfs';
 import type{ChapterSlot,ReviewStatus,Textbook} from './types';
 import{grade2ChapterTitles,grade2ContentSources,grade2Textbooks} from './data/grade2';
@@ -126,7 +127,7 @@ const textbookRecords:Textbook[]=[
  ...grade10Textbooks
 ];
 export const ncertTextbooks: Textbook[] = textbookRecords.map(book => {
-  const publisherPdfLinks = primaryPublisherPdfLinks[book.id];
+  const publisherPdfLinks = primaryPublisherPdfLinks[book.id] ?? middleGradePublisherPdfLinks[book.id];
   return publisherPdfLinks ? { ...book, publisherPdfLinks } : book;
 });
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
