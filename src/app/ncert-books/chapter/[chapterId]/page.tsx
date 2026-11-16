@@ -26,7 +26,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
   const book = textbookById(chapter.bookId);
   if (!book) notFound();
   const pdf = chapterPdfEvidence(book, chapter);
-  const officialPdf = pdf.status === 'verified' ? pdf.href : null;
+  const officialPdf = pdf.status === 'verified' || pdf.status === 'publisher' ? pdf.href : null;
   const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
   const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
   const siblings = chaptersFor(book.id);
@@ -80,6 +80,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
                 Open official textbook portal ↗
               </a>
             )}
+            {officialPdf && <a className="hero-action-secondary" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">Open textbook portal ↗</a>}
             {mappingAccount && mappingReview?.familyReviewsVisible ? (
               <Link className="hero-action-secondary" href={`/curriculum-mapping?chapter=${encodeURIComponent(chapter.id)}`}>
                 Inspect mapping evidence

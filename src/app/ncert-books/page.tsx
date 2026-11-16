@@ -49,7 +49,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
   {selectedGrade===1&&<p className="ncert-pending">Five Class 1 books listed in the NCERT/CIET audio-book catalogue have all 72 numbered chapter titles checked. The separate NCERT Urdu publication catalogue also lists Dilchasp Riyazi (code 4109); its digital chapter contents remain pending. Chapter-to-skill mappings remain unapproved.</p>}
   {selectedGrade===5&&<p className="ncert-pending">All seven catalogued Class 5 NCERT books have chapter titles checked against official publisher contents; printed edition details are recorded per book. Draft original-outcome proposals remain unapproved until a family owner reviews the evidence in the <Link href="/curriculum-mapping">Curriculum Mapping Review</Link>.</p>}
   {selectedGrade===8&&<p className="ncert-pending">Eleven official-source Class 8 records are indexed, including core books plus Social Science, Arts, Vocational Education and Physical Education and Well-being. Their Contents structures are kept honest: chapter, project and unit titles are not silently treated as the same thing, and optional vocational projects are not auto-assigned.</p>}
-  {(selectedGrade===9||selectedGrade===10)&&<p className="ncert-pending">Class {selectedGrade} contains only the Phase 7 official-source audit set. Every listed title has a verified Contents entry and opens the book portal; direct chapter PDFs are withheld unless individually checked. No chapter-to-outcome mapping has been auto-created.</p>}
+  {(selectedGrade===9||selectedGrade===10)&&<p className="ncert-pending">Class {selectedGrade} contains only the Phase 7 official-source audit set. Every listed title has a verified Contents entry. Chapter buttons open publisher-listed PDFs where available. No chapter-to-outcome mapping has been auto-created.</p>}
  </section>
  {books.length>0&&<div className="ncert-books-layout">
  <aside className="workspace-panel ncert-book-selector">
@@ -61,7 +61,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  <section className="workspace-panel ncert-chapter-panel">
   {selectedBook&&<><div className="ncert-chapter-intro"><div><span className="eyebrow">OFFICIAL BOOK IDENTIFIED</span><h2>{selectedBook.title}</h2><p>Class {selectedBook.grade} · {selectedBook.subject} · {selectedBook.language} · {selectedBook.category?.replace(/-/g,' ')??'category pending'}{selectedBook.volumeLabel?` · ${selectedBook.volumeLabel}`:''} · NCERT</p></div><span className="ncert-mini-book" aria-hidden="true">▤</span></div>
   <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} ${contentUnitLabelFor(selectedBook).toLowerCase()} titles checked · ${chapters.filter(c=>chapterPdfEvidence(selectedBook,c).status==='verified').length} individually verified PDFs`:'Book identified · Contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
-  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. Individually verified PDFs open directly. Other entries link to the official book portal. Confirm the current edition before assigning skills.</p>
+  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. Publisher-listed chapter PDFs open directly. The official book portal is also available above. Confirm the current edition before assigning skills.</p>
   {chapters.length===0&&<p className="ncert-pending">The Contents index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
   <div className="ncert-chapter-list">{chapters.map(c=>{
     const resource=chapterPdfEvidence(selectedBook,c);
@@ -78,7 +78,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
       </dl>
     </div>
     {mapping&&evidence?.familyReviewsVisible?<Link className="ncert-chapter-open" href={`/curriculum-mapping?chapter=${encodeURIComponent(c.id)}`}>Review mapping</Link>:null}
-    <a className="ncert-chapter-open" href={resource.href} target="_blank" rel="noopener noreferrer">{resource.status==='verified'?'Open NCERT PDF':'Open NCERT portal'} <span aria-hidden="true">↗</span></a>
+    <a className="ncert-chapter-open" href={resource.href} target="_blank" rel="noopener noreferrer">{(resource.status==='verified'||resource.status==='publisher')?'Open NCERT PDF':'Open NCERT portal'} <span aria-hidden="true">↗</span></a>
   </div>})}</div></>}
  </section>
  </div>}
@@ -89,7 +89,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  </section>
  <section className="ncert-info-grid">
   <article className="workspace-panel"><span className="eyebrow">OFFICIAL MATERIALS</span><h2>Use original NCERT resources</h2><p>Our index does not embed copyrighted chapters or textbooks. Verify the latest available editions directly with the publisher.</p><a href="https://ncert.nic.in/textbook.php" target="_blank" rel="noopener noreferrer">Open NCERT textbook catalogue ↗</a></article>
-  <article className="workspace-panel"><span className="eyebrow">TRUST & TRANSPARENCY</span><h2>What remains unverified?</h2><p>Class 1 has 72 verified chapter titles across five CIET-listed books; Dilchasp Riyazi remains catalogue-only pending contents verification. Class 4 and 5 chapter titles have publisher evidence. Classes 8–10 show only their individually audited official-source records; unverified direct PDFs remain portal-only. No chapter-to-skill mapping is approved automatically.</p><Link href="/global-curriculum">Explore global learning objectives →</Link></article>
+  <article className="workspace-panel"><span className="eyebrow">TRUST & TRANSPARENCY</span><h2>What remains unverified?</h2><p>Class 1 has 72 verified chapter titles across five CIET-listed books; Dilchasp Riyazi remains catalogue-only pending contents verification. Class 4 and 5 chapter titles have publisher evidence. Classes 8–10 show only their individually audited official-source records; entries without a publisher PDF link use the portal. No chapter-to-skill mapping is approved automatically.</p><Link href="/global-curriculum">Explore global learning objectives →</Link></article>
  </section>
  </main></>;
 }
