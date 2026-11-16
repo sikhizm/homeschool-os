@@ -72,9 +72,9 @@ test('study pack tiles preserve all material and document actions', async () => 
     browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined, headless: true, args: ['--no-sandbox'] });
     const page = await browser.newPage();
     const root = 'http://127.0.0.1:' + address.port;
-    for (const [width, columns, label] of [[375, 2, 'mobile'], [768, 3, 'tablet'], [1440, 5, 'desktop']] as const) {
+    for (const [width, columns, label] of [[375, 2, 'mobile'], [580, 2, 'wide-mobile'], [768, 3, 'tablet'], [1440, 5, 'desktop']] as const) {
       await page.setViewportSize({ width, height: 900 });
-      if (baseline && label !== 'tablet') {
+      if (baseline && (label === 'mobile' || label === 'desktop')) {
         await page.goto(root + '/before');
         const beforeDisclosure = page.getByRole('button', { name: /Choose individual materials/ });
         if (await beforeDisclosure.count() && await beforeDisclosure.getAttribute('aria-expanded') === 'false') await beforeDisclosure.click();
@@ -91,6 +91,13 @@ test('study pack tiles preserve all material and document actions', async () => 
       const grid = page.locator('.study-group-grid');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length), columns);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      if (label === 'mobile' || label === 'wide-mobile') {
+        const options = page.locator('.study-group-options');
+        assert.equal(await options.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length), 1);
+        const finalTile = await grid.locator('.study-category-tile').last().boundingBox();
+        const categoryGrid = await grid.boundingBox();
+        assert.ok(finalTile && categoryGrid && Math.abs(finalTile.width - categoryGrid.width) < 1);
+      }
       const firstChoice = page.locator('.study-material-choice').first();
       const checkbox = firstChoice.getByRole('checkbox');
       assert.equal(await checkbox.evaluate(node => node.getBoundingClientRect().height), 17);
@@ -101,7 +108,7 @@ test('study pack tiles preserve all material and document actions', async () => 
         assert.ok(row.height <= 26, `Expected a compact checkbox label, got ${row.height}px`);
         assert.ok(row.width < grid.width / 3, 'The checkbox label should hug its text');
       }
-      if (process.env.CI && label !== 'tablet') {
+      if (process.env.CI && (label === 'mobile' || label === 'desktop')) {
         await page.locator('.study-studio').screenshot({ path: '/tmp/study-pack-after-' + label + '.png' });
       }
     }
