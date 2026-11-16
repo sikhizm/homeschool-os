@@ -21,6 +21,7 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
+      - run: node --test tests/ncert-pdf-links.test.mjs
       - run: npm run curriculum:framework-audit
       - run: npm run curriculum:catalogue-audit
       - run: npm run phase6:quality
