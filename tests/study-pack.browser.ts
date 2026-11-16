@@ -137,7 +137,7 @@ test('study pack tiles preserve all material and document actions', async () => 
       configurable: true,
       value: async text => sessionStorage.setItem('copied-study-prompt', text)
     })`);
-    await page.getByRole('button', { name: 'Copy prompt' }).click();
+    await page.getByRole('button', { name: 'Copy PDF prompt' }).click();
     await page.getByText('Prompt copied.', { exact: false }).waitFor();
     assert.equal(await page.evaluate(() => sessionStorage.getItem('copied-study-prompt')), expectedPrompt(['complete-pack'], true));
     await tiles.last().click();
@@ -145,7 +145,7 @@ test('study pack tiles preserve all material and document actions', async () => 
     assert.equal(await preview.inputValue(), expectedPrompt(['oral-cards'], true));
 
     await page.getByRole('button', { name: 'Import generated document' }).click();
-    await page.getByRole('textbox', { name: 'Paste generated content' }).fill('<p>Printable example</p>');
+    await page.getByRole('textbox', { name: 'Or paste editable HTML / Markdown' }).fill('<p>Printable example</p>');
     await page.getByRole('button', { name: 'Preview A4' }).click();
     assert.match(await page.locator('iframe[title="Isolated A4 document preview"]').getAttribute('srcdoc') ?? '', /font-size:16pt/);
     await page.getByRole('button', { name: 'Open Study Library' }).click();
