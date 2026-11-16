@@ -76,10 +76,17 @@ test('study pack tiles preserve all material and document actions', async () => 
       await page.setViewportSize({ width, height: 900 });
       if (baseline && label !== 'tablet') {
         await page.goto(root + '/before');
+        const beforeDisclosure = page.getByRole('button', { name: /Choose individual materials/ });
+        if (await beforeDisclosure.count() && await beforeDisclosure.getAttribute('aria-expanded') === 'false') await beforeDisclosure.click();
         await page.getByRole('button', { name: 'Preview prompt' }).waitFor();
         await page.locator('.study-studio').screenshot({ path: '/tmp/study-pack-before-' + label + '.png' });
       }
       await page.goto(root + '/after');
+      const disclosure = page.getByRole('button', { name: /Choose individual materials/ });
+      assert.equal(await disclosure.getAttribute('aria-expanded'), 'false');
+      await disclosure.focus();
+      await page.keyboard.press('Enter');
+      assert.equal(await disclosure.getAttribute('aria-expanded'), 'true');
       await page.getByRole('button', { name: 'Preview prompt' }).waitFor();
       const grid = page.locator('.study-group-grid');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length), columns);
@@ -92,6 +99,8 @@ test('study pack tiles preserve all material and document actions', async () => 
     const panel = page.getByRole('region', { name: 'Choose study materials' });
     const tiles = panel.locator('.study-category-tile');
     assert.equal(await tiles.count(), 5);
+    assert.equal(await panel.locator('.study-category-icon, legend').count(), 0);
+    assert.equal(await panel.getByText('Open to select specific notes', { exact: false }).count(), 0);
     const groups = [
       ['Learn & understand', 6], ['Revise & remember', 5], ['Practice & apply', 10],
       ['Test & assess', 5], ['Parent & child activities', 1],
@@ -112,7 +121,7 @@ test('study pack tiles preserve all material and document actions', async () => 
     await tiles.first().click();
     assert.ok(await panel.getByRole('group', { name: 'Learn & understand' }).getByRole('checkbox').last().isChecked());
     await tiles.first().click();
-    assert.equal(await panel.locator('[aria-expanded="true"]').count(), 0);
+    assert.equal(await panel.locator('.study-category-tile[aria-expanded="true"]').count(), 0);
     assert.equal(await panel.getByRole('status').innerText(), '6 selected');
 
     const expectedPrompt = (materials: MaterialId[], largePrint = false) => buildStudyPrompt({
