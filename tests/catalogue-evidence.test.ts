@@ -15,7 +15,7 @@ test('catalogue distinguishes documented PDFs, failed checks and inconclusive ch
   assert.match(lookup('ncert-4-maths-mela-ch-02').evidence,/timed out/);
   assert.match(lookup('ncert-4-maths-mela-ch-02').href,/textbook\.php/);
   const total=catalogueEvidenceAudit().total;
-  assert.equal(total.verified+total.pending+total.notConfirmed,total.slots);
+  assert.equal(total.verified+total.publisher+total.pending+total.notConfirmed,total.slots);
   assert.equal(total.fallback,total.pending+total.notConfirmed);
   assert.equal(total.approved+total.proposed+total.unmapped+total.evidencePending,total.slots);
   assert.deepEqual(validateCatalogueEvidence().errors,[]);
@@ -35,7 +35,7 @@ test('approval and unmapped decisions stay family-specific', () => {
   assert.equal(mappingEvidence()(ncertChapterSlots[0]),'pending');
 });
 
-test('Class 10 mathematics opens its individually recorded PDFs and keeps the portal for other chapters', () => {
+test('Class 10 mathematics opens its verified and publisher-listed PDFs', () => {
   const book = textbookById('ncert-10-mathematics')!;
   for (const number of [6, 8, 9, 12]) {
     const chapter = ncertChapterSlots.find(slot => slot.bookId === book.id && slot.chapterNumber === number)!;
@@ -43,6 +43,10 @@ test('Class 10 mathematics opens its individually recorded PDFs and keeps the po
     assert.equal(resource.status, 'verified');
     assert.equal(resource.href, 'https://ncert.nic.in/textbook/pdf/jemh1' + String(number).padStart(2, '0') + '.pdf');
   }
-  const unverified = ncertChapterSlots.find(slot => slot.bookId === book.id && slot.chapterNumber === 7)!;
-  assert.equal(chapterPdfEvidence(book, unverified).href, book.sourceUrl);
+  const publisher = ncertChapterSlots.find(slot => slot.bookId === book.id && slot.chapterNumber === 1)!;
+  assert.equal(chapterPdfEvidence(book, publisher).status, 'publisher');
+  assert.equal(chapterPdfEvidence(book, publisher).href, 'https://ncert.nic.in/textbook/pdf/jemh101.pdf');
+  const class10 = catalogueEvidenceAudit().classes.get(10)!;
+  assert.equal(class10.verified + class10.publisher, 60);
+  assert.equal(class10.fallback, 0);
 });

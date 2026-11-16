@@ -4,6 +4,7 @@ import type { ChapterSlot, Textbook } from './types';
 
 export const pdfLabels = {
   verified: 'Direct PDF verified',
+  publisher: 'Publisher-listed chapter PDF',
   'not-confirmed': 'Official book portal',
   pending: 'PDF verification pending',
 } as const;
@@ -21,6 +22,10 @@ export function chapterPdfEvidence(book: Textbook, chapter: ChapterSlot): {
 } {
   if (chapter.officialPdf) return {
     status: 'verified', href: chapter.officialPdf.url, evidence: chapter.officialPdf.verificationNote,
+  };
+  const publisherPdf = book.publisherPdfLinks?.[chapter.chapterNumber];
+  if (publisherPdf) return {
+    status: 'publisher', href: publisherPdf, evidence: 'Direct target listed on the official NCERT chapter page. The automated download check did not complete.',
   };
   const attempt = book.pdfAuditAttempts?.[chapter.chapterNumber];
   return {
@@ -51,7 +56,7 @@ export function mappingEvidence(revisions: readonly MappingRevision[] = []) {
 export function catalogueEvidenceAudit(revisions: readonly MappingRevision[] = []) {
   const mapping = mappingEvidence(revisions);
   const empty = () => ({
-    books: 0, slots: 0, verified: 0, pending: 0, notConfirmed: 0, fallback: 0,
+    books: 0, slots: 0, verified: 0, publisher: 0, pending: 0, notConfirmed: 0, fallback: 0,
     incompleteBooks: 0, approved: 0, proposed: 0, unmapped: 0, evidencePending: 0,
   });
   const total = empty();
@@ -67,11 +72,12 @@ export function catalogueEvidenceAudit(revisions: readonly MappingRevision[] = [
     const pdfs = chapters.map(chapter => chapterPdfEvidence(book, chapter).status);
     for (const row of [total, byClass, bySubject]) {
       row.books++;
-      if (pdfs.length === 0 || pdfs.includes('pending')) row.incompleteBooks++;
+      if (pdfs.length === 0 || pdfs.includes('pending') || pdfs.includes('publisher')) row.incompleteBooks++;
       chapters.forEach((chapter, index) => {
         row.slots++;
         const pdf = pdfs[index];
         if (pdf === 'verified') row.verified++;
+        else if (pdf === 'publisher') row.publisher++;
         else {
           row.fallback++;
           if (pdf === 'pending') row.pending++;
@@ -99,6 +105,10 @@ export function validateCatalogueEvidence() {
       !reference.verificationNote.trim())) errors.push('Invalid direct PDF evidence: ' + chapter.id);
   }
   for (const book of ncertTextbooks) {
+    for (const [ordinal,url] of Object.entries(book.publisherPdfLinks ?? {})) {
+      if (!/^[1-9]\d*$/.test(ordinal) || Number(ordinal) > book.chapterCount ||
+          !/^https:\/\/ncert\.nic\.in\/textbook\/pdf\/[\w-]+\.pdf$/i.test(url)) errors.push('Invalid publisher PDF link: ' + book.id + '/' + ordinal);
+    }
     for (const ordinal of Object.keys(book.verifiedPdfReferences ?? {})) {
       if (!/^[1-9]\d*$/.test(ordinal) || Number(ordinal) > book.chapterCount) errors.push('PDF reference outside book: ' + book.id + '/' + ordinal);
     }
@@ -109,6 +119,6 @@ export function validateCatalogueEvidence() {
   }
   return {
     errors,
-    warnings: [`${editorial.pending} direct PDF checks pending`, `${editorial.evidencePending} chapters need mapping evidence`],
+    warnings: [`${editorial.pending + editorial.publisher} direct PDF checks pending`, `${editorial.evidencePending} chapters need mapping evidence`],
   };
 }

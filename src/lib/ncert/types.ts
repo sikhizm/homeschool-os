@@ -38,6 +38,8 @@ export type Textbook={
  legacyPdfPatternFallback?:true;
  pdfAuditAttempts?:Readonly<Record<number,PdfAuditAttempt>>;
  /** Individually verified direct PDFs keyed by numbered chapter. May be non-contiguous. */
+ /** Direct targets extracted from the publisher's chapter pages. */
+ publisherPdfLinks?:Readonly<Record<number,string>>;
  verifiedPdfReferences?:Readonly<Record<number,OfficialPdfReference>>;
  /** Opts out of the legacy code-pattern fallback when no direct PDFs were individually checked. */
  directPdfAuditComplete?:boolean;

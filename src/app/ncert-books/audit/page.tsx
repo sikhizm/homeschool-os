@@ -14,7 +14,7 @@ export default async function CatalogueAuditPage() {
   const { total, classes, subjects } = catalogueEvidenceAudit(review.revisions);
   const columns = [
     ['books','Books'],['slots','Contents slots'],['verified','Verified PDFs'],
-    ['pending','PDF pending'],['notConfirmed','PDF not confirmed'],['fallback','Portal fallback'],
+    ['publisher','Publisher-listed PDFs'],['pending','PDF pending'],['notConfirmed','PDF not confirmed'],['fallback','Portal fallback'],
     ['incompleteBooks','Books with incomplete PDF audit'],['approved','Approved'],['proposed','Proposed'],
     ['unmapped','Unmapped'],['evidencePending','Mapping evidence pending'],
   ] as const;
@@ -34,7 +34,7 @@ export default async function CatalogueAuditPage() {
     <main className="family-dashboard studio-stack ncert-evidence-audit">
       <Link href="/ncert-books">Back to NCERT books</Link>
       <h1>NCERT catalogue evidence audit</h1>
-      <p>PDF pending means an individual PDF has not been verified or the check was inconclusive. PDF not confirmed means a recorded check failed to confirm a direct PDF. Both use the official book portal.</p>
+      <p>PDF pending means an individual PDF has not been verified or the check was inconclusive. PDF not confirmed means a recorded check failed to confirm a direct PDF. Publisher-listed PDFs open directly and are counted separately from download-verified PDFs.</p>
       <p>Mapping totals count chapters. Approved takes precedence when a chapter has more than one review outcome. {review.familyReviewsVisible ? 'Counts include decisions for your family.' : 'Counts show editorial seed proposals only. Family review decisions are unavailable in this view.'}</p>
       <p>{total.proposed+total.evidencePending} chapters await review or supporting mapping evidence.</p>
       {table('Catalogue totals', [['All indexed classes',total]])}
