@@ -91,6 +91,16 @@ test('study pack tiles preserve all material and document actions', async () => 
       const grid = page.locator('.study-group-grid');
       assert.equal(await grid.evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length), columns);
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      const firstChoice = page.locator('.study-material-choice').first();
+      const checkbox = firstChoice.getByRole('checkbox');
+      assert.equal(await checkbox.evaluate(node => node.getBoundingClientRect().height), 17);
+      if (label === 'desktop') {
+        const row = await firstChoice.boundingBox();
+        const grid = await page.locator('.study-group-options').boundingBox();
+        assert.ok(row && grid);
+        assert.ok(row.height <= 26, `Expected a compact checkbox label, got ${row.height}px`);
+        assert.ok(row.width < grid.width / 3, 'The checkbox label should hug its text');
+      }
       if (process.env.CI && label !== 'tablet') {
         await page.locator('.study-studio').screenshot({ path: '/tmp/study-pack-after-' + label + '.png' });
       }

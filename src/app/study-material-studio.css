@@ -87,20 +87,29 @@
   align-items: center;
   gap: 8px;
   min-width: 0;
-  min-height: 44px;
-  padding: 7px 9px;
-  border: 1px solid #e2eae3;
-  border-radius: 9px;
-  background: #fbfcfa;
+  justify-self: start;
+  align-self: start;
+  max-width: 100%;
+  min-height: 24px;
+  padding: 0 3px;
   color: #3d5046;
   font-size: 13px;
   line-height: 1.35;
   overflow-wrap: anywhere;
   cursor: pointer;
 }
-.study-material-choice:hover { border-color: #94baa1; }
-.study-material-choice.is-selected { border-color: #94baa1; background: #edf6ef; color: #245b45; }
-.study-material-choice input { width: 16px; height: 16px; flex: 0 0 16px; margin: 0; accent-color: #185b47; }
+.study-material-choice:hover { background: #f7faf7; }
+.study-material-choice.is-selected { color: #245b45; font-weight: 650; }
+.study-material-choice input[type="checkbox"] {
+  box-sizing: border-box;
+  width: 17px;
+  height: 17px;
+  min-height: 0;
+  flex: 0 0 17px;
+  margin: 0;
+  padding: 0;
+  accent-color: #185b47;
+}
 .study-category-tile:focus-visible, .study-material-choice:has(input:focus-visible) { outline: 2px solid #185b47; outline-offset: 2px; }
 .study-selection-tools {
   display: flex;
@@ -138,10 +147,6 @@
 .study-materials-content { display:grid; gap:8px; padding:0 16px 12px; border-top:1px solid #edf0eb; }
 .study-group-grid { padding-top:10px; }
 .study-group-options { gap:3px 18px; }
-.study-material-choice { min-height:32px; padding:4px 3px; border:0; border-radius:0; background:transparent; }
-.study-material-choice:hover { border-color:transparent; background:#f7faf7; }
-.study-material-choice.is-selected { border-color:transparent; background:transparent; color:#245b45; font-weight:650; }
-.study-material-choice input { width:17px; height:17px; flex-basis:17px; }
 .study-output-row { display:grid; grid-template-columns:minmax(220px, 0.9fr) minmax(0, 2.1fr); align-items:end; gap:12px; }
 .study-output-row>.workspace-field { margin:0; min-width:0; }
 .study-output-actions { min-width:0; flex-wrap:nowrap; }
@@ -162,5 +167,5 @@
  .study-disclosure-meta { gap:6px; }
  .study-disclosure-meta .study-selected-count { white-space:nowrap; }
  .study-group-options { grid-template-columns:1fr; }
- .study-material-choice { min-height:40px; }
+ .study-material-choice { min-height:32px; }
 }
