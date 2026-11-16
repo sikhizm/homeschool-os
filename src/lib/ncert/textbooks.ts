@@ -3,6 +3,7 @@
  * No embedded copyrighted textbook contents. Unverified chapter slots remain clearly labelled.
  * Source snapshots need ongoing revalidation against the current NCERT edition.
  */
+import { primaryPublisherPdfLinks } from './data/primary-publisher-pdfs';
 import type{ChapterSlot,ReviewStatus,Textbook} from './types';
 import{grade2ChapterTitles,grade2ContentSources,grade2Textbooks} from './data/grade2';
 import{grade3ChapterTitles,grade3ContentSources,grade3Textbooks} from './data/grade3';
@@ -12,7 +13,7 @@ import{grade10ChapterTitles,grade10ContentSources,grade10Textbooks} from './data
 import{grade6ChapterTitles,grade6ContentSources,grade6Textbooks} from './data/grade6';
 import{grade7ChapterTitles,grade7ContentSources,grade7Textbooks} from './data/grade7';
 export type{ChapterSlot,ReviewStatus,Textbook};
-export const ncertTextbooks:Textbook[]=[
+const textbookRecords:Textbook[]=[
   {
     "id":"ncert-1-mridang","grade":1,"subject":"English","title":"Mridang","language":"English","publisher":"NCERT","textbookCode":"aemr1","chapterCount":9,
     "sourceUrl":"https://ncert.nic.in/textbook.php?aemr1=0-9","referenceUrl":"https://ciet.ncert.gov.in/audio-book/115",
@@ -124,6 +125,10 @@ export const ncertTextbooks:Textbook[]=[
  ...grade9Textbooks,
  ...grade10Textbooks
 ];
+export const ncertTextbooks: Textbook[] = textbookRecords.map(book => {
+  const publisherPdfLinks = primaryPublisherPdfLinks[book.id];
+  return publisherPdfLinks ? { ...book, publisherPdfLinks } : book;
+});
 /** Checked against NCERT Grade 4 2026–27 reprint contents; titles only, not textbook text. */
 export const verifiedChapterTitles:Record<string,readonly string[]>={
  ...grade2ChapterTitles,

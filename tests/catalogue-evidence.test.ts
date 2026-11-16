@@ -10,10 +10,9 @@ test('catalogue distinguishes documented PDFs, failed checks and inconclusive ch
     return chapterPdfEvidence(textbookById(chapter.bookId)!,chapter);
   };
   assert.equal(lookup('ncert-2-mridang-ch-01').status,'verified');
-  assert.equal(lookup('ncert-2-mridang-ch-02').status,'pending');
+  assert.equal(lookup('ncert-2-mridang-ch-02').status,'publisher');
   assert.equal(lookup('ncert-8-poorvi-ch-06').status,'not-confirmed');
-  assert.match(lookup('ncert-4-maths-mela-ch-02').evidence,/timed out/);
-  assert.match(lookup('ncert-4-maths-mela-ch-02').href,/textbook\.php/);
+  assert.equal(lookup('ncert-4-maths-mela-ch-02').status,'publisher');
   const total=catalogueEvidenceAudit().total;
   assert.equal(total.verified+total.publisher+total.pending+total.notConfirmed,total.slots);
   assert.equal(total.fallback,total.pending+total.notConfirmed);
@@ -61,4 +60,28 @@ test('Class 9 opens publisher-listed chapters without assigning unit PDFs to Khe
   const pe = textbookById('ncert-9-khel-praveen')!;
   assert.ok(ncertChapterSlots.filter(slot => slot.bookId === pe.id)
     .every(slot => chapterPdfEvidence(pe, slot).href === pe.sourceUrl));
+});
+
+test('Classes 1–5 use NCERT chapter targets for matched books and keep unmatched chapters on the portal', () => {
+  for (const [bookId, code] of [
+    ['ncert-1-mridang', 'aemr1'],
+    ['ncert-1-sarangi', 'ahsr1'],
+    ['ncert-2-mridang', 'bemr1'],
+    ['ncert-3-maths-mela', 'cemm1'],
+    ['ncert-4-maths-mela', 'demm1'],
+    ['ncert-5-maths-mela', 'eemm1'],
+  ]) {
+    const book = textbookById(bookId)!;
+    const chapter = ncertChapterSlots.find(slot => slot.bookId === bookId && slot.chapterNumber === 2)!;
+    const resource = chapterPdfEvidence(book, chapter);
+    assert.equal(resource.status, 'publisher');
+    assert.equal(resource.href, 'https://ncert.nic.in/textbook/pdf/' + code + '02.pdf');
+  }
+  for (const bookId of ['ncert-5-khel-yoga', 'ncert-1-shehnai']) {
+    const book = textbookById(bookId)!;
+    assert.equal(book.publisherPdfLinks, undefined);
+    const chapters = ncertChapterSlots.filter(slot => slot.bookId === bookId);
+    assert.ok(chapters.length);
+    assert.ok(chapters.every(chapter => chapterPdfEvidence(book, chapter).href === book.sourceUrl));
+  }
 });
