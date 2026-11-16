@@ -193,7 +193,7 @@ test('Class 8 indexes eleven audited NCERT records and preserves each official C
  assert.equal(officialChapterPdf(chaptersFor('ncert-8-ganita-prakash-2')[0]),'https://ncert.nic.in/textbook/pdf/hegp201.pdf');
  assert.equal(officialChapterPdf(chaptersFor('ncert-8-deepakam')[0]),'https://ncert.nic.in/textbook/pdf/hsde101.pdf');
 });
-test('Classes 9–10 add only the audited official-source records with portal fallback',()=>{
+test('Classes 9–10 add only the audited official-source records with explicit direct PDFs or portal fallback',()=>{
  const grade9=selectTextbooks(9); const grade10=selectTextbooks(10);
  assert.equal(grade9.length,9); assert.equal(grade10.length,7);
  assert.equal(grade9.reduce((total,book)=>total+book.chapterCount,0),97);
@@ -204,7 +204,11 @@ test('Classes 9–10 add only the audited official-source records with portal fa
   const chapters=chaptersFor(book.id);
   assert.equal(chapters.length,book.chapterCount,book.id);
   assert.ok(chapters.every(chapter=>chapter.verifiedTitle&&chapter.status==='source-verified'),book.id);
-  assert.ok(chapters.every(chapter=>officialChapterPdf(chapter)===null),`${book.id} must use official portal fallback without individually verified direct PDFs`);
+  for(const chapter of chapters){
+   const recorded=book.verifiedPdfReferences?.[chapter.chapterNumber];
+   assert.equal(officialChapterPdf(chapter),recorded?.url??null,chapter.id);
+   if(recorded)assert.ok(recorded.verificationNote.trim(),chapter.id);
+  }
  }
  assert.equal(textbookById('ncert-9-khel-praveen')?.title,'Khel Praveen');
  assert.equal(chaptersFor('ncert-9-understanding-society-1').length,9);
