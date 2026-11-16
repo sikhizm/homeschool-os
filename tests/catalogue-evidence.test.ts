@@ -65,6 +65,7 @@ test('Class 9 opens publisher-listed chapters without assigning unit PDFs to Khe
 test('Classes 1–5 use NCERT chapter targets for matched books and keep unmatched chapters on the portal', () => {
   for (const [bookId, code] of [
     ['ncert-1-mridang', 'aemr1'],
+    ['ncert-1-sarangi', 'ahsr1'],
     ['ncert-2-mridang', 'bemr1'],
     ['ncert-3-maths-mela', 'cemm1'],
     ['ncert-4-maths-mela', 'demm1'],
@@ -76,7 +77,7 @@ test('Classes 1–5 use NCERT chapter targets for matched books and keep unmatch
     assert.equal(resource.status, 'publisher');
     assert.equal(resource.href, 'https://ncert.nic.in/textbook/pdf/' + code + '02.pdf');
   }
-  for (const bookId of ['ncert-1-sarangi', 'ncert-5-khel-yoga', 'ncert-1-shehnai']) {
+  for (const bookId of ['ncert-5-khel-yoga', 'ncert-1-shehnai']) {
     const book = textbookById(bookId)!;
     assert.equal(book.publisherPdfLinks, undefined);
     const chapters = ncertChapterSlots.filter(slot => slot.bookId === bookId);
