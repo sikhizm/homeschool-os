@@ -9,12 +9,12 @@ const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 function previewDoc(content:string,student:string,grade:string,book:Textbook,chapter:ChapterSlot,type:string,large:boolean){return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; img-src data:"><meta name="viewport" content="width=device-width,initial-scale=1"><style>@page{size:A4 portrait;margin:18mm 16mm 20mm;@bottom-center{content:counter(page);font:9pt Arial;color:#000}}*{box-sizing:border-box}body{margin:0;background:#fff;color:#000;font:12pt/1.55 Arial,'Noto Sans Gurmukhi','Noto Sans Devanagari',sans-serif}header{border-bottom:1px solid #222;padding-bottom:8mm;margin-bottom:8mm}header h1{font-size:20pt;margin:0 0 4mm}header p{margin:1mm 0;font-size:10pt}h2,h3,h4{break-after:avoid;page-break-after:avoid}table{width:100%;border-collapse:collapse;break-inside:auto}tr{break-inside:avoid}th,td{border:1px solid #333;padding:5px;text-align:left;vertical-align:top}p,li{orphans:3;widows:3}img,iframe,video,svg,canvas{max-width:100%;max-height:70mm}footer{margin-top:12mm;border-top:1px solid #777;padding-top:3mm;font-size:9pt;text-align:center}@media screen{body{padding:18mm 16mm;max-width:210mm;margin:0 auto}}${large?'body{font-size:16pt;line-height:1.8}header p{font-size:13pt}':''}</style></head><body><header><h1>${esc(type)}</h1><p><b>STUDENT NAME:</b> ${esc(student)} &nbsp; <b>CLASS:</b> ${esc(grade)}</p><p><b>SUBJECT:</b> ${esc(book.subject)} &nbsp; <b>TEXTBOOK:</b> ${esc(book.title)}</p><p><b>CHAPTER:</b> ${esc(chapter.verifiedTitle??chapter.label)} &nbsp; <b>DOCUMENT TYPE:</b> ${esc(type)} &nbsp; <b>DATE:</b> __________</p></header><main>${content}</main><footer>Homeschool OS · Family learning resource</footer></body></html>`;}
 
 type IndividualMaterialId = Exclude<MaterialId,'complete-pack'>;
-const MATERIAL_GROUPS: {id:string;title:string;icon:string;items:IndividualMaterialId[]}[] = [
- {id:'core',title:'Learn & understand',icon:'▤',items:['full-notes','concepts','definitions','facts','solved-examples','activities']},
- {id:'revision',title:'Revise & remember',icon:'↺',items:['revision-notes','quick-sheet','flashcards','mind-map','mistakes']},
- {id:'practice',title:'Practice & apply',icon:'✎',items:['worksheets','mcq','fill-blanks','true-false','matching','short-answer','long-answer','competency','reasoning','real-life']},
- {id:'assessment',title:'Test & assess',icon:'✓',items:['chapter-test','exam-paper','answer-key','solutions','answer-sheet']},
- {id:'parent',title:'Parent & child activities',icon:'♧',items:['oral-cards']},
+const MATERIAL_GROUPS: {id:string;title:string;items:IndividualMaterialId[]}[] = [
+ {id:'core',title:'Learn & understand',items:['full-notes','concepts','definitions','facts','solved-examples','activities']},
+ {id:'revision',title:'Revise & remember',items:['revision-notes','quick-sheet','flashcards','mind-map','mistakes']},
+ {id:'practice',title:'Practice & apply',items:['worksheets','mcq','fill-blanks','true-false','matching','short-answer','long-answer','competency','reasoning','real-life']},
+ {id:'assessment',title:'Test & assess',items:['chapter-test','exam-paper','answer-key','solutions','answer-sheet']},
+ {id:'parent',title:'Parent & child activities',items:['oral-cards']},
 ];
 
 const emptyMessage='No matching learners are available. Only learners enrolled in this chapter class can use this studio.';
@@ -50,8 +50,8 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{ch
  </section>
  <section className="study-selection-panel" aria-label="Choose study materials">
   <button type="button" className="study-selection-disclosure" aria-expanded={materialsOpen} aria-controls={groupPanelId+'-materials'} onClick={()=>setMaterialsOpen(v=>!v)}>
-   <span><strong>Choose individual materials</strong><small>Open to select specific notes, revision, practice and assessment resources</small></span>
-   <span className="study-disclosure-meta"><span className="study-selected-count" role="status">{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`}</span><span className="study-disclosure-chevron" aria-hidden="true">{materialsOpen?'⌃':'⌄'}</span></span>
+   <strong>Choose individual materials</strong>
+   <span className="study-disclosure-meta"><span className="study-selected-count" role="status">{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`}</span><span className="study-disclosure-chevron" aria-hidden="true" /></span>
   </button>
   {materialsOpen&&<div id={groupPanelId+'-materials'} className="study-materials-content">
    <div className="study-group-grid">
@@ -60,17 +60,17 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{ch
      return <button className={'study-category-tile'+(selectedCount>0?' has-selection':'')} key={group.id} type="button"
       aria-expanded={expandedGroup===group.id} aria-controls={groupPanelId+'-'+group.id}
       onClick={()=>setExpandedGroup(current=>current===group.id?null:group.id)}>
-      <span className="study-category-icon" aria-hidden="true">{group.icon}</span>
-      <strong>{group.title}</strong>
-      <span className="study-category-count">{group.items.length} {group.items.length===1?'option':'options'}</span>
-      {selectedCount>0&&<span className="study-category-selected">{selectedCount} selected</span>}
+      <strong id={groupPanelId+'-'+group.id+'-label'}>{group.title}</strong>
+      <span className="study-category-count">
+       {group.items.length} {group.items.length===1?'option':'options'}
+       {selectedCount>0&&<>{' · '}<span className="study-category-selected">{selectedCount} selected</span></>}
+      </span>
      </button>;
     })}
    </div>
    {MATERIAL_GROUPS.map(group=>(
     <div key={group.id} id={groupPanelId+'-'+group.id} hidden={expandedGroup!==group.id}>
-     {expandedGroup===group.id&&<fieldset className="study-category-options">
-      <legend>{group.title}</legend>
+     {expandedGroup===group.id&&<fieldset className="study-category-options" aria-labelledby={groupPanelId+'-'+group.id+'-label'}>
       <div className="study-group-options">
        {group.items.map(id=>{
         const label=MATERIALS.find(item=>item[0]===id)?.[1]??id;
