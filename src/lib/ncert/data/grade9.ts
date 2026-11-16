@@ -5,10 +5,9 @@
  * confirms that a numbered chapter entry exists; titles and counts below come
  * from the official Contents pages, never from a generic portal range.
  *
- * Direct PDFs are deliberately absent. Although NCERT uses patterned filenames
- * in several series, Phase 7 did not treat a pattern or search snippet as a
- * per-chapter availability check. Learners therefore use the official book
- * portal until a direct PDF is individually verified and recorded.
+ * Publisher-listed PDF targets were exported from NCERT's chapter pages on
+ * 16 November 2026. Khel Praveen exposes six PDFs for 23 catalogue chapters;
+ * those PDFs are not assigned to individual chapter slots.
  *
  * Titles and metadata only — no textbook text, exercises, illustrations or
  * answer keys are reproduced here.
