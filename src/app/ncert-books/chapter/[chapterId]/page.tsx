@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ncertReaderPilotHref } from '@/lib/ncert/reader-pilot';
 import ChapterProgress from './chapter-progress';
 import ChapterSessions from './chapter-sessions';
 import StudyMaterialStudio from './study-material-studio';
@@ -27,6 +28,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
   if (!book) notFound();
   const pdf = chapterPdfEvidence(book, chapter);
   const officialPdf = pdf.status === 'verified' || pdf.status === 'publisher' ? pdf.href : null;
+  const readerHref = officialPdf ? ncertReaderPilotHref(chapter.id, officialPdf) : null;
   const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
   const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
   const siblings = chaptersFor(book.id);
@@ -71,8 +73,9 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
             {mappingLabels[mappingStatus]}. {pdfLabels[pdf.status]}.
           </p>
           <div className="hero-actions">
+            {readerHref && <Link className="hero-action-primary" href={readerHref}>Read in HomeSchool OS</Link>}
             {officialPdf ? (
-              <a className="hero-action-primary" href={officialPdf} target="_blank" rel="noopener noreferrer">
+              <a className={readerHref ? "hero-action-secondary" : "hero-action-primary"} href={officialPdf} target="_blank" rel="noopener noreferrer">
                 Open official NCERT {contentLabel.toLowerCase()} PDF ↗
               </a>
             ) : (
@@ -91,7 +94,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
             </Link>
           </div>
           <p className="muted" style={{ margin: '14px 0 0', fontSize: 12.5 }}>
-            Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.
+            External publisher links open in a new tab. {readerHref ? 'The in-app reader loads the official PDF on demand without saving a copy.' : 'HomeSchool OS does not copy or host the textbook.'}
           </p>
         </div>
       </section>
