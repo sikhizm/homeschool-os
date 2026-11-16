@@ -105,6 +105,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install PDF text extractor
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq poppler-utils
       - name: Check Class 10 chapter PDF candidates
         run: npm run --silent curriculum:check-pdfs -- --grade 10 > /tmp/ncert-pdf-audit.json
       - uses: actions/upload-artifact@v4
