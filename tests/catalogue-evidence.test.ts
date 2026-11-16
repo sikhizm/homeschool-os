@@ -50,3 +50,15 @@ test('Class 10 mathematics opens its verified and publisher-listed PDFs', () => 
   assert.equal(class10.verified + class10.publisher, 60);
   assert.equal(class10.fallback, 0);
 });
+
+test('Class 9 opens publisher-listed chapters without assigning unit PDFs to Khel Praveen chapters', () => {
+  const audit = catalogueEvidenceAudit().classes.get(9)!;
+  assert.equal(audit.publisher, 74);
+  assert.equal(audit.fallback, 23);
+  const science = textbookById('ncert-9-exploration')!;
+  const first = ncertChapterSlots.find(slot => slot.bookId === science.id && slot.chapterNumber === 1)!;
+  assert.equal(chapterPdfEvidence(science, first).href, 'https://ncert.nic.in/textbook/pdf/iesc101.pdf');
+  const pe = textbookById('ncert-9-khel-praveen')!;
+  assert.ok(ncertChapterSlots.filter(slot => slot.bookId === pe.id)
+    .every(slot => chapterPdfEvidence(pe, slot).href === pe.sourceUrl));
+});

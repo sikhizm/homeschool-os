@@ -5,10 +5,9 @@
  * confirms that a numbered chapter entry exists; titles and counts below come
  * from the official Contents pages, never from a generic portal range.
  *
- * Direct PDFs are deliberately absent. Although NCERT uses patterned filenames
- * in several series, Phase 7 did not treat a pattern or search snippet as a
- * per-chapter availability check. Learners therefore use the official book
- * portal until a direct PDF is individually verified and recorded.
+ * Publisher-listed PDF targets were exported from NCERT's chapter pages on
+ * 16 November 2026. Khel Praveen exposes six PDFs for 23 catalogue chapters;
+ * those PDFs are not assigned to individual chapter slots.
  *
  * Titles and metadata only — no textbook text, exercises, illustrations or
  * answer keys are reproduced here.
@@ -18,48 +17,138 @@ import type {ChapterSelection,Textbook} from '../types';
 export const grade9Textbooks:Textbook[]=[
  {
   id:'ncert-9-kaveri',grade:9,subject:'English',title:'Kaveri',language:'English',publisher:'NCERT',textbookCode:'iebe1',chapterCount:8,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iebe101.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iebe102.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iebe103.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iebe104.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iebe105.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iebe106.pdf',
+   7:'https://ncert.nic.in/textbook/pdf/iebe107.pdf',
+   8:'https://ncert.nic.in/textbook/pdf/iebe108.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iebe1=0-8',referenceUrl:'https://ncert.nic.in/textbook/pdf/iebe1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iebe1ps.pdf',
   editionLabel:'NCERT first edition January 2026 (0903, ISBN 978-93-5729-419-5); eight numbered Contents chapters, with associated literary items not promoted to standalone chapter slots.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'language'
  },
  {
   id:'ncert-9-ganita-manjari-1',grade:9,subject:'Mathematics',title:'Ganita Manjari',language:'English',publisher:'NCERT',textbookCode:'iemh1',chapterCount:8,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iemh101.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iemh102.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iemh103.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iemh104.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iemh105.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iemh106.pdf',
+   7:'https://ncert.nic.in/textbook/pdf/iemh107.pdf',
+   8:'https://ncert.nic.in/textbook/pdf/iemh108.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iemh1=0-8',referenceUrl:'https://ncert.nic.in/textbook/pdf/iemh1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iemh1ps.pdf',
   editionLabel:'NCERT first edition April 2026 (0904; ISBN was not captured in the audited source); Part I, Chapters 1–8.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'core',volumeLabel:'Part I'
  },
  {
   id:'ncert-9-ganita-manjari-2',grade:9,subject:'Mathematics',title:'Ganita Manjari',language:'English',publisher:'NCERT',textbookCode:'iemh2',chapterCount:6,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iemh201.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iemh202.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iemh203.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iemh204.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iemh205.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iemh206.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iemh2=0-6',referenceUrl:'https://ncert.nic.in/textbook/pdf/iemh2ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iemh2ps.pdf',
   editionLabel:'NCERT first edition August 2026 (0905, ISBN 978-93-5729-236-8); Part II, Chapters 9–14.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'core',volumeLabel:'Part II'
  },
  {
   id:'ncert-9-exploration',grade:9,subject:'Science',title:'Exploration',language:'English',publisher:'NCERT',textbookCode:'iesc1',chapterCount:13,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iesc101.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iesc102.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iesc103.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iesc104.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iesc105.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iesc106.pdf',
+   7:'https://ncert.nic.in/textbook/pdf/iesc107.pdf',
+   8:'https://ncert.nic.in/textbook/pdf/iesc108.pdf',
+   9:'https://ncert.nic.in/textbook/pdf/iesc109.pdf',
+   10:'https://ncert.nic.in/textbook/pdf/iesc110.pdf',
+   11:'https://ncert.nic.in/textbook/pdf/iesc111.pdf',
+   12:'https://ncert.nic.in/textbook/pdf/iesc112.pdf',
+   13:'https://ncert.nic.in/textbook/pdf/iesc113.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iesc1=0-13',referenceUrl:'https://ncert.nic.in/textbook/pdf/iesc1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iesc1ps.pdf',
   editionLabel:'NCERT first edition April 2026 (0906, ISBN 978-93-5729-567-3); 13 numbered Contents chapters.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'core'
  },
  {
   id:'ncert-9-understanding-society-1',grade:9,subject:'Social Science',title:'Understanding Society: India and Beyond',language:'English',publisher:'NCERT',textbookCode:'iest1',chapterCount:9,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iest101.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iest102.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iest103.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iest104.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iest105.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iest106.pdf',
+   7:'https://ncert.nic.in/textbook/pdf/iest107.pdf',
+   8:'https://ncert.nic.in/textbook/pdf/iest108.pdf',
+   9:'https://ncert.nic.in/textbook/pdf/iest109.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iest1=0-9',referenceUrl:'https://ncert.nic.in/textbook/pdf/iest1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iest1ps.pdf',
   editionLabel:'NCERT Grade 9 Part I; the official Contents lists nine numbered chapters across Geography, History, Political Science and Economics. Edition metadata was not independently recaptured in Phase 7.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'core',volumeLabel:'Part I'
  },
  {
   id:'ncert-9-understanding-society-2',grade:9,subject:'Social Science',title:'Understanding Society: India and Beyond',language:'English',publisher:'NCERT',textbookCode:'iest2',chapterCount:6,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iest201.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iest202.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iest203.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iest204.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iest205.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iest206.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iest2=0-6',referenceUrl:'https://ncert.nic.in/textbook/pdf/iest2ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iest2ps.pdf',
   editionLabel:'NCERT first edition September 2026 (0909, ISBN 978-93-5729-279-5); Part II, six numbered Contents chapters.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'core',volumeLabel:'Part II'
  },
  {
   id:'ncert-9-ganga',grade:9,subject:'Hindi',title:'Ganga',language:'Hindi',publisher:'NCERT',textbookCode:'ihga1',chapterCount:12,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/ihga101.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/ihga102.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/ihga103.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/ihga104.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/ihga105.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/ihga106.pdf',
+   7:'https://ncert.nic.in/textbook/pdf/ihga107.pdf',
+   8:'https://ncert.nic.in/textbook/pdf/ihga108.pdf',
+   9:'https://ncert.nic.in/textbook/pdf/ihga109.pdf',
+   10:'https://ncert.nic.in/textbook/pdf/ihga110.pdf',
+   11:'https://ncert.nic.in/textbook/pdf/ihga111.pdf',
+   12:'https://ncert.nic.in/textbook/pdf/ihga112.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?ihga1=0-12',referenceUrl:'https://ncert.nic.in/textbook/pdf/ihga1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/ihga1ps.pdf',
   editionLabel:'NCERT Grade 9 Hindi text; official Contents records seven prose and five poetry numbered works. The captured page did not reliably expose current edition bibliographic metadata.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'language'
  },
  {
   id:'ncert-9-kaushal-vikas',grade:9,subject:'Vocational Education',title:'Kaushal Vikas',language:'English',publisher:'NCERT',textbookCode:'iekv1',chapterCount:12,
+  publisherPdfLinks:{
+   1:'https://ncert.nic.in/textbook/pdf/iekv101.pdf',
+   2:'https://ncert.nic.in/textbook/pdf/iekv102.pdf',
+   3:'https://ncert.nic.in/textbook/pdf/iekv103.pdf',
+   4:'https://ncert.nic.in/textbook/pdf/iekv104.pdf',
+   5:'https://ncert.nic.in/textbook/pdf/iekv105.pdf',
+   6:'https://ncert.nic.in/textbook/pdf/iekv106.pdf',
+   7:'https://ncert.nic.in/textbook/pdf/iekv107.pdf',
+   8:'https://ncert.nic.in/textbook/pdf/iekv108.pdf',
+   9:'https://ncert.nic.in/textbook/pdf/iekv109.pdf',
+   10:'https://ncert.nic.in/textbook/pdf/iekv110.pdf',
+   11:'https://ncert.nic.in/textbook/pdf/iekv111.pdf',
+   12:'https://ncert.nic.in/textbook/pdf/iekv112.pdf',
+  },
   sourceUrl:'https://ncert.nic.in/textbook.php?iekv1=0-12',referenceUrl:'https://ncert.nic.in/textbook/pdf/iekv1ps.pdf',provenanceUrl:'https://ncert.nic.in/textbook/pdf/iekv1ps.pdf',
   editionLabel:'NCERT first edition April 2026 (0916); 12 labelled chapters in three work-form units. Per official Contents, each unit has a mandatory chapter and a school-selected vocation path; it is not a required linear 12-chapter sequence.',
   status:'source-verified-chapter-titles',directPdfAuditComplete:true,category:'vocational'
