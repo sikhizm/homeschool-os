@@ -21,7 +21,7 @@ const emptyMessage='No matching learners are available. Only learners enrolled i
 export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{chapter:ChapterSlot;book:Textbook;grade:number;resourceUrl:string}){
  const [learners,setLearners]=useState<Learner[]>([]),[learnerId,setLearnerId]=useState(''),[loading,setLoading]=useState(true);
  const [chosen,setChosen]=useState<MaterialId[]>(['full-notes']),[difficulty,setDifficulty]=useState<Difficulty>('standard'),[language,setLanguage]=useState(book.language||'English'),[large,setLarge]=useState(false),[outputFormat,setOutputFormat]=useState<StudyOutputFormat>('pdf');
- const [expandedGroup,setExpandedGroup]=useState<string|null>(MATERIAL_GROUPS[0].id);
+ const [materialsOpen,setMaterialsOpen]=useState(false),[expandedGroup,setExpandedGroup]=useState<string|null>(MATERIAL_GROUPS[0].id);
  const groupPanelId=useId();
  const [promptOpen,setPromptOpen]=useState(false),[promptMessage,setPromptMessage]=useState(''),[importOpen,setImportOpen]=useState(false),[libraryOpen,setLibraryOpen]=useState(false);
  const [title,setTitle]=useState('Chapter study material'),[type,setType]=useState('Notes'),[format,setFormat]=useState<'html'|'markdown'>('html'),[content,setContent]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[docs,setDocs]=useState<Doc[]>([]),[canEdit,setCanEdit]=useState(false),[selectedDoc,setSelectedDoc]=useState(''),[zoom,setZoom]=useState(100),[page,setPage]=useState(1),[preview,setPreview]=useState(false);
@@ -49,52 +49,56 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{ch
   <button type="button" className="btn-primary" onClick={()=>setChosen(['complete-pack'])}>{chosen.includes('complete-pack')?'Selected ✓':'Use complete pack'}</button>
  </section>
  <section className="study-selection-panel" aria-label="Choose study materials">
-  <div className="study-selection-heading">
-   <h3>Choose individual materials</h3>
-   <span className="study-selected-count" role="status">{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`}</span>
-  </div>
-  <div className="study-group-grid">
-   {MATERIAL_GROUPS.map(group=>{
-    const selectedCount=group.items.filter(id=>chosen.includes(id)).length;
-    return <button className={'study-category-tile'+(selectedCount>0?' has-selection':'')} key={group.id} type="button"
-     aria-expanded={expandedGroup===group.id} aria-controls={groupPanelId+'-'+group.id}
-     onClick={()=>setExpandedGroup(current=>current===group.id?null:group.id)}>
-     <span className="study-category-icon" aria-hidden="true">{group.icon}</span>
-     <strong>{group.title}</strong>
-     <span className="study-category-count">{group.items.length} {group.items.length===1?'option':'options'}</span>
-     {selectedCount>0&&<span className="study-category-selected">{selectedCount} selected</span>}
-    </button>;
-   })}
-  </div>
-  {MATERIAL_GROUPS.map(group=>(
-   <div key={group.id} id={groupPanelId+'-'+group.id} hidden={expandedGroup!==group.id}>
-    {expandedGroup===group.id&&<fieldset className="study-category-options">
-     <legend>{group.title}</legend>
-     <div className="study-group-options">
-      {group.items.map(id=>{
-       const label=MATERIALS.find(item=>item[0]===id)?.[1]??id;
-       return <label className={chosen.includes(id)?'study-material-choice is-selected':'study-material-choice'} key={id}>
-        <input type="checkbox" checked={chosen.includes(id)} onChange={()=>setChosen(old=>{
-         const base=old.filter(x=>x!=='complete-pack');
-         return base.includes(id)?base.filter(x=>x!==id):[...base,id];
-        })}/>
-        <span>{label}</span>
-       </label>;
-      })}
-     </div>
-    </fieldset>}
+  <button type="button" className="study-selection-disclosure" aria-expanded={materialsOpen} aria-controls={groupPanelId+'-materials'} onClick={()=>setMaterialsOpen(v=>!v)}>
+   <span><strong>Choose individual materials</strong><small>Open to select specific notes, revision, practice and assessment resources</small></span>
+   <span className="study-disclosure-meta"><span className="study-selected-count" role="status">{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`}</span><span className="study-disclosure-chevron" aria-hidden="true">{materialsOpen?'⌃':'⌄'}</span></span>
+  </button>
+  {materialsOpen&&<div id={groupPanelId+'-materials'} className="study-materials-content">
+   <div className="study-group-grid">
+    {MATERIAL_GROUPS.map(group=>{
+     const selectedCount=group.items.filter(id=>chosen.includes(id)).length;
+     return <button className={'study-category-tile'+(selectedCount>0?' has-selection':'')} key={group.id} type="button"
+      aria-expanded={expandedGroup===group.id} aria-controls={groupPanelId+'-'+group.id}
+      onClick={()=>setExpandedGroup(current=>current===group.id?null:group.id)}>
+      <span className="study-category-icon" aria-hidden="true">{group.icon}</span>
+      <strong>{group.title}</strong>
+      <span className="study-category-count">{group.items.length} {group.items.length===1?'option':'options'}</span>
+      {selectedCount>0&&<span className="study-category-selected">{selectedCount} selected</span>}
+     </button>;
+    })}
    </div>
-  ))}
-  <div className="study-selection-tools">
-   <label className="study-option"><input type="checkbox" checked={large} onChange={e=>setLarge(e.target.checked)}/> Large print</label>
-   <button type="button" className="btn-secondary" onClick={()=>setChosen(MATERIALS.slice(1).map(x=>x[0]))}>Select all</button>
-   <button type="button" className="btn-secondary" onClick={()=>setChosen(['full-notes','quick-sheet','worksheets','chapter-test','answer-key'])}>Balanced study pack</button>
-   <button type="button" className="btn-secondary" onClick={()=>setChosen([])}>Clear selection</button>
-   <button className="btn-primary" type="button" disabled={!learner||!chosen.length}
-    onClick={()=>{setPromptOpen(!promptOpen);setPromptMessage('');}}>{promptOpen?'Hide prompt preview':'Preview prompt'}</button>
-  </div>
+   {MATERIAL_GROUPS.map(group=>(
+    <div key={group.id} id={groupPanelId+'-'+group.id} hidden={expandedGroup!==group.id}>
+     {expandedGroup===group.id&&<fieldset className="study-category-options">
+      <legend>{group.title}</legend>
+      <div className="study-group-options">
+       {group.items.map(id=>{
+        const label=MATERIALS.find(item=>item[0]===id)?.[1]??id;
+        return <label className={chosen.includes(id)?'study-material-choice is-selected':'study-material-choice'} key={id}>
+         <input type="checkbox" checked={chosen.includes(id)} onChange={()=>setChosen(old=>{
+          const base=old.filter(x=>x!=='complete-pack');
+          return base.includes(id)?base.filter(x=>x!==id):[...base,id];
+         })}/>
+         <span>{label}</span>
+        </label>;
+       })}
+      </div>
+     </fieldset>}
+    </div>
+   ))}
+   <div className="study-selection-tools">
+    <label className="study-option"><input type="checkbox" checked={large} onChange={e=>setLarge(e.target.checked)}/> Large print</label>
+    <button type="button" className="btn-secondary" onClick={()=>setChosen(MATERIALS.slice(1).map(x=>x[0]))}>Select all</button>
+    <button type="button" className="btn-secondary" onClick={()=>setChosen(['full-notes','quick-sheet','worksheets','chapter-test','answer-key'])}>Balanced study pack</button>
+    <button type="button" className="btn-secondary" onClick={()=>setChosen([])}>Clear selection</button>
+    <button className="btn-primary" type="button" disabled={!learner||!chosen.length} onClick={()=>{setPromptOpen(!promptOpen);setPromptMessage('');}}>{promptOpen?'Hide prompt preview':'Preview prompt'}</button>
+   </div>
+  </div>}
  </section>
- <div className="study-studio-controls"><label className="workspace-field"><span>AI output format</span><select value={outputFormat} onChange={e=>setOutputFormat(e.target.value as StudyOutputFormat)}><option value="pdf">PDF · recommended</option><option value="html">HTML file · editable</option><option value="both">PDF + HTML files</option></select></label></div><div className="study-actions"><button className="btn-secondary" type="button" disabled={!learner||!chosen.length} onClick={copy}>Copy {outputFormat==='both'?'PDF + HTML':' '+outputFormat.toUpperCase()} prompt</button>{learner?.role==='owner'&&<button className="btn-secondary" type="button" onClick={()=>{setImportOpen(true);setPreview(false);setSelectedDoc('');}}>Import generated document</button>}<button className="btn-secondary" type="button" disabled={!learner} onClick={loadLibrary}>Open Study Library</button></div>
+ <div className="study-output-row">
+  <label className="workspace-field"><span>AI output format</span><select value={outputFormat} onChange={e=>setOutputFormat(e.target.value as StudyOutputFormat)}><option value="pdf">PDF · recommended</option><option value="html">HTML file · editable</option><option value="both">PDF + HTML files</option></select></label>
+  <div className="study-actions study-output-actions"><button className="btn-secondary" type="button" disabled={!learner||!chosen.length} onClick={copy}>Copy {outputFormat==='both'?'PDF + HTML':' '+outputFormat.toUpperCase()} prompt</button>{learner?.role==='owner'&&<button className="btn-secondary" type="button" onClick={()=>{setImportOpen(true);setPreview(false);setSelectedDoc('');}}>Import generated document</button>}<button className="btn-secondary" type="button" disabled={!learner} onClick={loadLibrary}>Open Study Library</button></div>
+ </div>
  {promptMessage&&<p role="status" className="recorded-note">{promptMessage}</p>}{promptOpen&&<label className="workspace-field study-prompt-preview"><span>Complete prompt · select all to copy manually</span><textarea readOnly rows={20} value={prompt} onFocus={e=>e.currentTarget.select()} /></label>}
  {importOpen&&<div className="study-import"><div className="study-import-top"><div><span className="eyebrow">PRIVATE DOCUMENT WORKSPACE</span><h3>{selectedDoc?'Edit saved version':'Import AI-generated material'}</h3><p className="muted">Upload the downloadable PDF, HTML or Markdown file produced by your AI assistant. PDFs are stored as original private documents; HTML/Markdown can be previewed and saved as editable copies. You can also paste editable content below.</p></div><button type="button" className="btn-secondary" onClick={()=>{setImportOpen(false);setPreview(false)}}>Close</button></div>
  <div className="study-studio-controls"><label className="workspace-field"><span>Document title</span><input maxLength={180} value={title} onChange={e=>setTitle(e.target.value)}/></label><label className="workspace-field"><span>Document type</span><input maxLength={80} value={type} onChange={e=>setType(e.target.value)}/></label><label className="workspace-field"><span>Content format</span><select value={format} onChange={e=>setFormat(e.target.value as 'html'|'markdown')}><option value="html">HTML</option><option value="markdown">Markdown</option></select></label></div>
