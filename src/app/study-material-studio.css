@@ -59,7 +59,7 @@
   justify-items: start;
   gap: 3px;
   min-width: 0;
-  min-height: 96px;
+  min-height: 64px;
   padding: 9px;
   border: 1px solid #dce5df;
   border-radius: 11px;
@@ -75,21 +75,9 @@
 .study-category-tile[aria-expanded="true"] { box-shadow: inset 0 0 0 1px #185b47; }
 .study-category-tile.has-selection { background: var(--mint, #edf6ef); border-color: #94baa1; }
 .study-category-tile strong { font-size: 14px; font-weight: 800; }
-.study-category-icon {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
-  background: #e8f1e9;
-  color: #185b47;
-  font-size: 16px;
-  font-weight: 800;
-}
 .study-category-count, .study-category-selected { font-size: 12px; color: #465e51; }
 .study-category-selected { color: #185b47; font-weight: 800; }
 .study-category-options { min-inline-size: 0; margin: 0; border: 0; padding: 0; }
-.study-category-options legend { padding: 0; margin-bottom: 6px; font-size: 13px; font-weight: 800; }
 .study-group-options { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
 @container study-pack (min-width: 680px) {
   .study-group-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
@@ -130,23 +118,30 @@
 /* Desktop refinement: hide the individual picker behind one disclosure and align output actions. */
 .study-selection-panel { gap: 0; padding: 0; overflow: hidden; }
 .study-selection-disclosure {
-  display:flex; width:100%; min-height:64px; align-items:center; justify-content:space-between; gap:14px;
-  padding:14px 18px; border:0; background:#fff; color:inherit; text-align:left; cursor:pointer; font:inherit;
+  display:flex; width:100%; min-height:60px; align-items:center; justify-content:space-between; gap:14px;
+  padding:10px 16px; border:0; background:#fff; color:inherit; text-align:left; cursor:pointer; font:inherit;
 }
 .study-selection-disclosure:hover { background:#f8faf7; }
-.study-selection-disclosure>span:first-child { display:grid; gap:3px; }
+.study-selection-disclosure:focus-visible { outline:2px solid #185b47; outline-offset:-3px; }
 .study-selection-disclosure strong { font-size:16px; }
-.study-selection-disclosure small { color:#68786e; font-size:12px; }
 .study-disclosure-meta { display:flex; align-items:center; gap:12px; flex-shrink:0; }
-.study-disclosure-chevron { display:grid; place-items:center; width:28px; height:28px; border:1px solid #dce5df; border-radius:50%; color:#185b47; font-size:20px; }
-.study-materials-content { display:grid; gap:12px; padding:0 16px 14px; border-top:1px solid #edf0eb; }
-.study-group-grid { padding-top:12px; }
+.study-disclosure-chevron {
+  display:grid; place-items:center; width:38px; height:38px; border-radius:10px; background:#e8f4eb; color:#185b47;
+}
+.study-disclosure-chevron::before {
+  content:""; width:11px; height:11px; border:solid currentColor; border-width:0 2px 2px 0;
+  transform:translateY(-2px) rotate(45deg);
+}
+.study-selection-disclosure[aria-expanded="true"] .study-disclosure-chevron::before {
+  transform:translateY(2px) rotate(225deg);
+}
+.study-materials-content { display:grid; gap:8px; padding:0 16px 12px; border-top:1px solid #edf0eb; }
+.study-group-grid { padding-top:10px; }
 .study-group-options { gap:3px 18px; }
-.study-material-choice { min-height:38px; padding:5px 3px; border:0; border-radius:0; background:transparent; }
+.study-material-choice { min-height:32px; padding:4px 3px; border:0; border-radius:0; background:transparent; }
 .study-material-choice:hover { border-color:transparent; background:#f7faf7; }
 .study-material-choice.is-selected { border-color:transparent; background:transparent; color:#245b45; font-weight:650; }
 .study-material-choice input { width:17px; height:17px; flex-basis:17px; }
-.study-category-options legend { margin-bottom:2px; }
 .study-output-row { display:grid; grid-template-columns:minmax(220px, 0.9fr) minmax(0, 2.1fr); align-items:end; gap:12px; }
 .study-output-row>.workspace-field { margin:0; min-width:0; }
 .study-output-actions { min-width:0; flex-wrap:nowrap; }
@@ -160,7 +155,6 @@
  .study-output-actions { flex-wrap:wrap; }
  .study-output-actions button { flex:1 1 100%; }
  .study-selection-disclosure { padding:12px; }
- .study-selection-disclosure small { max-width:240px; }
  .study-materials-content { padding:0 10px 12px; }
 }
 @media(max-width:440px) {
@@ -168,4 +162,5 @@
  .study-disclosure-meta { gap:6px; }
  .study-disclosure-meta .study-selected-count { white-space:nowrap; }
  .study-group-options { grid-template-columns:1fr; }
+ .study-material-choice { min-height:40px; }
 }
