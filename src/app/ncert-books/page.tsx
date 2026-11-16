@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import { ncertReaderPilotHref } from '@/lib/ncert/reader-pilot';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {contentUnitLabelFor,selectTextbooks,chaptersFor,textbookAudit} from '@/lib/ncert/textbooks';
@@ -62,13 +61,12 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
   <div className="ncert-chapter-list">{chapters.map(c=>{
     const resource=chapterPdfEvidence(selectedBook,c);
     const direct=resource.status==='verified'||resource.status==='publisher';
-    const readerHref=direct ? ncertReaderPilotHref(c.id,resource.href) : null;
     return <div className="ncert-chapter-row" key={c.id}>
     <span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span>
     <div className="ncert-chapter-description">
       <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for ${c.label.toLowerCase()}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
     </div>
-    {readerHref ? <Link className="ncert-chapter-open" href={readerHref}>Read in app</Link> : <a className="ncert-chapter-open" href={resource.href} target="_blank" rel="noopener noreferrer">{direct?'Open PDF':'Open textbook portal'} <span aria-hidden="true">↗</span></a>}
+    <a className="ncert-chapter-open" href={resource.href} target="_blank" rel="noopener noreferrer">{direct?'Open PDF':'Open textbook portal'} <span aria-hidden="true">↗</span></a>
   </div>})}</div></>}
  </section>
  </div>}
