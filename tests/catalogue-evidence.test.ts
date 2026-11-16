@@ -85,3 +85,24 @@ test('Classes 1–5 use NCERT chapter targets for matched books and keep unmatch
     assert.ok(chapters.every(chapter => chapterPdfEvidence(book, chapter).href === book.sourceUrl));
   }
 });
+
+test('Classes 6–8 use publisher-listed PDFs where export numbering matches the catalogue', () => {
+  for (const [id, code] of [
+    ['ncert-6-curiosity', 'fecu1'],
+    ['ncert-7-ganita-prakash-2', 'gegp2'],
+    ['ncert-8-exploring-society-2', 'hees2'],
+  ]) {
+    const book = textbookById(id)!;
+    const chapter = ncertChapterSlots.find(slot => slot.bookId === id && slot.chapterNumber === 1)!;
+    const resource = chapterPdfEvidence(book, chapter);
+    assert.equal(resource.status, 'publisher');
+    assert.equal(resource.href, 'https://ncert.nic.in/textbook/pdf/' + code + '01.pdf');
+  }
+  for (const id of [
+    'ncert-6-poorvi', 'ncert-7-poorvi', 'ncert-8-poorvi',
+    'ncert-7-kaushal-bodh', 'ncert-8-kaushal-bodh', 'ncert-8-khel-yatra', 'ncert-6-khayal',
+  ]) {
+    assert.equal(textbookById(id)!.publisherPdfLinks, undefined);
+  }
+  assert.deepEqual(validateCatalogueEvidence().errors, []);
+});
