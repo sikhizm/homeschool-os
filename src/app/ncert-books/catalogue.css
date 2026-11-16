@@ -9,3 +9,31 @@
 @media (max-width: 680px) {
   .ncert-filter-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.ncert-chapter-list .ncert-chapter-row {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.ncert-chapter-list .ncert-chapter-title-link {
+  font-size: clamp(16px, 1.7vw, 19px);
+  line-height: 1.35;
+}
+
+.ncert-chapter-list .ncert-chapter-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 44px;
+  font-size: 13px;
+}
+
+@media (max-width: 480px) {
+  .ncert-chapter-list .ncert-chapter-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .ncert-chapter-list .ncert-chapter-open {
+    grid-column: 2;
+    justify-self: start;
+  }
+}

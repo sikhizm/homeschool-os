@@ -137,6 +137,18 @@ test('curriculum pages keep book filters, owner review and framework cards usabl
     assert.ok(await page.locator('.ncert-chapter-title-link').count());
     assert.ok(await page.getByText('Classes 11 and 12 have no indexed books here.', { exact: false }).count());
 
+    await page.setViewportSize({ width: 375, height: 900 });
+    await page.goto(root + '/ncert-books?grade=9&book=ncert-9-kaveri');
+    const row = page.locator('.ncert-chapter-row').first();
+    assert.equal(await row.getByRole('link').count(), 2);
+    assert.match(await row.getByRole('link', { name: /How I Taught My Grandmother to Read/ }).getAttribute('href') ?? '', /\/ncert-books\/chapter\//);
+    assert.equal(await row.getByRole('link', { name: 'Open PDF' }).getAttribute('href'), 'https://ncert.nic.in/textbook/pdf/iebe101.pdf');
+    assert.doesNotMatch(await row.innerText(), /Evidence pending|NCERT resource|Available/);
+    assert.ok(await noOverflow());
+
+    await page.goto(root + '/ncert-books?grade=9&book=ncert-9-khel-praveen');
+    assert.match(await page.locator('.ncert-chapter-row').first().getByRole('link', { name: 'Open textbook portal' }).getAttribute('href') ?? '', /textbook\.php/);
+
     await page.goto(root + '/library?fixture=approved');
     const admin = page.getByRole('region', { name: 'Curriculum Administration & Quality' });
     assert.equal(await admin.getByRole('link', { name: /Curriculum Mapping Review/ }).getAttribute('href'), '/curriculum-mapping');
