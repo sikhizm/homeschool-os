@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {MATERIALS,buildStudyPrompt} from '../src/lib/study-materials/prompt';
+import {MATERIALS,buildStudyPrompt,type MaterialId} from '../src/lib/study-materials/prompt';
 import {markdownToSafeHtml,sanitizeStudyHtml} from '../src/lib/study-materials/sanitize';
 import {textbookById,chaptersFor,officialChapterPdf} from '../src/lib/ncert/textbooks';
 
@@ -33,4 +33,19 @@ test('markdown import escapes raw HTML and retains headings, lists and paragraph
 });
 test('sanitizer bounds content and rejects empty documents',()=>{
  assert.throws(()=>sanitizeStudyHtml('  '),/Paste document/);assert.throws(()=>sanitizeStudyHtml('x'.repeat(500001)),/500 KB/);
+});
+
+test('study prompt output choice defaults to PDF and requests downloadable HTML or both files explicitly',()=>{
+ const book=textbookById('ncert-5-maths-mela')!;const chapter=chaptersFor(book.id)[0];
+ const base={student:'Learner',stage:'Class 5',book,chapter,resourceUrl:book.sourceUrl,materials:['full-notes'] as MaterialId[],difficulty:'standard' as const,language:'English'};
+ const pdf=buildStudyPrompt(base);
+ const html=buildStudyPrompt({...base,outputFormat:'html'});
+ const both=buildStudyPrompt({...base,outputFormat:'both'});
+ assert.ok(pdf.includes('Requested output format: PDF'));
+ assert.ok(pdf.includes('actual downloadable PDF file'));
+ assert.ok(html.includes('Requested output format: HTML'));
+ assert.ok(html.includes('downloadable, self-contained .html file'));
+ assert.ok(html.includes('not a long HTML code block in chat'));
+ assert.ok(both.includes('Requested output format: BOTH'));
+ assert.ok(both.includes('BOTH a downloadable PDF and a downloadable self-contained .html file'));
 });
