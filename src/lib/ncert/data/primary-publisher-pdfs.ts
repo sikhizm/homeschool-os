@@ -2,6 +2,27 @@
  * Only existing catalogue books with an unambiguous chapter match are included.
  */
 export const primaryPublisherPdfLinks: Readonly<Partial<Record<string, Readonly<Record<number, string>>>>> = {
+  'ncert-1-sarangi': {
+    1: 'https://ncert.nic.in/textbook/pdf/ahsr101.pdf',
+    2: 'https://ncert.nic.in/textbook/pdf/ahsr102.pdf',
+    3: 'https://ncert.nic.in/textbook/pdf/ahsr103.pdf',
+    4: 'https://ncert.nic.in/textbook/pdf/ahsr104.pdf',
+    5: 'https://ncert.nic.in/textbook/pdf/ahsr105.pdf',
+    6: 'https://ncert.nic.in/textbook/pdf/ahsr106.pdf',
+    7: 'https://ncert.nic.in/textbook/pdf/ahsr107.pdf',
+    8: 'https://ncert.nic.in/textbook/pdf/ahsr108.pdf',
+    9: 'https://ncert.nic.in/textbook/pdf/ahsr109.pdf',
+    10: 'https://ncert.nic.in/textbook/pdf/ahsr110.pdf',
+    11: 'https://ncert.nic.in/textbook/pdf/ahsr111.pdf',
+    12: 'https://ncert.nic.in/textbook/pdf/ahsr112.pdf',
+    13: 'https://ncert.nic.in/textbook/pdf/ahsr113.pdf',
+    14: 'https://ncert.nic.in/textbook/pdf/ahsr114.pdf',
+    15: 'https://ncert.nic.in/textbook/pdf/ahsr115.pdf',
+    16: 'https://ncert.nic.in/textbook/pdf/ahsr116.pdf',
+    17: 'https://ncert.nic.in/textbook/pdf/ahsr117.pdf',
+    18: 'https://ncert.nic.in/textbook/pdf/ahsr118.pdf',
+    19: 'https://ncert.nic.in/textbook/pdf/ahsr119.pdf',
+  },
   'ncert-1-mridang': {
     1: 'https://ncert.nic.in/textbook/pdf/aemr101.pdf',
     2: 'https://ncert.nic.in/textbook/pdf/aemr102.pdf',
