@@ -14,6 +14,11 @@ export function navigationForPath(pathname:string){
   {href:'/planning',label:'Weekly planner'},
   {href:'/curriculum',label:'Curriculum'},
  ]};
+ else if(within(pathname,'/library'))context={label:'Learning library',links:[
+  {href:'/library',label:'Library'},
+  {href:'/library/prompts',label:'Learning Prompts'},
+  {href:'/library/enrichment',label:'Supplementary resources'},
+ ]};
  else if(within(pathname,'/lessons'))context={label:'Learning workspace',links:[
   {href:'/lessons',label:'Activity library'},
   {href:'/planning',label:'Weekly planner'},

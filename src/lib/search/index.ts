@@ -42,6 +42,7 @@ const features: Document[] = [
     ['/learning-pathways', 'Annual Learning Pathways', 'Open stage-specific plans and ready-to-teach weekly themes.', 'annual year yearly plan 36 weeks'],
     ['/curriculum', 'Competency Pathways', 'Find learning outcomes, prerequisites and goal ideas.', 'skills objectives milestones'],
     ['/lessons', 'Activities and Printables', 'Teach an activity or print an A4 worksheet.', 'lesson library printable worksheet'],
+    ['/library/prompts', 'Learning Prompts', 'Copy personalised prompts for Olympiad practice, world curricula and teaching approaches.', 'gemini chatgpt olympiad england california singapore worksheet prompts'],
     ['/library/enrichment', 'Supplementary Resources', 'Browse optional enrichment and publisher references.', 'resource catalogue reasoning olympiad'],
     ['/curriculum-mapping', 'Curriculum Mapping Review', 'Family owners can review proposed links for Class 5 chapters.', 'editorial quality administration'],
     ['/november-pilot', 'Pilot Guide', 'Open the family pilot guide, activities and baseline guidance.', 'november diagnostic starter'],
