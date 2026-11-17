@@ -25,6 +25,13 @@ const FILTERS = [
 
 const SECTIONS = [
   {
+    title: 'Learning Prompts',
+    description: 'Create Olympiad practice, world curriculum materials and parent teaching guides with ChatGPT or Gemini.',
+    href: '/library/prompts',
+    glyph: '✧',
+    tint: 'var(--mint)',
+  },
+  {
     title: 'NCERT textbooks',
     description: 'Official book identities, chapter indexes and source-checked titles — with verification state on every entry.',
     href: '/ncert-books',
