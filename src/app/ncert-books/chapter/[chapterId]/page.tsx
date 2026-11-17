@@ -29,7 +29,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
   const pdf = chapterPdfEvidence(book, chapter);
   const officialPdf = pdf.status === 'verified' || pdf.status === 'publisher' ? pdf.href : null;
   const releasePilotPdf = releasePdfForChapter(chapter.id);
-  const officialChapterPdf = officialPdf ?? book.publisherPdfLinks?.[chapter.chapterNumber] ?? (/^[a-z]{4}\\d$/i.test(book.textbookCode ?? '') ? `https://ncert.nic.in/textbook/pdf/${book.textbookCode}${String(chapter.chapterNumber).padStart(2, '0')}.pdf` : null);
+  const officialChapterPdf = officialPdf ?? book.publisherPdfLinks?.[chapter.chapterNumber] ?? (/^[a-z]{4}\d$/i.test(book.textbookCode ?? '') ? `https://ncert.nic.in/textbook/pdf/${book.textbookCode}${String(chapter.chapterNumber).padStart(2, '0')}.pdf` : null);
   const readerHref = releasePilotPdf ? `/ncert-books/read/${chapter.id}` : null;
   const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
   const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
