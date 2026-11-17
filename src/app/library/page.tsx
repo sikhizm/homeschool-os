@@ -25,6 +25,13 @@ const FILTERS = [
 
 const SECTIONS = [
   {
+    title: 'Olympiad Resources',
+    description: 'Official sample papers and practice collections for Classes 1–10, organised by subject and exam provider.',
+    href: '/library/olympiad',
+    glyph: '✧',
+    tint: 'var(--math)',
+  },
+  {
     title: 'Learning Prompts',
     description: 'Create Olympiad practice, world curriculum materials and parent teaching guides with ChatGPT or Gemini.',
     href: '/library/prompts',
