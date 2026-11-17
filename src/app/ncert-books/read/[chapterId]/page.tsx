@@ -23,7 +23,7 @@ export default async function NcertPilotReaderPage({ params }: { params: Promise
           <div>
             <span className="eyebrow">NATIVE PDF READER · ONE-FILE PILOT</span>
             <h1 style={{ margin: '5px 0 0', fontSize: 'clamp(20px, 3vw, 28px)' }}>{releasePdfPilot.title}</h1>
-            <p className="muted" style={{ margin: '4px 0 0', fontSize: 13 }}>PDF.js renders this release PDF inside Homeschool OS. The file is fetched directly from GitHub; no server-side PDF proxy is used.</p>
+            <p className="muted" style={{ margin: '4px 0 0', fontSize: 13 }}>PDF.js renders this release PDF inside Homeschool OS through a same-origin streaming endpoint. The original file is not stored or copied.</p>
           </div>
           <div className="hero-actions" style={{ margin: 0 }}>
             <a className="hero-action-secondary" href={releasePdfPilot.officialNcertUrl} target="_blank" rel="noopener noreferrer">Official NCERT fallback ↗</a>
