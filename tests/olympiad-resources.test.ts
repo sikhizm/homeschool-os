@@ -6,7 +6,7 @@ import {
 } from '../src/lib/olympiad/catalogue';
 import { activeShellDestination, bottomDestinations, isPrivateRoute, navigationForPath } from '../src/lib/navigation';
 
-test('all ten classes have class-specific PDFs and all four provider collections', () => {
+test('all ten classes have class-specific PDFs and all three providers', () => {
   for (const grade of olympiadClasses) {
     const resources = selectOlympiadResources({ grade: String(grade) });
     assert.deepEqual(new Set(resources.map(item => item.provider)), new Set(olympiadProviders));
@@ -34,7 +34,7 @@ test('filters combine class, subject, provider and search, including empty resul
   const rows = selectOlympiadResources({ grade: '10', provider: 'CREST', subject: 'Science', q: 'sample' });
   assert.equal(rows.length, 1);
   assert.equal(rows[0].id, 'crest-science-10');
-  assert.equal(selectOlympiadResources({ grade: '1', provider: 'Math Kangaroo', subject: 'English' }).length, 0);
+  assert.equal(selectOlympiadResources({ grade: '1', provider: 'SilverZone', subject: 'English' }).length, 0);
   assert.equal(selectOlympiadResources({ grade: 'all' }).length, olympiadResources.length);
   assert.equal(olympiadFilters({ grade: '11', provider: 'unknown' }).grade, '4');
   assert.equal(olympiadFilters({ grade: '11', provider: 'unknown' }).provider, '');

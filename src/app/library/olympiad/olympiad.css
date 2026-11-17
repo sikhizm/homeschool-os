@@ -13,7 +13,8 @@
 .olympiad-details { margin: 14px 0; }
 .olympiad-details p { margin: 0 0 6px; }
 .olympiad-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
-.olympiad-actions a, .olympiad-filters button { min-height: 44px; }
+.olympiad-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 20px; border-radius: 14px; text-align: center; }
+.olympiad-filters button { min-height: 44px; }
 .olympiad-verification { margin-top: 16px; font-size: 12px; color: #53685f; }
 .olympiad-verification summary { cursor: pointer; }
 @media (max-width: 1100px) {
