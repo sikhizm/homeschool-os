@@ -86,9 +86,9 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     return()=>{cancelled=true;};
   },[visible,fit,zoom,count]);
 
-  const changeZoom=(delta:number)=>{tasks.current.forEach(t=>t.cancel());tasks.current.clear();rendered.current.clear();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));setVisible(mode==='single'?[page]:Array.from({length:count},(_,i)=>i+1));};
+  const changeZoom=(delta:number)=>{tasks.current.forEach(t=>t.cancel());tasks.current.clear();rendered.current.clear();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));setVisible(current=>mode==='single'?[page]:current);};
   const go=(next:number)=>{const target=Math.max(1,Math.min(count,next));setPage(target);if(mode==='continuous')document.getElementById(`pdf-page-${target}`)?.scrollIntoView({behavior:'smooth',block:'start'});};
-  const setView=(next:'continuous'|'single')=>{setMode(next);setVisible(next==='single'?[page]:Array.from({length:count},(_,i)=>i+1));};
+  const setView=(next:'continuous'|'single')=>{setMode(next);setVisible(next==='single'?[page]:[]);};
 
   return <section className="pdfjs-reader" aria-label="PDF reader">
     <Script src={`${CDN}/pdf.min.js`} strategy="afterInteractive" onLoad={()=>{setReady(true);void load();}} onError={()=>setError('The PDF reader library could not be loaded. Check your connection and retry.')}/>
@@ -105,7 +105,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         <span className="pdfjs-control-divider"/>
         <button type="button" onClick={()=>changeZoom(-.1)} disabled={!fit&&zoom<=.5}>−</button>
         <button type="button" onClick={()=>changeZoom(.1)} disabled={!fit&&zoom>=2.5}>+</button>
-        <button type="button" className={fit?'is-active':''} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);setVisible(mode==='single'?[page]:Array.from({length:count},(_,i)=>i+1));}}>Fit width</button>
+        <button type="button" className={fit?'is-active':''} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);setVisible(current=>mode==='single'?[page]:current);}}>Fit width</button>
       </div>
     </header>
     <div className="pdfjs-stage">
