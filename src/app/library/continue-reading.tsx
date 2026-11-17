@@ -7,7 +7,7 @@ import {subjectTint} from '@/lib/subject-tint';
 type Task={id:string;title:string;subject:string;minutes:number;href:string|null;status?:string};
 
 /**
- * "Continue reading" strip: the next recommended activity per learner,
+ * Recommendation strip: the next recommended activity per learner,
  * straight from the automatic planner queue.
  */
 export function ContinueReading(){
@@ -22,13 +22,13 @@ export function ContinueReading(){
    .catch(()=>{if(alive)setTasks({learners:[]});});
   return()=>{alive=false;};
  },[]);
- if(!tasks)return <section className="library-continue" aria-label="Continue reading"><p className="muted">Finding where each learner left off…</p></section>;
+ if(!tasks)return <section className="library-continue" aria-label="Recommended next"><p className="muted">Finding each learner’s next recommended activity…</p></section>;
  if(!tasks.learners.length)return null;
  return <section className="library-continue" aria-labelledby="continue-title">
   <header className="section-heading">
    <div>
-    <p className="tag">Continue</p>
-    <h2 id="continue-title">Pick up where you left off</h2>
+    <p className="tag">Next activity</p>
+    <h2 id="continue-title">Recommended next</h2>
    </div>
    <Link className="mode-switch" href="/learn">All learner spaces</Link>
   </header>

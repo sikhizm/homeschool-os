@@ -5,22 +5,14 @@ import { getSql } from '@/lib/db';
 import { readClass5ReviewOverview, type MappingSql } from '@/lib/curriculum/mapping-review-service';
 import SectionArtwork from '@/components/section-artwork';
 import { ContinueReading } from './continue-reading';
-import { libraryGradeOptions } from '@/lib/library/grade-options';
+import { libraryGradeOptions, librarySubjectOptions, libraryLearningOptions } from '@/lib/library/grade-options';
 
 export const dynamic = 'force-dynamic';
 
 const FILTERS = [
   { label: 'Grade', options: libraryGradeOptions },
-  {
-    label: 'Subject',
-    options: ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Vocational Education'].map(
-      (label) => ({ label, href: '/lessons' }),
-    ),
-  },
-  {
-    label: 'Learning type',
-    options: ['Read', 'Practice', 'Play', 'Create'].map((label) => ({ label, href: '/lessons' })),
-  },
+  { label: 'Subject', options: librarySubjectOptions },
+  { label: 'Learning type', options: libraryLearningOptions },
 ];
 
 const SECTIONS = [

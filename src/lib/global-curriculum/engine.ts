@@ -20,14 +20,17 @@ export function suggestedLesson(skill:GlobalSkill):Lesson|null {
 }
 export function createParentReviewPlan(stage:CurriculumStage,focus:string=''):SkillPlan[]{
  const skills=skillsForStage(stage);
- const sorted=focus?skills.filter(skill=>skill.subject===focus).concat(skills.filter(skill=>skill.subject!==focus)):skills;
+ const prioritizedArea=coreAreas.find(area=>area===focus&&skills.some(skill=>skill.subject===area));
+ const areas=prioritizedArea?[prioritizedArea,...coreAreas.filter(area=>area!==prioritizedArea)]:coreAreas;
  const selected:GlobalSkill[]=[];
- for(const area of coreAreas){
-   const candidate=sorted.find(skill=>skill.subject===area);
+ for(const area of areas){
+   const candidate=skills.find(skill=>skill.subject===area);
    if(candidate&&!selected.some(s=>s.id===candidate.id))selected.push(candidate);
  }
  if(!selected.length)return [];
- const allocations=selected.length===4?[20,15,15,10]:selected.length===3?[25,20,15]:selected.length===2?[30,30]:[60];
+ const allocations=prioritizedArea
+  ? selected.length===4?[30,10,10,10]:selected.length===3?[30,15,15]:selected.length===2?[40,20]:[60]
+  : selected.length===4?[20,15,15,10]:selected.length===3?[25,20,15]:selected.length===2?[30,30]:[60];
  return selected.map((skill,i)=>({skill,lesson:suggestedLesson(skill),minutes:allocations[i]??10,mode:'guided',observationPrompt:skill.check}));
 }
 export function curriculumCoverage(){
