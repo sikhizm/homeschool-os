@@ -42,7 +42,7 @@ export default function PdfJsReader({ src, title }: { src: string; title: string
     setStatus('Loading textbook…');
     window.pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS_CDN}/pdf.worker.min.js`;
     try {
-      const task = window.pdfjsLib.getDocument({ url: src, withCredentials: false });
+      const task = window.pdfjsLib.getDocument({ url: src, withCredentials: true, rangeChunkSize: 65536 });
       const pdf = await task.promise;
       documentRef.current?.destroy();
       documentRef.current = pdf;
