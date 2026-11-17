@@ -102,7 +102,7 @@ export default function PdfJsReader({ src, title }: { src: string; title: string
 
   return (
     <section className="pdfjs-reader" aria-label="PDF reader">
-      <Script src={`${PDFJS_CDN}/pdf.min.js`} strategy="afterInteractive" onLoad={() => { setReady(true); }} onError={() => setError('The PDF reader library could not be loaded. Check your connection and try again.')} />
+      <Script src={`${PDFJS_CDN}/pdf.min.js`} strategy="afterInteractive" onLoad={() => { setReady(true); void loadPdf(); }} onError={() => setError('The PDF reader library could not be loaded. Check your connection and try again.')} />
       <header className="pdfjs-toolbar">
         <div className="pdfjs-toolbar-title"><strong>{title}</strong><span>{pageCount ? `Page ${pageNumber} of ${pageCount}` : status || 'PDF reader'}</span></div>
         <div className="pdfjs-controls">
@@ -121,8 +121,6 @@ export default function PdfJsReader({ src, title }: { src: string; title: string
         <canvas ref={canvasRef} aria-label={`Page ${pageNumber} of ${title}`} />
       </div>
       <footer className="pdfjs-footer"><span>Textbook pages are rendered locally in your browser. No copy is stored by Homeschool OS.</span><span>{pageCount ? `${pageCount} pages` : ''}</span></footer>
-      {ready && !documentRef.current && !error && <button className="pdfjs-hidden-loader" type="button" onClick={() => void loadPdf()}>Load PDF</button>}
-      {ready && !pageCount && !error && <Script id="pdfjs-start" strategy="afterInteractive">{'window.dispatchEvent(new Event("pdfjs-ready"))'}</Script>}
     </section>
   );
 }
