@@ -15,7 +15,7 @@ type PdfDocument = {
 type PdfLoadingTask = { promise: Promise<PdfDocument> };
 type PdfJsApi = {
   GlobalWorkerOptions: { workerSrc: string };
-  getDocument: (options: { url: string; withCredentials?: boolean }) => PdfLoadingTask;
+  getDocument: (options: { url: string; withCredentials?: boolean; rangeChunkSize?: number }) => PdfLoadingTask;
 };
 declare global {
   interface Window { pdfjsLib?: PdfJsApi; }
