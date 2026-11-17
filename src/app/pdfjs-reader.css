@@ -1,6 +1,8 @@
 
 /* Focused PDF.js reader: only used by the single NCERT release pilot. */
 .pdfjs-reader { width: 100%; overflow: hidden; border: 1px solid #dce5dc; border-radius: 14px; background: #eef2ef; }
+.pdfjs-reader:fullscreen { display: flex; flex-direction: column; width: 100vw; height: 100vh; max-height: 100vh; border: 0; border-radius: 0; }
+.pdfjs-reader:fullscreen .pdfjs-stage { flex: 1 1 auto; min-height: 0; max-height: none; }
 .pdfjs-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: #fff; border-bottom: 1px solid #dce5dc; }
 .pdfjs-toolbar-title { display: grid; gap: 2px; min-width: 140px; }
 .pdfjs-toolbar-title strong { font-size: 14px; }
@@ -24,9 +26,14 @@
   .pdfjs-toolbar { align-items: flex-start; }
   .pdfjs-controls { width: 100%; }
   .pdfjs-controls button { flex: 1; }
+  .pdfjs-fullscreen-toggle { display: none; }
   .pdfjs-page-input { flex: 1 1 auto; justify-content: center; }
   .pdfjs-stage { min-height: 60vh; max-height: 72vh; padding: 8px; }
   .pdfjs-footer { flex-direction: column; }
+}
+
+@media (min-width: 641px) {
+  .pdfjs-fullscreen-toggle { white-space: nowrap; }
 }
 
 .pdfjs-mode-switch{display:inline-flex;gap:2px;padding:3px;border:1px solid #cbd9cf;border-radius:9px;background:#f3f6f3}
