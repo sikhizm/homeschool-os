@@ -15,3 +15,19 @@ test('continuous PDF reader stacks pages vertically and tracks nearby pages whil
   assert.match(css,/\.pdfjs-stage\s*\{[^}]*overflow:\s*auto/s);
   assert.match(css,/\.pdfjs-stage\.is-continuous\s+\.pdfjs-page\s*\{[^}]*1\.414/s);
 });
+
+
+test('desktop PDF reader can enter fullscreen and resize its page canvas',()=>{
+  const source=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/pdfjs-reader.tsx'),'utf8');
+  const css=readFileSync(resolve(process.cwd(),'src/app/pdfjs-reader.css'),'utf8');
+
+  assert.ok(source.includes('requestFullscreen()'));
+  assert.ok(source.includes("addEventListener('fullscreenchange'"));
+  assert.ok(source.includes('pdfjs-fullscreen-toggle'));
+  assert.ok(source.includes('layoutRevision]'));
+  assert.ok(source.includes('rangeChunkSize:262144'));
+  assert.ok(css.includes('.pdfjs-reader:fullscreen'));
+  assert.ok(css.includes('max-height: none'));
+  assert.ok(css.includes('@media (max-width: 640px)'));
+  assert.ok(css.includes('.pdfjs-fullscreen-toggle { display: none; }'));
+});
