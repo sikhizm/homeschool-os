@@ -49,9 +49,10 @@ test('enrichment filters, activity answers and verification labels work in the b
     };
     await page.locator('select[name="topic"]').selectOption('reasoning');
     await apply();
-    assert.equal(await page.locator('#nursery-sort, #ukg-pattern').count(), 0);
-    assert.equal(await page.getByRole('heading', { name: 'Class 4 · Olympiad-style practice' }).count(), 1);
-    assert.equal(await page.locator('#source-sof-class4 strong').textContent(), 'For Class 4');
+    assert.equal(await page.locator('#nursery-sort, #ukg-pattern').count(), 2);
+    assert.equal(await page.getByRole('heading', { name: 'Class 4 · Reasoning activities' }).count(), 1);
+    assert.equal(await page.locator('#source-sof-class4').count(), 0);
+    assert.equal(await page.getByRole('link', { name: 'Browse Olympiad resources' }).getAttribute('href'), '/library/olympiad?grade=all');
 
     for (const activity of enrichmentActivities.filter(item => item.stage === 'class4' && item.topic === 'reasoning')) {
       const card = page.locator('#' + activity.id);
@@ -63,6 +64,8 @@ test('enrichment filters, activity answers and verification labels work in the b
       assert.equal(await answer.isVisible(), false);
     }
 
+    await page.locator('select[name="stage"]').selectOption('class4');
+    await apply();
     await page.locator('select[name="stage"]').selectOption('all');
     await apply();
     for (const activity of enrichmentActivities.filter(item => item.topic === 'reasoning')) {

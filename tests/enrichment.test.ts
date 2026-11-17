@@ -19,7 +19,7 @@ test('each stage and topic filter preserves every visible activity reference', (
   for (const activity of enrichmentActivities) {
     const { activities, resources } = filterEnrichment(activity.stage, activity.topic);
     assert.ok(activities.includes(activity));
-    assert.ok(resources.some(source => source.id === activity.referenceId && source.stages.includes(activity.stage)));
+    if (activity.referenceId) assert.ok(resources.some(source => source.id === activity.referenceId && source.stages.includes(activity.stage)));
     assert.ok(activities.every(item => item.stage === activity.stage && item.topic === activity.topic));
     assert.ok(activity.minutes > 0 && activity.minutes <= 15);
   }
@@ -31,7 +31,7 @@ test('early-years reasoning does not surface competition material', () => {
     assert.ok(activities.length);
     assert.ok(!resources.some(source => source.id === 'sof-class4'));
   }
-  assert.ok(filterEnrichment('class4', 'reasoning').resources.some(source => source.id === 'sof-class4'));
+  assert.equal(filterEnrichment('class4', 'reasoning').resources.length, 0);
   assert.equal(filterEnrichment('class4', 'early-years').activities.length, 0);
 });
 
@@ -47,7 +47,6 @@ test('verification is recorded independently and only successful opens have a ve
   const expected = {
     'ncf-foundational': 'temporarily-inaccessible',
     'jaadui-pitara': 'verified',
-    'sof-class4': 'verified',
     'punjab-educare': 'verified',
     'ncert-hindi': 'temporarily-inaccessible',
     'sgpc-langar': 'pending',
@@ -55,7 +54,7 @@ test('verification is recorded independently and only successful opens have a ve
   assert.deepEqual(Object.fromEntries(supplementaryResources.map(source => [
     source.id, source.verification.status,
   ])), expected);
-  assert.equal(new Set(supplementaryResources.map(source => source.verification.evidence)).size, 6);
+  assert.equal(new Set(supplementaryResources.map(source => source.verification.evidence)).size, 5);
   for (const { verification } of supplementaryResources) {
     if (verification.status === 'verified') {
       assert.match(verification.lastVerifiedOn, /^\d{4}-\d{2}-\d{2}$/);
@@ -72,18 +71,17 @@ test('original publisher URLs are preserved', () => {
   assert.deepEqual(Object.fromEntries(supplementaryResources.map(({ id, url }) => [id, url])), {
     "ncf-foundational": "https://www.ncert.nic.in/pdf/NCF_for_Foundational_Stage_20_October_2022.pdf",
     "jaadui-pitara": "https://ejaaduipitara.ncert.gov.in/",
-    "sof-class4": "https://sofworld.org/imo/class-4/sample-model-test-papers/imo-sample-papers-class-4",
     "punjab-educare": "https://www.punjabeducare.org/1st-punjabi",
     "ncert-hindi": "https://www.ncert.nic.in/pdf/publication/otherpublications/Learning_Outcome_for_the_Foundational_Stage.pdf",
     "sgpc-langar": "https://publication.sgpc.net/assets/publication_pdf/other_publication_pdf/Sikh_Rehat_Maryada_English.pdf"
   });
 });
 
-test('reasoning defaults to Class 4 and explicit stages override it', () => {
+test('reasoning shows all available stages unless explicitly filtered', () => {
   for (const submittedStage of [undefined, '']) {
     const { stage, topic } = resolveEnrichmentFilters({ stage: submittedStage, topic: 'reasoning' });
-    assert.equal(stage, 'class4');
-    assert.equal(filterEnrichment(stage, topic).activities.length, 3);
+    assert.equal(stage, undefined);
+    assert.equal(filterEnrichment(stage, topic).activities.length, 5);
   }
   const { stage, topic } = resolveEnrichmentFilters({ stage: 'all', topic: 'reasoning' });
   assert.equal(stage, undefined);
@@ -94,7 +92,7 @@ test('reasoning defaults to Class 4 and explicit stages override it', () => {
     assert.equal(result.stage, choice);
     const { activities, resources } = filterEnrichment(result.stage, result.topic);
     assert.ok(activities.every(activity => activity.stage === choice));
-    assert.equal(resources.some(source => source.id === 'sof-class4'), choice === 'class4');
+    assert.equal(resources.some(source => source.id === 'sof-class4'), false);
   }
 });
 
@@ -102,16 +100,16 @@ test('all form combinations retain the intended activities and their references'
   for (const stage of ['', 'all', ...Object.keys(enrichmentStages)]) {
     for (const topic of ['', ...Object.keys(enrichmentTopics)]) {
       const resolved = resolveEnrichmentFilters({ stage, topic });
-      const expectedStage = stage === 'all' ? undefined : stage || (topic === 'reasoning' ? 'class4' : undefined);
+      const expectedStage = stage === 'all' ? undefined : stage || undefined;
       assert.equal(resolved.stage, expectedStage);
       const result = filterEnrichment(resolved.stage, resolved.topic);
       assert.deepEqual(result.activities, enrichmentActivities.filter(activity =>
         (!expectedStage || activity.stage === expectedStage) && (!topic || activity.topic === topic),
       ));
-      assert.ok(result.activities.every(activity => result.resources.some(source => source.id === activity.referenceId)));
+      assert.ok(result.activities.every(activity => !activity.referenceId || result.resources.some(source => source.id === activity.referenceId)));
     }
   }
-  assert.equal(resolveEnrichmentFilters({ stage: ['nursery', 'all'], topic: 'reasoning' }).stage, 'class4');
+  assert.equal(resolveEnrichmentFilters({ stage: ['nursery', 'all'], topic: 'reasoning' }).stage, undefined);
 });
 
 test('early-years scope stays distinct and each stage retains its play activity', () => {

@@ -24,13 +24,21 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
         </div>
       </header>
 
+      <section className="workspace-panel" aria-labelledby="olympiad-destination">
+        <h2 id="olympiad-destination">Olympiad preparation · Classes 1–10</h2>
+        <p>Find official sample papers by class, subject and organiser in Olympiad Resources, or create Maths and Reasoning practice with Learning Prompts.</p>
+        <div className="library-filter-chips">
+          <Link href="/library/olympiad?grade=all" className="library-chip">Browse Olympiad resources</Link>
+          <Link href="/library/prompts" className="library-chip">Open Learning Prompts</Link>
+        </div>
+      </section>
+
       <section className="workspace-panel" aria-labelledby="enrichment-filter">
         <h2 id="enrichment-filter">Find an activity</h2>
         <form action="/library/enrichment" method="get" className="library-filter-chips">
           <label>
             Stage{' '}
-            <select name="stage" defaultValue={selectedStage}>
-              <option value="">Recommended for topic</option>
+            <select name="stage" defaultValue={selectedStage || 'all'}>
               <option value="all">All stages</option>
               {Object.entries(enrichmentStages).map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
@@ -49,9 +57,6 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
           <button type="submit" className="library-chip">Apply filters</button>
           <Link href="/library/enrichment" className="library-chip">Clear filters</Link>
         </form>
-        {topic === 'reasoning' && selectedStage === '' && (
-          <p>Showing Class 4 by default. Choose Preschool / Nursery or UKG for hands-on reasoning play.</p>
-        )}
       </section>
 
       {scopes.length > 0 && (!topic || topic === 'early-years') && (
@@ -72,15 +77,16 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
 
       <section className="workspace-panel" aria-labelledby="enrichment-activities">
         <h2 id="enrichment-activities">Original Homeschool OS activities</h2>
+        <p className="muted">This activity collection currently covers Preschool / Nursery, UKG and Class 4.</p>
         {(!stage || stage === 'class4') && (!topic || topic === 'reasoning') && (
-          <p>Olympiad-style questions are optional and untimed. Ask the learner to show how they worked it out.</p>
+          <p>These original reasoning activities are optional and untimed. Ask the learner to show how they worked it out.</p>
         )}
         {activities.length === 0 && <p>No activities match these filters.</p>}
         {activityStages.map(key => (
           <section key={key} aria-labelledby={'activities-' + key}>
             <h3 id={'activities-' + key}>
               {enrichmentStages[key]}
-              {topic === 'reasoning' && (key === 'class4' ? ' · Olympiad-style practice' : ' · Reasoning through play')}
+              {topic === 'reasoning' && (key === 'class4' ? ' · Reasoning activities' : ' · Reasoning through play')}
             </h3>
             <div className="library-grid">
               {activities.filter(activity => activity.stage === key).map(activity => (
@@ -93,7 +99,7 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
                     <summary>Parent discussion and suggested response</summary>
                     <p>{activity.discussion}</p>
                   </details>
-                  <a href={'#source-' + activity.referenceId}>Related source</a>
+                  {activity.referenceId && <a href={'#source-' + activity.referenceId}>Related source</a>}
                 </article>
               ))}
             </div>

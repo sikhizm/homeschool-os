@@ -99,7 +99,7 @@ test('global search works in the desktop and mobile shell', async () => {
       await page.setViewportSize({ width, height: 800 });
       await page.goto(root + '/dashboard');
       await trigger.click();
-      await input.fill('olympiad');
+      await input.fill('reasoning');
       await dialog.getByRole('button', { name: 'Activities' }).click();
       await dialog.getByRole('link', { name: /Pack the fruit/ }).waitFor();
       assert.ok(await dialog.evaluate(node => {
