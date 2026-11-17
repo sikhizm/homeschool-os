@@ -2,6 +2,7 @@ import Link from 'next/link';
 import ChapterProgress from './chapter-progress';
 import ChapterSessions from './chapter-sessions';
 import StudyMaterialStudio from './study-material-studio';
+import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import {
@@ -11,10 +12,10 @@ import {
   textbookById,
   chaptersFor,
 } from '@/lib/ncert/textbooks';
-import { chapterPdfEvidence, mappingEvidence, mappingLabels, pdfLabels } from '@/lib/ncert/catalogue-evidence';
+import { mappingEvidence, mappingLabels, pdfLabels } from '@/lib/ncert/catalogue-evidence';
 import { familyMappingEvidence } from '@/lib/ncert/family-catalogue-evidence';
 import { class5ChapterAccountById } from '@/lib/curriculum/class5-mapping';
-import { releasePdfForChapter } from '@/lib/ncert/release-pilot';
+import { chapterPdfSources, prefersOfficialNcert } from '@/lib/ncert/pdf-source';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,11 +27,10 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
   if (!chapter) notFound();
   const book = textbookById(chapter.bookId);
   if (!book) notFound();
-  const pdf = chapterPdfEvidence(book, chapter);
-  const officialPdf = pdf.status === 'verified' || pdf.status === 'publisher' ? pdf.href : null;
-  const releasePilotPdf = releasePdfForChapter(chapter.id);
-  const officialChapterPdf = officialPdf ?? book.publisherPdfLinks?.[chapter.chapterNumber] ?? (/^[a-z]{4}\d$/i.test(book.textbookCode ?? '') ? `https://ncert.nic.in/textbook/pdf/${book.textbookCode}${String(chapter.chapterNumber).padStart(2, '0')}.pdf` : null);
-  const readerHref = releasePilotPdf ? `/ncert-books/read/${chapter.id}` : null;
+  const { official: pdf, releaseUrl, readerHref, hasOfficialPdf } = chapterPdfSources(
+    book, chapter, prefersOfficialNcert(await headers()),
+  );
+  const officialPdf = hasOfficialPdf ? pdf.href : null;
   const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
   const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
   const siblings = chaptersFor(book.id);
@@ -75,11 +75,11 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
             {mappingLabels[mappingStatus]}. {pdfLabels[pdf.status]}.
           </p>
           <div className="hero-actions">
-            {readerHref ? (
+            {readerHref && releaseUrl ? (
               <>
                 <Link className="hero-action-primary" href={readerHref}>Read in Homeschool OS</Link>
-                <a className="hero-action-secondary" href={officialChapterPdf ?? book.sourceUrl} target="_blank" rel="noopener noreferrer">Official NCERT PDF fallback ↗</a>
-                <a className="hero-action-secondary" href={releasePilotPdf!} target="_blank" rel="noopener noreferrer">Open / download release PDF ↗</a>
+                <a className="hero-action-secondary" href={pdf.href} target="_blank" rel="noopener noreferrer">{hasOfficialPdf ? 'Official NCERT PDF ↗' : 'Official textbook portal ↗'}</a>
+                <a className="hero-action-secondary" href={releaseUrl} target="_blank" rel="noopener noreferrer">Open / download release PDF ↗</a>
               </>
             ) : officialPdf ? (
               <a className="hero-action-primary" href={officialPdf} target="_blank" rel="noopener noreferrer">
