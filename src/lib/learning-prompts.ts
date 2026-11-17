@@ -1,3 +1,4 @@
+import { classTopics, olympiadSourcesFor, promptClasses, type PromptClass } from './olympiad/prompt-classes';
 export const tracks = ['Olympiad Prep', 'World Curricula', 'Teaching Approaches'] as const;
 export const curricula = {
   england: { label: 'England · Year 4', edition: 'National Curriculum mathematics programmes of study (2014)', url: 'https://www.gov.uk/government/publications/national-curriculum-in-england-mathematics-programmes-of-study/national-curriculum-in-england-mathematics-programmes-of-study' },
@@ -11,7 +12,8 @@ export const formats = ['Printable worksheet', 'PDF', 'HTML', 'Interactive tutor
 export type PromptSettings = {
   track: typeof tracks[number];
   curriculum: keyof typeof curricula;
-  topic: typeof topics[number];
+  topic: string;
+  targetClass: PromptClass;
   material: typeof materials[number];
   approach: typeof approaches[number];
   difficulty: 'Guided' | 'Standard' | 'Challenge';
@@ -19,19 +21,30 @@ export type PromptSettings = {
   format: typeof formats[number];
 };
 export const defaultSettings: PromptSettings = {
-  track: 'Olympiad Prep', curriculum: 'england', topic: 'Shapes and geometry',
+  targetClass: '4', track: 'Olympiad Prep', curriculum: 'england', topic: 'Shapes and geometry',
   material: 'Practice worksheet', approach: 'Hands-on exploration',
   difficulty: 'Standard', minutes: '30', format: 'Printable worksheet',
 };
-export const olympiadSources = [
-  'https://sofworld.org/imo/class-4/imo-syllabus/imo-syllabus-class-4',
-  'https://sofworld.org/imo/class-4/sample-model-test-papers/imo-sample-papers-class-4',
-];
+export function topicsForSettings(settings: Pick<PromptSettings, 'track' | 'targetClass'>): readonly string[] {
+  return settings.track === 'Olympiad Prep' ? classTopics[settings.targetClass] : topics;
+}
+export function updatePromptSettings(settings: PromptSettings, updates: Partial<PromptSettings>): PromptSettings {
+  const next = { ...settings, ...updates };
+  if (!topicsForSettings(next).includes(next.topic)) next.topic = 'Mixed practice';
+  return next;
+}
+export function readPromptSettings(value: unknown): PromptSettings | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  // Pre-class-selector settings and favourites always targeted Class 4.
+  const migrated = { ...value, targetClass: 'targetClass' in value ? value.targetClass : '4' };
+  return validSettings(migrated) ? { ...defaultSettings, ...migrated } : null;
+}
 export function validSettings(value: unknown): value is PromptSettings {
   if (!value || typeof value !== 'object') return false;
   const item = value as Record<string, unknown>;
   const options: Record<keyof PromptSettings, readonly string[]> = {
-    track: tracks, curriculum: Object.keys(curricula), topic: topics, material: materials,
+    track: tracks, curriculum: Object.keys(curricula), targetClass: promptClasses,
+    topic: item.track === 'Olympiad Prep' && promptClasses.includes(item.targetClass as PromptClass) ? classTopics[item.targetClass as PromptClass] : topics, material: materials,
     approach: approaches, difficulty: ['Guided', 'Standard', 'Challenge'],
     minutes: ['15', '30', '45'], format: formats,
   };
@@ -40,7 +53,7 @@ export function validSettings(value: unknown): value is PromptSettings {
 export function buildLearningPrompt(settings: PromptSettings, learner: { name: string; stage: string }) {
   const curriculum = curricula[settings.curriculum];
   const source = settings.track === 'Olympiad Prep'
-    ? 'SOF International Mathematics Olympiad, Class 4, Level 1. Verify the current syllabus and sample-paper format.\n' + olympiadSources.join('\n')
+    ? `SOF International Mathematics Olympiad, Class ${settings.targetClass}, Level 1. Verify the current syllabus and sample-paper format.\n` + olympiadSourcesFor(settings.targetClass).join('\n')
     : curriculum.label + '\nEdition to inspect: ' + curriculum.edition + '\n' + curriculum.url;
   const approach = settings.track === 'Teaching Approaches'
     ? 'Teaching method: ' + settings.approach + '. Provide materials, a step-by-step parent script, questions to ask, expected responses, and ways to adapt. Describe this as a teaching approach, without claiming all schools in a country use it.'
@@ -64,7 +77,7 @@ Language: English
 SOURCE CHECK
 Open and inspect the official sources before writing. Identify the edition or session and quote the relevant objective identifiers where available. Explain which objectives support the selected topic. If you cannot inspect the source, ask the parent to upload the relevant pages or paste their text, and wait. If the topic is outside this level's scope, explain the mismatch and ask the parent to choose a suitable topic. Do not invent standards, exam patterns or curriculum alignment.
 Treat the target level as a deliberate selection. Do not assume the learner's Indian class is equivalent to this year or grade. Identify prerequisites and offer a short readiness check.
-For Olympiad mock tests, check the current official question distribution, marking and duration. If the requested time differs, label it an abbreviated practice test and state the adaptation.
+For Olympiad mock tests, check the current official question distribution, marking, duration and any previous-class syllabus weighting for the selected class. For Mixed practice, cover the relevant syllabus areas across the paper. If the requested time differs, label it an abbreviated practice test and state the adaptation.
 
 TEACHING AND QUALITY
 ${approach}
