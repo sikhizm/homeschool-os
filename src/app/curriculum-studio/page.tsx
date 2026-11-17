@@ -2,9 +2,10 @@ import Link from 'next/link';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
+import {textbookCoverageDescription} from '@/lib/library/grade-options';
 import SectionArtwork from '@/components/section-artwork';
 import {globalStages,globalFrameworks} from '@/lib/global-curriculum/catalogue';
-import {coreAreas,validStage,createParentReviewPlan,curriculumCoverage} from '@/lib/global-curriculum/engine';
+import {coreAreas,validStage,skillsForStage,createParentReviewPlan,curriculumCoverage} from '@/lib/global-curriculum/engine';
 
 export const dynamic='force-dynamic';
 type Search={stage?:string;focus?:string;learner?:string};
@@ -15,11 +16,11 @@ export default async function CurriculumStudio({searchParams}:{searchParams:Prom
  const families=await sql`SELECT f.id,fm.role FROM families f JOIN family_members fm ON fm.family_id=f.id
  WHERE fm.auth_user_id=${session.user.id} ORDER BY fm.created_at,fm.family_id LIMIT 1`;
  if(!families.length)return <main className="family-dashboard"><h1>Family membership required</h1><p>Your account needs an approved family membership to access curriculum planning.</p><Link href="/dashboard">Back to dashboard</Link></main>;
- const learners=await sql`SELECT l.id::text,l.display_name,l.stage FROM learners l WHERE l.family_id=${families[0].id} ORDER BY l.created_at,l.id`;
+ const learners=await sql`SELECT l.id::text,l.display_name,l.stage FROM learners l WHERE l.family_id=${families[0].id} AND l.archived_at IS NULL ORDER BY l.created_at,l.id`;
  const params=await searchParams;
  const learner=learners.find(l=>String(l.id)===params.learner)??learners[0]??null;
  const stage=validStage(params.stage||'');
- const focus=coreAreas.find(area=>area===params.focus)??'';
+ const focus=coreAreas.find(area=>area===params.focus&&skillsForStage(stage).some(skill=>skill.subject===area))??'';
  const plan=createParentReviewPlan(stage,focus);
  const coverage=curriculumCoverage();
  const total=plan.reduce((sum,x)=>sum+x.minutes,0);
@@ -37,11 +38,11 @@ export default async function CurriculumStudio({searchParams}:{searchParams:Prom
    <div><strong>{coverage.sourceCheckedTitles}</strong><span>Chapter titles checked</span></div>
   </section>
   <section className="workspace-panel">
-   <div className="gcv1-section-top"><div><span className="eyebrow">ONE FAMILY PLAN</span><h2>Build a gentle learning rhythm</h2><p className="muted">Suggestions are based on the selected developmental stage—not an automatic assessment of a child.</p></div><span className="gcv1-state">Parent review required</span></div>
+   <div className="gcv1-section-top"><div><span className="eyebrow">ONE FAMILY PLAN</span><h2>Build a gentle learning rhythm</h2><p className="muted">Suggestions use the selected developmental stage. The priority area comes first and receives more guided time within the same 60-minute plan.</p></div><span className="gcv1-state">Parent review required</span></div>
    <form className="gcv1-filters" action="/curriculum-studio" method="get">
     <label className="workspace-field"><span>Learner (context only)</span><select name="learner" defaultValue={learner?String(learner.id):''}>{learners.length?learners.map(l=><option value={String(l.id)} key={String(l.id)}>{String(l.display_name)}</option>):<option value="">No learner selected</option>}</select></label>
     <label className="workspace-field"><span>Learning stage</span><select name="stage" defaultValue={stage}>{globalStages.map(s=><option key={s.id} value={s.id}>{s.name}</option>)}</select></label>
-    <label className="workspace-field"><span>Priority area</span><select name="focus" defaultValue={focus}><option value="">Balanced learning</option>{coreAreas.map(area=><option key={area} value={area}>{area}</option>)}</select></label>
+    <label className="workspace-field"><span>Priority area</span><select name="focus" defaultValue={focus}><option value="">Balanced learning</option>{coreAreas.filter(area=>plan.some(item=>item.skill.subject===area)).map(area=><option key={area} value={area}>{area}</option>)}</select></label>
     <button type="submit">Review learning plan →</button>
    </form>
    <div className="gcv1-plan-banner"><div><span className="eyebrow">SHARED GUIDED TIME</span><strong>{total} minutes</strong><p>Suggested adult-guided total across these activities. For a multi-child family, adapt and share activities rather than allocating a separate hour per child.</p></div><span aria-hidden="true">◷</span></div>
@@ -54,9 +55,10 @@ export default async function CurriculumStudio({searchParams}:{searchParams:Prom
   </section>
   <section className="workspace-panel">
    <div className="gcv1-section-top"><div><span className="eyebrow">COVERAGE TRANSPARENCY</span><h2>Know what is and is not verified</h2><p>Catalogue coverage is counted from the application data, not from marketing estimates.</p></div></div>
-   <div className="gcv1-trust-grid"><div><strong>{coverage.gradesWithPartialCatalogue} / 12</strong><span>NCERT grades partially indexed</span></div><div><strong>{coverage.gradesWithoutBooks}</strong><span>Grades not yet catalogued</span></div><div><strong>{coverage.approvedChapterMappings}</strong><span>Approved chapter-skill mappings</span></div><div><strong>{coverage.completeBoards}</strong><span>Boards with full verified coverage</span></div></div>
+   <div className="gcv1-trust-grid"><div><strong>{coverage.gradesWithPartialCatalogue} / 12</strong><span>NCERT grades partially indexed</span></div><div><strong>{coverage.gradesWithoutBooks}</strong><span>Grades not yet catalogued</span></div><div><strong>{coverage.approvedChapterMappings}</strong><span>Published catalogue mappings</span></div><div><strong>{coverage.completeBoards}</strong><span>Boards with full verified coverage</span></div></div>
    <div className="gcv1-coverage-grid">{coverage.gradeRows.map(g=><div key={g.grade} className={g.cataloguedBooks?'gcv1-grade has-books':'gcv1-grade'}><strong>Class {g.grade}</strong><span>{g.cataloguedBooks?g.cataloguedBooks+' books catalogued':'Not yet catalogued'}</span><small>{g.contentsAudited?g.contentsAudited+' books with audited contents':'Contents review pending'}</small></div>)}</div>
-   <p className="muted">The four Class 4 books have checked contents; additional identified books await chapter verification. A listed book is not a complete syllabus and an illustrative skill is not a certified NCERT/Cambridge/IB equivalence.</p>
+   <p className="muted">{textbookCoverageDescription} A listed book is not a complete syllabus and an illustrative skill is not a certified NCERT/Cambridge/IB equivalence.</p>
+   <p className="muted">Published catalogue mappings are separate from your family’s saved Class 5 editorial decisions. {families[0].role==='owner'?<Link href="/curriculum-mapping">View your family’s mapping review queue.</Link>:'A family owner can view those decisions in the mapping review queue.'}</p>
   </section>
   <section className="workspace-panel">
    <span className="eyebrow">AUTHORITATIVE SOURCES & PEDAGOGY</span><h2>International perspectives, one grounded pathway</h2>

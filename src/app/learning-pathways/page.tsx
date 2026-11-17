@@ -3,6 +3,7 @@ import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import LessonCard from '@/app/dashboard/lesson-card';
 import {annualGrades,annualSteps,annualSummary,termLabel} from '@/lib/curriculum/annual';
+import {textbookCoverageDescription} from '@/lib/library/grade-options';
 import {navigationForPath} from '@/lib/navigation';
 export const dynamic='force-dynamic';
 
@@ -23,16 +24,16 @@ export default async function AnnualPathways({searchParams}:{searchParams:Promis
  <main className="family-dashboard annual-page">
   <div className="dashboard-welcome">
    <div><span className="tag">EXPLORE · ANNUAL LEARNING PATHWAYS</span><h1>A whole year, prepared for you</h1>
-    <p className="muted">Thirty-six teaching weeks for each learner, with the lesson written out before you begin. Weeks are a sequence, not a deadline.</p></div>
-   <span className="daily-badge">✧ 36 weeks · 3 terms · 4 learners</span>
+    <p className="muted">Thirty-six teaching weeks for each supported stage, with the lesson written out before you begin. Weeks are a sequence, not a deadline.</p></div>
+   <span className="daily-badge">✧ 36 weeks · 3 terms · {definitions.length} learning stages</span>
   </div>
   <section className="annual-intro workspace-panel">
    <h2>What is actually here</h2>
-   <p>Each of the four stages has an original, fully written 36-week pathway. Every core session includes the objective, materials, parent preparation, a worked example, step-by-step teaching, questions, your child&apos;s activity, expected answers, easier and harder variations, completion criteria and revision guidance. A shorter practice or play session follows each teaching week where appropriate.</p>
+   <p>Each of the {definitions.length} stages has an original, fully written 36-week pathway. Every core session includes the objective, materials, parent preparation, a worked example, step-by-step teaching, questions, your child&apos;s activity, expected answers, easier and harder variations, completion criteria and revision guidance. A shorter practice or play session follows each teaching week where appropriate.</p>
    {chosen.key !== 'infant' && (
     <p><Link href={'/library/enrichment?stage='+chosen.key}>Browse optional enrichment for {chosen.grade} →</Link></p>
    )}
-   <p className="annual-honesty"><strong>Honest scope:</strong> this is original HomeSchool OS parent-guided content. Official NCERT Class 4 book and chapter titles are indexed separately at <Link href="/ncert-books">NCERT books</Link>; no chapter text is copied and no chapter-to-lesson alignment is claimed. International frameworks are used only as general pedagogical inspiration, not as accreditation or grade equivalence.</p>
+   <p className="annual-honesty"><strong>Honest scope:</strong> this is original HomeSchool OS parent-guided content. {textbookCoverageDescription} Official NCERT book and chapter titles are indexed separately at <Link href="/ncert-books">NCERT books</Link>; no chapter text is copied and no chapter-to-lesson alignment is claimed. International frameworks are used only as general pedagogical inspiration, not as accreditation or grade equivalence.</p>
   </section>
   <section className="workspace-panel">
    <h2>Choose a learning stage</h2>

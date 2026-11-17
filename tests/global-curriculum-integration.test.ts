@@ -41,3 +41,21 @@ test('only same-stage and same-subject original lessons are suggested',()=>{
   }
  }
 });
+
+test('each available priority comes first with more time while preserving a balanced 60-minute plan',()=>{
+ for(const stage of globalStages){
+  const balanced=createParentReviewPlan(stage.id);
+  for(const item of balanced){
+   const focused=createParentReviewPlan(stage.id,item.skill.subject);
+   assert.equal(focused[0].skill.subject,item.skill.subject);
+   assert.equal(focused.reduce((sum,entry)=>sum+entry.minutes,0),60);
+   assert.deepEqual(new Set(focused.map(entry=>entry.skill.id)),new Set(balanced.map(entry=>entry.skill.id)));
+   if(balanced.length>1){
+    assert.ok(focused[0].minutes>item.minutes);
+    assert.ok(focused.slice(1).every(entry=>entry.minutes<focused[0].minutes&&entry.minutes>0));
+   }
+   assert.deepEqual(createParentReviewPlan(stage.id,item.skill.subject),focused);
+  }
+  assert.deepEqual(createParentReviewPlan(stage.id,'unavailable'),balanced);
+ }
+});

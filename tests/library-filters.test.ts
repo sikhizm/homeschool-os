@@ -19,3 +19,38 @@ test('each class quick filter has a distinct grade-specific destination',()=>{
  assert.equal(new Set(options.map(option=>option.href)).size,options.length);
  assert.ok(options.every(option=>/^\/ncert-books\?grade=\d+$/.test(option.href)));
 });
+
+test('subject shortcuts select an existing book subject and grade', async()=>{
+ const {librarySubjectOptions}=await import('../src/lib/library/grade-options');
+ assert.equal(librarySubjectOptions.length,6);
+ for(const option of librarySubjectOptions){
+  const url=new URL(option.href,'https://app.test');
+  assert.equal(url.pathname,'/ncert-books');
+  assert.equal(url.searchParams.get('subject'),option.label);
+  assert.ok(ncertTextbooks.some(book=>book.grade===Number(url.searchParams.get('grade'))&&book.subject===option.label));
+ }
+});
+
+test('early years shortcuts select matching enrichment and learning types have distinct destinations',async()=>{
+ const {libraryLearningOptions}=await import('../src/lib/library/grade-options');
+ const {resolveEnrichmentFilters,filterEnrichment}=await import('../src/lib/curriculum/enrichment');
+ for(const label of ['Early Years','Nursery','UKG']){
+  const url=new URL(libraryGradeOptions.find(option=>option.label===label)!.href,'https://app.test');
+  assert.equal(url.pathname,'/library/enrichment');
+  const filters=resolveEnrichmentFilters(Object.fromEntries(url.searchParams));
+  const {activities}=filterEnrichment(filters.stage,filters.topic);
+  assert.ok(activities.length);
+  if(label==='Nursery'||label==='UKG')assert.ok(activities.every(activity=>activity.stage===label.toLowerCase()));
+  else assert.ok(activities.every(activity=>activity.topic==='early-years'));
+ }
+ assert.equal(new Set(libraryLearningOptions.map(option=>option.href)).size,4);
+ assert.ok(libraryLearningOptions.every(option=>option.href!=='/lessons'));
+});
+
+test('shared coverage description reflects actual catalogue counts',async()=>{
+ const {textbookCoverageDescription}=await import('../src/lib/library/grade-options');
+ const grades=new Set(ncertTextbooks.map(book=>book.grade));
+ assert.ok(textbookCoverageDescription.includes(`${ncertTextbooks.length} books`));
+ assert.ok(textbookCoverageDescription.includes(`${grades.size} classes`));
+ assert.ok(textbookCoverageDescription.includes(`${ncertTextbooks.filter(book=>book.chapterCount>0).length} books have checked contents`));
+});
