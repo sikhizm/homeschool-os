@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import {
-  olympiadClasses, olympiadFilters, olympiadProviders, olympiadSubjects,
+  olympiadClasses, olympiadFilters, olympiadPdfHref, olympiadProviders, olympiadSubjects,
   selectOlympiadResources, type OlympiadQuery,
 } from '@/lib/olympiad/catalogue';
 
@@ -50,7 +50,7 @@ export default function OlympiadView({ query }: { query: OlympiadQuery }) {
             <p className="muted">{resource.edition ?? 'Paper year unspecified'}</p>
           </div>
           <div className="olympiad-actions">
-            {resource.pdfUrl && <a className="hero-action-primary" href={resource.pdfUrl} target="_blank" rel="noopener noreferrer">Open PDF ↗</a>}
+            {resource.pdfUrl && <a className="btn-primary" href={olympiadPdfHref(resource)} target="_blank" rel="noopener noreferrer">Open PDF ↗</a>}
             <a className="btn-secondary" href={resource.sourceUrl} target="_blank" rel="noopener noreferrer">{resource.pdfUrl ? 'Official source ↗' : 'Browse official collection ↗'}</a>
           </div>
           <details className="olympiad-verification"><summary>Link checked {resource.checkedOn}</summary><p>{resource.evidence}</p></details>

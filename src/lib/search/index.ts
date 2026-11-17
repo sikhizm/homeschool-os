@@ -42,7 +42,7 @@ const features: Document[] = [
     ['/learning-pathways', 'Annual Learning Pathways', 'Open stage-specific plans and ready-to-teach weekly themes.', 'annual year yearly plan 36 weeks'],
     ['/curriculum', 'Competency Pathways', 'Find learning outcomes, prerequisites and goal ideas.', 'skills objectives milestones'],
     ['/lessons', 'Activities and Printables', 'Teach an activity or print an A4 worksheet.', 'lesson library printable worksheet'],
-    ['/library/olympiad', 'Olympiad Resources', 'Official sample papers and practice collections for Classes 1–10.', 'olympiad pdf maths science english reasoning sof crest silverzone kangaroo'],
+    ['/library/olympiad', 'Olympiad Resources', 'Official sample papers and practice collections for Classes 1–10.', 'olympiad pdf maths science english reasoning sof crest silverzone'],
     ['/library/prompts', 'Learning Prompts', 'Copy personalised prompts for Olympiad practice, world curricula and teaching approaches.', 'gemini chatgpt olympiad england california singapore worksheet prompts'],
     ['/library/enrichment', 'Supplementary Resources', 'Browse optional enrichment and publisher references.', 'resource catalogue reasoning olympiad'],
     ['/curriculum-mapping', 'Curriculum Mapping Review', 'Family owners can review proposed links for Class 5 chapters.', 'editorial quality administration'],

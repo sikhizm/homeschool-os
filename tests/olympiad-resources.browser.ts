@@ -43,9 +43,20 @@ test('Olympiad library filters and official links work on mobile and desktop', a
       assert.equal(await page.locator('.olympiad-card').count(), 1);
       assert.match(await page.getByRole('link', { name: 'Open PDF' }).getAttribute('href') ?? '', /Class-10\.pdf$/);
       assert.equal(await page.getByRole('link', { name: 'Open PDF' }).getAttribute('target'), '_blank');
-      await page.getByLabel('Organiser', { exact: true }).selectOption('Math Kangaroo');
+      const buttonStyle = await page.getByRole('link', { name: 'Open PDF' }).evaluate(node => {
+        const style = getComputedStyle(node);
+        return { padding: parseFloat(style.paddingLeft), radius: parseFloat(style.borderRadius), display: style.display };
+      });
+      assert.ok(buttonStyle.padding >= 16);
+      assert.ok(buttonStyle.radius >= 10);
+      assert.equal(buttonStyle.display, 'inline-flex');
+      await page.getByLabel('Organiser', { exact: true }).selectOption('SOF');
       await page.getByRole('button', { name: 'Show resources' }).click();
-      await page.waitForURL('**provider=Math+Kangaroo**');
+      await page.waitForURL('**provider=SOF**');
+      assert.equal(await page.getByRole('link', { name: 'Open PDF' }).getAttribute('href'), '/api/olympiad-pdf/sof-science-10');
+      await page.getByLabel('Organiser', { exact: true }).selectOption('SilverZone');
+      await page.getByRole('button', { name: 'Show resources' }).click();
+      await page.waitForURL('**provider=SilverZone**');
       assert.equal(await page.getByRole('heading', { name: 'No matching resources' }).count(), 1);
       await page.getByRole('link', { name: 'Show all resources' }).click();
       await page.waitForURL('**grade=all');

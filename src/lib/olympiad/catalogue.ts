@@ -16,7 +16,7 @@ export type OlympiadResource = {
 };
 export const olympiadResources: readonly OlympiadResource[] = data;
 export const olympiadClasses = Array.from({ length: 10 }, (_, index) => index + 1);
-export const olympiadProviders = ['CREST', 'SOF', 'SilverZone', 'Math Kangaroo'] as const;
+export const olympiadProviders = ['CREST', 'SOF', 'SilverZone'] as const;
 export const olympiadSubjects = ['Maths', 'Science', 'English', 'Reasoning'] as const;
 export type OlympiadQuery = { grade?: string | string[]; subject?: string | string[]; provider?: string | string[]; q?: string | string[] };
 export function olympiadFilters(input: OlympiadQuery) {
@@ -37,4 +37,11 @@ export function selectOlympiadResources(query: OlympiadQuery) {
     (!filters.provider || item.provider === filters.provider) &&
     terms.every(term => [item.title, item.provider, item.subject, item.edition ?? ''].join(' ').toLowerCase().includes(term)),
   );
+}
+
+export function olympiadPdfHref(resource: OlympiadResource) {
+  if (!resource.pdfUrl) return resource.sourceUrl;
+  return resource.provider === 'SOF'
+    ? '/api/olympiad-pdf/' + encodeURIComponent(resource.id)
+    : resource.pdfUrl;
 }
