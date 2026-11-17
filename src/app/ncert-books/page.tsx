@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import {headers} from 'next/headers';
 import {redirect} from 'next/navigation';
 import {auth} from '@/lib/auth/server';
 import {contentUnitLabelFor,selectTextbooks,chaptersFor,textbookAudit} from '@/lib/ncert/textbooks';
 import {chapterPdfEvidence} from '@/lib/ncert/catalogue-evidence';
+import {chapterPdfSources,prefersOfficialNcert} from '@/lib/ncert/pdf-source';
 import {globalSkills} from '@/lib/global-curriculum/catalogue';
 import {classesWithoutTextbooks,textbookGradeOptions} from '@/lib/library/grade-options';
 import SectionArtwork from '@/components/section-artwork';
@@ -14,6 +16,7 @@ const currentSubject=(grade:number,subject?:string)=>selectTextbooks(grade).find
 export default async function NcertBooks({searchParams}:{searchParams:Promise<Search>}){
  const {data:session}=await auth.getSession();if(!session?.user)redirect('/auth/sign-in');
  const p=await searchParams;
+ const preferOfficial=prefersOfficialNcert(await headers());
  const selectedGrade=textbookGradeOptions.some(option=>option.grade===Number(p.grade))?Number(p.grade):4;
  const subject=currentSubject(selectedGrade,p.subject);
  const books=selectTextbooks(selectedGrade,subject);
@@ -56,17 +59,18 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  <section className="workspace-panel ncert-chapter-panel">
   {selectedBook&&<><div className="ncert-chapter-intro"><div><span className="eyebrow">OFFICIAL BOOK IDENTIFIED</span><h2>{selectedBook.title}</h2><p>Class {selectedBook.grade} · {selectedBook.subject} · {selectedBook.language} · {selectedBook.category?.replace(/-/g,' ')??'category pending'}{selectedBook.volumeLabel?` · ${selectedBook.volumeLabel}`:''} · NCERT</p></div><span className="ncert-mini-book" aria-hidden="true">▤</span></div>
   <div className="ncert-source-strip"><span>{chapters.length>0?`Book identified · ${chapters.filter(c=>Boolean(c.verifiedTitle)).length} of ${chapters.length} ${contentUnitLabelFor(selectedBook).toLowerCase()} titles checked · ${chapters.filter(c=>chapterPdfEvidence(selectedBook,c).status==='verified').length} individually verified PDFs`:'Book identified · Contents awaiting verification'}</span><a href={selectedBook.sourceUrl} target="_blank" rel="noopener noreferrer">Visit NCERT book portal ↗</a></div>
-  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. Publisher-listed chapter PDFs open directly. The official book portal is also available above. Confirm the current edition before assigning skills.</p>
+  <p className="muted">Edition note: {selectedBook.editionLabel}. Click any indexed title to open its learning page. The official book portal is also available above. Confirm the current edition before assigning skills.</p>
   {chapters.length===0&&<p className="ncert-pending">The Contents index for this edition is awaiting verification. Use the official NCERT book link instead of assuming a chapter sequence.</p>}
   <div className="ncert-chapter-list">{chapters.map(c=>{
-    const resource=chapterPdfEvidence(selectedBook,c);
-    const direct=resource.status==='verified'||resource.status==='publisher';
+    const {official,readerHref,hasOfficialPdf}=chapterPdfSources(selectedBook,c,preferOfficial);
     return <div className="ncert-chapter-row" key={c.id}>
     <span className="ncert-chapter-number">{String(c.chapterNumber).padStart(2,'0')}</span>
     <div className="ncert-chapter-description">
       <Link className="ncert-chapter-title-link" href={`/ncert-books/chapter/${c.id}`} aria-label={`Open learning page for ${c.label.toLowerCase()}: ${c.verifiedTitle??c.label}`}>{c.verifiedTitle??c.label}<span aria-hidden="true"> →</span></Link>
     </div>
-    <a className="ncert-chapter-open" href={resource.href} target="_blank" rel="noopener noreferrer">{direct?'Open PDF':'Open textbook portal'} <span aria-hidden="true">↗</span></a>
+    {readerHref
+      ? <Link className="ncert-chapter-open" href={readerHref}>Read in HomeSchool OS</Link>
+      : <a className="ncert-chapter-open" href={official.href} target="_blank" rel="noopener noreferrer">{hasOfficialPdf?'Open NCERT PDF':'Open textbook portal'} <span aria-hidden="true">↗</span></a>}
   </div>})}</div></>}
  </section>
  </div>}
