@@ -4,8 +4,10 @@ import Link from 'next/link';
 import { useRef, useState, useSyncExternalStore } from 'react';
 import {
   approaches, buildLearningPrompt, curricula, defaultSettings, formats, materials,
-  olympiadSources, topics, tracks, validSettings, type PromptSettings,
+  topicsForSettings, tracks, readPromptSettings, updatePromptSettings, type PromptSettings,
 } from '@/lib/learning-prompts';
+
+import { olympiadSourcesFor, promptClasses, promptClassForStage } from '@/lib/olympiad/prompt-classes';
 
 type Learner = { id: string; name: string; stage: string };
 type BuilderProps = { learners: Learner[]; storageKey: string };
@@ -16,20 +18,25 @@ export default function PromptBuilder(props: BuilderProps) {
 }
 function LoadedBuilder({ learners, storageKey }: BuilderProps) {
   const [saved] = useState(() => {
+    const initialSettings = updatePromptSettings(defaultSettings, { targetClass: promptClassForStage(learners[0]?.stage ?? '') ?? '4' });
     try {
       const value = JSON.parse(localStorage.getItem(storageKey) ?? 'null');
+      const restored = readPromptSettings(value?.settings);
+      const restoredSettings = restored && !('targetClass' in value.settings)
+        ? updatePromptSettings(restored, { targetClass: initialSettings.targetClass })
+        : restored;
       return {
-        settings: validSettings(value?.settings) ? value.settings : defaultSettings,
-        favourites: Array.isArray(value?.favourites) ? value.favourites.filter(validSettings).slice(0, 20) as PromptSettings[] : [],
+        settings: restoredSettings ?? initialSettings,
+        favourites: Array.isArray(value?.favourites) ? value.favourites.map(readPromptSettings).filter((item: PromptSettings | null): item is PromptSettings => item !== null).slice(0, 20) : [],
       };
-    } catch { return { settings: defaultSettings, favourites: [] as PromptSettings[] }; }
+    } catch { return { settings: initialSettings, favourites: [] as PromptSettings[] }; }
   });
   const [settings, setSettings] = useState<PromptSettings>(saved.settings);
   const [learnerId, setLearnerId] = useState(learners[0]?.id ?? '');
   const [favourites, setFavourites] = useState<PromptSettings[]>(saved.favourites);
   const [message, setMessage] = useState('');
   const preview = useRef<HTMLTextAreaElement>(null);
-  const learner = learners.find(item => item.id === learnerId) ?? { name: 'Learner', stage: 'Class 4' };
+  const learner = learners.find(item => item.id === learnerId) ?? { name: 'Learner', stage: '' };
   const prompt = buildLearningPrompt(settings, learner);
   function save(next: PromptSettings, savedFavourites = favourites) {
     setSettings(next);
@@ -38,7 +45,12 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
     catch { setMessage('Device storage is unavailable. Copy your prompt before leaving.'); }
   }
   function change<Key extends keyof PromptSettings>(key: Key, value: PromptSettings[Key]) {
-    save({ ...settings, [key]: value });
+    save(updatePromptSettings(settings, { [key]: value }));
+  }
+  function selectLearner(id: string) {
+    setLearnerId(id);
+    const targetClass = promptClassForStage(learners.find(item => item.id === id)?.stage ?? '');
+    if (targetClass) save(updatePromptSettings(settings, { targetClass }));
   }
   function toggleFavourite() {
     const exists = favourites.some(item => JSON.stringify(item) === JSON.stringify(settings));
@@ -52,7 +64,7 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
     catch { preview.current?.focus(); preview.current?.select(); setMessage('Select and copy the highlighted prompt manually.'); }
   }
   const isFavourite = favourites.some(item => JSON.stringify(item) === JSON.stringify(settings));
-  const sourceLinks = settings.track === 'Olympiad Prep' ? olympiadSources : [curricula[settings.curriculum].url];
+  const sourceLinks = settings.track === 'Olympiad Prep' ? olympiadSourcesFor(settings.targetClass) : [curricula[settings.curriculum].url];
   return <main className="learning-prompts studio-stack">
     <nav aria-label="Breadcrumb"><Link href="/library">Curriculum Library</Link> / Learning Prompts</nav>
     <header><h1>Learning Prompts</h1><p className="muted">Choose a learning goal, copy your prompt, and create material in ChatGPT or Gemini.</p></header>
@@ -61,18 +73,20 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
     </div>
     <div className="prompt-layout">
       <section className="workspace-panel prompt-controls" aria-label="Prompt settings">
-        <label>Learner<select value={learnerId} onChange={event => setLearnerId(event.target.value)}>
-          {!learners.length && <option value="">Class 4 learner</option>}
+        <label>Learner<select value={learnerId} onChange={event => selectLearner(event.target.value)}>
+          {!learners.length && <option value="">No learner selected</option>}
           {learners.map(item => <option key={item.id} value={item.id}>{item.name} · {item.stage}</option>)}
         </select></label>
         {!learners.length && <Link href="/learners">Add a learner for personalised prompts</Link>}
         {settings.track === 'Olympiad Prep'
-          ? <p>SOF Mathematics Olympiad · Class 4 · Level 1</p>
+          ? <label>Target class<select value={settings.targetClass} onChange={event => change('targetClass', event.target.value as PromptSettings['targetClass'])}>
+            {promptClasses.map(grade => <option key={grade} value={grade}>Class {grade}</option>)}
+          </select><span className="muted">SOF Mathematics Olympiad · Level 1</span></label>
           : <label>Target curriculum and level<select value={settings.curriculum} onChange={event => change('curriculum', event.target.value as PromptSettings['curriculum'])}>
             {Object.entries(curricula).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}
           </select></label>}
-        <p className="muted">First collection · Maths and Reasoning. Check the target level against your learner’s readiness.</p>
-        <label>Topic<select value={settings.topic} onChange={event => change('topic', event.target.value as PromptSettings['topic'])}>{topics.map(item => <option key={item}>{item}</option>)}</select></label>
+        <p className="muted">{settings.track === 'Olympiad Prep' ? 'Classes 1–10 · Maths and Reasoning. The target class can be adjusted for revision or challenge work.' : 'Year / Grade 4 collection · Maths and Reasoning. Check the target level against your learner’s readiness.'}</p>
+        <label>Topic<select value={settings.topic} onChange={event => change('topic', event.target.value as PromptSettings['topic'])}>{topicsForSettings(settings).map(item => <option key={item}>{item}</option>)}</select></label>
         <label>Material<select value={settings.material} onChange={event => change('material', event.target.value as PromptSettings['material'])}>{materials.map(item => <option key={item}>{item}</option>)}</select></label>
         {settings.track === 'Teaching Approaches' && <label>Teaching approach<select value={settings.approach} onChange={event => change('approach', event.target.value as PromptSettings['approach'])}>{approaches.map(item => <option key={item}>{item}</option>)}</select></label>}
         <div className="prompt-pair">
@@ -100,7 +114,7 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
       </section>
     </div>
     {favourites.length > 0 && <section className="workspace-panel"><h2>Favourite prompts</h2><div className="prompt-favourites">
-      {favourites.map((item, index) => <button className="btn-secondary" key={index} onClick={() => save(item)}>{item.track} · {item.topic} · {item.material} · {item.track === 'Olympiad Prep' ? 'SOF Class 4' : curricula[item.curriculum].label}</button>)}
+      {favourites.map((item, index) => <button className="btn-secondary" key={index} onClick={() => save(item)}>{item.track} · {item.topic} · {item.material} · {item.track === 'Olympiad Prep' ? 'SOF Class ' + item.targetClass : curricula[item.curriculum].label}</button>)}
     </div></section>}
   </main>;
 }
