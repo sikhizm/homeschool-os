@@ -39,8 +39,9 @@ export function selectOlympiadResources(query: OlympiadQuery) {
   );
 }
 
-export function olympiadPdfHref(resource: OlympiadResource) {
+export function olympiadPdfHref(resource: OlympiadResource, preferExternal = true) {
   if (!resource.pdfUrl) return resource.sourceUrl;
+  if (!preferExternal) return '/library/olympiad/read/' + encodeURIComponent(resource.id);
   return resource.provider === 'SOF'
     ? '/api/olympiad-pdf/' + encodeURIComponent(resource.id)
     : resource.pdfUrl;

@@ -4,7 +4,7 @@ import {
   selectOlympiadResources, type OlympiadQuery,
 } from '@/lib/olympiad/catalogue';
 
-export default function OlympiadView({ query }: { query: OlympiadQuery }) {
+export default function OlympiadView({ query, preferExternal = false }: { query: OlympiadQuery; preferExternal?: boolean }) {
   const filters = olympiadFilters(query);
   const resources = selectOlympiadResources(filters);
   return <main className="olympiad-page studio-stack">
@@ -50,12 +50,14 @@ export default function OlympiadView({ query }: { query: OlympiadQuery }) {
             <p className="muted">{resource.edition ?? 'Paper year unspecified'}</p>
           </div>
           <div className="olympiad-actions">
-            {resource.pdfUrl && <a className="btn-primary" href={olympiadPdfHref(resource)} target="_blank" rel="noopener noreferrer">Open PDF ↗</a>}
+            {resource.pdfUrl && (preferExternal
+              ? <a className="btn-primary" href={olympiadPdfHref(resource)} target="_blank" rel="noopener noreferrer">Open PDF ↗</a>
+              : <Link className="btn-primary" href={olympiadPdfHref(resource, false)}>Read in app</Link>)}
             <a className="btn-secondary" href={resource.sourceUrl} target="_blank" rel="noopener noreferrer">{resource.pdfUrl ? 'Official source ↗' : 'Browse official collection ↗'}</a>
           </div>
           <details className="olympiad-verification"><summary>Link checked {resource.checkedOn}</summary><p>{resource.evidence}</p></details>
         </article>)}
       </section>}
-    <p className="muted">Papers open from the organiser’s website. Use “Official source” if a PDF link changes. Check the current syllabus and exam pattern before timed practice.</p>
+    <p className="muted">{preferExternal ? 'Papers open from the organiser’s website.' : 'Papers open in the HomeSchool OS reader.'} Use “Official source” if a PDF link changes. Check the current syllabus and exam pattern before timed practice.</p>
   </main>;
 }
