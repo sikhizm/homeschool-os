@@ -15,6 +15,7 @@ const CDN=`https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${VERSION}`;
 
 export default function PdfJsReader({src,title}:{src:string;title:string}) {
   const doc=useRef<PdfDocument|null>(null);
+  const reader=useRef<HTMLElement|null>(null);
   const canvases=useRef<Map<number,HTMLCanvasElement>>(new Map());
   const rendered=useRef<Set<number>>(new Set());
   const tasks=useRef<Map<number,{cancel:()=>void}>>(new Map());
@@ -27,6 +28,8 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
   const [pageSizes,setPageSizes]=useState<Record<number,Viewport>>({});
   const [status,setStatus]=useState('Loading PDF reader…');
   const [error,setError]=useState('');
+  const [isFullscreen,setIsFullscreen]=useState(false);
+  const [layoutRevision,setLayoutRevision]=useState(0);
   const visible=useMemo(()=>!count?[]:mode==='single'?[page]:Array.from({length:Math.min(count,page+2)-Math.max(1,page-2)+1},(_,i)=>Math.max(1,page-2)+i),[count,mode,page]);
 
   const load=useCallback(async()=>{
@@ -34,12 +37,22 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     setError('');setStatus('Loading textbook…');
     window.pdfjsLib.GlobalWorkerOptions.workerSrc=`${CDN}/pdf.worker.min.js`;
     try{
-      const pdf=await window.pdfjsLib.getDocument({url:src,withCredentials:true,rangeChunkSize:65536}).promise;
+      const pdf=await window.pdfjsLib.getDocument({url:src,withCredentials:true,rangeChunkSize:262144}).promise;
       doc.current?.destroy();doc.current=pdf;rendered.current.clear();setPageSizes({});setCount(pdf.numPages);setPage(1);setStatus('');
     }catch(e){setError(e instanceof Error?e.message:'The PDF could not be loaded.');setStatus('');}
   },[src]);
 
   useEffect(()=>()=>{tasks.current.forEach(t=>t.cancel());doc.current?.destroy();},[]);
+
+  useEffect(()=>{
+    const syncFullscreen=()=>{
+      setIsFullscreen(document.fullscreenElement===reader.current);
+      tasks.current.forEach(task=>task.cancel());tasks.current.clear();rendered.current.clear();
+      setLayoutRevision(revision=>revision+1);
+    };
+    document.addEventListener('fullscreenchange',syncFullscreen);
+    return()=>document.removeEventListener('fullscreenchange',syncFullscreen);
+  },[]);
 
   const canvasRef=useCallback((number:number)=>(node:HTMLCanvasElement|null)=>{
     if(node)canvases.current.set(number,node);else canvases.current.delete(number);
@@ -93,13 +106,20 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     }
     visible.forEach(n=>void render(n));
     return()=>{cancelled=true;};
-  },[visible,fit,zoom,count]);
+  },[visible,fit,zoom,count,layoutRevision]);
 
   const changeZoom=(delta:number)=>{tasks.current.forEach(t=>t.cancel());tasks.current.clear();rendered.current.clear();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));};
   const go=(next:number)=>{const target=Math.max(1,Math.min(count,next));setPage(target);if(mode==='continuous')document.getElementById(`pdf-page-${target}`)?.scrollIntoView({behavior:'smooth',block:'start'});};
   const setView=(next:'continuous'|'single')=>{setMode(next);if(next==='continuous'&&page>1)requestAnimationFrame(()=>document.getElementById(`pdf-page-${page}`)?.scrollIntoView({behavior:'smooth',block:'start'}));};
+  const toggleFullscreen=async()=>{
+    const element=reader.current;if(!element)return;
+    try{
+      if(document.fullscreenElement===element)await document.exitFullscreen();
+      else await element.requestFullscreen();
+    }catch{setError('Fullscreen view is unavailable in this browser.');}
+  };
 
-  return <section className="pdfjs-reader" aria-label="PDF reader">
+  return <section ref={reader} className="pdfjs-reader" aria-label="PDF reader">
     <Script src={`${CDN}/pdf.min.js`} strategy="afterInteractive" onLoad={()=>{setReady(true);void load();}} onError={()=>setError('The PDF reader library could not be loaded. Check your connection and retry.')}/>
     <header className="pdfjs-toolbar">
       <div className="pdfjs-toolbar-title"><strong>{title}</strong><span>{count?`Page ${page} of ${count}`:status||'PDF reader'}</span></div>
@@ -115,6 +135,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         <button type="button" onClick={()=>changeZoom(-.1)} disabled={!fit&&zoom<=.5}>−</button>
         <button type="button" onClick={()=>changeZoom(.1)} disabled={!fit&&zoom>=2.5}>+</button>
         <button type="button" className={fit?'is-active':''} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);}}>Fit width</button>
+        <button type="button" className="pdfjs-fullscreen-toggle" onClick={()=>void toggleFullscreen()} aria-pressed={isFullscreen}>{isFullscreen?'Exit full screen':'Full screen'}</button>
       </div>
     </header>
     <div className={`pdfjs-stage${mode==='continuous'?' is-continuous':''}`}>
