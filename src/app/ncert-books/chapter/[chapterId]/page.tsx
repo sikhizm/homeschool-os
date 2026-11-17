@@ -14,6 +14,7 @@ import {
 import { chapterPdfEvidence, mappingEvidence, mappingLabels, pdfLabels } from '@/lib/ncert/catalogue-evidence';
 import { familyMappingEvidence } from '@/lib/ncert/family-catalogue-evidence';
 import { class5ChapterAccountById } from '@/lib/curriculum/class5-mapping';
+import { releasePdfForChapter } from '@/lib/ncert/release-pilot';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +28,8 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
   if (!book) notFound();
   const pdf = chapterPdfEvidence(book, chapter);
   const officialPdf = pdf.status === 'verified' || pdf.status === 'publisher' ? pdf.href : null;
+  const releasePilotPdf = releasePdfForChapter(chapter.id);
+  const readerHref = releasePilotPdf ? `/ncert-books/read/${chapter.id}` : null;
   const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
   const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
   const siblings = chaptersFor(book.id);
@@ -71,7 +74,13 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
             {mappingLabels[mappingStatus]}. {pdfLabels[pdf.status]}.
           </p>
           <div className="hero-actions">
-            {officialPdf ? (
+            {readerHref ? (
+              <>
+                <Link className="hero-action-primary" href={readerHref}>Read in Homeschool OS</Link>
+                <a className="hero-action-secondary" href={officialPdf ?? 'https://ncert.nic.in/textbook/pdf/demm101.pdf'} target="_blank" rel="noopener noreferrer">Official NCERT PDF fallback ↗</a>
+                <a className="hero-action-secondary" href={releasePilotPdf!} target="_blank" rel="noopener noreferrer">Open / download release PDF ↗</a>
+              </>
+            ) : officialPdf ? (
               <a className="hero-action-primary" href={officialPdf} target="_blank" rel="noopener noreferrer">
                 Open official NCERT {contentLabel.toLowerCase()} PDF ↗
               </a>
@@ -80,7 +89,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
                 Open official textbook portal ↗
               </a>
             )}
-            {officialPdf && <a className="hero-action-secondary" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">Open textbook portal ↗</a>}
+            {officialPdf && !readerHref && <a className="hero-action-secondary" href={book.sourceUrl} target="_blank" rel="noopener noreferrer">Open textbook portal ↗</a>}
             {mappingAccount && mappingReview?.familyReviewsVisible ? (
               <Link className="hero-action-secondary" href={`/curriculum-mapping?chapter=${encodeURIComponent(chapter.id)}`}>
                 Inspect mapping evidence
@@ -91,7 +100,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
             </Link>
           </div>
           <p className="muted" style={{ margin: '14px 0 0', fontSize: 12.5 }}>
-            Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.
+            {readerHref ? 'This one chapter is being tested through an embedded release PDF viewer; the original NCERT PDF remains available as a separate fallback.' : 'Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.'}
           </p>
         </div>
       </section>
