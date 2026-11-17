@@ -1,7 +1,7 @@
 import type { OlympiadResource } from './catalogue';
 
-/** SOF's download endpoint forces attachments. Present its stream inline to native PDF viewers. */
-export async function inlineSofPdf(
+/** Stream catalogue PDFs from official hosts for the app and native PDF viewers. */
+export async function inlineOlympiadPdf(
   request: Request,
   resource: OlympiadResource,
   fetchPdf: typeof fetch = fetch,
@@ -10,8 +10,12 @@ export async function inlineSofPdf(
     status: 307,
     headers: { Location: resource.sourceUrl, 'Cache-Control': 'no-store' },
   });
-  if (resource.provider !== 'SOF' || !resource.pdfUrl ||
-      !/^https:\/\/sofworld\.org\/download\/file\/fid\/\d+$/.test(resource.pdfUrl)) {
+  const allowedSources: Record<string, RegExp> = {
+    SOF: /^https:\/\/sofworld\.org\/download\/file\/fid\/\d+$/,
+    CREST: /^https:\/\/www\.crestolympiads\.com\/assets\/samplepapers\/[A-Za-z0-9-]+\.pdf$/,
+    SilverZone: /^https:\/\/www\.silverzone\.org\/assets\/File\/Syl_Sam_Papers\/iom\/\d+\.pdf$/,
+  };
+  if (!resource.pdfUrl || !allowedSources[resource.provider]?.test(resource.pdfUrl)) {
     return new Response('PDF unavailable.', { status: 404 });
   }
   const headers = new Headers({ Accept: 'application/pdf', 'User-Agent': 'HomeschoolOS-PDF-Reader' });

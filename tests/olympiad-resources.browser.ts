@@ -13,7 +13,7 @@ test('Olympiad library filters and official links work on mobile and desktop', a
         import {renderToStaticMarkup} from 'react-dom/server';
         import View from './src/app/library/olympiad/olympiad-view';
         export function render(query) {
-          return renderToStaticMarkup(<View query={query}/>);
+          return renderToStaticMarkup(<View query={query} preferExternal={query.device === "mobile"}/>);
         }`,
       resolveDir: process.cwd(), loader: 'tsx',
     },
@@ -27,7 +27,7 @@ test('Olympiad library filters and official links work on mobile and desktop', a
     const page = await browser.newPage();
     await page.route('https://olympiad.test/**', route => {
       const url = new URL(route.request().url());
-      const html = fixture.exports.render(Object.fromEntries(url.searchParams));
+      const html = fixture.exports.render({ ...Object.fromEntries(url.searchParams), device: url.searchParams.get("device") ?? "mobile" });
       return route.fulfill({ contentType: 'text/html', body: '<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>' + css + '</style></head><body>' + html + '</body></html>' });
     });
     for (const width of [320, 390, 768, 1440]) {
@@ -62,6 +62,11 @@ test('Olympiad library filters and official links work on mobile and desktop', a
       await page.waitForURL('**grade=all');
       assert.ok(await page.locator('.olympiad-card').count() >= 80);
     }
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.goto('https://olympiad.test/library/olympiad?grade=4&device=desktop');
+    const readerLinks = page.getByRole('link', { name: 'Read in app' });
+    assert.equal(await readerLinks.count(), 8);
+    assert.ok((await readerLinks.evaluateAll(nodes => nodes.map(node => node.getAttribute('href')))).every(href => href?.startsWith('/library/olympiad/read/')));
     await page.setViewportSize({ width: 390, height: 844 });
     await page.goto('https://olympiad.test/library/olympiad?grade=4');
     await page.screenshot({ path: '/tmp/olympiad-mobile.png', fullPage: true });
