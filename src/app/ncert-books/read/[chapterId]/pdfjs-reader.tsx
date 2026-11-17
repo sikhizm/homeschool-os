@@ -24,6 +24,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
   const [zoom,setZoom]=useState(1);
   const [fit,setFit]=useState(true);
   const [mode,setMode]=useState<'continuous'|'single'>('continuous');
+  const [pageSizes,setPageSizes]=useState<Record<number,Viewport>>({});
   const [status,setStatus]=useState('Loading PDF reader…');
   const [error,setError]=useState('');
   const [visible,setVisible]=useState<number[]>([]);
@@ -34,7 +35,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     window.pdfjsLib.GlobalWorkerOptions.workerSrc=`${CDN}/pdf.worker.min.js`;
     try{
       const pdf=await window.pdfjsLib.getDocument({url:src,withCredentials:true,rangeChunkSize:65536}).promise;
-      doc.current?.destroy();doc.current=pdf;rendered.current.clear();setCount(pdf.numPages);setPage(1);setStatus('');
+      doc.current?.destroy();doc.current=pdf;rendered.current.clear();setPageSizes({});setCount(pdf.numPages);setPage(1);setStatus('');
     }catch(e){setError(e instanceof Error?e.message:'The PDF could not be loaded.');setStatus('');}
   },[src]);
 
@@ -46,21 +47,38 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
 
   useEffect(()=>{
     if(!count||mode!=='continuous')return;
-    const nodes=[...canvases.current.entries()];
+    const stage=document.querySelector('.pdfjs-stage');
+    const nodes=[...document.querySelectorAll<HTMLElement>('.pdfjs-page[data-page]')];
+    if(!stage||!nodes.length)return;
+    const updatePage=()=>{
+      const center=stage.getBoundingClientRect().top+stage.clientHeight/2;
+      const current=nodes.reduce((closest,node)=>{
+        const rect=node.getBoundingClientRect();
+        const distance=center<rect.top?rect.top-center:center>rect.bottom?center-rect.bottom:0;
+        const previous=closest.getBoundingClientRect();
+        const previousDistance=center<previous.top?previous.top-center:center>previous.bottom?center-previous.bottom:0;
+        return distance<previousDistance?node:closest;
+      },nodes[0]);
+      const next=Number(current.dataset.page);
+      setPage(value=>value===next?value:next);
+    };
     const observer=new IntersectionObserver(entries=>{
-      const seen=entries.filter(e=>e.isIntersecting).map(e=>Number((e.target as HTMLElement).dataset.page));
-      if(seen.length){setVisible(current=>[...new Set([...current,...seen])]);}
-      const mostVisible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
-      if(mostVisible)setPage(Number((mostVisible.target as HTMLElement).dataset.page));
-    },{root:document.querySelector('.pdfjs-stage'),rootMargin:'500px 0px',threshold:[0.1,0.5,0.85]});
-    nodes.forEach(([,node])=>observer.observe(node));
-    return()=>observer.disconnect();
+      if(entries.some(entry=>entry.isIntersecting))updatePage();
+    },{root:stage,rootMargin:'500px 0px',threshold:0});
+    nodes.forEach(node=>observer.observe(node));
+    stage.addEventListener('scroll',updatePage,{passive:true});
+    updatePage();
+    return()=>{observer.disconnect();stage.removeEventListener('scroll',updatePage);};
   },[count,mode]);
 
   useEffect(()=>{
-    if(!count||mode!=='single')return;
-    setVisible([page]);
+    if(!count)return;
+    setVisible(mode==='single'?[page]:Array.from({length:Math.min(count,page+2)-Math.max(1,page-2)+1},(_,i)=>Math.max(1,page-2)+i));
   },[count,mode,page]);
+
+  useEffect(()=>{
+    if(mode==='continuous'&&page>1)document.getElementById(`pdf-page-${page}`)?.scrollIntoView({behavior:'smooth',block:'start'});
+  },[mode]);
 
   useEffect(()=>{
     let cancelled=false;
@@ -70,7 +88,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
       try{
         const pdfPage=await pdf.getPage(number);if(cancelled)return;
         const base=pdfPage.getViewport({scale:1});
-        const available=Math.max(280,(canvas.parentElement?.clientWidth??800)-32);
+        const available=Math.max(1,canvas.parentElement?.clientWidth??800);
         const scale=fit?Math.min(2.5,available/base.width):zoom;
         const viewport=pdfPage.getViewport({scale});
         const ratio=window.devicePixelRatio||1;
@@ -79,7 +97,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         const context=canvas.getContext('2d');if(!context)throw new Error('Canvas rendering is unavailable.');
         context.setTransform(ratio,0,0,ratio,0,0);
         const task=pdfPage.render({canvasContext:context,viewport});tasks.current.set(number,task);
-        await task.promise;if(!cancelled)rendered.current.add(number);
+        await task.promise;if(!cancelled){rendered.current.add(number);setPageSizes(current=>current[number]?current:{...current,[number]:base});}
       }catch(e){if(!(e instanceof Error&&e.name==='RenderingCancelledException')&&!cancelled)setError(e instanceof Error?e.message:'A page could not be rendered.');}
     }
     visible.forEach(n=>void render(n));
@@ -108,10 +126,10 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         <button type="button" className={fit?'is-active':''} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);setVisible(current=>mode==='single'?[page]:current);}}>Fit width</button>
       </div>
     </header>
-    <div className="pdfjs-stage">
+    <div className={`pdfjs-stage${mode==='continuous'?' is-continuous':''}`}>
       {status&&<p className="pdfjs-status">{status}</p>}
       {error&&<div className="pdfjs-error" role="alert"><strong>Could not display this PDF.</strong><span>{error}</span><button type="button" onClick={()=>{if(ready)void load();}}>Retry</button></div>}
-      {mode==='continuous'?Array.from({length:count},(_,i)=>i+1).map(n=><div className="pdfjs-page" id={`pdf-page-${n}`} key={n}><span className="pdfjs-page-label">Page {n}</span><canvas ref={canvasRef(n)} data-page={n} aria-label={`Page ${n} of ${title}`}/></div>):<div className="pdfjs-page"><canvas ref={canvasRef(page)} data-page={page} aria-label={`Page ${page} of ${title}`}/></div>}
+      {mode==='continuous'?Array.from({length:count},(_,i)=>i+1).map(n=><div className="pdfjs-page" id={`pdf-page-${n}`} data-page={n} key={n} style={{aspectRatio:pageSizes[n]?`${pageSizes[n].width} / ${pageSizes[n].height}`:undefined,minHeight:pageSizes[n]?'auto':undefined}}><span className="pdfjs-page-label">Page {n}</span><canvas ref={canvasRef(n)} data-page={n} aria-label={`Page ${n} of ${title}`}/></div>):<div className="pdfjs-page"><canvas ref={canvasRef(page)} data-page={page} aria-label={`Page ${page} of ${title}`}/></div>}
     </div>
     <footer className="pdfjs-footer"><span>Pages render progressively as you scroll. No copy is stored by Homeschool OS.</span><span>{count?`${count} pages`:''}</span></footer>
   </section>;
