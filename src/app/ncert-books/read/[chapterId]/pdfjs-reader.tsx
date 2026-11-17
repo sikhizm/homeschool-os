@@ -1,7 +1,7 @@
 'use client';
 
 import Script from 'next/script';
-import {useCallback,useEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useMemo,useRef,useState} from 'react';
 
 type Viewport={width:number;height:number};
 type PdfPage={getViewport:(options:{scale:number})=>Viewport;render:(options:{canvasContext:CanvasRenderingContext2D;viewport:Viewport})=>{promise:Promise<void>;cancel:()=>void}};
@@ -27,7 +27,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
   const [pageSizes,setPageSizes]=useState<Record<number,Viewport>>({});
   const [status,setStatus]=useState('Loading PDF reader…');
   const [error,setError]=useState('');
-  const [visible,setVisible]=useState<number[]>([]);
+  const visible=useMemo(()=>!count?[]:mode==='single'?[page]:Array.from({length:Math.min(count,page+2)-Math.max(1,page-2)+1},(_,i)=>Math.max(1,page-2)+i),[count,mode,page]);
 
   const load=useCallback(async()=>{
     if(!window.pdfjsLib)return;
@@ -72,15 +72,6 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
   },[count,mode]);
 
   useEffect(()=>{
-    if(!count)return;
-    setVisible(mode==='single'?[page]:Array.from({length:Math.min(count,page+2)-Math.max(1,page-2)+1},(_,i)=>Math.max(1,page-2)+i));
-  },[count,mode,page]);
-
-  useEffect(()=>{
-    if(mode==='continuous'&&page>1)document.getElementById(`pdf-page-${page}`)?.scrollIntoView({behavior:'smooth',block:'start'});
-  },[mode]);
-
-  useEffect(()=>{
     let cancelled=false;
     async function render(number:number){
       const pdf=doc.current,canvas=canvases.current.get(number);
@@ -104,9 +95,9 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     return()=>{cancelled=true;};
   },[visible,fit,zoom,count]);
 
-  const changeZoom=(delta:number)=>{tasks.current.forEach(t=>t.cancel());tasks.current.clear();rendered.current.clear();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));setVisible(current=>mode==='single'?[page]:current);};
+  const changeZoom=(delta:number)=>{tasks.current.forEach(t=>t.cancel());tasks.current.clear();rendered.current.clear();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));};
   const go=(next:number)=>{const target=Math.max(1,Math.min(count,next));setPage(target);if(mode==='continuous')document.getElementById(`pdf-page-${target}`)?.scrollIntoView({behavior:'smooth',block:'start'});};
-  const setView=(next:'continuous'|'single')=>{setMode(next);setVisible(next==='single'?[page]:[]);};
+  const setView=(next:'continuous'|'single')=>{setMode(next);if(next==='continuous'&&page>1)requestAnimationFrame(()=>document.getElementById(`pdf-page-${page}`)?.scrollIntoView({behavior:'smooth',block:'start'}));};
 
   return <section className="pdfjs-reader" aria-label="PDF reader">
     <Script src={`${CDN}/pdf.min.js`} strategy="afterInteractive" onLoad={()=>{setReady(true);void load();}} onError={()=>setError('The PDF reader library could not be loaded. Check your connection and retry.')}/>
@@ -123,7 +114,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         <span className="pdfjs-control-divider"/>
         <button type="button" onClick={()=>changeZoom(-.1)} disabled={!fit&&zoom<=.5}>−</button>
         <button type="button" onClick={()=>changeZoom(.1)} disabled={!fit&&zoom>=2.5}>+</button>
-        <button type="button" className={fit?'is-active':''} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);setVisible(current=>mode==='single'?[page]:current);}}>Fit width</button>
+        <button type="button" className={fit?'is-active':''} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);}}>Fit width</button>
       </div>
     </header>
     <div className={`pdfjs-stage${mode==='continuous'?' is-continuous':''}`}>
