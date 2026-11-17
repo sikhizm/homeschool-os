@@ -44,7 +44,7 @@ const features: Document[] = [
     ['/lessons', 'Activities and Printables', 'Teach an activity or print an A4 worksheet.', 'lesson library printable worksheet'],
     ['/library/olympiad', 'Olympiad Resources', 'Official sample papers and practice collections for Classes 1–10.', 'olympiad pdf maths science english reasoning sof crest silverzone'],
     ['/library/prompts', 'Learning Prompts', 'Copy personalised prompts for Olympiad practice, world curricula and teaching approaches.', 'gemini chatgpt olympiad england california singapore worksheet prompts'],
-    ['/library/enrichment', 'Supplementary Resources', 'Browse optional enrichment and publisher references.', 'resource catalogue reasoning olympiad'],
+    ['/library/enrichment', 'Supplementary Resources', 'Original activities for Preschool / Nursery, UKG and Class 4, plus parent references with link status.', 'resource catalogue reasoning punjabi hindi heritage play'],
     ['/curriculum-mapping', 'Curriculum Mapping Review', 'Family owners can review proposed links for Class 5 chapters.', 'editorial quality administration'],
     ['/november-pilot', 'Pilot Guide', 'Open the family pilot guide, activities and baseline guidance.', 'november diagnostic starter'],
     ['/roadmap', 'Roadmap', 'See the features and phases of Homeschool OS.', 'project progress releases'],

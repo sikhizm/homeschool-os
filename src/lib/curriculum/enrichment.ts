@@ -5,7 +5,7 @@ export const enrichmentStages = {
 } as const;
 
 export const enrichmentTopics = {
-  reasoning: 'Reasoning & Olympiad practice',
+  reasoning: 'Reasoning activities',
   'home-languages': 'Punjabi & Hindi',
   'sikh-heritage': 'Sikh heritage',
   'early-years': 'Early-years play',
@@ -78,23 +78,6 @@ export const supplementaryResources: readonly Resource[] = [
     }
   },
   {
-    "id": "sof-class4",
-    "title": "Class 4 IMO sample paper",
-    "publisher": "Science Olympiad Foundation",
-    "sourceLocation": "Organiser’s Class 4 sample-paper landing page",
-    "url": "https://sofworld.org/imo/class-4/sample-model-test-papers/imo-sample-papers-class-4",
-    "stages": [
-      "class4"
-    ],
-    "topic": "reasoning",
-    "parentUse": "Use one sample question to discuss strategies after core maths. The page also links to commercial preparation material.",
-    "verification": {
-      "status": "verified",
-      "lastVerifiedOn": "2026-11-15",
-      "evidence": "Opened the organiser’s Class 4 IMO sample-paper page and confirmed it advertises a download."
-    }
-  },
-  {
     "id": "punjab-educare",
     "title": "Primary Punjabi reference",
     "publisher": "Punjab Educare",
@@ -157,7 +140,7 @@ type Activity = {
   materials: string;
   prompt: string;
   discussion: string;
-  referenceId: string;
+  referenceId?: string;
 };
 
 export const enrichmentActivities: readonly Activity[] = [
@@ -192,7 +175,6 @@ export const enrichmentActivities: readonly Activity[] = [
     "materials": "Paper and pencil",
     "prompt": "Pick from 14, 16, 18 and 20. My number is even, greater than 15 and a multiple of 3. Which is it? Explain how each clue changes the list.",
     "discussion": "18. All four are even. The second clue removes 14. Only 18 among those left is divisible by 3.",
-    "referenceId": "sof-class4"
   },
   {
     "id": "class4-arrangements",
@@ -203,7 +185,6 @@ export const enrichmentActivities: readonly Activity[] = [
     "materials": "Paper and pencil",
     "prompt": "A walk goes past the library or the park first, then the bridge or the market. How many two-stop walks are possible? Show how you found every walk.",
     "discussion": "Four. List two second stops for each first stop or draw a branching diagram.",
-    "referenceId": "sof-class4"
   },
   {
     "id": "class4-remainder",
@@ -214,7 +195,6 @@ export const enrichmentActivities: readonly Activity[] = [
     "materials": "Paper and pencil",
     "prompt": "You have 26 guavas. Each box holds six. After filling as many boxes as possible, how many boxes do you need to carry all the guavas? Why?",
     "discussion": "Five boxes. Four full boxes hold 24 guavas. The remaining two need a fifth box.",
-    "referenceId": "sof-class4"
   },
   {
     "id": "nursery-punjabi",
@@ -357,8 +337,7 @@ export function resolveEnrichmentFilters(query: EnrichmentQuery) {
   const selectedStage = query.stage === 'all'
     ? 'all'
     : (Object.keys(enrichmentStages) as EnrichmentStage[]).find(key => key === query.stage) ?? '';
-  const recommendedStage = topic === 'reasoning' ? 'class4' : undefined;
-  const stage = selectedStage === 'all' ? undefined : selectedStage || recommendedStage;
+  const stage = selectedStage === 'all' ? undefined : selectedStage || undefined;
   return { selectedStage, stage, topic };
 }
 

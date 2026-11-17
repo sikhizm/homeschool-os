@@ -40,7 +40,7 @@ test('book and chapter results rank correctly and preserve real deep links', () 
 });
 
 test('activities, publisher resources and framework sources remain distinguishable', () => {
-  assert.ok(searchCatalogue('olympiad', 'activities').results.some(hit => hit.href.startsWith('/library/enrichment?stage=class4')));
+  assert.ok(searchCatalogue('reasoning', 'activities').results.some(hit => hit.href.startsWith('/library/enrichment?stage=class4')));
   assert.ok(searchCatalogue('punjabi', 'activities').results.some(hit => hit.href.includes('home-languages') || hit.href.startsWith('/lessons?activity=')));
   assert.match(searchCatalogue(lessons[0].title, 'activities').results[0].href, /activity=.*#activity-detail$/);
   assert.equal(indexCounts().activities, lessons.length + enrichmentActivities.length);
@@ -64,4 +64,11 @@ test('pagination, deduplication, and isolation from family data', () => {
   assert.deepEqual(searchCatalogue('fictional-learner-private-guid-92z'), { total: 0, results: [] });
   assert.ok(hits.every(hit => !hit.href.includes('learner=') && hit.href.startsWith('/')));
   console.log('Global search index:', JSON.stringify(indexCounts()));
+});
+
+test('Olympiad search leads to the dedicated resources and prompts', () => {
+  const hits = searchCatalogue('olympiad').results;
+  assert.ok(hits.some(hit => hit.href === '/library/olympiad'));
+  assert.ok(hits.some(hit => hit.href === '/library/prompts'));
+  assert.ok(!hits.some(hit => hit.href.startsWith('/library/enrichment')));
 });

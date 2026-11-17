@@ -89,7 +89,7 @@ const SECTIONS = [
   },
   {
     title: 'Supplementary resources and enrichment',
-    description: 'Verified parent references, reasoning practice, Punjabi and Hindi activities, Sikh heritage and early-years play.',
+    description: 'Original activities for Preschool / Nursery, UKG and Class 4, plus parent references with link status.',
     href: '/library/enrichment',
     glyph: '✧',
     tint: 'var(--science)',
