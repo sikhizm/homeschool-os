@@ -6,6 +6,7 @@ import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import './global-search.css';
 import './study-material-studio.css';
+import './pdfjs-reader.css';
 import AppNavigation from '@/components/app-navigation';
 import { PwaRegistration } from '@/components/pwa-tools';
 
