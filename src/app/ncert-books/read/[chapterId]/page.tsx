@@ -31,7 +31,7 @@ export default async function NcertPilotReaderPage({ params }: { params: Promise
             <Link className="hero-action-secondary" href={`/ncert-books/chapter/${chapterId}`}>← Chapter details</Link>
           </div>
         </div>
-        <PdfJsReader src={releasePdfPilot.releasePdfUrl} title={releasePdfPilot.title} />
+        <PdfJsReader src="/api/ncert-pilot/pdf" title={releasePdfPilot.title} />
       </section>
     </main>
   );
