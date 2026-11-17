@@ -27,3 +27,9 @@
   .pdfjs-stage { min-height: 60vh; max-height: 72vh; padding: 8px; }
   .pdfjs-footer { flex-direction: column; }
 }
+
+.pdfjs-mode-switch{display:inline-flex;gap:2px;padding:3px;border:1px solid #cbd9cf;border-radius:9px;background:#f3f6f3}
+.pdfjs-mode-switch button{border:0;border-radius:6px;background:transparent}
+.pdfjs-page{display:flex;flex-direction:column;align-items:center;gap:6px;width:100%;padding:10px 0 22px;scroll-margin-top:100px}
+.pdfjs-page-label{align-self:center;color:#60756a;font-size:11px;font-weight:700}
+.pdfjs-page canvas{display:block;max-width:none;background:white;box-shadow:0 3px 18px #203b3220}
