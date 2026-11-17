@@ -33,7 +33,7 @@ export default async function NcertPilotReaderPage({
           <div>
             <span className="eyebrow">GITHUB RELEASE PDF PILOT · CLASS 4 MATHEMATICS</span>
             <h1 style={{ margin: '5px 0 0', fontSize: 'clamp(20px, 3vw, 28px)' }}>{releasePdfPilot.title}</h1>
-            <p className="muted" style={{ margin: '4px 0 0', fontSize: 13 }}>Testing the existing browser PDF rendering path. No PDF.js reader or PDF proxy is used.</p>
+            <p className="muted" style={{ margin: '4px 0 0', fontSize: 13 }}>Testing an embedded Google document viewer. No PDF.js reader or PDF proxy is used.</p>
           </div>
           <div className="hero-actions" style={{ margin: 0 }}>
             <a className="hero-action-secondary" href={releasePdfPilot.officialNcertUrl} target="_blank" rel="noopener noreferrer">Official NCERT fallback ↗</a>
