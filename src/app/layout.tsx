@@ -1,8 +1,8 @@
 import './family-workflow.css';
 import '@neondatabase/auth-ui/css';
 import '@fontsource-variable/nunito';
-import '@fontsource-variable/dm-sans/latin.css';
-import '@fontsource-variable/newsreader/latin.css';
+import '@fontsource-variable/dm-sans';
+import '@fontsource-variable/newsreader';
 import '@fontsource/noto-sans-gurmukhi';
 import '@fontsource/noto-sans-devanagari';
 import type { Metadata, Viewport } from 'next';
