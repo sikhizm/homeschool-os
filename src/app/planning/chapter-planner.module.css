@@ -36,3 +36,56 @@
 .practiceRow label {
   flex: 1 1 16rem;
 }
+
+.yearPicker {
+  display: grid;
+  gap: .75rem;
+  min-width: 0;
+}
+
+.yearPicker > button {
+  justify-self: start;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .75rem;
+  margin-block: 1rem;
+}
+
+section.progressSection {
+  margin-block: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border, #d9e3d9);
+}
+
+.progressSection h3 {
+  font-size: 1.125rem;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 0 0 .5rem;
+}
+
+.progressSection p {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.subjectRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .15rem .75rem;
+  padding-block: .4rem;
+}
+
+.subjectRow span, .subjectRow small {
+  font-variant-numeric: tabular-nums;
+}
+
+.subjectRow small {
+  flex-basis: 100%;
+}

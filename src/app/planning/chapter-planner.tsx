@@ -132,7 +132,7 @@ export function ChapterPlanner({
             NCERT year plan · {academicYear(date)}–{academicYear(date) + 1}
           </h2>
           {canEdit && books.length > 0 && (
-            <fieldset disabled={busy}>
+            <fieldset disabled={busy} className={styles.yearPicker}>
               <label className="workspace-field">
                 Textbook · {stage}
                 <select value={book} onChange={(e) => setBook(e.target.value)}>
@@ -190,31 +190,37 @@ export function ChapterPlanner({
           {!books.length && (
             <p>No NCERT chapters are catalogued for {stage}.</p>
           )}
-          <h3>Year progress</h3>
-          <p>
-            {ids.length
-              ? progress.percent +
-                "% complete · " +
-                (100 - progress.percent) +
-                "% remaining · " +
-                progress.done +
-                " of " +
-                ids.length +
-                " chapters finished · " +
-                progress.remaining +
-                " remaining"
-              : "No chapters selected yet."}
-          </p>
+          <section className={styles.progressSection}>
+            <h3>Year progress</h3>
+            <p>
+              {ids.length
+                ? progress.percent +
+                  "% complete · " +
+                  (100 - progress.percent) +
+                  "% remaining · " +
+                  progress.done +
+                  " of " +
+                  ids.length +
+                  " chapters finished · " +
+                  progress.remaining +
+                  " remaining"
+                : "No chapters selected yet."}
+            </p>
+          </section>
           {subjects.size > 0 && (
-            <section>
+            <section className={styles.progressSection}>
               <h3>Progress by subject</h3>
               {Array.from(subjects, ([subject, count]) => (
-                <p key={subject}>
-                  <strong>{subject}</strong> ·{" "}
-                  {Math.round((100 * count.done) / count.total)}% complete ·{" "}
-                  {count.done}/{count.total} chapters ·{" "}
-                  {count.total - count.done} remaining
-                </p>
+                <div key={subject} className={styles.subjectRow}>
+                  <strong>{subject}</strong>
+                  <span>
+                    {Math.round((100 * count.done) / count.total)}% complete
+                  </span>
+                  <small>
+                    {count.done} of {count.total} chapters finished ·{" "}
+                    {count.total - count.done} remaining
+                  </small>
+                </div>
               ))}
             </section>
           )}
@@ -305,21 +311,26 @@ export function ChapterPlanner({
               </details>
             );
           })}
-          {canEdit && ids.length > 0 && (
-            <button
-              type="button"
-              className="btn-primary"
-              disabled={busy}
-              onClick={() =>
-                void save({
-                  action: "week",
-                  ids: weekDraft.filter((id) => ids.includes(id)),
-                })
-              }
-            >
-              Save weekly chapters
-            </button>
-          )}
+          <div className={styles.actions}>
+            {canEdit && ids.length > 0 && (
+              <button
+                type="button"
+                className="btn-primary"
+                disabled={busy}
+                onClick={() =>
+                  void save({
+                    action: "week",
+                    ids: weekDraft.filter((id) => ids.includes(id)),
+                  })
+                }
+              >
+                Save weekly chapters
+              </button>
+            )}
+            <Link className="btn-secondary" href="/dashboard">
+              Open daily schedule →
+            </Link>
+          </div>
           {weekIds.some((id) => ids.includes(id)) && (
             <section>
               <h3>Weekly focus</h3>
@@ -354,7 +365,6 @@ export function ChapterPlanner({
               Daily chapter tasks · {finished}/{weekly.length} done
             </p>
           )}
-          <Link href="/dashboard">Open daily schedule →</Link>
         </section>
       </div>
       {grade && (
@@ -376,7 +386,7 @@ export function ChapterPlanner({
               : "Choose a maths topic or a sample paper to practise."}
           </p>
           {planned.length > 0 && (
-            <section>
+            <section className={styles.progressSection}>
               <h3>My practice checklist</h3>
               {planned.map((item) => {
                 const paper = papers.find((r) => "paper:" + r.id === item);
@@ -410,7 +420,7 @@ export function ChapterPlanner({
                       />
                       <span>{title}</span>
                     </label>
-                    <a href={href}>
+                    <a className="btn-secondary" href={href}>
                       {paper ? "Open paper" : "Build practice prompt"}
                     </a>
                   </div>
