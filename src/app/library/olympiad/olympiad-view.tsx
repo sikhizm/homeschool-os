@@ -1,3 +1,4 @@
+import ResourcePlanActions from '@/components/resource-plan-actions';
 import Link from 'next/link';
 import {
   olympiadClasses, olympiadFilters, olympiadPdfHref, olympiadProviders, olympiadSubjects,
@@ -55,6 +56,7 @@ export default function OlympiadView({ query, preferExternal = false }: { query:
               : <Link className="btn-primary" href={olympiadPdfHref(resource, false)}>Read in app</Link>)}
             <a className="btn-secondary" href={resource.sourceUrl} target="_blank" rel="noopener noreferrer">{resource.pdfUrl ? 'Official source ↗' : 'Browse official collection ↗'}</a>
           </div>
+          <ResourcePlanActions resourceKey={'olympiad:'+resource.id}/>
           <details className="olympiad-verification"><summary>Link checked {resource.checkedOn}</summary><p>{resource.evidence}</p></details>
         </article>)}
       </section>}

@@ -1,3 +1,4 @@
+import FamilyWorkflow from '@/components/family-workflow';
 import Link from 'next/link';
 import { auth } from '@/lib/auth/server';
 import { redirect } from 'next/navigation';
@@ -53,6 +54,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <main className="family-dashboard studio-stack">
       <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} />
+      <FamilyWorkflow />
 
       <section id="today-plan" aria-label="Detailed learning coach">
         <AutomaticLearning />
