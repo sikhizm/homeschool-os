@@ -16,9 +16,10 @@ import {
   type GoalSnapshot,
 } from '@/lib/reports/model';
 import PrintReport from './print-report';
+import TestPerformance from './test-performance';
 
 export const dynamic = 'force-dynamic';
-type Params = { learner?: string; days?: string; end?: string };
+type Params = { learner?: string; days?: string; end?: string; testSubject?: string; testChapter?: string };
 const AVATAR_TINTS = ['#DDEBFF', '#D9F1EA', '#EAE5FF', '#FCE9DD'] as const;
 
 const formatDate = (date: string) =>
@@ -411,6 +412,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
               </>
             )}
           </section>
+
+          <TestPerformance userId={session.user.id} learnerId={learnerId}
+            learnerName={String(learner.display_name)} start={window.startDate} end={window.endDate}
+            period={period} subject={params.testSubject} chapter={params.testChapter} />
 
           <section className="workspace-panel report-reflection">
             <div className="panel-heading">
