@@ -43,3 +43,23 @@ test('a chapter without a recorded official PDF uses the official book portal', 
   assert.equal(sources.hasOfficialPdf, false);
   assert.equal(sources.official.href, book.sourceUrl);
 });
+
+test('upper-class mirrors match the published PDF for the same titled chapter and grade', () => {
+  for (const [grade, expected] of [[6, 82], [7, 83], [8, 71], [9, 74]]) {
+    const urls = new Set<string>();
+    for (const chapter of ncertChapterSlots) {
+      const book = textbookById(chapter.bookId)!;
+      if (book.grade !== grade) continue;
+      const desktop = chapterPdfSources(book, chapter, false);
+      if (!desktop.releaseUrl) continue;
+      assert.ok(chapter.verifiedTitle);
+      const filename = new URL(desktop.official.href).pathname.split('/').pop();
+      assert.equal(desktop.releaseUrl, `https://github.com/sikhizm/homeschool-os-assets/releases/download/class${grade}/${filename}`);
+      assert.equal(desktop.readerHref, '/ncert-books/read/' + chapter.id);
+      assert.equal(chapterPdfSources(book, chapter, true).readerHref, null);
+      assert.ok(!urls.has(desktop.releaseUrl));
+      urls.add(desktop.releaseUrl);
+    }
+    assert.equal(urls.size, expected);
+  }
+});

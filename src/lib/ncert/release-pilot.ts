@@ -1,10 +1,21 @@
-/**
- * GitHub Release PDF mapping for Classes 1–5.
- * A link is produced only when the catalogue book has a textbook code and the
- * matching class release uses the known NCERT filename convention.
- */
-import { textbookById } from './textbooks';
+import { ncertChapterSlots, textbookById } from './textbooks';
+import releaseAssets from './data/release-assets-6-9.json';
 
+// Release filenames are publisher identifiers. Resolve them through the catalogue's
+// titled chapter and publisher PDF records so grouped or unlisted PDFs stay unmapped.
+const chapterReleaseUrls = new Map<string, string>();
+for (const [grade, filenames] of Object.entries(releaseAssets)) {
+  const uploaded = new Set(filenames);
+  for (const chapter of ncertChapterSlots) {
+    const book = textbookById(chapter.bookId);
+    if (book?.grade !== Number(grade) || !chapter.verifiedTitle) continue;
+    const official = book.publisherPdfLinks?.[chapter.chapterNumber];
+    const filename = official?.split('/').pop();
+    if (filename && uploaded.has(filename)) {
+      chapterReleaseUrls.set(chapter.id, `https://github.com/sikhizm/homeschool-os-assets/releases/download/class${grade}/${filename}`);
+    }
+  }
+}
 const RELEASE_TAG: Record<number, string> = {
   1: 'class1',
   2: 'class2',
@@ -14,6 +25,8 @@ const RELEASE_TAG: Record<number, string> = {
 };
 
 export function releasePdfForChapter(chapterId: string): string | null {
+  const recorded = chapterReleaseUrls.get(chapterId);
+  if (recorded) return recorded;
   const match = chapterId.match(/^(.*)-ch-(\d{2})$/);
   if (!match) return null;
   const book = textbookById(match[1]);
