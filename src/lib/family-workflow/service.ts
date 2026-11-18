@@ -230,6 +230,20 @@ export async function changeWorkflow(
     await sql`SELECT a.*,a.id::text,a.learner_id::text FROM learning_activities a JOIN learners l ON l.id=a.learner_id WHERE a.id::text=${id} AND l.family_id::text=${f.id} AND l.archived_at IS NULL`;
   if (!rows.length) throw new AccessError('Activity unavailable.');
   const a = rows[0];
+  if (action === 'startTimer') {
+    try {
+      await sql`UPDATE learning_activities SET timer_started_at=now() WHERE id::text=${id} AND timer_started_at IS NULL AND NOT skipped AND NOT completed`;
+    } catch(error) {
+      if(error && typeof error==='object' && 'code' in error && error.code==='23505')
+        throw new WorkflowInputError("Stop this learner’s running timer first.");
+      throw error;
+    }
+    return;
+  }
+  if (action === 'stopTimer') {
+    await sql`UPDATE learning_activities SET actual_minutes=least(480,coalesce(actual_minutes,0)+greatest(1,round(extract(epoch from (now()-timer_started_at))/60)))::integer,timer_started_at=NULL WHERE id::text=${id} AND timer_started_at IS NOT NULL`;
+    return;
+  }
   if (action === 'edit') {
     const anchor = date(input.date),
       minutes = integer(input.minutes, 1, 120),

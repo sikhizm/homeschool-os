@@ -6,15 +6,22 @@ export type ChapterTask = {
   completed: boolean;
 };
 
-export function chapterProgress(ids: string[], tasks: ChapterTask[]) {
+export function chapterProgress(
+  ids: string[],
+  tasks: ChapterTask[],
+  finished: string[] = [],
+) {
   const chapters = ids.map((id) => {
     const scheduled = tasks.filter((task) => task.chapter === id);
     const done = scheduled.filter((task) => task.completed).length;
-    const status = !done
-      ? "Not started"
-      : done === scheduled.length
+    const status =
+      !scheduled.length && finished.includes(id)
         ? "Completed"
-        : "In progress";
+        : !done
+          ? "Not started"
+          : done === scheduled.length
+            ? "Completed"
+            : "In progress";
     return { id, status, done, total: scheduled.length };
   });
   const done = chapters.filter(

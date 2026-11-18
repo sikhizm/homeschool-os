@@ -569,6 +569,9 @@ function Session({
             ? ' · Completed'
             : ' · Not completed'}
       </p>
+      {canEdit && (a.timer_started_at || (!a.completed && !a.skipped)) && <button type="button" onClick={()=>void save({action:a.timer_started_at?'stopTimer':'startTimer',id:a.id})}>{a.timer_started_at?'Stop timer and save minutes':'Start study timer'}</button>}
+      {a.timer_started_at && <p role="status">Timer running since {new Date(a.timer_started_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</p>}
+      {a.actual_minutes!=null && <p>{a.actual_minutes} minutes recorded</p>}
       {a.resource_href && <Link href={a.resource_href}>Open resource</Link>}
       {a.next_notes && <p>Plan: {a.next_notes}</p>}
       {a.understanding && (
@@ -696,6 +699,7 @@ function Session({
                 <label>
                   Actual minutes (optional)
                   <input
+                    key={a.actual_minutes}
                     name="actual"
                     type="number"
                     min={0}

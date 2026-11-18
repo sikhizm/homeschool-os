@@ -17,6 +17,8 @@ type Period = {
   notes: string;
   competency_ids: string[];
   chapter_ids: string[];
+  finished_chapters: string[];
+  olympiad_topics: Record<string,string>;
 };
 type Day = { date: string; activities: number; minutes: number; completed_minutes: number };
 type PlanningData = {
@@ -270,7 +272,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
       {data && !loading && (
         <>
           <ChapterPlanner key={learnerId+date} learnerId={learnerId} stage={selected?.stage??''} date={date}
-            ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
+            finishedChapters={yearPlan?.finished_chapters??[]} olympiad={yearPlan?.olympiad_topics??{}} ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
           <section className="workspace-panel">
             <div className="panel-heading">
               <div>

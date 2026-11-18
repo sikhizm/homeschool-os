@@ -1,3 +1,4 @@
+import { classTopics, promptClassForStage } from "../olympiad/prompt-classes";
 import type { Sql } from "../learning/service";
 import { ncertChapterSlots, textbookById } from "../ncert/textbooks";
 import {
@@ -49,6 +50,24 @@ export async function chapterRequest(
       : send({ error: "Activity unavailable." }, 404);
   }
   const grade = Number(String(learner.stage).replace(/^class\s+/i, ""));
+  if (p.action === "olympiad") {
+    const cls = promptClassForStage(String(learner.stage));
+    if (
+      !cls ||
+      typeof p.topic !== "string" ||
+      !classTopics[cls].includes(p.topic) ||
+      !["unplanned", "planned", "done"].includes(p.status)
+    )
+      return send({ error: "Choose a valid Olympiad topic and status." }, 400);
+    const key = cls + ":" + p.topic;
+    const patch = JSON.stringify(
+      p.status === "unplanned" ? {} : { [key]: p.status },
+    );
+    await sql`INSERT INTO learning_planning_periods(learner_id,kind,start_date,end_date,title,olympiad_topics)
+      VALUES(${learner.id},'year',${year.startDate},${year.endDate},'Year plan',${patch}::jsonb)
+      ON CONFLICT(learner_id,kind,start_date) DO UPDATE SET olympiad_topics=(learning_planning_periods.olympiad_topics - ${key}::text) || EXCLUDED.olympiad_topics, updated_at=now()`;
+    return send({ saved: true });
+  }
   if (p.action === "year") {
     const available = new Set(
       ncertChapterSlots
@@ -63,6 +82,18 @@ export async function chapterRequest(
     const ids = [...new Set<string>(p.ids)];
     await sql`INSERT INTO learning_planning_periods(learner_id,kind,start_date,end_date,title,chapter_ids) VALUES(${learner.id},'year',${year.startDate},${year.endDate},'NCERT year plan',${ids}::text[]) ON CONFLICT(learner_id,kind,start_date) DO UPDATE SET chapter_ids=EXCLUDED.chapter_ids,updated_at=now()`;
     return send({ saved: true });
+  }
+  if (
+    p.action === "finishChapter" &&
+    typeof p.chapter === "string" &&
+    typeof p.finished === "boolean"
+  ) {
+    const rows =
+      await sql`UPDATE learning_planning_periods SET finished_chapters=array_remove(finished_chapters,${p.chapter}::text) || CASE WHEN ${p.finished} THEN ARRAY[${p.chapter}::text] ELSE '{}'::text[] END, updated_at=now()
+      WHERE learner_id=${learner.id} AND kind='year' AND start_date=${year.startDate} AND ${p.chapter}=ANY(chapter_ids) RETURNING id`;
+    return rows.length
+      ? send({ saved: true })
+      : send({ error: "Save this chapter in the year plan first." }, 409);
   }
   if (p.action === "schedule") {
     const chapter = ncertChapterSlots.find((c) => c.id === p.chapter);

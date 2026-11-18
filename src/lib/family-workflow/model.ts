@@ -31,6 +31,7 @@ export type Activity = {
   shared_group: string | null;
   understanding: keyof typeof outcomes | null;
   actual_minutes: number | null;
+  timer_started_at?: string | null;
   reflection: string;
   evidence_url: string;
   next_action: string;

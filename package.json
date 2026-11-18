@@ -29,6 +29,7 @@
     "phase6:quality": "tsx scripts/phase6-quality-audit.ts",
     "db:migrate:study-material-pdf": "node scripts/study-material-pdf-migration.mjs",
     "db:migrate:chapter-planning": "node scripts/chapter-planning-migration.mjs",
+    "db:migrate:year-plan-tracking": "node scripts/year-plan-tracking-migration.mjs",
     "db:migrate:family-workflow": "node scripts/family-workflow-migration.mjs"
   },
   "dependencies": {

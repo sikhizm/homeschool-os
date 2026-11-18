@@ -1,4 +1,9 @@
 "use client";
+import {
+  classTopics,
+  promptClassForStage,
+  olympiadSourcesFor,
+} from "@/lib/olympiad/prompt-classes";
 import styles from "./chapter-planner.module.css";
 import { useState } from "react";
 import {
@@ -27,6 +32,8 @@ export function ChapterPlanner({
   stage,
   date,
   ids,
+  finishedChapters,
+  olympiad,
   tasks,
   canEdit,
   refresh,
@@ -35,6 +42,8 @@ export function ChapterPlanner({
   stage: string;
   date: string;
   ids: string[];
+  finishedChapters: string[];
+  olympiad: Record<string, string>;
   tasks: ChapterTask[];
   canEdit: boolean;
   refresh: () => void;
@@ -51,7 +60,26 @@ export function ChapterPlanner({
   const progress = chapterProgress(
     ids,
     tasks.filter((t) => t.date >= year.startDate && t.date <= year.endDate),
+    finishedChapters,
   );
+  const bookIds = chaptersFor(book).map((c) => c.id);
+  const allSelected = bookIds.every((id) => draft.includes(id));
+  const grade = promptClassForStage(stage);
+  const topics = grade ? classTopics[grade] : [];
+  const planned = topics.filter((t) => olympiad[grade + ":" + t]);
+  const done = planned.filter(
+    (t) => olympiad[grade + ":" + t] === "done",
+  ).length;
+  const subjects = new Map<string, { total: number; done: number }>();
+  for (const chapter of progress.chapters) {
+    const item = ncertChapterSlots.find((c) => c.id === chapter.id);
+    const subject = item && textbookById(item.bookId)?.subject;
+    if (!subject) continue;
+    const count = subjects.get(subject) ?? { total: 0, done: 0 };
+    count.total++;
+    if (chapter.status === "Completed") count.done++;
+    subjects.set(subject, count);
+  }
   const weekly = tasks.filter((t) => week.includes(t.date));
   const finished = weekly.filter((t) => t.completed).length;
   async function save(input: Record<string, unknown>) {
@@ -86,6 +114,21 @@ export function ChapterPlanner({
                   ))}
                 </select>
               </label>
+              <button
+                type="button"
+                className="btn-secondary"
+                onClick={() =>
+                  setDraft(
+                    allSelected
+                      ? draft.filter((id) => !bookIds.includes(id))
+                      : [...new Set([...draft, ...bookIds])],
+                  )
+                }
+              >
+                {allSelected
+                  ? "Clear this book"
+                  : "Select all chapters in this book"}
+              </button>
               <div className="plan-picker-scroll">
                 {chaptersFor(book).map((c) => (
                   <label className={styles.chapterOption} key={c.id}>
@@ -100,7 +143,10 @@ export function ChapterPlanner({
                         )
                       }
                     />
-                    <span>{c.label}{c.verifiedTitle && " · " + c.verifiedTitle}</span>
+                    <span>
+                      {c.label}
+                      {c.verifiedTitle && " · " + c.verifiedTitle}
+                    </span>
                   </label>
                 ))}
               </div>
@@ -130,6 +176,19 @@ export function ChapterPlanner({
                 " remaining"
               : "No chapters selected yet."}
           </p>
+          {subjects.size > 0 && (
+            <section>
+              <h3>Progress by subject</h3>
+              {Array.from(subjects, ([subject, count]) => (
+                <p key={subject}>
+                  <strong>{subject}</strong> ·{" "}
+                  {Math.round((100 * count.done) / count.total)}% complete ·{" "}
+                  {count.done}/{count.total} chapters ·{" "}
+                  {count.total - count.done} remaining
+                </p>
+              ))}
+            </section>
+          )}
           {books.map((b) => {
             const entries = progress.chapters.filter((c) =>
               chaptersFor(b.id).some((s) => s.id === c.id),
@@ -147,6 +206,23 @@ export function ChapterPlanner({
                       <li key={c.id}>
                         {chapterName(c.id)} — {c.status} · {c.done}/{c.total}{" "}
                         tasks
+                        {canEdit && !c.total && (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() =>
+                              void save({
+                                action: "finishChapter",
+                                finished: c.status !== "Completed",
+                                chapter: c.id,
+                              })
+                            }
+                          >
+                            {c.status === "Completed"
+                              ? "Reopen chapter"
+                              : "Mark chapter done"}
+                          </button>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -263,6 +339,50 @@ export function ChapterPlanner({
           ))}
         </section>
       </div>
+      {grade && (
+        <section className="workspace-panel">
+          <h2>
+            Olympiad year plan · {academicYear(date)}–{academicYear(date) + 1}
+          </h2>
+          <p>Class {grade} · SOF Mathematics Olympiad</p>
+          <p>
+            {planned.length
+              ? Math.round((100 * done) / planned.length) +
+                "% complete · " +
+                done +
+                " of " +
+                planned.length +
+                " topics done · " +
+                (planned.length - done) +
+                " remaining"
+              : "Choose the topics you want to practise this year."}
+          </p>
+          <details>
+            <summary>Plan and track topics</summary>
+            {topics.map((topic) => (
+              <label key={topic} className="workspace-field">
+                {topic}
+                <select
+                  disabled={!canEdit || busy}
+                  value={olympiad[grade + ":" + topic] ?? "unplanned"}
+                  onChange={(e) =>
+                    void save({
+                      action: "olympiad",
+                      topic,
+                      status: e.target.value,
+                    })
+                  }
+                >
+                  <option value="unplanned">Outside this plan</option>
+                  <option value="planned">Planned</option>
+                  <option value="done">Done</option>
+                </select>
+              </label>
+            ))}
+            <a href={olympiadSourcesFor(grade)[0]}>Official class syllabus</a>
+          </details>
+        </section>
+      )}
       <p role="status">{message}</p>
     </>
   );

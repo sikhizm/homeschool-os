@@ -1,3 +1,4 @@
+import { changeWorkflow } from "../src/lib/family-workflow/service";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -16,6 +17,7 @@ test("planned chapters follow daily checkmarks through rescheduling and reopenin
       "002_learning_planning.sql",
       "011_family_learning_workflow.sql",
       "012_chapter_planning.sql",
+      "013_year_plan_tracking.sql",
     ]) {
       await f.db.exec(
         await readFile(
@@ -105,6 +107,41 @@ test("planned chapters follow daily checkmarks through rescheduling and reopenin
     assert.equal(chapterProgress(ids, (await read()).tasks).percent, 50);
     await write({ action: "check", id: first.id, completed: false });
     assert.equal(chapterProgress(ids, (await read()).tasks).remaining, 2);
+    assert.equal(
+      (
+        await write({
+          action: "finishChapter",
+          finished: true,
+          chapter: ids[1],
+        })
+      ).status,
+      200,
+    );
+    assert.equal(
+      (await write({ action: "olympiad", topic: "Fractions", status: "done" }))
+        .status,
+      200,
+    );
+    const [plan] =
+      await f.sql`SELECT olympiad_topics FROM learning_planning_periods`;
+    assert.deepEqual(plan.olympiad_topics, { "4:Fractions": "done" });
+    await changeWorkflow(f.sql, "owner-a", {
+      action: "startTimer",
+      id: first.id,
+    });
+    await f.sql`UPDATE learning_activities SET timer_started_at=now()-interval '10 minutes' WHERE id=${first.id}`;
+    await changeWorkflow(f.sql, "owner-a", {
+      action: "stopTimer",
+      id: first.id,
+    });
+    await changeWorkflow(f.sql, "owner-a", {
+      action: "stopTimer",
+      id: first.id,
+    });
+    const [activity] =
+      await f.sql`SELECT actual_minutes,completed FROM learning_activities WHERE id=${first.id}`;
+    assert.equal(activity.actual_minutes, 10);
+    assert.equal(activity.completed, false);
   } finally {
     await f.db.close();
   }
