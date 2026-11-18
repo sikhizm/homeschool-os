@@ -33,7 +33,7 @@ export async function GET(request:Request){
   const year=yearDates(academicYear(anchor));
   const week=daysInWeek(anchor);
   const [periods,days]=await Promise.all([
-   sql`SELECT p.id::text,p.kind,p.start_date::text,p.end_date::text,p.title,p.focus,p.notes,p.competency_ids
+   sql`SELECT p.id::text,p.kind,p.start_date::text,p.end_date::text,p.title,p.focus,p.notes,p.competency_ids,p.chapter_ids
      FROM learning_planning_periods p JOIN learners l ON l.id=p.learner_id
      WHERE l.id::text=${learnerId} AND p.start_date<=${year.endDate}::date AND p.end_date>=${year.startDate}::date
      AND EXISTS(SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${user})
