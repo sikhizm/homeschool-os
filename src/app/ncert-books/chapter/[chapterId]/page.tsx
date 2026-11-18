@@ -1,7 +1,7 @@
 import ResourcePlanActions from '@/components/resource-plan-actions';
 import Link from 'next/link';
 import ChapterProgress from './chapter-progress';
-import ChapterSessions from './chapter-sessions';
+import ChapterTests from './chapter-tests';
 import StudyMaterialStudio from './study-material-studio';
 import { headers } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
@@ -114,51 +114,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
         </div>
       ) : null}
 
-      <ChapterSessions
-        chapterId={chapter.id}
-        grade={book.grade}
-        contentLabel={contentLabel}
-        selectionNote={selectionNote}
-        eligible={sessionEligible}
-      />
-
-      <div className="ncert-info-grid" style={{ margin: 0 }}>
-        <section className="workspace-panel">
-          <span className="eyebrow">PARENT-GUIDED STUDY</span>
-          <h2 style={{ margin: '4px 0 8px' }}>Read · Discuss · Practise</h2>
-          <p className="muted" style={{ marginTop: 0 }}>
-            Use these general activities with the official {contentLabel.toLowerCase()}; they are not a claimed NCERT exercise or verified competency mapping.
-          </p>
-          <ol className="lesson-steps">
-            <li>
-              <strong>Read:</strong> Open the official {contentLabel.toLowerCase()} and work through it together, pausing at unfamiliar words or ideas.
-            </li>
-            <li>
-              <strong>Explain:</strong> Ask the learner to describe a main idea in their own words.
-            </li>
-            <li>
-              <strong>Practise:</strong> Use suitable activities or exercises found in the official {contentLabel.toLowerCase()}.
-            </li>
-            <li>
-              <strong>Reflect:</strong> Ask what felt easy, what was difficult, and what to revisit tomorrow.
-            </li>
-          </ol>
-        </section>
-
-        <section className="workspace-panel">
-          <span className="eyebrow">LEARNING NOTES</span>
-          <h2 style={{ margin: '4px 0 8px' }}>Discuss with your learner</h2>
-          <p className="muted" style={{ marginTop: 0 }}>Useful conversation prompts for any subject:</p>
-          <ul className="lesson-questions">
-            <li>What are three things you remember without looking back?</li>
-            <li>What question would you ask the author or a teacher?</li>
-            <li>Where might you notice or use this idea in everyday life?</li>
-          </ul>
-          <p className="muted" style={{ marginBottom: 0, marginTop: 14, fontSize: 13 }}>
-            Parent-recorded progress and learner assignments are available below. Opening an official resource never counts as completion.
-          </p>
-        </section>
-      </div>
+      <ChapterTests key={chapter.id} chapterId={chapter.id} />
 
       <ChapterProgress
         chapterId={chapter.id}
