@@ -4,6 +4,19 @@ import {
   resourceVerificationLabels, type EnrichmentQuery, type EnrichmentStage,
 } from '@/lib/curriculum/enrichment';
 
+const punjabiBooks = [
+  {grade:1,title:'Basant Punjabi',url:'https://drive.google.com/file/d/1rr0oV0fjafmdpoGO-dSnrpe-jkaW57Hx/view'},
+  {grade:2,title:'Basant Punjabi',url:'https://drive.google.com/file/d/1Y4ejb0zXl5s20DurX5dxp33wjuTAGlno/view'},
+  {grade:3,title:'Basant',url:'https://drive.google.com/file/d/17X3aM78S3m96UcHbNnK7x58TjR8YhX4G/view'},
+  {grade:4,title:'Punjabi Pustak',url:'https://drive.google.com/file/d/1sA_rH3M2epKxKV8ysZE6ae1Pr4AdMRoh/view'},
+  {grade:5,title:'Punjabi Pustak',url:'https://drive.google.com/file/d/1Fa1peha6-dbRVYhFzofzlX7_y8h8nIeR/view'},
+  {grade:6,title:'Punjabi Pustak',url:'https://drive.google.com/file/d/1joEVf0nlReZtj71Ei0swXr7-YVuTx8M3/view'},
+  {grade:7,title:'Punjabi Pustak',url:'https://drive.google.com/file/d/1NnFZ_LqEcuZjC6CwXvxFIv3ZFrfLCoKA/view'},
+  {grade:8,title:'Punjabi Pustak',url:'https://drive.google.com/file/d/17Mc3Kg66snTFvxjgnyjgr-dvU0D7ylfM/view'},
+  {grade:9,title:'Sahit Mala (Punjabi)',url:'https://drive.google.com/file/d/1n3tIOUCeGgyuRwI5zDoK3KEfKkWcVAwT/view'},
+  {grade:9,title:'Vangi (Punjabi)',url:'https://drive.google.com/file/d/16tNlfkv60bCnjShUU9woJE5tIJZGEd2A/view'},
+] as const;
+
 export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
   const { selectedStage, stage, topic } = resolveEnrichmentFilters(query);
   const { activities, resources } = filterEnrichment(stage, topic);
@@ -26,8 +39,24 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
         </div>
       </header>
 
+      <section className="workspace-panel" aria-labelledby="punjabi-textbooks">
+        <h2 id="punjabi-textbooks">Punjabi textbooks · Classes 1–10</h2>
+        <p className="muted">Individual books linked from Punjab Educare, not just its catalogue. These are publisher-listed Google Drive documents; opening and embedded-reader access depend on Google Drive permissions. Class 10 direct links are not listed on the source page.</p>
+        <div className="library-grid">
+          {punjabiBooks.map(book => (
+            <article className="library-card card" key={book.grade + '-' + book.title}>
+              <p><strong>Class {book.grade} · Punjabi</strong></p>
+              <h3>{book.title}</h3>
+              <p>Punjab Educare · Google Drive document</p>
+              <a href={book.url} target="_blank" rel="noopener noreferrer">Open book ↗</a>
+            </article>
+          ))}
+        </div>
+        <p className="muted">For Class 10 and other titles without individual links, <a href="https://www.punjabeducare.org/e-books/text-books-6th-10th" target="_blank" rel="noopener noreferrer">browse the publisher's Classes 6–10 textbook list</a>.</p>
+      </section>
+
       <section className="workspace-panel" aria-labelledby="published-materials">
-        <h2 id="published-materials">Books, PDFs and learning materials</h2>
+        <h2 id="published-materials">Other direct PDFs and reference materials</h2>
         <p className="muted">Start with material you can use. Direct publisher PDFs are listed first; availability may vary. Use the publisher link when a document cannot be opened.</p>
         <div className="library-grid">
           {publishedMaterials.map(resource => (
