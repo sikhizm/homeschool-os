@@ -31,6 +31,8 @@
     "db:migrate:family-workflow": "node scripts/family-workflow-migration.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/dm-sans": "^5.3.0",
+    "@fontsource-variable/newsreader": "^5.3.0",
     "@fontsource-variable/nunito": "^5.3.0",
     "@fontsource/noto-sans-devanagari": "^5.3.0",
     "@fontsource/noto-sans-gurmukhi": "^5.3.0",
