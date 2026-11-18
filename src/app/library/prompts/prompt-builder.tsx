@@ -31,8 +31,13 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
       };
     } catch { return { settings: initialSettings, favourites: [] as PromptSettings[] }; }
   });
-  const [settings, setSettings] = useState<PromptSettings>(saved.settings);
-  const [learnerId, setLearnerId] = useState(learners[0]?.id ?? '');
+  const [entry]=useState(()=>new URLSearchParams(window.location.search));
+  const [settings, setSettings] = useState<PromptSettings>(() => {
+    const targetClass=promptClassForStage("Class "+entry.get("grade"));
+    const topic=entry.get("topic");
+    return targetClass && topic ? updatePromptSettings(saved.settings,{track:"Olympiad Prep",targetClass,topic}) : saved.settings;
+  });
+  const [learnerId, setLearnerId] = useState(learners.find(l=>l.id===entry.get('learner'))?.id ?? learners[0]?.id ?? '');
   const [favourites, setFavourites] = useState<PromptSettings[]>(saved.favourites);
   const [message, setMessage] = useState('');
   const preview = useRef<HTMLTextAreaElement>(null);

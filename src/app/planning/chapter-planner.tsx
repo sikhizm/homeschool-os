@@ -4,6 +4,8 @@ import {
   promptClassForStage,
   olympiadSourcesFor,
 } from "@/lib/olympiad/prompt-classes";
+import Link from "next/link";
+import { olympiadResources } from "@/lib/olympiad/catalogue";
 import styles from "./chapter-planner.module.css";
 import { useState } from "react";
 import {
@@ -32,6 +34,7 @@ export function ChapterPlanner({
   stage,
   date,
   ids,
+  weekIds,
   finishedChapters,
   olympiad,
   tasks,
@@ -42,6 +45,7 @@ export function ChapterPlanner({
   stage: string;
   date: string;
   ids: string[];
+  weekIds: string[];
   finishedChapters: string[];
   olympiad: Record<string, string>;
   tasks: ChapterTask[];
@@ -53,6 +57,7 @@ export function ChapterPlanner({
   );
   const [book, setBook] = useState(books[0]?.id ?? "");
   const [draft, setDraft] = useState(ids);
+  const [weekDraft, setWeekDraft] = useState(weekIds);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const week = daysInWeek(date);
@@ -66,7 +71,12 @@ export function ChapterPlanner({
   const allSelected = bookIds.every((id) => draft.includes(id));
   const grade = promptClassForStage(stage);
   const topics = grade ? classTopics[grade] : [];
-  const planned = topics.filter((t) => olympiad[grade + ":" + t]);
+  const papers = olympiadResources.filter((r) =>
+    r.grades.includes(Number(grade)),
+  );
+  const planned = [...topics, ...papers.map((r) => "paper:" + r.id)].filter(
+    (t) => olympiad[grade + ":" + t],
+  );
   const done = planned.filter(
     (t) => olympiad[grade + ":" + t] === "done",
   ).length;
@@ -94,6 +104,25 @@ export function ChapterPlanner({
     } finally {
       setBusy(false);
     }
+  }
+  function goalOption(key: string, title: string) {
+    return (
+      <label key={key} className={styles.chapterOption}>
+        <input
+          type="checkbox"
+          disabled={busy}
+          checked={Boolean(olympiad[grade + ":" + key])}
+          onChange={(e) =>
+            void save({
+              action: "olympiad",
+              topic: key,
+              status: e.target.checked ? "planned" : "unplanned",
+            })
+          }
+        />
+        <span>{title}</span>
+      </label>
+    );
   }
   return (
     <>
@@ -232,111 +261,100 @@ export function ChapterPlanner({
           })}
         </section>
         <section className="workspace-panel">
-          <h2>This week’s chapter tasks</h2>
+          <h2>This week’s chapters</h2>
           <p>
-            {weekly.length
-              ? Math.round((100 * finished) / weekly.length) +
-                "% complete · " +
-                (100 - Math.round((100 * finished) / weekly.length)) +
-                "% remaining · " +
-                finished +
-                " of " +
-                weekly.length +
-                " tasks done · " +
-                (weekly.length - finished) +
-                " remaining"
-              : "No chapter tasks scheduled this week."}
+            {week[0]} – {week[6]} ·{" "}
+            {weekIds.filter((id) => ids.includes(id)).length} chapters selected
           </p>
+          {!ids.length && <p>Choose chapters in the year plan first.</p>}
+          {[...subjects.keys()].map((subject) => {
+            const options = progress.chapters.filter((c) => {
+              const slot = ncertChapterSlots.find((s) => s.id === c.id);
+              return slot && textbookById(slot.bookId)?.subject === subject;
+            });
+            return (
+              <details key={subject}>
+                <summary>
+                  {subject} ·{" "}
+                  {options.filter((c) => weekDraft.includes(c.id)).length}{" "}
+                  selected
+                </summary>
+                {options.map((c) => {
+                  const slot = ncertChapterSlots.find((s) => s.id === c.id)!;
+                  return (
+                    <label key={c.id} className={styles.chapterOption}>
+                      <input
+                        type="checkbox"
+                        disabled={!canEdit || busy}
+                        checked={weekDraft.includes(c.id)}
+                        onChange={(e) =>
+                          setWeekDraft(
+                            e.target.checked
+                              ? [...weekDraft, c.id]
+                              : weekDraft.filter((id) => id !== c.id),
+                          )
+                        }
+                      />
+                      <span>
+                        {chapterName(c.id)}{" "}
+                        <small>· {textbookById(slot.bookId)?.title}</small>
+                      </span>
+                    </label>
+                  );
+                })}
+              </details>
+            );
+          })}
           {canEdit && ids.length > 0 && (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                const f = new FormData(e.currentTarget);
+            <button
+              type="button"
+              className="btn-primary"
+              disabled={busy}
+              onClick={() =>
                 void save({
-                  action: "schedule",
-                  date: f.get("day"),
-                  chapter: f.get("chapter"),
-                  task: f.get("task"),
-                });
-              }}
+                  action: "week",
+                  ids: weekDraft.filter((id) => ids.includes(id)),
+                })
+              }
             >
-              <fieldset disabled={busy}>
-                <label className="workspace-field">
-                  Chapter from year plan
-                  <select name="chapter">
-                    {ids.map((id) => {
-                      const c = ncertChapterSlots.find((c) => c.id === id);
-                      return (
-                        <option key={id} value={id}>
-                          {c && textbookById(c.bookId)?.title} ·{" "}
-                          {chapterName(id)}
-                        </option>
-                      );
-                    })}
-                  </select>
-                </label>
-                <label className="workspace-field">
-                  Day
-                  <select key={date} name="day" defaultValue={date}>
-                    {week
-                      .filter((d) => academicYear(d) === academicYear(date))
-                      .map((d) => (
-                        <option key={d}>{d}</option>
-                      ))}
-                  </select>
-                </label>
-                <label className="workspace-field">
-                  Daily task
-                  <input
-                    name="task"
-                    placeholder="e.g. Read pages 1–4"
-                    required
-                    maxLength={80}
-                  />
-                </label>
-                <button className="btn-primary">Add to daily schedule</button>
-              </fieldset>
-            </form>
+              Save weekly chapters
+            </button>
           )}
-          {canEdit && !ids.length && (
-            <p>Save chapters in the year plan to schedule them here.</p>
+          {weekIds.some((id) => ids.includes(id)) && (
+            <section>
+              <h3>Weekly focus</h3>
+              {[...subjects.keys()].map((subject) => {
+                const selected = ncertChapterSlots.filter(
+                  (c) =>
+                    weekIds.includes(c.id) &&
+                    ids.includes(c.id) &&
+                    textbookById(c.bookId)?.subject === subject,
+                );
+                return (
+                  selected.length > 0 && (
+                    <div key={subject}>
+                      <strong>{subject}</strong>
+                      <ul>
+                        {selected.map((c) => (
+                          <li key={c.id}>
+                            <Link href={"/ncert-books/chapter/" + c.id}>
+                              {chapterName(c.id)}
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                );
+              })}
+            </section>
           )}
-          {weekly.map((t) => (
-            <article key={t.id}>
-              <strong>{t.title}</strong>
-              <p>
-                {t.date} · {t.completed ? "Done" : "Scheduled"}
-              </p>
-              {!t.completed && canEdit && (
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    void save({
-                      action: "move",
-                      id: t.id,
-                      date: t.date,
-                      to: new FormData(e.currentTarget).get("to"),
-                    });
-                  }}
-                >
-                  <label>
-                    Move to{" "}
-                    <input
-                      aria-label={"New date for " + t.title}
-                      type="date"
-                      name="to"
-                      required
-                      min={yearDates(academicYear(t.date)).startDate}
-                      max={yearDates(academicYear(t.date)).endDate}
-                    />
-                  </label>{" "}
-                  <button disabled={busy} className="btn-secondary">
-                    Move task
-                  </button>
-                </form>
-              )}
-            </article>
-          ))}
+          {weekly.length > 0 && (
+            <p>
+              Daily chapter tasks · {finished}/{weekly.length} done
+            </p>
+          )}
+          <Link href="/dashboard">Open daily schedule →</Link>
         </section>
       </div>
       {grade && (
@@ -344,7 +362,7 @@ export function ChapterPlanner({
           <h2>
             Olympiad year plan · {academicYear(date)}–{academicYear(date) + 1}
           </h2>
-          <p>Class {grade} · SOF Mathematics Olympiad</p>
+          <p>Class {grade} · Topic practice and sample papers</p>
           <p>
             {planned.length
               ? Math.round((100 * done) / planned.length) +
@@ -352,35 +370,73 @@ export function ChapterPlanner({
                 done +
                 " of " +
                 planned.length +
-                " topics done · " +
+                " practice goals done · " +
                 (planned.length - done) +
                 " remaining"
-              : "Choose the topics you want to practise this year."}
+              : "Choose a maths topic or a sample paper to practise."}
           </p>
-          <details>
-            <summary>Plan and track topics</summary>
-            {topics.map((topic) => (
-              <label key={topic} className="workspace-field">
-                {topic}
-                <select
-                  disabled={!canEdit || busy}
-                  value={olympiad[grade + ":" + topic] ?? "unplanned"}
-                  onChange={(e) =>
-                    void save({
-                      action: "olympiad",
-                      topic,
-                      status: e.target.value,
-                    })
-                  }
-                >
-                  <option value="unplanned">Outside this plan</option>
-                  <option value="planned">Planned</option>
-                  <option value="done">Done</option>
-                </select>
-              </label>
-            ))}
-            <a href={olympiadSourcesFor(grade)[0]}>Official class syllabus</a>
-          </details>
+          {planned.length > 0 && (
+            <section>
+              <h3>My practice checklist</h3>
+              {planned.map((item) => {
+                const paper = papers.find((r) => "paper:" + r.id === item);
+                const title = paper
+                  ? paper.provider + " " + paper.subject + " · " + paper.title
+                  : item;
+                const href = paper
+                  ? paper.pdfUrl
+                    ? "/library/olympiad/read/" + paper.id
+                    : paper.sourceUrl
+                  : "/library/prompts?" +
+                    new URLSearchParams({
+                      learner: learnerId,
+                      grade: grade,
+                      topic: item,
+                    });
+                return (
+                  <div key={item} className={styles.practiceRow}>
+                    <label className={styles.chapterOption}>
+                      <input
+                        type="checkbox"
+                        disabled={busy || !canEdit}
+                        checked={olympiad[grade + ":" + item] === "done"}
+                        onChange={(e) =>
+                          void save({
+                            action: "olympiad",
+                            topic: item,
+                            status: e.target.checked ? "done" : "planned",
+                          })
+                        }
+                      />
+                      <span>{title}</span>
+                    </label>
+                    <a href={href}>
+                      {paper ? "Open paper" : "Build practice prompt"}
+                    </a>
+                  </div>
+                );
+              })}
+            </section>
+          )}
+          {canEdit && (
+            <details>
+              <summary>Choose practice goals</summary>
+              <h3>SOF Mathematics · topic practice</h3>
+              {topics.map((t) => goalOption(t, t))}
+              <h3>Sample papers by subject</h3>
+              {[...new Set(papers.map((r) => r.subject))].map((subject) => (
+                <details key={subject}>
+                  <summary>{subject}</summary>
+                  {papers
+                    .filter((r) => r.subject === subject)
+                    .map((r) =>
+                      goalOption("paper:" + r.id, r.provider + " · " + r.title),
+                    )}
+                </details>
+              ))}
+            </details>
+          )}
+          <a href={olympiadSourcesFor(grade)[0]}>Official SOF maths syllabus</a>
         </section>
       )}
       <p role="status">{message}</p>

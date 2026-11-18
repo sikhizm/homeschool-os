@@ -272,7 +272,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
       {data && !loading && (
         <>
           <ChapterPlanner key={learnerId+date} learnerId={learnerId} stage={selected?.stage??''} date={date}
-            finishedChapters={yearPlan?.finished_chapters??[]} olympiad={yearPlan?.olympiad_topics??{}} ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
+            weekIds={weekPlan?.chapter_ids??[]} finishedChapters={yearPlan?.finished_chapters??[]} olympiad={yearPlan?.olympiad_topics??{}} ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
           <section className="workspace-panel">
             <div className="panel-heading">
               <div>

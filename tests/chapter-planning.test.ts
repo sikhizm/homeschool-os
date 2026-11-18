@@ -60,6 +60,16 @@ test("planned chapters follow daily checkmarks through rescheduling and reopenin
       403,
     );
     assert.equal((await write({ action: "year", ids })).status, 200);
+    assert.equal((await write({ action: "week", ids: [ids[0]] })).status, 200);
+    assert.equal((await write({ action: "week", ids: [ids[1]] })).status, 200);
+    assert.equal(
+      (await write({ action: "week", ids: ["outside"] })).status,
+      400,
+    );
+    const [weekPlan] =
+      await f.sql`SELECT chapter_ids FROM learning_planning_periods WHERE kind='week'`;
+    assert.deepEqual(weekPlan.chapter_ids, [ids[1]]);
+    assert.equal((await read()).tasks.length, 0);
     for (const day of [date, "2026-11-19"])
       assert.equal(
         (
@@ -123,7 +133,7 @@ test("planned chapters follow daily checkmarks through rescheduling and reopenin
       200,
     );
     const [plan] =
-      await f.sql`SELECT olympiad_topics FROM learning_planning_periods`;
+      await f.sql`SELECT olympiad_topics FROM learning_planning_periods WHERE kind='year'`;
     assert.deepEqual(plan.olympiad_topics, { "4:Fractions": "done" });
     await changeWorkflow(f.sql, "owner-a", {
       action: "startTimer",

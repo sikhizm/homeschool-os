@@ -1,3 +1,4 @@
+import { olympiadResources } from "../olympiad/catalogue";
 import { classTopics, promptClassForStage } from "../olympiad/prompt-classes";
 import type { Sql } from "../learning/service";
 import { ncertChapterSlots, textbookById } from "../ncert/textbooks";
@@ -55,7 +56,12 @@ export async function chapterRequest(
     if (
       !cls ||
       typeof p.topic !== "string" ||
-      !classTopics[cls].includes(p.topic) ||
+      !(
+        classTopics[cls].includes(p.topic) ||
+        olympiadResources.some(
+          (r) => r.grades.includes(grade) && p.topic === "paper:" + r.id,
+        )
+      ) ||
       !["unplanned", "planned", "done"].includes(p.status)
     )
       return send({ error: "Choose a valid Olympiad topic and status." }, 400);
@@ -67,6 +73,26 @@ export async function chapterRequest(
       VALUES(${learner.id},'year',${year.startDate},${year.endDate},'Year plan',${patch}::jsonb)
       ON CONFLICT(learner_id,kind,start_date) DO UPDATE SET olympiad_topics=(learning_planning_periods.olympiad_topics - ${key}::text) || EXCLUDED.olympiad_topics, updated_at=now()`;
     return send({ saved: true });
+  }
+  if (p.action === "week") {
+    if (
+      !Array.isArray(p.ids) ||
+      p.ids.some((id: unknown) => typeof id !== "string")
+    )
+      return send({ error: "Choose chapters from the year plan." }, 400);
+    const ids = [...new Set<string>(p.ids)];
+    const rows =
+      await sql`INSERT INTO learning_planning_periods(learner_id,kind,start_date,end_date,title,chapter_ids)
+      SELECT learner_id,'week',${week[0]}::date,${week[6]}::date,'Weekly chapters',${ids}::text[]
+      FROM learning_planning_periods WHERE learner_id=${learner.id} AND kind='year' AND start_date=${year.startDate} AND ${ids}::text[] <@ chapter_ids
+      ON CONFLICT(learner_id,kind,start_date) DO UPDATE SET chapter_ids=EXCLUDED.chapter_ids || ARRAY(
+        SELECT old_id FROM unnest(learning_planning_periods.chapter_ids) old_id
+        WHERE EXISTS(SELECT 1 FROM learning_planning_periods y WHERE y.learner_id=EXCLUDED.learner_id AND y.kind='year' AND y.start_date<>${year.startDate}::date AND y.start_date<=EXCLUDED.end_date AND y.end_date>=EXCLUDED.start_date AND old_id=ANY(y.chapter_ids))
+        AND NOT EXISTS(SELECT 1 FROM learning_planning_periods y WHERE y.learner_id=EXCLUDED.learner_id AND y.kind='year' AND y.start_date=${year.startDate} AND old_id=ANY(y.chapter_ids))
+      ),updated_at=now() RETURNING id`;
+    return rows.length
+      ? send({ saved: true })
+      : send({ error: "Save these chapters in the year plan first." }, 400);
   }
   if (p.action === "year") {
     const available = new Set(

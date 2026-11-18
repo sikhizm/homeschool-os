@@ -24,3 +24,15 @@
   border-color: #70a889;
   background: #eff7f0;
 }
+
+.practiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  align-items: center;
+  margin-block: .5rem;
+}
+
+.practiceRow label {
+  flex: 1 1 16rem;
+}
