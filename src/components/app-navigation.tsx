@@ -36,6 +36,8 @@ function NavGlyph({id,fallback}:{id:string;fallback:string}){
    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="8.5" r="3.5"/><path d="M3.5 19.5a5.5 5.5 0 0 1 11 0"/><circle cx="17" cy="9.5" r="2.5"/><path d="M15.5 19.5a4.5 4.5 0 0 1 5-4.4"/></svg>;
   case 'library':
    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v17H6.5A2.5 2.5 0 0 0 4 22.5V5.5Z"/><path d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v17h5.5a2.5 2.5 0 0 1 2.5 2.5V5.5Z"/></svg>;
+  case 'olympiad':
+   return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="5"/><path d="m8 12-2 9 6-3 6 3-2-9"/><path d="m12 5 1 2 2 .3-1.5 1.5.4 2.2L12 10l-1.9 1 .4-2.2L9 7.3l2-.3z"/></svg>;
   case 'progress':
    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5h16"/><path d="M6.5 15.5l4-4 3 3 4.5-5.5"/><path d="M15 9h3v3"/></svg>;
   case 'portfolio':
