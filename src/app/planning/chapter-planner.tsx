@@ -1,4 +1,5 @@
 "use client";
+import styles from "./chapter-planner.module.css";
 import { useState } from "react";
 import {
   chaptersFor,
@@ -87,7 +88,7 @@ export function ChapterPlanner({
               </label>
               <div className="plan-picker-scroll">
                 {chaptersFor(book).map((c) => (
-                  <label className="plan-competency-option" key={c.id}>
+                  <label className={styles.chapterOption} key={c.id}>
                     <input
                       type="checkbox"
                       checked={draft.includes(c.id)}
@@ -99,8 +100,7 @@ export function ChapterPlanner({
                         )
                       }
                     />
-                    {c.label}
-                    {c.verifiedTitle && " · " + c.verifiedTitle}
+                    <span>{c.label}{c.verifiedTitle && " · " + c.verifiedTitle}</span>
                   </label>
                 ))}
               </div>
