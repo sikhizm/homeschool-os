@@ -17,7 +17,6 @@ export function navigationForPath(pathname:string){
  else if(within(pathname,'/library'))context={label:'Learning library',links:[
   {href:'/library',label:'Library'},
   {href:'/library/prompts',label:'Learning Prompts'},
-  {href:'/library/olympiad',label:'Olympiad Resources'},
   {href:'/library/enrichment',label:'Supplementary resources'},
  ]};
  else if(within(pathname,'/lessons'))context={label:'Learning workspace',links:[
@@ -49,6 +48,7 @@ export const sidebarDestinations:ShellDestination[]=[
  {id:'plan',href:'/planning',label:'Learning Plan',glyph:'▦',hint:'Daily coach and weekly planner',match:['/planning']},
  {id:'learners',href:'/learners',label:'Learners',glyph:'☺',hint:'Profiles and learning spaces',match:['/learners']},
  {id:'library',href:'/library',label:'Curriculum Library',glyph:'❖',hint:'Books, pathways and activities',match:['/library','/ncert-books','/curriculum','/curriculum-mapping','/curriculum-studio','/global-curriculum','/learning-pathways','/roadmap','/lessons']},
+ {id:'olympiad',href:'/library/olympiad',label:'Olympiad Resources',glyph:'★',hint:'Olympiad syllabus, sample papers and practice',match:['/library/olympiad']},
  {id:'progress',href:'/reports',label:'Progress',glyph:'↗',hint:'Learning insights and reviews',match:['/reports']},
  {id:'portfolio',href:'/portfolio',label:'Family Portfolio',glyph:'❋',hint:'Work, milestones and discoveries',match:['/portfolio']},
  {id:'settings',href:'/settings',label:'Settings',glyph:'⚙',hint:'Family account and app settings',match:['/settings']},
@@ -62,7 +62,7 @@ export const bottomDestinations:ShellDestination[]=[
  {id:'settings',href:'/settings',label:'Profile',glyph:'☺',hint:'Profile, family tools and settings',match:['/settings','/learners','/portfolio']},
 ];
 export function shellDestinationIsActive(pathname:string,destination:ShellDestination){
- return destination.match.some(route=>within(pathname,route));
+ return destination.match.some(route=>within(pathname,route)) && !(destination.id==='library' && within(pathname,'/library/olympiad'));
 }
 export function activeShellDestination(pathname:string,destinations:ShellDestination[]){
  return destinations.find(destination=>shellDestinationIsActive(pathname,destination))??null;
