@@ -181,7 +181,7 @@ export default function CurriculumMappingReview({initialChapter=''}:{initialChap
    <Link href="/ncert-books?grade=5">Open Class 5 book index →</Link>
   </section>
   <section className="mapping-summary-grid" aria-label="Class 5 mapping audit summary">
-   <div><strong>{data?.summary.chapters??86}</strong><span>Verified Class 5 chapters accounted for</span></div>
+   <div><strong>{data?.summary.chapters??'—'}</strong><span>Verified Class 5 chapters accounted for</span></div>
    <div><strong>{data?.summary.draftMappings??0}</strong><span>Draft mapping proposals</span></div>
    <div><strong>{data?.summary.approvedMappings??0}</strong><span>Family-approved mappings</span></div>
    <div><strong>{data?.summary.unmappedChapters??0}</strong><span>Chapters honestly left unmapped</span></div>
