@@ -1,8 +1,11 @@
 .learning-prompts { max-width: 1320px; margin: 0 auto; }
 .learning-prompts h1 { margin-bottom: 8px; }
 .prompt-tracks, .prompt-actions, .prompt-favourites { display: flex; flex-wrap: wrap; gap: 10px; }
-.prompt-tracks button { background: var(--surface, #fff); color: inherit; border: 1px solid #b9cec5; }
-.prompt-tracks button[aria-pressed="true"] { background: #194f42; color: white; }
+.prompt-tracks { align-items: stretch; margin: 8px 0 24px; gap: 8px; }
+.prompt-tracks button { flex: 0 1 auto; max-width: 100%; padding: 11px 18px; border-radius: 12px; background: var(--surface, #fff); color: #194f42; border: 1px solid #b9cec5; font: inherit; font-weight: 700; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; text-align: center; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; }
+.prompt-tracks button:hover { background: #eaf3ed; border-color: #578979; }
+.prompt-tracks button:focus-visible { outline: 3px solid #6d9e8b; outline-offset: 2px; }
+.prompt-tracks button[aria-pressed="true"] { background: #194f42; border-color: #194f42; color: white; }
 .prompt-layout { display: grid; grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.4fr); gap: 20px; align-items: start; }
 .prompt-controls { display: grid; gap: 16px; }
 .prompt-controls label { display: grid; gap: 6px; font-weight: 700; }
@@ -18,6 +21,6 @@
 .prompt-favourites button { text-align: left; white-space: normal; }
 @media (max-width: 760px) {
   .prompt-layout { grid-template-columns: minmax(0, 1fr); }
-  .prompt-tracks button { flex: 1 1 140px; }
+  .prompt-tracks button { flex: 1 1 160px; }
   .prompt-preview textarea { min-height: 360px; }
 }
