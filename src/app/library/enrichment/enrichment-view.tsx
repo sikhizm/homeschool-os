@@ -7,6 +7,8 @@ import {
 export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
   const { selectedStage, stage, topic } = resolveEnrichmentFilters(query);
   const { activities, resources } = filterEnrichment(stage, topic);
+  const publishedMaterials = resources.filter(resource => /\.pdf(?:\?|$)/i.test(resource.url));
+  const referenceOnly = resources.filter(resource => !/\.pdf(?:\?|$)/i.test(resource.url));
   const activityStages = (Object.keys(enrichmentStages) as EnrichmentStage[])
     .filter(key => activities.some(activity => activity.stage === key));
   const scopes = (['nursery', 'ukg'] as const).filter(key => !stage || stage === key);
@@ -24,12 +26,45 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
         </div>
       </header>
 
-      <section className="workspace-panel" aria-labelledby="olympiad-destination">
-        <h2 id="olympiad-destination">Olympiad preparation · Classes 1–10</h2>
-        <p>Find official sample papers by class, subject and organiser in Olympiad Resources, or create Maths and Reasoning practice with Learning Prompts.</p>
-        <div className="library-filter-chips">
-          <Link href="/library/olympiad?grade=all" className="library-chip">Browse Olympiad resources</Link>
-          <Link href="/library/prompts" className="library-chip">Open Learning Prompts</Link>
+      <section className="workspace-panel" aria-labelledby="published-materials">
+        <h2 id="published-materials">Books, PDFs and learning materials</h2>
+        <p className="muted">Start with material you can use. Direct publisher PDFs are listed first; availability may vary. Use the publisher link when a document cannot be opened.</p>
+        <div className="library-grid">
+          {publishedMaterials.map(resource => (
+            <article className="library-card card" key={resource.id} id={'source-' + resource.id}>
+              <h3>{resource.title}</h3>
+              <p><strong>For {resource.stages.map(key => enrichmentStages[key]).join(', ')}</strong></p>
+              <p>{resource.publisher} · {resource.sourceLocation}</p>
+              <p>{resource.parentUse}</p>
+              <a href={resource.url} target="_blank" rel="noopener noreferrer">Open material ↗</a>
+              <details>
+                <summary>Source and verification details</summary>
+                <p>{resourceVerificationLabels[resource.verification.status]}</p>
+                {resource.verification.lastVerifiedOn && <p>Last checked: {resource.verification.lastVerifiedOn}</p>}
+                <p>{resource.verification.evidence}</p>
+              </details>
+            </article>
+          ))}
+        </div>
+        {publishedMaterials.length === 0 && <p>No direct PDF materials match these filters.</p>}
+      </section>
+
+      <section className="workspace-panel" aria-labelledby="publisher-collections">
+        <h2 id="publisher-collections">Browse textbook and activity collections</h2>
+        <p className="muted">Publisher catalogues are useful when a stable, individually verified book PDF is not yet indexed.</p>
+        <div className="library-grid">
+          <article className="library-card card">
+            <h3>Punjab Educare — E-Books</h3>
+            <p>Punjab Educare · Class-wise textbook and learning-material catalogue</p>
+            <p>Browse the publisher's e-books directory and select a class and subject. Individual book PDFs have not yet been checked for in-app reading.</p>
+            <a href="https://www.punjabeducare.org/e-books/" target="_blank" rel="noopener noreferrer">Browse e-books collection ↗</a>
+          </article>
+          <article className="library-card card">
+            <h3>Punjab Educare — Teacher activity handbooks</h3>
+            <p>Punjab Educare · Teaching and activity resources</p>
+            <p>Browse activity handbooks at the publisher. Direct document links are not yet individually verified.</p>
+            <a href="https://www.punjabeducare.org/e-books/teacher-resource-materialactivity-handbook" target="_blank" rel="noopener noreferrer">Browse handbooks ↗</a>
+          </article>
         </div>
       </section>
 
@@ -108,32 +143,22 @@ export default function EnrichmentView({ query }: { query: EnrichmentQuery }) {
       </section>
 
       <section className="workspace-panel" aria-labelledby="enrichment-sources">
-        <h2 id="enrichment-sources">Supplementary source catalogue</h2>
-        <p className="muted">Check the intended stage and link status before sharing a source.</p>
-        {resources.length === 0 && <p>No sources match these filters.</p>}
+        <h2 id="enrichment-sources">Additional publisher portals and references</h2>
+        <p className="muted">Useful background sources without a direct indexed document are kept here. Verification notes are available on demand.</p>
         <div className="library-grid">
-          {resources.map(resource => (
+          {referenceOnly.map(resource => (
             <article className="library-card card" key={resource.id} id={'source-' + resource.id}>
               <h3>{resource.title}</h3>
               <p><strong>For {resource.stages.map(key => enrichmentStages[key]).join(', ')}</strong></p>
               <p>{resource.publisher} · {resource.sourceLocation}</p>
-              <span className={'verify-badge ' + (resource.verification.status === 'verified' ? 'verified' : 'pending')}>
-                {resourceVerificationLabels[resource.verification.status]}
-              </span>
-              {resource.verification.lastVerifiedOn && (
-                <p>Last verified <time dateTime={resource.verification.lastVerifiedOn}>
-                  {resource.verification.lastVerifiedOn}
-                </time></p>
-              )}
-              <p>{resource.verification.evidence}</p>
               <p>{resource.parentUse}</p>
-              {resource.verification.status === 'broken' ? (
-                <p>Publisher link unavailable. The activity above remains available.</p>
-              ) : (
-                <a href={resource.url} rel="noreferrer">
-                  {resource.verification.status === 'verified' ? 'Open publisher source' : 'Try publisher source'}
-                </a>
-              )}
+              <a href={resource.url} target="_blank" rel="noopener noreferrer">Browse publisher resource ↗</a>
+              <details>
+                <summary>Source and verification details</summary>
+                <p>{resourceVerificationLabels[resource.verification.status]}</p>
+                {resource.verification.lastVerifiedOn && <p>Last checked: {resource.verification.lastVerifiedOn}</p>}
+                <p>{resource.verification.evidence}</p>
+              </details>
             </article>
           ))}
         </div>
