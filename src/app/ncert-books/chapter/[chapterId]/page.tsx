@@ -1,3 +1,4 @@
+import ResourcePlanActions from '@/components/resource-plan-actions';
 import Link from 'next/link';
 import ChapterProgress from './chapter-progress';
 import ChapterSessions from './chapter-sessions';
@@ -56,6 +57,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
         <strong>{chapter.label}</strong>
       </nav>
 
+      <ResourcePlanActions resourceKey={'ncert:'+chapter.id}/>
       <section className="workspace-panel family-hero" style={{ alignItems: 'flex-start' }}>
         <div className="family-hero-copy" style={{ maxWidth: '100%' }}>
           <span className="eyebrow">

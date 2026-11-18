@@ -1,3 +1,4 @@
+import FamilyWorkflow from '@/components/family-workflow';
 import SectionArtwork from '@/components/section-artwork';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -133,6 +134,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
 
   return (
     <main className="family-dashboard report-page studio-stack">
+      <FamilyWorkflow initialView="week" />
       <div className="dashboard-welcome report-no-print">
         <div>
           <span className="tag">FAMILY LEARNING INSIGHTS</span>

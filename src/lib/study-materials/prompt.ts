@@ -24,6 +24,7 @@ export function buildStudyPrompt(input:StudyPromptInput):string {
 LEARNER AND VERIFIED CATALOGUE CONTEXT
 Student: ${input.student}
 Class: ${input.stage}
+Target material level: Class ${input.book.grade}. This chapter was deliberately selected by the parent; adapt support to the learner without changing the source chapter or claiming mastery.
 Subject: ${input.book.subject}
 Textbook: ${input.book.title} (${input.book.publisher}; ${input.book.editionLabel})
 Chapter: ${input.chapter.verifiedTitle} (${input.chapter.label})

@@ -1,3 +1,4 @@
+import FamilyWorkflow from '@/components/family-workflow';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
@@ -40,6 +41,7 @@ export default async function LearnersPage() {
 
   return (
     <main className="learners-page studio-stack">
+      <FamilyWorkflow initialView="levels" />
       <header className="studio-page-head">
         <div>
           <p className="eyebrow">FAMILY LEARNERS · {String(family.name || 'Family').toUpperCase()}</p>

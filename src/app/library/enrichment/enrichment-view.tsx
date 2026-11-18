@@ -26,7 +26,7 @@ export default function EnrichmentView() {
       </header>
       <section className="workspace-panel" aria-labelledby="punjabi-textbooks">
         <h2 id="punjabi-textbooks">Punjabi textbooks</h2>
-        <p className="muted">Individual Punjab Educare book links hosted on Google Drive. Availability depends on the publisher's sharing permissions; books open in a new tab.</p>
+        <p className="muted">Individual Punjab Educare book links hosted on Google Drive. Availability depends on the publisher’s sharing permissions; books open in a new tab.</p>
         <div className="library-grid">
           {punjabiBooks.map(book => (
             <article className="library-card card" key={book.grade + '-' + book.title}>

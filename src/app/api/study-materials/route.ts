@@ -30,14 +30,14 @@ export async function POST(request:Request){
  if(!title||!type)return send({error:'Enter a title and document type.'},400);
  let content='';try{content=typeof input.content==='string'?(input.format==='markdown'?markdownToSafeHtml(input.content):sanitizeStudyHtml(input.content)):'';}catch(e){return send({error:e instanceof Error?e.message:'Invalid document content.'},400);}if(!content)return send({error:'Document content is required.'},400);
  try{const sql=getSql();const learners=await learnerAccess(sql,user,learnerId,true);if(!learners.length)return send({error:'Only a family owner can save study materials for their learner.'},403);
- const learner=learners[0];if(String(learner.stage)!==`Class ${meta.book.grade}`)return send({error:'This learner is enrolled in a different class.'},403);
+
  if(typeof input.duplicateOf==='string'){
   const originals=await sql`SELECT title,document_type,safe_html,source_reference,source_version FROM study_material_documents WHERE id::text=${input.duplicateOf} AND learner_id::text=${learnerId} AND chapter_id=${chapterId} AND archived_at IS NULL LIMIT 1`;
   if(!originals.length)return send({error:'Document to duplicate was not found.'},404);
-  const o=originals[0];const rows=await sql`INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version) VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${learner.stage},${meta.book.subject},${meta.book.id},${chapterId},${`${String(o.title)} (copy)`.slice(0,180)},${String(o.document_type)},${String(o.safe_html)},${String(o.source_reference)},${String(o.source_version)}) RETURNING id::text,version`;
+  const o=originals[0];const rows=await sql`INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version) VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${'Class '+meta.book.grade},${meta.book.subject},${meta.book.id},${chapterId},${`${String(o.title)} (copy)`.slice(0,180)},${String(o.document_type)},${String(o.safe_html)},${String(o.source_reference)},${String(o.source_version)}) RETURNING id::text,version`;
   return send({saved:true,document:rows[0]},201);
  }
- const rows=await sql`INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version) VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${learner.stage},${meta.book.subject},${meta.book.id},${chapterId},${title},${type},${content},${meta.chapter.sourceUrl},${meta.book.editionLabel}) RETURNING id::text,version`;
+ const rows=await sql`INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version) VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${'Class '+meta.book.grade},${meta.book.subject},${meta.book.id},${chapterId},${title},${type},${content},${meta.chapter.sourceUrl},${meta.book.editionLabel}) RETURNING id::text,version`;
  return send({saved:true,document:rows[0]},201);
  }catch{return send({error:'Unable to save this document. Check that migration 009 has been applied.'},503);}
 }
