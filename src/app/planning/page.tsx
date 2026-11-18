@@ -46,9 +46,9 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
       <div className="dashboard-welcome">
         <div>
           <span className="tag">YOUR LEARNING PLANNER</span>
-          <h1>Plan your learning rhythm</h1>
+          <h1>Plan chapters and daily learning</h1>
           <p className="muted">
-            Sketch the year, focus each week, then plan and reflect on individual days — all inside one calm family pace.
+            Choose NCERT chapters for the year, schedule daily tasks and follow each learner’s progress.
           </p>
           <div className="welcome-pills">
             <span className="daily-badge">✧ One shared hour of guided time</span>
@@ -56,8 +56,7 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         </div>
         <SectionArtwork theme="plan" />
       </div>
-      <FamilyWorkflow key={params.resource??'default'} resourceKey={typeof params.resource==='string'?params.resource:''} intent={params.intent}/>
-      <PrepareNextDay canEdit={family.role === 'owner'} />
+      {params.resource && <FamilyWorkflow key={params.resource??'default'} resourceKey={typeof params.resource==='string'?params.resource:''} intent={params.intent}/>}
       <PlanningWorkspace
         learners={learners.map((l) => ({
           id: String(l.id),
@@ -67,6 +66,8 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         canEdit={family.role === 'owner'}
         initialDate={initialDate}
       />
+      {!params.resource && <FamilyWorkflow resourceKey="" intent={params.intent}/>}
+      <PrepareNextDay canEdit={family.role === 'owner'} />
     </main>
   );
 }

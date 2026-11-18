@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import {PlannedChapters} from './planned-chapters';
 import {useCallback,useEffect,useMemo,useState} from 'react';
 import {learnerTier,tierLabel,type LearnerTier} from '@/lib/learner-tier';
 import {subjectTint} from '@/lib/subject-tint';
@@ -124,6 +125,7 @@ export function LearnHome({initialLearnerId}:{initialLearnerId?:string}){
    </button>)}
   </nav>}
 
+  <PlannedChapters key={learner.id} learnerId={learner.id} canEdit={learner.canEdit}/>
   <ContinueLearningHero learner={learner} next={nextTask(learner)}/>
   <TodaysLearning learner={learner}/>
   <ActiveChapterCard learner={learner}/>
@@ -171,7 +173,7 @@ function ContinueLearningHero({learner,next}:{learner:ApiLearner;next:Task|null}
  }
  return <section className="continue-hero card" aria-labelledby="continue-hero-title">
   <p className="tag" id="continue-hero-title">ALL CAUGHT UP</p>
-  <h2>Everything planned is finished</h2>
+  <h2>Auto-learning queue complete</h2>
   <p className="muted">Lovely work! Choose a book below to learn something new, or take a break.</p>
   <div className="hero-actions"><Link className="hero-action-secondary" href="#my-books">Browse my books <span aria-hidden="true">→</span></Link></div>
  </section>;

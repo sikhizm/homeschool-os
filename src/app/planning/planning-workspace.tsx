@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { competencies, type Competency } from '@/lib/curriculum/library';
+import { ChapterPlanner } from './chapter-planner';
+import type { ChapterTask } from '@/lib/planning/chapters';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
 
 type Learner = { id: string; name: string; stage: string };
@@ -15,6 +16,7 @@ type Period = {
   focus: string;
   notes: string;
   competency_ids: string[];
+  chapter_ids: string[];
 };
 type Day = { date: string; activities: number; minutes: number; completed_minutes: number };
 type PlanningData = {
@@ -22,77 +24,9 @@ type PlanningData = {
   week: string[];
   periods: Period[];
   days: Day[];
+  tasks: ChapterTask[];
 };
 type Props = { learners: Learner[]; canEdit: boolean; initialDate: string };
-
-const stageKey = (stage: string) => {
-  const match = stage.toLowerCase().match(/^class\s+(\d+)$/);
-  if (!match) return 'early';
-  const grade = Number(match[1]);
-  if (grade <= 2) return 'class1-2';
-  if (grade <= 5) return 'class3-5';
-  if (grade <= 8) return 'class6-8';
-  if (grade <= 10) return 'class9-10';
-  return 'class11-12';
-};
-
-function CompetencyPicker({
-  items,
-  selected,
-  onChange,
-  label,
-}: {
-  items: Competency[];
-  selected: string[];
-  onChange: (ids: string[]) => void;
-  label: string;
-}) {
-  const subjects = [...new Set(items.map((item) => item.subject))];
-  return (
-    <section className="plan-curriculum-picker">
-      <div className="plan-picker-heading">
-        <strong>{label}</strong>
-        <span>{selected.length} selected</span>
-      </div>
-      <div className="plan-picker-scroll">
-        {subjects.map((subject) => (
-          <div className="plan-picker-subject" key={subject}>
-            <h4>{subject}</h4>
-            <div className="plan-picker-options">
-              {items
-                .filter((item) => item.subject === subject)
-                .map((item) => {
-                  const checked = selected.includes(item.id);
-                  return (
-                    <label
-                      className={checked ? 'plan-competency-option is-checked' : 'plan-competency-option'}
-                      key={item.id}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={checked}
-                        onChange={(event) =>
-                          onChange(
-                            event.target.checked
-                              ? [...selected, item.id]
-                              : selected.filter((id) => id !== item.id),
-                          )
-                        }
-                      />
-                      <span>
-                        <strong>{item.title}</strong>
-                        <small>{item.outcome}</small>
-                      </span>
-                    </label>
-                  );
-                })}
-            </div>
-          </div>
-        ))}
-      </div>
-    </section>
-  );
-}
 
 const display = (date: string) =>
   new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
@@ -107,8 +41,8 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
+  const [refreshVersion, setRefreshVersion] = useState(0);
   const [revision, setRevision] = useState(0);
-  const [competencySelections, setCompetencySelections] = useState<Record<string, string[]>>({});
 
   const selected = learners.find((l) => l.id === learnerId);
   const y = academicYear(date);
@@ -118,16 +52,6 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
   const yearPlan = data?.periods.find((p) => p.kind === 'year' && p.start_date === yearRange.startDate);
   const weekPlan = data?.periods.find((p) => p.kind === 'week' && p.start_date === weekStart);
   const endpoint = '/api/planning';
-  const availableCompetencies = competencies.filter((item) => item.stage === stageKey(selected?.stage ?? ''));
-  const yearSelectionKey = 'year:' + learnerId + ':' + yearRange.startDate;
-  const weekSelectionKey = 'week:' + learnerId + ':' + weekStart;
-  const yearCompetencyIds = competencySelections[yearSelectionKey] ?? yearPlan?.competency_ids ?? [];
-  const weekCompetencyIds = competencySelections[weekSelectionKey] ?? weekPlan?.competency_ids ?? [];
-  const setYearCompetencyIds = (ids: string[]) =>
-    setCompetencySelections((current) => ({ ...current, [yearSelectionKey]: ids }));
-  const setWeekCompetencyIds = (ids: string[]) =>
-    setCompetencySelections((current) => ({ ...current, [weekSelectionKey]: ids }));
-
   const load = useCallback(
     async (signal?: AbortSignal) => {
       if (!learnerId) return null;
@@ -135,7 +59,10 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
       const response = await fetch(endpoint + '?' + params.toString(), { cache: 'no-store', signal });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || 'Unable to open planning records.');
-      return json as PlanningData;
+      const taskResponse = await fetch('/api/planning/chapters?' + params, {cache:'no-store', signal});
+      const result = await taskResponse.json();
+      if (!taskResponse.ok) throw new Error(result.error);
+      return {...json, tasks:result.tasks} as PlanningData;
     },
     [learnerId, date],
   );
@@ -157,7 +84,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [load, learnerId]);
+  }, [load, learnerId, refreshVersion]);
 
   async function save(event: FormEvent<HTMLFormElement>, kind: 'year' | 'week') {
     event.preventDefault();
@@ -178,7 +105,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
           title: String(fields.get('title') ?? ''),
           focus: String(fields.get('focus') ?? ''),
           notes: String(fields.get('notes') ?? ''),
-          competencyIds: kind === 'year' ? yearCompetencyIds : weekCompetencyIds,
+          competencyIds: (kind === 'year' ? yearPlan : weekPlan)?.competency_ids ?? [],
         }),
       });
       const body = await response.json();
@@ -230,6 +157,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
                 className={l.id === learnerId ? 'learner-pill is-active' : 'learner-pill'}
                 aria-pressed={l.id === learnerId}
                 onClick={() => {
+                  if (learnerId === l.id) return;
                   setLearnerId(l.id);
                   setNotice('');
                   setError('');
@@ -298,7 +226,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
               className="btn-secondary"
               onClick={() => {
                 setDate(initialDate);
-                setLoading(true);
+                setLoading(date !== initialDate);
                 setError('');
               }}
             >
@@ -341,6 +269,8 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
 
       {data && !loading && (
         <>
+          <ChapterPlanner key={learnerId+date} learnerId={learnerId} stage={selected?.stage??''} date={date}
+            ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
           <section className="workspace-panel">
             <div className="panel-heading">
               <div>
@@ -387,6 +317,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
             </div>
           </section>
 
+          <details><summary>Optional planning notes</summary>
           <div className="subject-grid">
             <section className="workspace-panel">
               <span className="eyebrow">ANNUAL DIRECTION</span>
@@ -416,12 +347,6 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
                         placeholder="Add any personal notes or priorities…"
                       />
                     </label>
-                    <CompetencyPicker
-                      items={availableCompetencies}
-                      selected={yearCompetencyIds}
-                      onChange={setYearCompetencyIds}
-                      label="Choose from this learner’s curriculum"
-                    />
                     <label className="workspace-field">
                       <span>Resources and adjustments</span>
                       <textarea name="notes" rows={3} maxLength={1500} defaultValue={yearPlan?.notes ?? ''} />
@@ -475,14 +400,6 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
                         placeholder="Add a custom focus or reminder…"
                       />
                     </label>
-                    <CompetencyPicker
-                      items={availableCompetencies}
-                      selected={weekCompetencyIds}
-                      onChange={(ids) => {
-                        if (ids.length <= 2) setWeekCompetencyIds(ids);
-                      }}
-                      label="Choose this week’s priorities (up to two)"
-                    />
                     <label className="workspace-field">
                       <span>Adaptations and supplies</span>
                       <textarea name="notes" rows={3} maxLength={1500} defaultValue={weekPlan?.notes ?? ''} />
@@ -504,19 +421,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
             </section>
           </div>
 
-          <section className="workspace-panel studio-connect-strip">
-            <div>
-              <span className="eyebrow">CURRICULUM CONNECTION</span>
-              <h2 style={{ margin: '4px 0 6px' }}>Connect this plan to your curriculum</h2>
-              <p className="muted" style={{ margin: 0 }}>
-                Annual and weekly notes organise intentions without marking any goal mastered automatically. Explore the catalogue whenever you want new ideas.
-              </p>
-            </div>
-            <div className="hero-actions" style={{ marginTop: 0 }}>
-              <Link className="hero-action-secondary" href="/curriculum">Competency catalogue →</Link>
-              <Link className="hero-action-secondary" href="/learning-pathways">36-week pathways →</Link>
-            </div>
-          </section>
+          </details>
         </>
       )}
     </div>
