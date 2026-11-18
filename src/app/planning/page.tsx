@@ -1,3 +1,4 @@
+import FamilyWorkflow from '@/components/family-workflow';
 import SectionArtwork from '@/components/section-artwork';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -8,7 +9,8 @@ import { PrepareNextDay } from './prepare-next-day';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PlanningPage() {
+export default async function PlanningPage({searchParams}:{searchParams:Promise<{resource?:string;intent?:string}>}) {
+  const params=await searchParams;
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -54,6 +56,7 @@ export default async function PlanningPage() {
         </div>
         <SectionArtwork theme="plan" />
       </div>
+      <FamilyWorkflow key={params.resource??'default'} resourceKey={typeof params.resource==='string'?params.resource:''} intent={params.intent}/>
       <PrepareNextDay canEdit={family.role === 'owner'} />
       <PlanningWorkspace
         learners={learners.map((l) => ({

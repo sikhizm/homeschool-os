@@ -9,7 +9,7 @@ import {
 
 import { olympiadSourcesFor, promptClasses, promptClassForStage } from '@/lib/olympiad/prompt-classes';
 
-type Learner = { id: string; name: string; stage: string };
+type Learner = { id: string; name: string; stage: string; mathsLevel?: number };
 type BuilderProps = { learners: Learner[]; storageKey: string };
 const subscribe = () => () => {};
 export default function PromptBuilder(props: BuilderProps) {
@@ -18,7 +18,7 @@ export default function PromptBuilder(props: BuilderProps) {
 }
 function LoadedBuilder({ learners, storageKey }: BuilderProps) {
   const [saved] = useState(() => {
-    const initialSettings = updatePromptSettings(defaultSettings, { targetClass: promptClassForStage(learners[0]?.stage ?? '') ?? '4' });
+    const initialSettings = updatePromptSettings(defaultSettings, { targetClass: promptClassForStage(learners[0]?.mathsLevel ? 'Class '+learners[0].mathsLevel : learners[0]?.stage ?? '') ?? '4' });
     try {
       const value = JSON.parse(localStorage.getItem(storageKey) ?? 'null');
       const restored = readPromptSettings(value?.settings);
@@ -37,6 +37,7 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
   const [message, setMessage] = useState('');
   const preview = useRef<HTMLTextAreaElement>(null);
   const learner = learners.find(item => item.id === learnerId) ?? { name: 'Learner', stage: '' };
+  const mathsLevel = learners.find(item=>item.id===learnerId)?.mathsLevel;
   const prompt = buildLearningPrompt(settings, learner);
   function save(next: PromptSettings, savedFavourites = favourites) {
     setSettings(next);
@@ -49,7 +50,8 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
   }
   function selectLearner(id: string) {
     setLearnerId(id);
-    const targetClass = promptClassForStage(learners.find(item => item.id === id)?.stage ?? '');
+    const selected = learners.find(item => item.id === id);
+    const targetClass = promptClassForStage(selected?.mathsLevel ? 'Class '+selected.mathsLevel : selected?.stage ?? '');
     if (targetClass) save(updatePromptSettings(settings, { targetClass }));
   }
   function toggleFavourite() {
@@ -86,6 +88,8 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
             {Object.entries(curricula).map(([key, value]) => <option key={key} value={key}>{value.label}</option>)}
           </select></label>}
         <p className="muted">{settings.track === 'Olympiad Prep' ? 'Classes 1–10 · Maths and Reasoning. The target class can be adjusted for revision or challenge work.' : 'Year / Grade 4 collection · Maths and Reasoning. Check the target level against your learner’s readiness.'}</p>
+        {mathsLevel&&settings.track==='Olympiad Prep'&&<button className="btn-secondary" onClick={()=>save(updatePromptSettings(settings,{targetClass:String(mathsLevel) as PromptSettings['targetClass']}))}>Use saved Maths level · Class {mathsLevel}</button>}
+        <p className="muted">Selecting a learner uses their parent-set Mathematics level when available. Saved settings and the target selector let you override it.</p>
         <label>Topic<select value={settings.topic} onChange={event => change('topic', event.target.value as PromptSettings['topic'])}>{topicsForSettings(settings).map(item => <option key={item}>{item}</option>)}</select></label>
         <label>Material<select value={settings.material} onChange={event => change('material', event.target.value as PromptSettings['material'])}>{materials.map(item => <option key={item}>{item}</option>)}</select></label>
         {settings.track === 'Teaching Approaches' && <label>Teaching approach<select value={settings.approach} onChange={event => change('approach', event.target.value as PromptSettings['approach'])}>{approaches.map(item => <option key={item}>{item}</option>)}</select></label>}

@@ -17,6 +17,7 @@ export function navigationForPath(pathname:string){
  else if(within(pathname,'/library'))context={label:'Learning library',links:[
   {href:'/library',label:'Library'},
   {href:'/library/prompts',label:'Learning Prompts'},
+  {href:'/library/olympiad',label:'Olympiad Resources'},
   {href:'/library/enrichment',label:'Supplementary resources'},
  ]};
  else if(within(pathname,'/lessons'))context={label:'Learning workspace',links:[
@@ -62,7 +63,7 @@ export const bottomDestinations:ShellDestination[]=[
  {id:'settings',href:'/settings',label:'Profile',glyph:'☺',hint:'Profile, family tools and settings',match:['/settings','/learners','/portfolio']},
 ];
 export function shellDestinationIsActive(pathname:string,destination:ShellDestination){
- return destination.match.some(route=>within(pathname,route)) && !(destination.id==='library' && within(pathname,'/library/olympiad'));
+ return destination.match.some(route=>within(pathname,route)) && !(destination.id==='library' && sidebarDestinations.includes(destination) && within(pathname,'/library/olympiad'));
 }
 export function activeShellDestination(pathname:string,destinations:ShellDestination[]){
  return destinations.find(destination=>shellDestinationIsActive(pathname,destination))??null;

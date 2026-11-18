@@ -31,11 +31,11 @@ export async function POST(request:Request){
   const sql=getSql();
   const learners=await sql`SELECT l.id::text id,l.display_name,l.stage FROM learners l JOIN family_members fm ON fm.family_id=l.family_id WHERE l.id::text=${learnerId} AND l.archived_at IS NULL AND fm.auth_user_id=${user} AND fm.role='owner' LIMIT 1`;
   if(!learners.length)return send({error:'Only a family owner can import material for this learner.'},403);
-  const learner=learners[0];
-  if(String(learner.stage)!==`Class ${book.grade}`)return send({error:'This learner is enrolled in a different class.'},403);
+
+
   const inserted=await sql`WITH new_document AS (
     INSERT INTO study_material_documents(learner_id,grade,subject,book_id,chapter_id,title,document_type,safe_html,source_reference,source_version)
-    VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${learner.stage},${book.subject},${book.id},${chapterId},${title},${documentType},'<p>PDF attachment stored in the Study Library.</p>',${chapter.sourceUrl},${book.editionLabel})
+    VALUES ((SELECT id FROM learners WHERE id::text=${learnerId}),${'Class '+book.grade},${book.subject},${book.id},${chapterId},${title},${documentType},'<p>PDF attachment stored in the Study Library.</p>',${chapter.sourceUrl},${book.editionLabel})
     RETURNING id,version
    )
    INSERT INTO study_material_pdf_files(document_id,file_name,mime_type,file_size_bytes,file_data)
