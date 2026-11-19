@@ -27,7 +27,7 @@ export default async function NcertBooks({searchParams}:{searchParams:Promise<Se
  const suggestedSkills=globalSkills.filter(x=>x.stage===matchedStage&&(!selectedBook||(selectedBook.subject==='Environmental Studies'?x.subject==='Our world':x.subject===selectedBook.subject)));
  return <>
  <main className="family-dashboard">
- <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM ENGINE · TEXTBOOK INDEX</span><h1>One chapter at a time</h1><p className="muted">Find the right NCERT book, view its chapter index and separate verified textbook facts from learning suggestions awaiting editorial review.</p></div><SectionArtwork theme="explore"/></div>
+ <div className="dashboard-welcome"><div><span className="tag">GLOBAL CURRICULUM ENGINE · TEXTBOOK INDEX</span><h1>One chapter at a time</h1><Link href="/ncert-books/my-books" className="btn-secondary">My Books →</Link><p className="muted">Find the right NCERT book, view its chapter index and separate verified textbook facts from learning suggestions awaiting editorial review.</p></div><SectionArtwork theme="explore"/></div>
  <nav className="global-crumbs" aria-label="Breadcrumb"><Link href="/dashboard">Home</Link><span>/</span><Link href="/global-curriculum">Global curriculum</Link><span>/</span><strong>NCERT books</strong></nav>
  <div className="ncert-stats" aria-label="Catalogue audit summary">
   <div><strong>{stats.books}</strong><span>Books in catalogue</span></div><div><strong>{stats.chapterSlots}</strong><span>Numbered chapter slots</span></div><div><strong>{stats.verifiedChapterTitles}</strong><span>Verified Contents entries</span></div><div><Link href="/ncert-books/audit">View catalogue audit →</Link></div>
