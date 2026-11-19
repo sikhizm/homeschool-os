@@ -39,7 +39,7 @@ export async function GET(request:Request){
      WHERE l.id::text=${learnerId} AND p.start_date<=${year.endDate}::date AND p.end_date>=${year.startDate}::date
      AND EXISTS(SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${user})
      ORDER BY p.start_date,p.kind`,
-   sql`SELECT a.learning_date::text AS date,COUNT(*)::int AS activities,
+   url.searchParams.get('legacyDays') === '0' ? [] : sql`SELECT a.learning_date::text AS date,COUNT(*)::int AS activities,
      COALESCE(SUM(a.minutes),0)::int AS minutes,
      COALESCE(SUM(CASE WHEN a.completed THEN a.minutes ELSE 0 END),0)::int AS completed_minutes
      FROM learning_activities a JOIN learners l ON l.id=a.learner_id

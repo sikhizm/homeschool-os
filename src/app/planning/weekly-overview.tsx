@@ -3,7 +3,8 @@
 import Link from 'next/link';
 import styles from './weekly-overview.module.css';
 import {useEffect, useState} from 'react';
-import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
+import {activityLabels, chapterActivityHref} from '@/lib/planning/chapter-activities';
+import type {WeeklyChapterPlan} from './weekly-chapter-activities';
 import {daysInWeek} from '@/lib/planning/periods';
 
 type Extra = {id: string; date: string; title: string; completed: boolean; period?: 'day' | 'week';
@@ -12,33 +13,25 @@ type Extra = {id: string; date: string; title: string; completed: boolean; perio
 const label = new Intl.DateTimeFormat('en-IN', {weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC'});
 const display = (day: string) => label.format(new Date(day + 'T12:00:00Z'));
 
-export default function WeeklyOverview({learnerId, date, today}: {learnerId: string; date: string; today: string}) {
+export default function WeeklyOverview({learnerId, date, today, chapterPlan, loadError}: {
+  learnerId: string; date: string; today: string; chapterPlan: WeeklyChapterPlan | null; loadError: boolean;
+}) {
   const [selectedDay, setSelectedDay] = useState(date);
-  const [items, setItems] = useState<ChapterPlanItem[] | null>(null);
+  const items = chapterPlan?.ready ? chapterPlan.items : null;
   const [extras, setExtras] = useState<Extra[] | null>(null);
-  const [chapterError, setChapterError] = useState(false);
+  const chapterError = loadError || chapterPlan?.ready === false;
   const [extraError, setExtraError] = useState(false);
   const days = daysInWeek(date);
 
   useEffect(() => {
     const controller = new AbortController();
     async function refresh() {
-      const requests = [
-        fetch('/api/chapter-plan?' + new URLSearchParams({learnerId, date}), {signal: controller.signal, cache: 'no-store'})
-          .then(async response => {
-            if (!response.ok) throw new Error();
-            const result = await response.json();
-            if (!result.ready) throw new Error();
-            if (!controller.signal.aborted) {setItems(result.items);setChapterError(false);}
-          }).catch(() => {if (!controller.signal.aborted) setChapterError(true);}),
-        fetch('/api/my-books?' + new URLSearchParams({overviewLearner: learnerId, date}), {signal: controller.signal, cache: 'no-store'})
+      await fetch('/api/my-books?' + new URLSearchParams({overviewLearner: learnerId, date}), {signal: controller.signal, cache: 'no-store'})
           .then(async response => {
             if (!response.ok) throw new Error();
             const result = await response.json();
             if (!controller.signal.aborted) {setExtras([...result.books, ...result.olympiad]);setExtraError(false);}
-          }).catch(() => {if (!controller.signal.aborted) setExtraError(true);}),
-      ];
-      await Promise.all(requests);
+          }).catch(() => {if (!controller.signal.aborted) setExtraError(true);});
     }
     void refresh();
     window.addEventListener('daily-plan-updated', refresh);

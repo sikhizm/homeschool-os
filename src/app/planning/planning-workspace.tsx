@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 
+import type {WeeklyChapterPlan} from './weekly-chapter-activities';
 import WeeklyOverview from './weekly-overview';
 import { ChapterPlanner, type ChapterRecord } from './chapter-planner';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
@@ -46,6 +47,39 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
   const [refreshVersion, setRefreshVersion] = useState(0);
   const [revision, setRevision] = useState(0);
 
+  const [chapterRequest, setChapterRequest] = useState<{
+    key: string; plan: WeeklyChapterPlan | null; error: boolean;
+  } | null>(null);
+  const chapterKey = learnerId + ':' + date;
+  const chapterState = chapterRequest?.key === chapterKey ? chapterRequest : null;
+
+  useEffect(() => {
+    if (!learnerId) return;
+    let request: AbortController | undefined;
+    async function refresh() {
+      request?.abort();
+      const controller = new AbortController();
+      request = controller;
+      try {
+        const response = await fetch('/api/chapter-plan?' + new URLSearchParams({learnerId, date}),
+          {cache: 'no-store', signal: controller.signal});
+        if (!response.ok) throw new Error();
+        const plan: WeeklyChapterPlan = await response.json();
+        if (!controller.signal.aborted) setChapterRequest({key: chapterKey, plan, error: false});
+      } catch {
+        if (!controller.signal.aborted) setChapterRequest({key: chapterKey, plan: null, error: true});
+      }
+    }
+    void refresh();
+    window.addEventListener('daily-plan-updated', refresh);
+    window.addEventListener('pageshow', refresh);
+    return () => {
+      request?.abort();
+      window.removeEventListener('daily-plan-updated', refresh);
+      window.removeEventListener('pageshow', refresh);
+    };
+  }, [learnerId, date, chapterKey]);
+
   const selected = learners.find((l) => l.id === learnerId);
   const y = academicYear(date);
   const weekStart = mondayOf(date);
@@ -57,7 +91,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
   const load = useCallback(
     async (signal?: AbortSignal) => {
       if (!learnerId) return null;
-      const params = new URLSearchParams({ learnerId, date });
+      const params = new URLSearchParams({ learnerId, date, legacyDays: '0' });
       const response = await fetch(endpoint + '?' + params.toString(), { cache: 'no-store', signal });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || 'Unable to open planning records.');
@@ -265,11 +299,12 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
       {data && !loading && (
         <>
           <ChapterPlanner key={learnerId+date} learnerId={learnerId} stage={selected?.stage??''} date={date}
-            today={initialDate} tab={plannerTab} onTabChange={setPlannerTab}
+            today={initialDate} chapterPlan={chapterState?.plan ?? null} chapterPlanError={chapterState?.error ?? false} tab={plannerTab} onTabChange={setPlannerTab}
             weekIds={weekPlan?.chapter_ids??[]} chapterRecords={data.chapterRecords??[]}
             passedChapterIds={data.passedChapterIds??[]} olympiad={yearPlan?.olympiad_topics??{}}
             ids={yearPlan?.chapter_ids??[]} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
-          <WeeklyOverview key={learnerId + ':' + date} learnerId={learnerId} date={date} today={initialDate} />
+          <WeeklyOverview key={learnerId + ':' + date} learnerId={learnerId} date={date} today={initialDate}
+            chapterPlan={chapterState?.plan ?? null} loadError={chapterState?.error ?? false} />
 
           <details><summary>Optional planning notes</summary>
           <div className="subject-grid">
