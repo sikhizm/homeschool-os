@@ -3,14 +3,10 @@
 import Link from 'next/link';
 import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import { useEffect, useState } from 'react';
+import {chapterDisplayStatuses, normalizeChapterStatus, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
 
-const labels = {
-  understood: 'Understanding recorded',
-  practice: 'Need More Practice',
-  done: 'Chapter Read',
-};
-type Outcome = keyof typeof labels;
-type Chapter = { id: string; title: string; subject: string; outcome: Outcome | null; assessed: boolean };
+type Outcome = 'done' | 'practice';
+type Chapter = { id: string; title: string; subject: string; status: ChapterDisplayStatus; assessed: boolean };
 type WeeklyPlan = { chapters: Chapter[]; canRecord: boolean };
 
 export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId: string; canEdit: boolean }) {
@@ -44,11 +40,11 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
       if (!response.ok) throw new Error(result.error);
       setPlan((previous) => previous && {
         ...previous,
-        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, outcome } : chapter),
+        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, status: chapter.status === 'finished' ? 'finished' : normalizeChapterStatus(result.status) } : chapter),
       });
       setOpen('');
       window.dispatchEvent(new Event('daily-plan-updated'));
-      setMessage('Outcome recorded.');
+      setMessage('Chapter status saved.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to save the chapter update.');
     } finally {
@@ -68,7 +64,7 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     {!plan && !message && <p>Loading weekly chapters…</p>}
     {message && <p role="status">{message}</p>}
     {plan && !plan.chapters.length && <p>No chapters selected for this week. <Link href="/planning">Open Learning Plan</Link></p>}
-    {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Apply the weekly chapter outcomes migration to record Chapter Read or Need More Practice.</p> : null}
+    {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Chapter status recording is unavailable. Check the chapter progress and weekly outcomes migrations.</p> : null}
     {chaptersBySubject.size > 0 && <div className="weekly-subjects">
       {Array.from(chaptersBySubject, ([subject, chapters]) => <section className="weekly-subject" key={subject}>
         <h4>{subject}</h4>
@@ -80,8 +76,8 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
                 <div className="weekly-chapter-heading">
                   <div className="weekly-chapter-title">
                     <Link href={href}>{chapter.title}</Link>
-                    {(chapter.outcome || chapter.assessed) && <div className="coach-task-tags">
-                      {chapter.outcome && <span>{labels[chapter.outcome]}</span>}
+                    {(chapter.status !== 'pending' || chapter.assessed) && <div className="coach-task-tags">
+                      {chapter.status !== 'pending' && <span>{chapterDisplayStatuses.find(item => item.id === chapter.status)?.label}</span>}
                       {chapter.assessed && <span>Test Attempted</span>}
                     </div>}
                   </div>

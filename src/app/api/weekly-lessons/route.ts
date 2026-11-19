@@ -3,6 +3,9 @@ import { getSql } from '@/lib/db';
 import { ncertChapterSlots, textbookById } from '@/lib/ncert/textbooks';
 import { mondayOf, periodDates } from '@/lib/planning/periods';
 
+import {normalizeChapterStatus} from '@/lib/ncert/chapter-status';
+import {passingChapters} from '@/lib/ncert/passing-chapters';
+
 const chapters = new Map(ncertChapterSlots.map((chapter) => [chapter.id, chapter]));
 const outcomes = ['understood', 'practice', 'done'];
 const json = (data: unknown, status = 200) =>
@@ -36,25 +39,27 @@ export async function GET(request: Request) {
   try {
     const scope = await weeklyScope(new URL(request.url).searchParams.get('learner'));
     if (scope instanceof Response) return scope;
-    const { sql, learnerId, ids, week } = scope;
+    const { sql, learnerId, ids } = scope;
     const [availability] = await sql`SELECT
       to_regclass('public.ncert_weekly_chapter_outcomes') IS NOT NULL AS outcomes,
+      to_regclass('public.ncert_chapter_progress') IS NOT NULL AS progress,
       to_regclass('public.ncert_test_attempts') IS NOT NULL AND to_regclass('public.ncert_test_assessments') IS NOT NULL AS tests,
       to_regclass('public.family_daily_plans') IS NOT NULL AS daily`;
-    const [saved, tested, daily] = await Promise.all([
-      availability.outcomes ? sql`SELECT chapter_id, outcome FROM ncert_weekly_chapter_outcomes
-        WHERE learner_id::text = ${learnerId} AND week_start = ${week}::date` : [],
+    const [saved, tested, daily, passed] = await Promise.all([
+      availability.progress ? sql`SELECT chapter_id, status FROM ncert_chapter_progress
+        WHERE learner_id::text = ${learnerId}` : [],
       availability.tests ? sql`SELECT DISTINCT a.chapter_id FROM ncert_test_assessments a
         JOIN ncert_test_attempts t ON t.assessment_id = a.id WHERE a.learner_id::text = ${learnerId}` : [],
       availability.daily ? sql`SELECT slots FROM family_daily_plans WHERE family_id::text = ${scope.familyId} AND learning_date = ${scope.today}::date` : [],
+      availability.tests ? passingChapters(sql, [learnerId]) : [],
     ]);
     const slots = Array.isArray(daily[0]?.slots) ? daily[0].slots : [];
-    return json({ canRecord: availability.outcomes === true, canAdd: availability.daily === true, chapters: ids.flatMap((id) => {
+    return json({ canRecord: availability.outcomes === true && availability.progress === true, canAdd: availability.daily === true, chapters: ids.flatMap((id) => {
       const chapter = chapters.get(id);
       const book = chapter && textbookById(chapter.bookId);
       if (!chapter || !book) return [];
       return [{ id, title: chapter.verifiedTitle ?? chapter.label, subject: book.subject,
-        outcome: saved.find((row) => row.chapter_id === id)?.outcome ?? null,
+        status: passed.some(row => row.chapter_id === id) ? 'finished' : normalizeChapterStatus(saved.find(row => row.chapter_id === id)?.status),
         assessed: tested.some((row) => row.chapter_id === id),
         addedToday: slots.some((slot: { learnerId: string; task?: { id: string } }) =>
           slot.learnerId === learnerId && slot.task?.id === `weekly-chapter:${id}`) }];
@@ -103,7 +108,9 @@ export async function POST(request: Request) {
       `;
       return saved.length ? json({ saved: true }) : json({ error: 'The weekly chapter is no longer available.' }, 409);
     }
+    const status = input.outcome === 'practice' ? 'needs_practice' : 'read';
     const rows = await sql`
+      WITH weekly_record AS (
       INSERT INTO ncert_weekly_chapter_outcomes (learner_id, week_start, chapter_id, outcome)
       SELECT l.id, ${week}::date, ${input.chapterId}, ${input.outcome}
       FROM learners l JOIN family_members m ON m.family_id = l.family_id
@@ -113,9 +120,23 @@ export async function POST(request: Request) {
         AND ${input.chapterId} = ANY(w.chapter_ids) AND ${input.chapterId} = ANY(y.chapter_ids)
       ON CONFLICT (learner_id, week_start, chapter_id)
       DO UPDATE SET outcome = EXCLUDED.outcome, updated_at = now()
-      RETURNING chapter_id
+      RETURNING learner_id, chapter_id
+      )
+      INSERT INTO ncert_chapter_progress (learner_id, chapter_id, status, parent_note, completed_at)
+      SELECT w.learner_id, w.chapter_id, ${status}, '',
+        CASE WHEN ${status} = 'read' THEN now() ELSE (
+          SELECT max(o.updated_at) FROM ncert_weekly_chapter_outcomes o
+          WHERE o.learner_id = w.learner_id AND o.chapter_id = w.chapter_id
+            AND o.outcome IN ('done', 'understood')
+        ) END
+      FROM weekly_record w
+      ON CONFLICT (learner_id, chapter_id) DO UPDATE
+        SET status = EXCLUDED.status, updated_at = now(),
+          completed_at = CASE WHEN EXCLUDED.status = 'read' THEN EXCLUDED.completed_at
+            ELSE COALESCE(ncert_chapter_progress.completed_at, EXCLUDED.completed_at) END
+      RETURNING status
     `;
-    return rows.length ? json({ saved: true }) : json({ error: 'The weekly chapter is no longer available.' }, 409);
+    return rows.length ? json({ saved: true, status: rows[0].status }) : json({ error: 'The weekly chapter is no longer available.' }, 409);
   } catch {
     return json({ error: 'Unable to save the chapter update.' }, 503);
   }
