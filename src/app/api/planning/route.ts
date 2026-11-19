@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth/server';
+import {passingChapters} from '@/lib/ncert/passing-chapters';
 import { getSql } from '@/lib/db';
 import { competencies } from '@/lib/curriculum/library';
 import { academicYear, daysInWeek, parsePlanningInput, PlanInputError, validPlanningDate, yearDates } from '@/lib/planning/periods';
@@ -26,13 +27,13 @@ export async function GET(request:Request){
  try{
   const sql=getSql();
   const membership=await sql`SELECT l.id FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
-   WHERE l.id::text=${learnerId} AND fm.auth_user_id=${user}
+   WHERE l.id::text=${learnerId} AND l.archived_at IS NULL AND fm.auth_user_id=${user}
    AND l.family_id=(SELECT family_id FROM family_members WHERE auth_user_id=${user} ORDER BY created_at,family_id LIMIT 1)
    LIMIT 1`;
   if(!membership.length)return respond({error:'Learner unavailable or permission denied.'},403);
   const year=yearDates(academicYear(anchor));
   const week=daysInWeek(anchor);
-  const [periods,days]=await Promise.all([
+  const [periods,days,passes]=await Promise.all([
    sql`SELECT p.id::text,p.kind,p.start_date::text,p.end_date::text,p.title,p.focus,p.notes,p.competency_ids,p.chapter_ids,to_jsonb(p)->'olympiad_topics' AS olympiad_topics,to_jsonb(p)->'finished_chapters' AS finished_chapters
      FROM learning_planning_periods p JOIN learners l ON l.id=p.learner_id
      WHERE l.id::text=${learnerId} AND p.start_date<=${year.endDate}::date AND p.end_date>=${year.startDate}::date
@@ -44,9 +45,10 @@ export async function GET(request:Request){
      FROM learning_activities a JOIN learners l ON l.id=a.learner_id
      WHERE l.id::text=${learnerId} AND a.learning_date BETWEEN ${week[0]}::date AND ${week[6]}::date
      AND EXISTS(SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${user})
-     GROUP BY a.learning_date ORDER BY a.learning_date`
+     GROUP BY a.learning_date ORDER BY a.learning_date`,
+   passingChapters(sql,[learnerId]),
   ]);
-  return respond({year,week,periods,days});
+  return respond({year,week,periods,days,passedChapterIds:passes.map(row=>String(row.chapter_id))});
  }catch(e){return errorResult(e);}
 }
 export async function POST(request:Request){

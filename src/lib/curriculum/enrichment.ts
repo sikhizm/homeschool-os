@@ -60,38 +60,19 @@ export const supplementaryResources: readonly Resource[] = [
     }
   },
   {
-    "id": "jaadui-pitara",
-    "title": "e-Jaadui Pitara",
-    "publisher": "NCERT",
-    "sourceLocation": "Official resource portal",
-    "url": "https://ejaaduipitara.ncert.gov.in/",
-    "stages": [
-      "nursery",
-      "ukg"
-    ],
-    "topic": "early-years",
-    "parentUse": "Choose a story, song or play idea in advance and share it offline. The portal also advertises app and messaging-bot access.",
-    "verification": {
-      "status": "verified",
-      "lastVerifiedOn": "2026-11-15",
-      "evidence": "Opened the NCERT portal and confirmed its parent and teacher resource access options."
-    }
-  },
-  {
     "id": "punjab-educare",
-    "title": "Primary Punjabi reference",
+    "title": "Basant Punjabi 1",
     "publisher": "Punjab Educare",
-    "sourceLocation": "Class 1 Punjabi resource index",
-    "url": "https://www.punjabeducare.org/1st-punjabi",
+    "sourceLocation": "Class 1 Punjabi textbook, Punjab Educare e-books",
+    "url": "https://drive.google.com/file/d/1rr0oV0fjafmdpoGO-dSnrpe-jkaW57Hx/view",
     "stages": [
       "class4"
     ],
     "topic": "home-languages",
-    "parentUse": "Use the beginner-level index for Gurmukhi review when needed. A parent should preview linked media and select material at the learner’s reading level.",
+    "parentUse": "Use this Class 1 book for introductory Gurmukhi review when it matches the learner’s reading level.",
     "verification": {
-      "status": "verified",
-      "lastVerifiedOn": "2026-11-15",
-      "evidence": "Opened the Punjab Educare Class 1 Punjabi index and confirmed its introductory materials."
+      "status": "pending",
+      "evidence": "Punjab Educare lists this exact Basant Punjabi 1 PDF. The file viewer resolved, but its pages were not confirmed in the verification check."
     }
   },
   {
@@ -303,8 +284,7 @@ export const enrichmentActivities: readonly Activity[] = [
     "minutes": 7,
     "materials": "A familiar picture book",
     "prompt": "Read a short scene. Invite your child to act out one movement from it and describe what they did.",
-    "discussion": "A gesture, word or movement that connects with the story is enough.",
-    "referenceId": "jaadui-pitara"
+    "discussion": "A gesture, word or movement that connects with the story is enough."
   },
   {
     "id": "ukg-sequence",

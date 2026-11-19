@@ -10,12 +10,13 @@ export function chapterProgress(
   ids: string[],
   tasks: ChapterTask[],
   finished: string[] = [],
+  passed: ReadonlySet<string> = new Set(),
 ) {
   const chapters = ids.map((id) => {
     const scheduled = tasks.filter((task) => task.chapter === id);
     const done = scheduled.filter((task) => task.completed).length;
     const status =
-      !scheduled.length && finished.includes(id)
+      passed.has(id) || (!scheduled.length && finished.includes(id))
         ? "Completed"
         : !done
           ? "Not started"

@@ -70,5 +70,11 @@ export async function POST(request:Request,context:Context){
   `;
   if(!rows.length)return respond({error:'Only a family owner may update their learner.'},403);
   return respond({saved:true,status:rows[0].status});
- }catch{return respond({error:'Unable to save progress. Check that the NCERT chapter status migration has been applied.'},503);}
+ }catch(error){
+  const code = (error as {code?: string})?.code;
+  if(code==='42P01'||(code==='23514'&&(error as {constraint?: string}).constraint==='ncert_chapter_progress_status_check'))
+   return respond({error:'Chapter status storage is unavailable or needs its database migration.'},503);
+  console.error('[chapter-progress] Save failed', code??'unknown');
+  return respond({error:'Unable to save chapter progress. Try again.'},503);
+ }
 }

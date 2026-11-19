@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import { getSql } from '@/lib/db';
-import WeeklyChapterActivities from './weekly-chapter-activities';
 import PlanningWorkspace from './planning-workspace';
 import { PrepareNextDay } from './prepare-next-day';
 
@@ -55,7 +54,6 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         <SectionArtwork theme="plan" />
       </div>
       {params.resource && <FamilyWorkflow key={params.resource??'default'} resourceKey={typeof params.resource==='string'?params.resource:''} intent={params.intent}/>}
-      <WeeklyChapterActivities />
       <PlanningWorkspace
         learners={learners.map((l) => ({
           id: String(l.id),

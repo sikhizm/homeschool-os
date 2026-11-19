@@ -12,14 +12,15 @@ test('curriculum descendants stay inside the Explore navigation group',()=>{
 test('planning offers direct access to the daily coach and curriculum',()=>{
  const result=navigationForPath('/planning');
  assert.equal(result.activePrimary,'planner');
- assert.deepEqual(result.context?.links.map(x=>x.label),['Daily coach','Weekly planner','Curriculum']);
+ assert.deepEqual(result.context?.links.map(x=>x.label),['Daily coach','Weekly planner']);
  assert.ok(navigationLinkIsActive('/planning', '/planning'));
 });
 
-test('portfolio and reports are grouped as one progress destination',()=>{
- assert.equal(navigationForPath('/portfolio').activePrimary,'progress');
+test('reports remain separate from challenges and the retired portfolio',()=>{
+ assert.equal(navigationForPath('/portfolio').activePrimary,null);
  assert.equal(navigationForPath('/reports').activePrimary,'progress');
- assert.equal(navigationForPath('/reports').context?.links.length,2);
+ assert.equal(navigationForPath('/reports').context,null);
+ assert.equal(navigationForPath('/challenges').activePrimary,null);
 });
 
 test('the dashboard has no redundant secondary navigation',()=>{

@@ -70,20 +70,11 @@ planningResponse = await fetch(root + '/api/planning', {method:'POST',headers:{'
 assert.equal(planningResponse.status, 403);
 console.log('Planning API: 401 unauthenticated, 403 cross-origin');
 
-const lessonPage = await fetch(root + '/lessons', { redirect: 'manual' });
-assert.ok([307, 308].includes(lessonPage.status));
-assert.ok(lessonPage.headers.get('location')?.includes('/auth/sign-in'));
-console.log('/lessons: unauthenticated visitor redirected to sign-in');
-
 const pilot = await fetch(root + '/november-pilot', { redirect: 'manual' });
 assert.ok([307, 308].includes(pilot.status));
 assert.ok(pilot.headers.get('location')?.includes('/auth/sign-in'));
 console.log('/november-pilot: unauthenticated request redirected');
 
-const portfolio = await fetch(root + '/portfolio', {redirect:'manual'});
-assert.ok([307,308].includes(portfolio.status));
-assert.ok(portfolio.headers.get('location')?.includes('/auth/sign-in'));
-console.log('/portfolio: unauthenticated visitor redirected');
 const portfolioApi='/api/learners/11111111-1111-4111-8111-111111111111/portfolio';
 let proof=await fetch(root+portfolioApi);
 assert.equal(proof.status,401);
@@ -126,10 +117,13 @@ mappingApi=await fetch(root+'/api/curriculum-mappings',{method:'POST',headers:{'
 assert.equal(mappingApi.status,403);
 console.log('Curriculum mapping review: private route and API reject unauthenticated/cross-origin access');
 
-const annual = await fetch(root + '/learning-pathways', { redirect: 'manual' });
-assert.ok([307, 308].includes(annual.status));
-assert.ok(annual.headers.get('location').includes('/auth/sign-in'));
-console.log('/learning-pathways: annual curriculum is private');
+const learningPath = await fetch(root + '/learn/path', {redirect:'manual'});
+assert.ok([307,308].includes(learningPath.status));
+assert.ok(learningPath.headers.get('location')?.includes('/auth/sign-in'));
+const chapterPlan = await fetch(root + '/api/chapter-plan');
+assert.equal(chapterPlan.status, 401);
+assert.ok(chapterPlan.headers.get('cache-control')?.includes('no-store'));
+console.log('Learning Path and chapter plan are private');
 
 let coach = await fetch(root + '/api/auto-learning?budget=60');
 assert.equal(coach.status, 401);
