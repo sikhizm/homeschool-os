@@ -27,6 +27,10 @@ async function changeChapter(input: Record<string, unknown>) {
   });
   if (!res.ok) throw new Error((await res.json()).error || "Unable to save.");
 }
+function olympiadPromptHref(learner: string, grade: string, topic: string) {
+  return '/library/prompts?' + new URLSearchParams({learner, grade, topic});
+}
+
 function chapterName(id: string) {
   const c = ncertChapterSlots.find((c) => c.id === id);
   return c?.verifiedTitle ?? c?.label ?? id;
@@ -332,12 +336,7 @@ export function ChapterPlanner({
                   ? paper.pdfUrl
                     ? "/library/olympiad/read/" + paper.id
                     : paper.sourceUrl
-                  : "/library/prompts?" +
-                    new URLSearchParams({
-                      learner: learnerId,
-                      grade: grade,
-                      topic: item,
-                    });
+                  : olympiadPromptHref(learnerId, grade, item);
                 return (
                   <div key={item} className={styles.practiceRow}>
                     <label className={styles.chapterOption}>
@@ -375,7 +374,12 @@ export function ChapterPlanner({
                 const daily = practice.find(item => item.topic === topic && item.period === 'day' && item.practice_date === today);
                 const past = week[0] < mondayOf(today);
                 return <li key={topic} className={styles.olympiadTopic}>
-                  <strong>{topic}</strong>
+                  <strong>
+                    {topic}{' '}
+                    <Link href={olympiadPromptHref(learnerId, grade, topic)} aria-label={`Build prompt for ${topic}`}>
+                      <small>Build prompt ↗</small>
+                    </Link>
+                  </strong>
                   <label className={styles.olympiadGoal}>
                     <input type="checkbox" checked={Boolean(olympiad[grade + ':' + topic])} disabled={!canEdit || busy}
                       aria-label={`Year goal for ${topic}`} onChange={event => void save({
