@@ -1,6 +1,30 @@
 BEGIN;
 
-ALTER TABLE public.chapter_plan_activities ADD COLUMN IF NOT EXISTS completed_on date;
+ALTER TABLE public.chapter_plan_activities ADD COLUMN IF NOT EXISTS completed_on date,
+  ADD COLUMN IF NOT EXISTS optional_test boolean NOT NULL DEFAULT false;
+ALTER TABLE public.ncert_chapter_progress ADD COLUMN IF NOT EXISTS revised_on date;
+
+-- Preserve the revision date when a parent edits the chapter note.
+CREATE OR REPLACE FUNCTION public.record_chapter_revision_date()
+RETURNS trigger LANGUAGE plpgsql SET search_path = pg_catalog, public AS $$
+BEGIN
+  IF NEW.status <> 'revised' THEN
+    NEW.revised_on := NULL;
+  ELSIF TG_OP = 'INSERT' THEN
+    NEW.revised_on := (NEW.updated_at AT TIME ZONE 'Asia/Kolkata')::date;
+  ELSIF OLD.status IS DISTINCT FROM NEW.status THEN
+    NEW.revised_on := (NEW.updated_at AT TIME ZONE 'Asia/Kolkata')::date;
+  END IF;
+  RETURN NEW;
+END $;
+
+DROP TRIGGER IF EXISTS capture_revision_date ON public.ncert_chapter_progress;
+CREATE TRIGGER capture_revision_date BEFORE INSERT OR UPDATE OF status
+ON public.ncert_chapter_progress FOR EACH ROW EXECUTE FUNCTION public.record_chapter_revision_date();
+
+UPDATE public.ncert_chapter_progress
+SET revised_on = (updated_at AT TIME ZONE 'Asia/Kolkata')::date
+WHERE status = 'revised' AND revised_on IS NULL;
 
 -- Keep the first completion for each scheduled reading when the chapter is read again.
 CREATE OR REPLACE FUNCTION public.record_planned_chapter_reading()

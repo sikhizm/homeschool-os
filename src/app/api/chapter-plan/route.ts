@@ -40,7 +40,8 @@ export async function GET(request: Request) {
     if (!schema.ready || !ids.length) return json({ready: Boolean(schema.ready), learners, canEdit, items: []});
     const [planned, progress, tests, weeklyReads] = await Promise.all([
       sql`SELECT p.learner_id::text, p.chapter_id, p.activity, p.period, p.starts_on::text,
-        to_jsonb(p)->>'completed_on' AS completed_on FROM chapter_plan_activities p
+        to_jsonb(p)->>'completed_on' AS completed_on,
+        (to_jsonb(p)->>'optional_test')::boolean AS optional_test FROM chapter_plan_activities p
         WHERE learner_id::text = ANY(${ids}::text[]) AND
           (( ${rhythm} AND activity = 'reading' AND starts_on <= ${day}::date) OR (period = 'day' AND starts_on BETWEEN ${requestedLearner ? week : day}::date AND ${requestedLearner ? addDays(week, 6) : day}::date) OR (period = 'week' AND starts_on = ${week}::date))
         ORDER BY learner_id, chapter_id, CASE activity WHEN 'reading' THEN 0 WHEN 'revision' THEN 1 ELSE 2 END`,
@@ -92,7 +93,7 @@ export async function GET(request: Request) {
       return [{
         chapterId: chapter.id, learnerId: String(learner.id), learnerName: String(learner.name),
         title: chapter.verifiedTitle ?? chapter.label, activity, period: row.period as ChapterPlanItem['period'],
-        startsOn, ...timing,
+        startsOn, ...timing, optionalTest: row.optional_test === true,
         done: activity === 'reading' ? timing.completedOn !== null : timing.onTime,
         inToday: inToday.has(`${key(row.learner_id, row.chapter_id)}:${activity}`),
       }];
@@ -123,8 +124,7 @@ export async function GET(request: Request) {
           const id = key(learner.id, row.chapter_id);
           const test = latestTest.get(id);
           const activity = row.status === 'needs_practice' || row.status === 'revision_due' ||
-            (test?.passed === false && !(row.status === 'revised' && row.updated_on > test.tested_on)) ? 'revision'
-            : row.status === 'revised' && (!test || test.passed === false) ? 'test' : null;
+            (test?.passed === false && !(row.status === 'revised' && row.updated_on > test.tested_on)) ? 'revision' : null;
           const chapter = catalogue.get(String(row.chapter_id));
           return chapter && activity && !deduped.has(`${id}:${activity}`) ? [{
             chapterId: chapter.id, learnerId: String(learner.id), learnerName: String(learner.name),
@@ -190,6 +190,36 @@ async function scheduleReading(sql: ReturnType<typeof getSql>, familyId: string,
   `;
 }
 
+async function scheduleSundayTests(sql: ReturnType<typeof getSql>, familyId: string, day: string) {
+  const monday = mondayOf(day);
+  if (day !== addDays(monday, 6)) return;
+  const friday = addDays(monday, 4);
+  const [schema] = await sql`
+    SELECT EXISTS (SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public' AND table_name = 'chapter_plan_activities' AND column_name = 'optional_test') AS ready
+  `;
+  if (!schema?.ready) return;
+  await sql`
+    INSERT INTO chapter_plan_activities (learner_id, chapter_id, activity, period, starts_on, optional_test)
+    SELECT p.learner_id, p.chapter_id, 'test', 'day', ${day}::date, true
+    FROM ncert_chapter_progress p JOIN learners l ON l.id = p.learner_id
+    WHERE l.family_id::text = ${familyId} AND l.archived_at IS NULL AND p.status = 'revised'
+      AND (p.completed_at AT TIME ZONE 'Asia/Kolkata')::date BETWEEN ${monday}::date AND p.revised_on
+      AND p.revised_on <= ${friday}::date
+      AND NOT EXISTS (
+        SELECT 1 FROM chapter_plan_activities scheduled
+        WHERE scheduled.learner_id = p.learner_id AND scheduled.chapter_id = p.chapter_id
+          AND scheduled.activity = 'test' AND scheduled.starts_on BETWEEN ${monday}::date AND ${day}::date
+      )
+      AND NOT EXISTS (
+        SELECT 1 FROM ncert_test_assessments a JOIN ncert_test_attempts t ON t.assessment_id = a.id
+        WHERE a.learner_id = p.learner_id AND a.chapter_id = p.chapter_id
+          AND t.test_date BETWEEN (p.completed_at AT TIME ZONE 'Asia/Kolkata')::date AND ${day}::date
+      )
+    ON CONFLICT DO NOTHING
+  `;
+}
+
 export async function POST(request: Request) {
   if (request.headers.get('origin') !== new URL(request.url).origin) return json({error: 'Same-origin request required.'}, 403);
   try {
@@ -197,7 +227,9 @@ export async function POST(request: Request) {
     if (!member?.canEdit) return json({error: 'Family owner access required.'}, 403);
     const input = await request.json();
     if (input?.action === 'schedule-reading') {
-      await scheduleReading(member.sql, member.familyId, today());
+      const day = today();
+      if (isTeachingDay(day)) await scheduleReading(member.sql, member.familyId, day);
+      else await scheduleSundayTests(member.sql, member.familyId, day);
       return json({saved: true});
     }
     const {learnerId, chapterId, period, activity, date, action, fromDate} = input ?? {};

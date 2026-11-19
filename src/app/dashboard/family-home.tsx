@@ -158,7 +158,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     ...(item.activity==='reading'?[`${prefix}weekly-chapter:${item.chapterId}`]:[])];
   }));
   return [
-   ...chapterPlan.map(item=>({
+   ...chapterPlan.filter(item=>!item.optionalTest).map(item=>({
     key:`${item.learnerId}:${item.chapterId}:${item.activity}`,phase:activityLabels[item.activity],
     tone:item.activity==='reading'?'math':item.activity==='revision'?'language':'saffron',
     title:item.title,learner:item.learnerName,href:chapterActivityHref(item.chapterId,item.learnerId,item.activity),done:item.done,
@@ -169,6 +169,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   ];
  },[data,chapterPlan,rhythmReady]);
 
+ const sundayTests=chapterPlan.filter(item=>item.optionalTest);
  const todayDone=timeline.filter(row=>row.done).length;
  const heroPercent=timeline.length?Math.round(todayDone/timeline.length*100):0;
  return <section aria-labelledby="family-home-title" className="family-home">
@@ -209,6 +210,12 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
      </li>)}
     </ol>:<p className="muted family-agenda-message">{data?'Nothing scheduled yet.':'Loading today’s activities.'}</p>}
     {readingWeek.map(item=><p className="muted family-agenda-message" key={item.id}>{item.name} · {item.onTime} of {item.planned} daily readings on time this week{item.late>0?` · ${item.late} read after the due date`:''}</p>)}
+    {sundayTests.length>0&&<div className="family-agenda-message">
+     <strong>Optional Sunday tests</strong>
+     <ul>{sundayTests.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>
+      <Link href={chapterActivityHref(item.chapterId,item.learnerId,'test')}>{item.title}</Link> · {item.learnerName} · {item.done?'Done':'Scheduled'}
+     </li>)}</ul>
+    </div>}
     {weekendSuggestions.length>0&&<div className="family-agenda-message">
      <strong>Optional weekend review</strong>
      <ul>{weekendSuggestions.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>
