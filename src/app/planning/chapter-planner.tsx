@@ -66,6 +66,8 @@ export function ChapterPlanner({
   const [book, setBook] = useState(books[0]?.id ?? "");
   const [draft, setDraft] = useState(ids);
   const [weekDraft, setWeekDraft] = useState(weekIds);
+  const [weekSubject, setWeekSubject] = useState('');
+  const [weekSearch, setWeekSearch] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const week = daysInWeek(date);
@@ -101,6 +103,14 @@ export function ChapterPlanner({
     entries.push(chapter);
     subjects.set(subject, entries);
   }
+  const selectedWeekIds = weekDraft.filter(id => ids.includes(id));
+  const weekChanged = selectedWeekIds.length !== weekIds.filter(id => ids.includes(id)).length ||
+    selectedWeekIds.some(id => !weekIds.includes(id));
+  const search = weekSearch.trim().toLocaleLowerCase();
+  const weekOptions = [...subjects].flatMap(([subject, entries]) =>
+    weekSubject && weekSubject !== subject ? [] : entries
+      .filter(chapter => chapterName(chapter.id).toLocaleLowerCase().includes(search))
+      .map(chapter => ({...chapter, subject})));
   const weekLabel = new Intl.DateTimeFormat('en-IN', {day: 'numeric', month: 'short', timeZone: 'UTC'})
     .formatRange(new Date(week[0] + 'T12:00:00Z'), new Date(week[6] + 'T12:00:00Z'));
   async function save(input: Record<string, unknown>) {
@@ -228,58 +238,34 @@ export function ChapterPlanner({
           {!ids.length && <p>Choose chapters in the yearly plan first.</p>}
           {canEdit && ids.length > 0 && <details className={styles.picker}>
             <summary>＋ Add chapters</summary>
-          {[...subjects.keys()].map((subject) => {
-            const options = subjects.get(subject) ?? [];
-            return (
-              <details key={subject}>
-                <summary>
-                  {subject} ·{" "}
-                  {options.filter((c) => weekDraft.includes(c.id)).length}{" "}
-                  selected
-                </summary>
-                {options.map((c) => {
-                  const slot = ncertChapterSlots.find((s) => s.id === c.id)!;
-                  return (
-                    <label key={c.id} className={styles.chapterOption}>
-                      <input
-                        type="checkbox"
-                        disabled={!canEdit || busy}
-                        checked={weekDraft.includes(c.id)}
-                        onChange={(e) =>
-                          setWeekDraft(
-                            e.target.checked
-                              ? [...weekDraft, c.id]
-                              : weekDraft.filter((id) => id !== c.id),
-                          )
-                        }
-                      />
-                      <span>
-                        {chapterName(c.id)}{" "}
-                        <small>· {textbookById(slot.bookId)?.title}</small>
-                      </span>
-                    </label>
-                  );
-                })}
-              </details>
-            );
-          })}
-          <div className={styles.actions}>
-            {canEdit && ids.length > 0 && (
-              <button
-                type="button"
-                className="btn-primary"
-                disabled={busy}
-                onClick={() =>
-                  void save({
-                    action: "week",
-                    ids: weekDraft.filter((id) => ids.includes(id)),
-                  })
-                }
-              >
-                Save weekly chapters
+            <div className={styles.actions}>
+              <label className="workspace-field">
+                Search chapters
+                <input type="search" value={weekSearch} placeholder="Chapter title"
+                  onChange={event => setWeekSearch(event.target.value)} />
+              </label>
+              <label className="workspace-field">
+                Subject
+                <select value={weekSubject} onChange={event => setWeekSubject(event.target.value)}>
+                  <option value="">All subjects</option>
+                  {[...subjects.keys()].map(subject => <option key={subject}>{subject}</option>)}
+                </select>
+              </label>
+              <button type="button" className="btn-primary" disabled={busy || !weekChanged}
+                onClick={() => void save({action: 'week', ids: selectedWeekIds})}>
+                {busy ? 'Saving…' : `Save weekly chapters (${selectedWeekIds.length})`}
               </button>
-            )}
-          </div>
+            </div>
+            {weekOptions.length ? <div className="plan-picker-scroll">
+              {weekOptions.map(chapter => <label key={chapter.id} className={styles.chapterOption}>
+                <input type="checkbox" disabled={busy} checked={weekDraft.includes(chapter.id)}
+                  onChange={event => {
+                    const checked = event.target.checked;
+                    setWeekDraft(current => checked ? [...current, chapter.id] : current.filter(id => id !== chapter.id));
+                  }} />
+                <span>{chapterName(chapter.id)} <small>· {chapter.subject}</small></span>
+              </label>)}
+            </div> : <p className="muted">No chapters match your search.</p>}
           </details>}
           <WeeklyChapterActivities learnerId={learnerId} date={date} weekIds={weekIds} today={today} />
         </>}
