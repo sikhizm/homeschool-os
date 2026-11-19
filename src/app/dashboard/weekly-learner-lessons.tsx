@@ -3,16 +3,13 @@
 import Link from 'next/link';
 import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import { useEffect, useState } from 'react';
-import {chapterDisplayStatuses, normalizeChapterStatus, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
+import {chapterDisplayStatuses, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
 
-type Outcome = 'done' | 'practice';
 type Chapter = { id: string; title: string; subject: string; status: ChapterDisplayStatus; assessed: boolean };
-type WeeklyPlan = { chapters: Chapter[]; canRecord: boolean };
+type WeeklyPlan = { chapters: Chapter[] };
 
 export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId: string; canEdit: boolean }) {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
-  const [open, setOpen] = useState('');
-  const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
@@ -27,31 +24,6 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     return () => controller.abort();
   }, [learnerId]);
 
-  async function save(chapterId: string, outcome: Outcome) {
-    setBusy(true);
-    setMessage('');
-    try {
-      const response = await fetch('/api/weekly-lessons', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ learnerId, chapterId, outcome }),
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error);
-      setPlan((previous) => previous && {
-        ...previous,
-        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, status: chapter.status === 'finished' ? 'finished' : normalizeChapterStatus(result.status) } : chapter),
-      });
-      setOpen('');
-      window.dispatchEvent(new Event('daily-plan-updated'));
-      setMessage('Chapter status saved.');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to save the chapter update.');
-    } finally {
-      setBusy(false);
-    }
-  }
-
   const chaptersBySubject = new Map<string, Chapter[]>();
   for (const chapter of plan?.chapters ?? []) {
     const chapters = chaptersBySubject.get(chapter.subject);
@@ -64,14 +36,13 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     {!plan && !message && <p>Loading weekly chapters…</p>}
     {message && <p role="status">{message}</p>}
     {plan && !plan.chapters.length && <p>No chapters selected for this week. <Link href="/planning">Open Learning Plan</Link></p>}
-    {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Chapter status recording is unavailable. Check the chapter progress and weekly outcomes migrations.</p> : null}
     {chaptersBySubject.size > 0 && <div className="weekly-subjects">
       {Array.from(chaptersBySubject, ([subject, chapters]) => <section className="weekly-subject" key={subject}>
         <h4>{subject}</h4>
         <ul>
           {chapters.map((chapter) => {
               const href = '/ncert-books/chapter/' + encodeURIComponent(chapter.id);
-              const testHref = href + '?' + new URLSearchParams({ testLearner: learnerId }) + '#chapter-tests';
+              const statusHref = href + '?' + new URLSearchParams({ learner: learnerId }) + '#chapter-status';
               return <li key={chapter.id} className="weekly-chapter-row">
                 <div className="weekly-chapter-heading">
                   <div className="weekly-chapter-title">
@@ -83,20 +54,9 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
                   </div>
                   {canEdit && <div className="coach-actions weekly-chapter-actions">
                     <ChapterPlanMenu inline chapterId={chapter.id} title={chapter.title} learnerId={learnerId} />
-                    <button type="button" className="coach-revise" aria-label={`Check & record for ${chapter.title}`} aria-expanded={open === chapter.id}
-                      disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check &amp; record</button>
+                    <Link className="btn-secondary" href={statusHref} aria-label={`Update status for ${chapter.title}`}>Update status</Link>
                   </div>}
                 </div>
-                {open === chapter.id && <div className="lesson-check">
-                  <div className="coach-actions">
-                    <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
-                      onClick={() => void save(chapter.id, 'done')}>Chapter Read</button>
-                    <Link className="btn-secondary" href={testHref}>Test Attempted</Link>
-                    <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
-                      onClick={() => void save(chapter.id, 'practice')}>Need More Practice</button>
-                  <button type="button" className="btn-secondary" disabled={busy} onClick={() => setOpen('')}>Close</button>
-                  </div>
-                </div>}
               </li>;
           })}
         </ul>
