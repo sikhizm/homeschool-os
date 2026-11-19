@@ -1,42 +1,22 @@
 'use client';
 
 import Link from 'next/link';
-import {useEffect, useState} from 'react';
+import {useState} from 'react';
 import styles from './chapter-planner.module.css';
 import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import {ncertChapterSlots, textbookById, isDefaultChapterSessionEligible} from '@/lib/ncert/textbooks';
 import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
 
 type Scheduled = ChapterPlanItem & {startsOn: string};
-type Plan = {ready: boolean; canEdit: boolean; items: Scheduled[]};
+export type WeeklyChapterPlan = {ready: boolean; canEdit: boolean; items: Scheduled[]};
 const catalogue = new Map(ncertChapterSlots.map(chapter => [chapter.id, chapter]));
 
-export default function WeeklyChapterActivities({learnerId, date, weekIds, today}: {
+export default function WeeklyChapterActivities({learnerId, date, weekIds, today, plan, loadError}: {
   learnerId: string; date: string; weekIds: string[]; today: string;
+  plan: WeeklyChapterPlan | null; loadError: boolean;
 }) {
-  const [plan, setPlan] = useState<Plan | null>(null);
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
-  useEffect(() => {
-    let controller: AbortController | undefined;
-    async function load() {
-      controller?.abort();
-      const request = new AbortController();
-      controller = request;
-      try {
-        const params = new URLSearchParams({learnerId, date});
-        const response = await fetch('/api/chapter-plan?' + params, {cache: 'no-store', signal: request.signal});
-        if (!response.ok) throw new Error();
-        const data: Plan = await response.json();
-        if (!request.signal.aborted) setPlan(data);
-      } catch {
-        if (!request.signal.aborted) setNotice('Could not load planned chapter activities.');
-      }
-    }
-    void load();
-    window.addEventListener('daily-plan-updated', load);
-    return () => {controller?.abort(); window.removeEventListener('daily-plan-updated', load);};
-  }, [learnerId, date]);
 
   async function change(item: Scheduled, action: 'move' | 'remove' | 'today', target?: string) {
     setBusy(true);
@@ -75,7 +55,8 @@ export default function WeeklyChapterActivities({learnerId, date, weekIds, today
 
   return <div id="weekly-chapter-activities">
     {notice && <p role="status">{notice}</p>}
-    {!plan && !notice && <p className="muted">Loading chapter activities…</p>}
+    {loadError && <p role="status">Could not load planned chapter activities.</p>}
+    {!plan && !notice && !loadError && <p className="muted">Loading chapter activities…</p>}
     {plan && !plan.ready && <p className="muted">Chapter activity storage is unavailable.</p>}
     {plan && !items.length && !unassigned.length && <p className="muted">No chapters or activities for this learner and week. <Link href="/learn/path">Open Learning Path</Link></p>}
     {subjects.map(subject => <section className={styles.weekGroup} key={subject}>

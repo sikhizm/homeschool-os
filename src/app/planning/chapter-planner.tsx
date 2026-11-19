@@ -15,7 +15,7 @@ import {
   textbookById,
 } from "@/lib/ncert/textbooks";
 import {chapterDisplayStatuses, normalizeChapterStatus} from "@/lib/ncert/chapter-status";
-import WeeklyChapterActivities from "./weekly-chapter-activities";
+import WeeklyChapterActivities, {type WeeklyChapterPlan} from "./weekly-chapter-activities";
 export type ChapterRecord = {chapter_id: string; status: string; has_read: boolean};
 import { academicYear, daysInWeek, mondayOf } from "@/lib/planning/periods";
 
@@ -49,6 +49,8 @@ export function ChapterPlanner({
   olympiad,
   canEdit,
   refresh,
+  chapterPlan,
+  chapterPlanError,
 }: {
   learnerId: string;
   stage: string;
@@ -63,6 +65,8 @@ export function ChapterPlanner({
   olympiad: Record<string, string>;
   canEdit: boolean;
   refresh: () => void;
+  chapterPlan: WeeklyChapterPlan | null;
+  chapterPlanError: boolean;
 }) {
   const books = selectTextbooks(Number(stage.replace(/^class\s+/i, ""))).filter(
     (b) => b.chapterCount,
@@ -160,7 +164,7 @@ export function ChapterPlanner({
       window.dispatchEvent(new Event('daily-plan-updated'));
       setScheduleNotice('Olympiad schedule saved.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not add the topic.');
+      setScheduleNotice(error instanceof Error ? error.message : 'Could not add the topic.');
     } finally {
       setBusy(false);
     }
@@ -307,7 +311,7 @@ export function ChapterPlanner({
               </label>)}
             </div> : <p className="muted">No chapters match your search.</p>}
           </details>}
-          <WeeklyChapterActivities learnerId={learnerId} date={date} weekIds={weekIds} today={today} />
+          <WeeklyChapterActivities learnerId={learnerId} date={date} weekIds={weekIds} today={today} plan={chapterPlan} loadError={chapterPlanError} />
         </>}
       </section>
       {grade && (
