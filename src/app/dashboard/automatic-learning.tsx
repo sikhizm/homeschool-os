@@ -65,29 +65,18 @@ export default function AutomaticLearning(){
     <div className="coach-progress-ring" style={{background:`conic-gradient(#408C74 ${current.annual?.percent??percent(current.completed,current.total)}%, #E8EAE6 0)`}} aria-label={(current.annual?.percent??percent(current.completed,current.total))+' percent of annual pathway steps recorded'}><span>{current.annual?.percent??percent(current.completed,current.total)}%</span></div>
    </div>
    <div className="coach-view-tabs" role="group" aria-label="Learning views">
-    {([['today','☀ Learner lessons'],['roadmap','▦ Annual coverage'],['history','★ Achievements']] as const).map(([key,label])=><button type="button" key={key} className={view===key?'active':''} aria-pressed={view===key} onClick={()=>setView(key)}>{label}</button>)}
+    {([['today','☀ Learner lessons'],['roadmap','▦ Subjects across the year'],['history','★ Achievements']] as const).map(([key,label])=><button type="button" key={key} className={view===key?'active':''} aria-pressed={view===key} onClick={()=>setView(key)}>{label}</button>)}
    </div>
    {view==='today'&&<WeeklyLearnerLessons key={current.id} learnerId={current.id} canEdit={current.canEdit}/>}
    {view==='roadmap'&&<div className="coach-content">
-    <div className="coach-day-head"><div><span className="coach-kicker">THE WHOLE YEAR, HONESTLY TRACKED</span><h3>Annual pathway coverage</h3>
-     <p>36 teaching weeks in 3 terms. Progress is recorded steps, not a claim of exam readiness.</p></div></div>
+    <h3>Subjects across the year</h3>
     {current.annual?<>
-     <div className="coach-subject-grid">{current.annual.terms.map(term=><div key={term.term} className="coach-subject-card">
-      <span className="coach-subject-symbol" style={{background:palette[term.term-1]}}>{term.earned?'✦':'○'}</span>
-      <strong>{['','Term 1 · Weeks 1–12','Term 2 · Weeks 13–24','Term 3 · Weeks 25–36'][term.term]}</strong>
-      <p>{term.completed} / {term.steps} steps · {term.percent}%</p><div className="coach-bar"><span style={{width:term.percent+'%'}}/></div>
-      <p className="coach-milestone">Milestone: {term.milestone}</p>
-     </div>)}</div>
-     <h4 className="coach-upcoming-heading">Subjects across the year</h4>
      <div className="coach-subject-grid">{current.annual.subjects.map((subject,i)=><div key={subject.subject} className="coach-subject-card">
       <span className="coach-subject-symbol" style={{background:palette[i%palette.length]}}>✦</span>
       <strong>{subject.subject}</strong><p>{subject.completed} / {subject.steps} steps</p>
       <div className="coach-bar"><span style={{width:subject.percent+'%'}}/></div>
      </div>)}</div>
-     <p className="coach-next-note">✦ {current.annual.milestonesEarned} of 3 term milestones reached · {current.annual.guidedMinutes + current.annual.independentMinutes} minutes of planned activities across the year ({current.annual.guidedMinutes} parent-led, {current.annual.independentMinutes} play or independent).</p>
-    </>:<div className="coach-empty">This learning stage does not yet have a full annual pathway. It uses the original activity library.</div>}
-    <h4 className="coach-upcoming-heading">Coming up next</h4>
-    {current.upcoming.length?<ol className="coach-upcoming">{current.upcoming.map(t=><li key={t.id}><strong>{t.title}</strong><small>{t.subject} · {t.minutes} min</small></li>)}</ol>:<p>Nothing else is indexed beyond the current queue yet.</p>}
+    </>:<div className="coach-empty">No yearly subject progress is available for this learner.</div>}
    </div>}
    {view==='history'&&<div className="coach-content">
     <div className="coach-day-head"><div><span className="coach-kicker">CELEBRATE PROGRESS</span><h3>Achievements & learning history</h3>

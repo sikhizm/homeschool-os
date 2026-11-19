@@ -496,9 +496,6 @@ export default function PortfolioWorkspace({ learners, canEdit, today }: Props) 
           <Link className="hero-action-secondary" href="/november-pilot">
             Baseline prompts →
           </Link>
-          <Link className="hero-action-secondary" href="/lessons">
-            Activities &amp; printables →
-          </Link>
         </div>
       </section>
     </div>

@@ -4,7 +4,6 @@ import { test } from 'node:test';
 import { indexCounts, searchCatalogue } from '../src/lib/search';
 import { enrichmentActivities, supplementaryResources, resourceVerificationLabels } from '../src/lib/curriculum/enrichment';
 import { ncertChapterSlots, ncertTextbooks } from '../src/lib/ncert/textbooks';
-import { lessons } from '../src/lib/lessons/library';
 
 test('feature links correspond to implemented routes and owner tools stay owner-only', () => {
   const features = searchCatalogue('', 'features', { includeOwner: true, limit: 100 }).results;
@@ -12,6 +11,11 @@ test('feature links correspond to implemented routes and owner tools stay owner-
     const pathname = new URL(feature.href, 'http://fixture').pathname;
     const route = pathname.startsWith('/ncert-books/chapter/') ? '/ncert-books/chapter/[chapterId]' : pathname;
     assert.ok(existsSync('src/app' + route + '/page.tsx'), feature.href);
+  }
+  const retired = new Set(['/curriculum', '/lessons', '/curriculum-studio']);
+  for (const category of ['features', 'curriculum', 'activities'] as const) {
+    assert.ok(searchCatalogue('', category, { limit: 100 }).results.every(hit =>
+      !retired.has(new URL(hit.href, 'http://fixture').pathname)));
   }
   assert.equal(searchCatalogue('progress').results[0].href, '/reports');
   assert.ok(searchCatalogue('annual').results.every(result => !result.href.startsWith('/learning-pathways')));
@@ -41,9 +45,7 @@ test('book and chapter results rank correctly and preserve real deep links', () 
 
 test('activities, publisher resources and framework sources remain distinguishable', () => {
   assert.ok(searchCatalogue('reasoning', 'activities').results.some(hit => hit.href.startsWith('/library/enrichment?stage=class4')));
-  assert.ok(searchCatalogue('punjabi', 'activities').results.some(hit => hit.href.includes('home-languages') || hit.href.startsWith('/lessons?activity=')));
-  assert.match(searchCatalogue(lessons[0].title, 'activities').results[0].href, /activity=.*#activity-detail$/);
-  assert.equal(indexCounts().activities, lessons.length + enrichmentActivities.length);
+  assert.equal(indexCounts().activities, enrichmentActivities.length);
   assert.equal(searchCatalogue('sgpc', 'resources').results[0].href, '/library/enrichment?stage=all&topic=sikh-heritage#source-sgpc-langar');
   const resources = searchCatalogue('', 'resources').results;
   for (const source of supplementaryResources) {

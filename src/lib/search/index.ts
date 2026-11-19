@@ -1,10 +1,8 @@
 import { sidebarDestinations } from '../navigation';
 import { chaptersFor, contentUnitLabelFor, isDefaultChapterSessionEligible, ncertChapterSlots, ncertTextbooks } from '../ncert/textbooks';
 import { enrichmentActivities, enrichmentStages, enrichmentTopics, resourceVerificationLabels, supplementaryResources } from '../curriculum/enrichment';
-import { competencies, curriculumStages } from '../curriculum/library';
 import { globalFrameworks, globalSkills, globalStages } from '../global-curriculum/catalogue';
 import { frameworkEvidenceFor } from '../global-curriculum/framework-evidence';
-import { lessons, lessonStages } from '../lessons/library';
 import { searchPageSize, type SearchFilter, type SearchResponse, type SearchResult } from './types';
 
 type Document = SearchResult & { terms?: string; ownerOnly?: boolean };
@@ -35,11 +33,8 @@ const features: Document[] = [
   ...([
     ['/learn', 'Learner Home', 'Open learner mode and continue assigned learning.', 'student child dashboard'],
     ['/learn/path', 'Learner Learning Path', 'See subjects, upcoming lessons and revision in learner mode.', 'timeline learner path'],
-    ['/curriculum-studio', 'Curriculum Studio', 'Browse integrated plans and curriculum coverage.', 'coverage inventory'],
     ['/global-curriculum', 'Global Curriculum', 'Explore teaching approaches and source evidence.', 'international frameworks'],
     ['/ncert-books', 'NCERT Books', 'Browse official textbook records and verified Contents entries.', 'textbook chapter publisher directory'],
-    ['/curriculum', 'Competency Pathways', 'Find learning outcomes, prerequisites and goal ideas.', 'skills objectives milestones'],
-    ['/lessons', 'Activities and Printables', 'Teach an activity or print an A4 worksheet.', 'lesson library printable worksheet'],
     ['/library/olympiad', 'Olympiad Resources', 'Official sample papers and practice collections for Classes 1–10.', 'olympiad pdf maths science english reasoning sof crest silverzone'],
     ['/library/prompts', 'Learning Prompts', 'Copy personalised prompts for Olympiad practice, world curricula and teaching approaches.', 'gemini chatgpt olympiad england california singapore worksheet prompts'],
     ['/library/enrichment', 'Supplementary Resources', 'Original activities for Preschool / Nursery, UKG and Class 4, plus parent references with link status.', 'resource catalogue reasoning punjabi hindi heritage play'],
@@ -78,13 +73,6 @@ const documents: Document[] = [
       terms: `${contentUnitLabelFor(book)} ${String(chapter.chapterNumber).padStart(2, '0')}`,
     }];
   }),
-  ...lessons.map((lesson): Document => ({
-    id: 'lesson:' + lesson.id, category: 'activities', title: lesson.title,
-    description: lesson.objective,
-    metadata: lessonStages.find(stage => stage.id === lesson.stage)?.label + ' · ' + lesson.subject,
-    terms: lesson.overview + ' ' + lesson.worksheet + ' printable worksheet ' + lesson.materials,
-    href: link('/lessons', { activity: lesson.id }, 'activity-detail'),
-  })),
   ...enrichmentActivities.map((activity): Document => ({
     id: 'enrichment:' + activity.id, category: 'activities', title: activity.title,
     description: activity.prompt,
@@ -113,12 +101,6 @@ const documents: Document[] = [
     metadata: [globalStages.find(stage => stage.id === skill.stage)?.name, skill.subject, 'Original learning objective'].join(' · '),
     terms: [skill.domain, skill.activity, ...skill.prerequisites.map(id => globalSkills.find(item => item.id === id)?.title)].join(' '),
     href: link('/global-curriculum', { stage: skill.stage, subject: skill.subject }, 'skill-' + skill.id),
-  })),
-  ...competencies.map((skill): Document => ({
-    id: 'competency:' + skill.id, category: 'curriculum', title: skill.title, description: skill.outcome,
-    metadata: [curriculumStages.find(stage => stage.id === skill.stage)?.label, skill.subject, 'Competency'].join(' · '),
-    terms: [skill.activity, ...skill.prerequisites.map(id => competencies.find(item => item.id === id)?.title)].join(' '),
-    href: link('/curriculum', { stage: skill.stage, subject: skill.subject }, skill.id),
   })),
 ];
 

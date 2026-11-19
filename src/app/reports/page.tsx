@@ -334,7 +334,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
             </p>
             {goals.length === 0 ? (
               <p className="muted" style={{ marginBottom: 0 }}>
-                No custom goals are saved for this learner yet. You can add observable goals from <Link href="/curriculum">Competencies</Link> or Home.
+                No custom goals are saved for this learner yet. You can add observable goals from <Link href="/dashboard">Home</Link>.
               </p>
             ) : (
               <ul className="report-goals">

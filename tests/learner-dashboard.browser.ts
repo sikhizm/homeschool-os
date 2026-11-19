@@ -40,7 +40,7 @@ test('learner dashboard works on desktop and mobile with chapter-first data', as
     upcoming: [],
     history: [
       { id: 'ncert:ncert-4-veena-ch-01:read', title: 'चिड़िया का गीत · Read & explore', subject: 'Hindi', updatedAt: '2026-11-09T09:00:00.000Z' },
-      { id: `ncert:${chapterIdA}:read`, title: 'Shapes Around Us · Read & explore', subject: 'Mathematics', updatedAt: '2026-11-11T09:00:00.000Z' },
+      { id: `ncert:${chapterIdA}:read`, title: 'Shapes Around Us · Read & explore', href: `/ncert-books/chapter/${chapterIdA}`, subject: 'Mathematics', updatedAt: '2026-11-11T09:00:00.000Z' },
     ],
     subjects: [{ subject: 'Mathematics', completed: 1, total: 42 }],
     completed: 2, total: catalogueA.length,
@@ -156,6 +156,9 @@ test('learner dashboard works on desktop and mobile with chapter-first data', as
 
     // Recent learning evidence and progress overview render.
     await page.getByRole('heading', { name: 'What you did recently' }).waitFor();
+    assert.equal(await page.getByRole('region', { name: 'What you did recently' })
+      .getByRole('link', { name: 'Shapes Around Us · Read & explore' }).getAttribute('href'),
+    `/ncert-books/chapter/${chapterIdA}`);
     await page.getByRole('heading', { name: 'How your learning is going' }).waitFor();
     await page.getByText(/A finished session is not the same as mastery/).waitFor();
 
