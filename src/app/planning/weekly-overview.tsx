@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import styles from './weekly-overview.module.css';
 import {useEffect, useState} from 'react';
 import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
 import {daysInWeek} from '@/lib/planning/periods';
@@ -77,30 +78,40 @@ export default function WeeklyOverview({learnerId, date, today}: {learnerId: str
         </button>;
       })}
     </div>
-    <h3>{display(selectedDay)}</h3>
-    {chapters.length > 0 && <ul>{chapters.map(item => <li key={`${item.chapterId}:${item.activity}:${item.startsOn}`}>
-      <Link href={chapterActivityHref(item.chapterId, learnerId, item.activity)}>{item.title} · {activityLabels[item.activity]}</Link>
-      {' · '}{item.done ? 'Done' : item.carriedOver ? 'Carried over' : 'Scheduled'}{item.optionalTest ? ' · Optional' : ''}
-    </li>)}</ul>}
-    {optional.length > 0 && <>
-      <h4>Extra activities</h4>
-      <ul>{optional.map(item => <li key={item.id}>{item.title}
-        {item.first_page === undefined ? ' · Olympiad' : item.first_page === item.last_page
-          ? ` · Page ${item.first_page}` : ` · Pages ${item.first_page}–${item.last_page}`}
-        {' · '}{item.completed ? 'Done' : 'Scheduled'}
-      </li>)}</ul>
-    </>}
-    {!chapters.length && !optional.length && (chapterError || extraError ? null :
-      <p>{items && extras ? 'Nothing scheduled for this day.' : 'Loading schedule…'}</p>)}
-    {(weeklyChapters.length > 0 || weeklyExtras.length > 0) && <>
-      <h3>Scheduled for the week</h3>
-      <ul>
-        {weeklyChapters.map(item => <li key={`${item.chapterId}:${item.activity}`}>
-          <Link href={chapterActivityHref(item.chapterId, learnerId, item.activity)}>{item.title} · {activityLabels[item.activity]}</Link>
-          {' · '}{item.done ? 'Done' : 'Scheduled'}
-        </li>)}
-        {weeklyExtras.map(item => <li key={item.id}>{item.title} · Olympiad · {item.completed ? 'Done' : 'Optional'}</li>)}
-      </ul>
-    </>}
+    <div className={styles.details}>
+      <section className={styles.group} aria-label={display(selectedDay)}>
+        <h3>{display(selectedDay)}</h3>
+        {chapters.length > 0 && <ul>{chapters.map(item => <li key={`${item.chapterId}:${item.activity}:${item.period}:${item.startsOn}`}>
+          <Link href={chapterActivityHref(item.chapterId, learnerId, item.activity)}>{item.title}</Link>
+          <small>{activityLabels[item.activity]}{item.optionalTest ? ' · Optional' : ''}</small>
+          <span className={`family-agenda-status${item.done ? ' is-done' : ''}`}>{item.done ? 'Done' : item.carriedOver ? 'Carried over' : 'Scheduled'}</span>
+        </li>)}</ul>}
+        {optional.length > 0 && <>
+          <h4>Extra activities</h4>
+          <ul>{optional.map(item => <li key={item.id}>
+            <strong>{item.title}</strong>
+            <small>{item.first_page === undefined ? 'Olympiad' : item.first_page === item.last_page
+              ? `Page ${item.first_page}` : `Pages ${item.first_page}–${item.last_page}`}</small>
+            <span className={`family-agenda-status${item.completed ? ' is-done' : ''}`}>{item.completed ? 'Done' : 'Scheduled'}</span>
+          </li>)}</ul>
+        </>}
+        {!chapters.length && !optional.length && !(chapterError || extraError) &&
+          <p className="muted">{items && extras ? 'Nothing scheduled for this day.' : 'Loading schedule…'}</p>}
+      </section>
+      {(weeklyChapters.length > 0 || weeklyExtras.length > 0) && <section className={styles.group} aria-label="Scheduled for the week">
+        <h3>Scheduled for the week</h3>
+        <ul>
+          {weeklyChapters.map(item => <li key={`${item.chapterId}:${item.activity}`}>
+            <Link href={chapterActivityHref(item.chapterId, learnerId, item.activity)}>{item.title}</Link>
+            <small>{activityLabels[item.activity]}</small>
+            <span className={`family-agenda-status${item.done ? ' is-done' : ''}`}>{item.done ? 'Done' : 'Scheduled'}</span>
+          </li>)}
+          {weeklyExtras.map(item => <li key={item.id}>
+            <strong>{item.title}</strong><small>Olympiad</small>
+            <span className={`family-agenda-status${item.completed ? ' is-done' : ''}`}>{item.completed ? 'Done' : 'Optional'}</span>
+          </li>)}
+        </ul>
+      </section>}
+    </div>
   </section>;
 }
