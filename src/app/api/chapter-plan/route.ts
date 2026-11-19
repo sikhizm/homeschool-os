@@ -29,6 +29,7 @@ export async function GET(request: Request) {
     const requestedLearner = params.get('learnerId');
     if (!validPlanningDate(anchor)) return json({error: 'Choose a valid date.'}, 400);
     const week = mondayOf(anchor);
+    const includeCarryover = Boolean(requestedLearner) && week === mondayOf(day);
     const [schema] = await sql`SELECT to_regclass('public.chapter_plan_activities') IS NOT NULL AS ready,
       to_regclass('public.ncert_weekly_chapter_outcomes') IS NOT NULL AS outcomes,
       to_regclass('public.ncert_chapter_progress') IS NOT NULL AS progress,
@@ -43,7 +44,7 @@ export async function GET(request: Request) {
         to_jsonb(p)->>'completed_on' AS completed_on,
         (to_jsonb(p)->>'optional_test')::boolean AS optional_test FROM chapter_plan_activities p
         WHERE learner_id::text = ANY(${ids}::text[]) AND
-          (( ${rhythm} AND activity = 'reading' AND starts_on <= ${day}::date) OR (period = 'day' AND starts_on BETWEEN ${requestedLearner ? week : day}::date AND ${requestedLearner ? addDays(week, 6) : day}::date) OR (period = 'week' AND starts_on = ${week}::date))
+          (( (${rhythm} OR ${includeCarryover}) AND activity = 'reading' AND starts_on <= ${day}::date) OR (period = 'day' AND starts_on BETWEEN ${requestedLearner ? week : day}::date AND ${requestedLearner ? addDays(week, 6) : day}::date) OR (period = 'week' AND starts_on = ${week}::date))
         ORDER BY learner_id, chapter_id, CASE activity WHEN 'reading' THEN 0 WHEN 'revision' THEN 1 ELSE 2 END`,
       schema.progress ? sql`SELECT learner_id::text, chapter_id, status,
         (completed_at AT TIME ZONE 'Asia/Kolkata')::date::text AS read_on,
@@ -55,7 +56,7 @@ export async function GET(request: Request) {
         ORDER BY t.test_date DESC, t.created_at DESC, t.id DESC
         ` : [],
       schema.outcomes ? sql`SELECT learner_id::text, chapter_id, (updated_at AT TIME ZONE 'Asia/Kolkata')::date::text AS read_on
-        FROM ncert_weekly_chapter_outcomes WHERE learner_id::text = ANY(${ids}::text[]) AND (${rhythm} OR week_start = ${week}::date)
+        FROM ncert_weekly_chapter_outcomes WHERE learner_id::text = ANY(${ids}::text[]) AND (${rhythm} OR ${includeCarryover} OR week_start = ${week}::date)
           AND outcome IN ('done', 'understood')` : [],
     ]);
     const key = (learnerId: unknown, chapterId: unknown) => `${learnerId}:${chapterId}`;
@@ -98,7 +99,8 @@ export async function GET(request: Request) {
         inToday: inToday.has(`${key(row.learner_id, row.chapter_id)}:${activity}`),
       }];
     });
-    if (!rhythm) return json({ready: true, learners, canEdit, items});
+    if (!rhythm) return json({ready: true, learners, canEdit, items: items.filter(item =>
+      !includeCarryover || item.startsOn >= week || !item.done || (item.completedOn ?? '') >= week)});
     const reading = items.filter(item => item.activity === 'reading' && item.period === 'day');
     const currentWeek = reading.filter(item => item.startsOn >= week);
     const readingWeek = learners.map(learner => {

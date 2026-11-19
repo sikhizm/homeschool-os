@@ -33,7 +33,7 @@ export async function GET(request:Request){
   if(!membership.length)return respond({error:'Learner unavailable or permission denied.'},403);
   const year=yearDates(academicYear(anchor));
   const week=daysInWeek(anchor);
-  const [periods,days,passes]=await Promise.all([
+  const [periods,days,passes,chapterRecords]=await Promise.all([
    sql`SELECT p.id::text,p.kind,p.start_date::text,p.end_date::text,p.title,p.focus,p.notes,p.competency_ids,p.chapter_ids,to_jsonb(p)->'olympiad_topics' AS olympiad_topics,to_jsonb(p)->'finished_chapters' AS finished_chapters
      FROM learning_planning_periods p JOIN learners l ON l.id=p.learner_id
      WHERE l.id::text=${learnerId} AND p.start_date<=${year.endDate}::date AND p.end_date>=${year.startDate}::date
@@ -47,8 +47,13 @@ export async function GET(request:Request){
      AND EXISTS(SELECT 1 FROM family_members fm WHERE fm.family_id=l.family_id AND fm.auth_user_id=${user})
      GROUP BY a.learning_date ORDER BY a.learning_date`,
    passingChapters(sql,[learnerId]),
+   sql`SELECT chapter_id, status, completed_at IS NOT NULL AS has_read
+     FROM ncert_chapter_progress WHERE learner_id::text = ${learnerId}`.catch(error => {
+       if ((error as {code?: string}).code === '42P01') return [];
+       throw error;
+     }),
   ]);
-  return respond({year,week,periods,days,passedChapterIds:passes.map(row=>String(row.chapter_id))});
+  return respond({year,week,periods,days,chapterRecords,passedChapterIds:passes.map(row=>String(row.chapter_id))});
  }catch(e){return errorResult(e);}
 }
 export async function POST(request:Request){
