@@ -138,24 +138,12 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
 
  const heroPercent=derived?.progress??0;
  return <section aria-labelledby="family-home-title" className="family-home">
-  <header className="family-home-head studio-page-head">
-   <div>
-    <p className="eyebrow">{greeting(now)}, {formatFamilyGreetingName(familyName)} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
-    <h1 id="family-home-title">Your family learning studio</h1>
-   </div>
-   <div className="family-home-head-right">
-    <span className="family-avatar" aria-hidden="true">{(familyName??'F').trim().slice(0,1).toUpperCase()||'F'}</span>
-    {derived&&derived.attention.length>0&&<a className="attention-pill" href="#parent-attention">
-     <span aria-hidden="true">●</span> {derived.attention.length} {derived.attention.length===1?'item needs':'items need'} you
-    </a>}
-    {!canEdit&&<span className="mode-chip">Read-only view</span>}
-   </div>
-  </header>
-
-  <div className="family-hero card">
-   <div className="family-hero-copy">
-    <h2>Today’s rhythm</h2>
-    {error&&<p className="muted" role="status">{error}</p>}
+  <div className="family-agenda card">
+   <header className="family-agenda-header">
+    <div className="family-agenda-heading">
+     <p className="eyebrow">{greeting(now)}, {formatFamilyGreetingName(familyName)} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
+     <h1 id="family-home-title">Today’s rhythm</h1>
+    </div>
     <div className="family-hero-progress" role="img" aria-label={`Today’s progress: ${derived?.todayDone??0} activities finished, ${heroPercent}% through the queue`}>
      <div className="progress-track"><div className="progress-fill" style={{width:`${heroPercent}%`}}/></div>
      <span>{derived?.todayDone??0} done today · {heroPercent}%</span>
@@ -164,23 +152,26 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
      <a className="hero-action-primary start-today" href="#today-plan">Start today’s learning <span aria-hidden="true">→</span></a>
      <Link className="hero-action-secondary" href="/learn">Open learner mode</Link>
     </div>
-   </div>
-   <ul className="family-hero-facts" aria-label="Today at a glance">
-    <li><strong>{data?.familyPlan.slots.length??0}</strong><span>guided moments</span></li>
-    <li><strong>{data?.familyPlan.separate.length??0}</strong><span>independent / play</span></li>
-    <li><strong>{derived?.attention.length??0}</strong><span>need parent attention</span></li>
-   </ul>
-   <div className="family-hero-timeline">
-   {timeline.length>0?<ol className="timeline-list">
-    {timeline.map(row=><li className="timeline-item" key={`${row.key}-${row.phase}`}>
-     <span className={`timeline-dot tone-${row.tone}`} aria-hidden="true"/>
-     <div className="timeline-body">
-      <p className="timeline-meta"><span>{row.phase}</span> · <strong>{row.learner}</strong></p>
-      <p className="timeline-title">{row.href?<a href={row.href}>{row.title}</a>:row.title}</p>
-     </div>
-    </li>)}
-   </ol>:<p className="muted">Nothing scheduled yet. The plan is prepared automatically from each learner’s next steps.</p>}
-   </div>
+    <span className="family-avatar" aria-hidden="true">{(familyName??'F').trim().slice(0,1).toUpperCase()||'F'}</span>
+   </header>
+
+   {(Boolean(derived?.attention.length)||!canEdit)&&<div className="family-agenda-notices">
+    {derived&&derived.attention.length>0&&<a className="attention-pill" href="#parent-attention">
+     <span aria-hidden="true">●</span> {derived.attention.length} {derived.attention.length===1?'item needs':'items need'} you
+    </a>}
+    {!canEdit&&<span className="mode-chip">Read-only view</span>}
+   </div>}
+   {error?<p className="muted family-agenda-message" role="status">{error}</p>
+    :timeline.length>0?<ol className="family-agenda-list" aria-label="Today’s activities">
+     {timeline.map(row=><li className="family-agenda-row" key={`${row.key}-${row.phase}`}>
+      <p className="timeline-title">
+       <span className={`timeline-dot tone-${row.tone}`} aria-hidden="true"/>
+       {row.href?<a href={row.href}>{row.title}</a>:<span>{row.title}</span>}
+      </p>
+      <span className="family-agenda-learner">{row.learner}</span>
+      <span className="family-agenda-phase">{row.phase}</span>
+     </li>)}
+    </ol>:<p className="muted family-agenda-message">{data?'Nothing scheduled yet.':'Loading today’s activities.'}</p>}
   </div>
 
   <div className="family-learner-grid" aria-label="Learners">
