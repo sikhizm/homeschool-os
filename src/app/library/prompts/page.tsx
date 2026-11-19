@@ -6,7 +6,10 @@ import './prompts.css';
 
 export const dynamic = 'force-dynamic';
 
-export default async function LearningPromptsPage() {
+export default async function LearningPromptsPage({searchParams}: {
+  searchParams: Promise<{learner?: string; grade?: string; topic?: string}>;
+}) {
+  const {learner, grade, topic} = await searchParams;
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
@@ -24,5 +27,6 @@ export default async function LearningPromptsPage() {
   let levelRows: {learner_id:string;level:number}[] = [];
   try { levelRows = await sql`SELECT s.learner_id::text,s.level FROM learner_subject_levels s JOIN learners l ON l.id=s.learner_id WHERE l.family_id::text=${familyId} AND l.archived_at IS NULL AND s.subject='Mathematics'` as {learner_id:string;level:number}[]; } catch { /* Existing prompts remain available before migration 011. */ }
   const learners = rows.map(row => ({ id: String(row.id), name: String(row.display_name), stage: String(row.stage), mathsLevel: levelRows.find(level=>level.learner_id===String(row.id))?.level }));
-  return <PromptBuilder storageKey={`learning-prompts-v1:${session.user.id}:${familyId}`} learners={learners} />;
+  return <PromptBuilder storageKey={`learning-prompts-v1:${session.user.id}:${familyId}`} learners={learners}
+    entry={{learner, grade, topic}} />;
 }

@@ -10,13 +10,13 @@ import {
 import { olympiadSourcesFor, promptClasses, promptClassForStage } from '@/lib/olympiad/prompt-classes';
 
 type Learner = { id: string; name: string; stage: string; mathsLevel?: number };
-type BuilderProps = { learners: Learner[]; storageKey: string };
+type BuilderProps = { learners: Learner[]; storageKey: string; entry?: {learner?: string; grade?: string; topic?: string} };
 const subscribe = () => () => {};
 export default function PromptBuilder(props: BuilderProps) {
   const mounted = useSyncExternalStore(subscribe, () => true, () => false);
-  return mounted ? <LoadedBuilder key={props.storageKey} {...props} /> : <p role="status">Loading learning prompts…</p>;
+  return mounted ? <LoadedBuilder key={JSON.stringify([props.storageKey, props.entry?.learner, props.entry?.grade, props.entry?.topic])} {...props} /> : <p role="status">Loading learning prompts…</p>;
 }
-function LoadedBuilder({ learners, storageKey }: BuilderProps) {
+function LoadedBuilder({ learners, storageKey, entry }: BuilderProps) {
   const [saved] = useState(() => {
     const initialSettings = updatePromptSettings(defaultSettings, { targetClass: promptClassForStage(learners[0]?.mathsLevel ? 'Class '+learners[0].mathsLevel : learners[0]?.stage ?? '') ?? '4' });
     try {
@@ -31,13 +31,12 @@ function LoadedBuilder({ learners, storageKey }: BuilderProps) {
       };
     } catch { return { settings: initialSettings, favourites: [] as PromptSettings[] }; }
   });
-  const [entry]=useState(()=>new URLSearchParams(window.location.search));
   const [settings, setSettings] = useState<PromptSettings>(() => {
-    const targetClass=promptClassForStage("Class "+entry.get("grade"));
-    const topic=entry.get("topic");
+    const targetClass=promptClassForStage("Class "+entry?.grade);
+    const topic=entry?.topic;
     return targetClass && topic ? updatePromptSettings(saved.settings,{track:"Olympiad Prep",targetClass,topic}) : saved.settings;
   });
-  const [learnerId, setLearnerId] = useState(learners.find(l=>l.id===entry.get('learner'))?.id ?? learners[0]?.id ?? '');
+  const [learnerId, setLearnerId] = useState(learners.find(l=>l.id===entry?.learner)?.id ?? learners[0]?.id ?? '');
   const [favourites, setFavourites] = useState<PromptSettings[]>(saved.favourites);
   const [message, setMessage] = useState('');
   const preview = useRef<HTMLTextAreaElement>(null);
