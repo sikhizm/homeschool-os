@@ -8,7 +8,7 @@ type Book = {id: string; title: string; kind: keyof typeof bookKinds; page_count
 type Pages = {id: string; book_id: string; learner_id: string; learner_name: string; title: string;
   first_page: number; last_page: number; completed: boolean; learning_date: string};
 type Library = {books: Book[]; learners: {id: string; display_name: string}[];
-  assignments: {book_id: string; learner_id: string}[]; entries: Pages[]; canEdit: boolean};
+  assignments: {book_id: string; learner_id: string}[]; entries: Pages[]; olympiad?: {id: string; topic: string; learner_name: string; completed: boolean}[]; canEdit: boolean};
 
 const endpoint = '/api/my-books';
 
@@ -57,9 +57,9 @@ export default function MyBooks({daily = false}: {daily?: boolean}) {
   }
 
   if (daily) {
-    if (!data?.entries.length) return null;
-    return <section className="family-agenda-message" aria-labelledby="extra-book-activities">
-      <h3 id="extra-book-activities">Extra activities</h3>
+    if (!data || (!data.entries.length && !data.olympiad?.length)) return null;
+    return <section className="family-agenda-message" aria-labelledby="extra-activities">
+      <h3 id="extra-activities">Extra activities</h3>
       <ul className="family-agenda-list">{data.entries.map(entry => <li className="family-agenda-row" key={entry.id}>
         <Link href="/ncert-books/my-books">{entry.title} · {entry.first_page === entry.last_page
           ? `Page ${entry.first_page}` : `Pages ${entry.first_page}–${entry.last_page}`}</Link>
@@ -67,6 +67,13 @@ export default function MyBooks({daily = false}: {daily?: boolean}) {
         <span className="pill">{entry.completed ? 'Done' : 'Pending'}</span>
         {!entry.completed && data.canEdit && <button type="button" className="btn-secondary" disabled={busy}
           onClick={() => void save({action: 'complete', entryId: entry.id})}>Mark done</button>}
+      </li>)}
+      {data.olympiad?.map(entry => <li className="family-agenda-row" key={entry.id}>
+        <Link href="/planning#olympiad-plan">{entry.topic} · Olympiad</Link>
+        <span>{entry.learner_name}</span>
+        <span className="pill">{entry.completed ? 'Done' : 'Pending'}</span>
+        {!entry.completed && data.canEdit && <button type="button" className="btn-secondary" disabled={busy}
+          onClick={() => void save({action: 'complete-olympiad', entryId: entry.id})}>Mark done</button>}
       </li>)}</ul>
       {notice && <p role="status">{notice}</p>}
     </section>;

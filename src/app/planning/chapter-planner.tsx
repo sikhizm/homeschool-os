@@ -126,6 +126,21 @@ export function ChapterPlanner({
       setBusy(false);
     }
   }
+  async function addOlympiadTopic(topic: string) {
+    setBusy(true);
+    setMessage('');
+    try {
+      const response = await fetch('/api/my-books', {method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: 'plan-olympiad', learnerId, topic})});
+      if (!response.ok) throw new Error((await response.json()).error);
+      setMessage(`${topic} added to Today’s rhythm.`);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not add the topic.');
+    } finally {
+      setBusy(false);
+    }
+  }
+
   function goalOption(key: string, title: string) {
     return (
       <label key={key} className={styles.chapterOption}>
@@ -271,7 +286,7 @@ export function ChapterPlanner({
         </>}
       </section>
       {grade && (
-        <section className="workspace-panel">
+        <section className="workspace-panel" id="olympiad-plan">
           <h2>
             Olympiad year plan · {academicYear(date)}–{academicYear(date) + 1}
           </h2>
@@ -335,7 +350,11 @@ export function ChapterPlanner({
             <details>
               <summary>Choose practice goals</summary>
               <h3>SOF Mathematics · topic practice</h3>
-              {topics.map((t) => goalOption(t, t))}
+              {topics.map(topic => <div className={styles.actions} key={topic}>
+                {goalOption(topic, topic)}
+                <button type="button" className="btn-secondary" disabled={busy}
+                  aria-label={`Add ${topic} to Today`} onClick={() => void addOlympiadTopic(topic)}>Add to Today</button>
+              </div>)}
               <h3>Sample papers by subject</h3>
               {[...new Set(papers.map((r) => r.subject))].map((subject) => (
                 <details key={subject}>
