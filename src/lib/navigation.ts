@@ -26,8 +26,7 @@ export function navigationForPath(pathname:string){
   {href:'/portfolio',label:'Portfolio'},
   {href:'/reports',label:'Insights'},
  ]};
- else if(within(pathname,'/learn'))context={label:'Learner mode',links:[
-  {href:'/learn',label:'My space'},
+ else if(within(pathname,'/learn'))context={label:'Learning Path',links:[
   {href:'/learn/path',label:'Learning path'},
  ]};
  return {activePrimary,context};
@@ -45,7 +44,7 @@ export const sidebarDestinations:ShellDestination[]=[
 /** Fixed mobile bottom navigation — five destinations, never a shrunken sidebar. */
 export const bottomDestinations:ShellDestination[]=[
  {id:'home',href:'/dashboard',label:'Home',glyph:'⌂',hint:'Today’s family learning plan',match:['/dashboard']},
- {id:'learn',href:'/learn',label:'Learn',glyph:'▶',hint:'Learner mode and personal paths',match:['/learn']},
+ {id:'learn',href:'/learn/path',label:'Learning Path',glyph:'▶',hint:'NCERT chapters by learner',match:['/learn']},
  {id:'library',href:'/library',label:'Library',glyph:'❖',hint:'Curriculum library',match:['/library','/ncert-books','/curriculum-mapping','/global-curriculum','/roadmap']},
  {id:'progress',href:'/reports',label:'Progress',glyph:'↗',hint:'Learning insights',match:['/reports']},
  {id:'settings',href:'/settings',label:'Profile',glyph:'☺',hint:'Profile, family tools and settings',match:['/settings','/learners','/portfolio']},

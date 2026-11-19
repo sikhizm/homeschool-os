@@ -66,8 +66,8 @@ export async function GET(request:Request){
    SELECT l.id::text AS learner_id, p.chapter_id
    FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
    JOIN ncert_chapter_progress p ON p.learner_id=l.id
-   WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL AND p.status='completed'
-    AND (p.updated_at AT TIME ZONE 'Asia/Kolkata')::date=${date}::date
+   WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL AND p.status IN ('completed','read','revision_due','revised','needs_practice')
+    AND (CASE WHEN p.status='completed' THEN p.updated_at ELSE p.completed_at END AT TIME ZONE 'Asia/Kolkata')::date=${date}::date
   `.catch(()=>[]):[];
   const weeklyReads=wantAgenda?await sql`
    SELECT l.id::text AS learner_id, p.chapter_id

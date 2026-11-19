@@ -18,15 +18,15 @@ const MATERIAL_GROUPS: {id:string;title:string;items:IndividualMaterialId[]}[] =
 ];
 
 const emptyMessage='No active learners are available. Add a learner to prepare study materials.';
-export default function StudyMaterialStudio({chapter,book,grade,resourceUrl}:{chapter:ChapterSlot;book:Textbook;grade:number;resourceUrl:string}){
+export default function StudyMaterialStudio({chapter,book,grade,resourceUrl,initialLearnerId,revisionPreset=false}:{chapter:ChapterSlot;book:Textbook;grade:number;resourceUrl:string;initialLearnerId?:string;revisionPreset?:boolean}){
  const [learners,setLearners]=useState<Learner[]>([]),[learnerId,setLearnerId]=useState(''),[loading,setLoading]=useState(true);
  const [chosen,setChosen]=useState<MaterialId[]>(['full-notes']),[difficulty,setDifficulty]=useState<Difficulty>('standard'),[language,setLanguage]=useState(book.language||'English'),[large,setLarge]=useState(false),[outputFormat,setOutputFormat]=useState<StudyOutputFormat>('pdf');
- const [materialsOpen,setMaterialsOpen]=useState(false),[expandedGroup,setExpandedGroup]=useState<string|null>(MATERIAL_GROUPS[0].id);
+ const [materialsOpen,setMaterialsOpen]=useState(revisionPreset),[expandedGroup,setExpandedGroup]=useState<string|null>(MATERIAL_GROUPS[0].id);
  const groupPanelId=useId();
  const [promptOpen,setPromptOpen]=useState(false),[promptMessage,setPromptMessage]=useState(''),[importOpen,setImportOpen]=useState(false),[libraryOpen,setLibraryOpen]=useState(false);
  const [title,setTitle]=useState('Chapter study material'),[type,setType]=useState('Notes'),[format,setFormat]=useState<'html'|'markdown'>('html'),[content,setContent]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[docs,setDocs]=useState<Doc[]>([]),[canEdit,setCanEdit]=useState(false),[selectedDoc,setSelectedDoc]=useState(''),[zoom,setZoom]=useState(100),[page,setPage]=useState(1),[preview,setPreview]=useState(false);
  const fileRef=useRef<HTMLInputElement>(null),frame=useRef<HTMLIFrameElement>(null);
- useEffect(()=>{let live=true;fetch(`/api/ncert-chapters/${encodeURIComponent(chapter.id)}/progress`,{cache:'no-store'}).then(async r=>{const b=await r.json();if(!r.ok)throw new Error(b.error||'Could not load learners.');return b;}).then(b=>{if(!live)return;const eligible=(b.learners as Learner[]);setLearners(eligible);setLearnerId(eligible[0]?.learner_id??'');}).catch(e=>{if(live)setMessage(e instanceof Error?e.message:'Could not load learners.');}).finally(()=>{if(live)setLoading(false);});return()=>{live=false}},[chapter.id,grade]);
+ useEffect(()=>{let live=true;fetch(`/api/ncert-chapters/${encodeURIComponent(chapter.id)}/progress`,{cache:'no-store'}).then(async r=>{const b=await r.json();if(!r.ok)throw new Error(b.error||'Could not load learners.');return b;}).then(b=>{if(!live)return;const eligible=(b.learners as Learner[]);setLearners(eligible);setLearnerId(eligible.find(item=>item.learner_id===initialLearnerId)?.learner_id??eligible[0]?.learner_id??'');}).catch(e=>{if(live)setMessage(e instanceof Error?e.message:'Could not load learners.');}).finally(()=>{if(live)setLoading(false);});return()=>{live=false}},[chapter.id,grade,initialLearnerId]);
  const learner=learners.find(x=>x.learner_id===learnerId);
  const prompt=useMemo(()=>learner?buildStudyPrompt({student:learner.display_name,stage:learner.stage,book,chapter,resourceUrl,materials:chosen,difficulty,language,largePrint:large,outputFormat}):'', [learner,book,chapter,resourceUrl,chosen,difficulty,language,large,outputFormat]);
  const selectedTitle=chosen.includes('complete-pack')?'Complete Chapter Mastery Pack':chosen.map(id=>MATERIALS.find(m=>m[0]===id)?.[1]).filter(Boolean).join(' + ')||'Study material';

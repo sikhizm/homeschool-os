@@ -145,7 +145,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     </div>
     <div className="hero-actions">
      <a className="hero-action-primary start-today" href="#today-plan">Start today’s learning <span aria-hidden="true">→</span></a>
-     <Link className="hero-action-secondary" href="/learn">Open learner mode</Link>
+     <Link className="hero-action-secondary" href="/learn/path">Open Learning Path</Link>
     </div>
     <span className="family-avatar" aria-hidden="true">{(familyName??'F').trim().slice(0,1).toUpperCase()||'F'}</span>
    </header>
@@ -210,10 +210,10 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       {next?`${next.title} · ${next.minutes} min`:'All recommended activities are finished — lovely work.'}
      </p>
      <footer>
-     {learner.continueSession?<a className="learner-continue" href={`/learn/lesson?learner=${learner.id}&task=${encodeURIComponent(learner.continueSession.taskId)}`}>Continue chapter <span aria-hidden="true">→</span></a>
+     {learner.continueSession?<a className="learner-continue" href={`/ncert-books/chapter/${encodeURIComponent(learner.continueSession.chapterId)}?learner=${encodeURIComponent(learner.id)}#chapter-reading`}>Continue chapter <span aria-hidden="true">→</span></a>
       :next&&next.href?<a className="learner-continue" href={next.href}>Continue <span aria-hidden="true">→</span></a>
       :next?<a className="learner-continue" href="#today-plan">Continue <span aria-hidden="true">→</span></a>
-      :<Link className="learner-continue" href={`/learn?learner=${learner.id}`}>Open learner mode <span aria-hidden="true">→</span></Link>}
+      :<Link className="learner-continue" href={`/learn/path?learner=${learner.id}`}>Open Learning Path <span aria-hidden="true">→</span></Link>}
      </footer>
     </article>;
    })}

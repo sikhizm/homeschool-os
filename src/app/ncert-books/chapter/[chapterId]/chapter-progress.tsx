@@ -1,158 +1,98 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import {useEffect, useState, type ReactNode} from 'react';
+import {chapterStatuses, normalizeChapterStatus, type ChapterStatus} from '@/lib/ncert/chapter-status';
 
-type Learner = {
-  learner_id: string;
-  display_name: string;
-  stage: string;
-  status: string | null;
-  parent_note: string | null;
-  updated_at: string | null;
-};
+type Learner = {learner_id: string; display_name: string; stage: string; status: string | null; parent_note: string | null; role: string};
 
-const statuses = [
-  { value: 'assigned', label: 'Assigned' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'completed', label: 'Completed' },
-];
-
-export default function ChapterProgress({
-  chapterId,
-  contentLabel = 'Chapter',
-  selectionRequired = false,
-}: {
+export default function ChapterProgress({chapterId, initialLearnerId, children}: {
   chapterId: string;
-  contentLabel?: string;
-  selectionRequired?: boolean;
+  initialLearnerId?: string;
+  children: ReactNode;
 }) {
   const [learners, setLearners] = useState<Learner[]>([]);
   const [selected, setSelected] = useState('');
-  const [status, setStatus] = useState('assigned');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState('Loading learner progress…');
-  const current = learners.find((l) => l.learner_id === selected);
+  const [message, setMessage] = useState('');
+  const learner = learners.find(item => item.learner_id === selected);
+  const status = normalizeChapterStatus(learner?.status);
+  const canEdit = learner?.role === 'owner';
 
   useEffect(() => {
-    let active = true;
-    fetch(`/api/ncert-chapters/${encodeURIComponent(chapterId)}/progress`, { cache: 'no-store' })
-      .then(async (r) => {
-        const body = await r.json();
-        if (!r.ok) throw new Error(body.error ?? 'Unable to load progress');
-        return body;
+    const controller = new AbortController();
+    fetch(`/api/ncert-chapters/${encodeURIComponent(chapterId)}/progress`, {cache: 'no-store', signal: controller.signal})
+      .then(async response => {
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error);
+        const options = body.learners as Learner[];
+        const current = options.find(item => item.learner_id === initialLearnerId) ?? options[0];
+        setLearners(options);
+        setSelected(current?.learner_id ?? '');
+        setNote(current?.parent_note ?? '');
+        if (!current) setMessage('Add a learner to record chapter status.');
       })
-      .then((data) => {
-        if (active) {
-          setLearners(data.learners);
-          setSelected(data.learners[0]?.learner_id ?? '');
-          setMessage(data.learners.length ? '' : 'No learners in this family yet. Add a learner from Learners.');
-        }
-      })
-      .catch((err) => {
-        if (active) setMessage(String(err.message));
-      });
-    return () => {
-      active = false;
-    };
-  }, [chapterId]);
+      .catch(error => { if (!controller.signal.aborted) setMessage(error.message); });
+    return () => controller.abort();
+  }, [chapterId, initialLearnerId]);
 
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      setStatus(current?.status ?? 'assigned');
-      setNote(current?.parent_note ?? '');
-    }, 0);
-    return () => clearTimeout(handle);
-  }, [current?.learner_id, current?.status, current?.parent_note]);
-
-  async function save() {
-    if (!selected) return;
+  async function save(next: ChapterStatus, noteOnly = false) {
+    if (!canEdit || busy) return;
     setBusy(true);
     setMessage('');
     try {
       const response = await fetch(`/api/ncert-chapters/${encodeURIComponent(chapterId)}/progress`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ learnerId: selected, status, note }),
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({learnerId: selected, status: next, note, noteOnly}),
       });
-      const body = await response.json();
-      if (!response.ok) throw new Error(body.error ?? 'Unable to save');
-      setLearners((old) =>
-        old.map((l) =>
-          l.learner_id === selected ? { ...l, status, parent_note: note, updated_at: new Date().toISOString() } : l,
-        ),
-      );
-      setMessage('Progress saved for this learner.');
-    } catch (err) {
-      setMessage(err instanceof Error ? err.message : 'Unable to save progress.');
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+      setLearners(items => items.map(item => item.learner_id === selected ? {...item, status: result.status, parent_note: note} : item));
+      setMessage('Chapter status saved.');
+      window.dispatchEvent(new Event('daily-plan-updated'));
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not save chapter status.');
     } finally {
       setBusy(false);
     }
   }
 
-  return (
-    <section className="workspace-panel" aria-label={`Learner ${contentLabel.toLowerCase()} progress`}>
-      <span className="eyebrow">PARENT-RECORDED PROGRESS</span>
-      <h2 style={{ margin: '4px 0 8px' }}>Track this {contentLabel.toLowerCase()}</h2>
-      <p className="muted" style={{ marginTop: 0 }}>
-        {selectionRequired
-          ? `You may record a learner’s work with this official ${contentLabel.toLowerCase()}. This progress record does not persist a family or school selection, exclude other alternatives, or create automatic learning sessions.`
-          : `Assign the ${contentLabel.toLowerCase()} to a learner, then record progress after studying. Opening an official resource does not automatically mark it complete.`}
-      </p>
-      {learners.length > 0 && (
-        <div className="chapter-progress-form">
-          <div className="portfolio-form-pair">
-            <label className="workspace-field" style={{ marginBottom: 0 }}>
-              <span>Learner</span>
-              <select value={selected} onChange={(e) => setSelected(e.target.value)}>
-                {learners.map((l) => (
-                  <option key={l.learner_id} value={l.learner_id}>
-                    {l.display_name} · {l.stage}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label className="workspace-field" style={{ marginBottom: 0 }}>
-              <span>{contentLabel} status</span>
-              <select value={status} onChange={(e) => setStatus(e.target.value)}>
-                {statuses.map((s) => (
-                  <option key={s.value} value={s.value}>
-                    {s.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-          </div>
-          <label className="workspace-field" style={{ marginBottom: 0 }}>
-            <span>Parent notes (optional)</span>
-            <textarea
-              rows={3}
-              maxLength={1000}
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="What did the learner understand? What needs another look?"
-            />
-          </label>
-          <div className="portfolio-form-actions">
-            <button type="button" className="btn-primary" onClick={save} disabled={busy}>
-              {busy ? 'Saving…' : `Save ${contentLabel.toLowerCase()} progress`}
-            </button>
-            {current?.updated_at && (
-              <small className="muted">Last recorded: {new Date(current.updated_at).toLocaleString()}</small>
-            )}
-          </div>
+  return <>
+    {learner && <div className="chapter-status-sticky">
+      <a className="chapter-status-badge" data-status={status} href="#chapter-status">
+        {learner.display_name} · {chapterStatuses.find(item => item.id === status)?.label}
+      </a>
+    </div>}
+    {children}
+    <section className="workspace-panel chapter-status-panel" id="chapter-status" aria-labelledby="chapter-status-heading">
+      <h2 id="chapter-status-heading">Chapter status</h2>
+      {learners.length > 0 && <>
+        <label className="workspace-field">
+          <span>Learner</span>
+          <select value={selected} disabled={busy} onChange={event => {
+            const next = learners.find(item => item.learner_id === event.target.value);
+            setSelected(event.target.value);
+            setNote(next?.parent_note ?? '');
+            setMessage('');
+          }}>
+            {learners.map(item => <option key={item.learner_id} value={item.learner_id}>{item.display_name} · {item.stage}</option>)}
+          </select>
+        </label>
+        <div className="chapter-status-options" role="group" aria-label="Choose one chapter status">
+          {chapterStatuses.map(item => <button key={item.id} type="button" data-status={item.id}
+            disabled={busy || !canEdit} aria-pressed={status === item.id} onClick={() => void save(item.id)}>
+            <strong>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
+            <small>{item.detail}</small>
+          </button>)}
         </div>
-      )}
-      {message && (
-        <p
-          role="status"
-          aria-live="polite"
-          className={message.startsWith('Progress saved') ? 'recorded-note' : 'muted'}
-          style={{ marginTop: 14, marginBottom: 0 }}
-        >
-          {message}
-        </p>
-      )}
+        <label className="workspace-field">
+          <span>Parent note</span>
+          <textarea value={note} maxLength={1000} disabled={busy || !canEdit} onChange={event => setNote(event.target.value)} />
+        </label>
+        {canEdit && <button className="btn-secondary" type="button" disabled={busy || note === (learner?.parent_note ?? '')}
+          onClick={() => void save(status, true)}>Save note</button>}
+      </>}
+      <p role="status" className="muted">{message}</p>
     </section>
-  );
+  </>;
 }

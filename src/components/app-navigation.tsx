@@ -104,12 +104,12 @@ export default function AppNavigation({children}:{children:ReactNode}){
     </Link>
     <div className="app-topbar-actions">
      <GlobalSearch placement="topbar"/>
-     <span className="mode-chip" title={inLearnerMode?'You are browsing learner mode':'You are browsing parent tools'}>
-      {inLearnerMode?'Learner mode':'Parent mode'}
+     <span className="mode-chip" title={inLearnerMode?'You are browsing the Learning Path':'You are browsing parent tools'}>
+      {inLearnerMode?'Learning Path':'Parent mode'}
      </span>
      {inLearnerMode
       ?<Link className="mode-switch" href="/dashboard">Parent home <span aria-hidden="true">→</span></Link>
-      :<Link className="mode-switch" href="/learn">Learner mode <span aria-hidden="true">→</span></Link>}
+      :<Link className="mode-switch" href="/learn/path">Learning Path <span aria-hidden="true">→</span></Link>}
      <div className="app-nav-actions app-nav-actions-topbar"><PwaInstallButton/></div>
     </div>
    </header>

@@ -3001,3 +3001,34 @@ button:active:not(:disabled){transform:translateY(1px)}
  .weekly-subject > h4{border-inline-end:0;border-bottom:1px solid #dce7dd;padding:6px 12px}
  .weekly-chapter-title{flex-basis:8rem}
 }
+
+/* Chapter status and the compact Learning Path */
+.chapter-path{padding-top:24px;gap:14px}
+.chapter-path-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.chapter-path-heading h1{font-size:clamp(25px,3vw,37px);margin:0;letter-spacing:-.035em}
+.chapter-path-heading .eyebrow{margin:0 0 4px}
+.chapter-path-heading .learner-pill{padding:8px 14px}
+.chapter-path-subjects{display:flex;gap:8px;flex-wrap:wrap}
+.chapter-path-subjects button[aria-pressed=true]{background:#e0f2e7;border-color:#78a88f;color:#154d38}
+.chapter-path-list{display:grid;gap:7px;list-style:none;margin:0;padding:0}
+.chapter-path-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(3,minmax(0,154px));align-items:center;gap:8px;padding:9px 12px;border:1px solid #dce7dd;border-radius:12px;background:#fffdfa}
+.chapter-path-title{display:flex;align-items:center;flex-wrap:wrap;gap:5px 9px;min-width:0;overflow-wrap:anywhere}
+.chapter-path-row > a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:6px 8px;text-align:center;font-size:.82rem;line-height:1.25}
+.chapter-status-sticky{position:sticky;top:72px;z-index:5;justify-self:end;width:max-content;max-width:100%;margin-inline-start:auto}
+.chapter-status-badge,.chapter-status-options button{--status-bg:#edf0ec;--status-ink:#43544b;--status-line:#b2bfb6;color:var(--status-ink);background:var(--status-bg);border:1px solid var(--status-line)}
+.chapter-status-badge{display:inline-flex;align-items:center;max-width:100%;padding:3px 9px;border-radius:999px;font-size:.75rem;font-weight:800;overflow-wrap:anywhere}
+.chapter-status-sticky .chapter-status-badge{min-height:44px;padding-inline:14px;box-shadow:0 4px 12px #14322215}
+:is(.chapter-status-badge,.chapter-status-options button)[data-status=read]{--status-bg:#e1effb;--status-ink:#234c73;--status-line:#a9c9e5}
+:is(.chapter-status-badge,.chapter-status-options button)[data-status=revision_due]{--status-bg:#fff0d6;--status-ink:#734916;--status-line:#e2c38d}
+:is(.chapter-status-badge,.chapter-status-options button)[data-status=revised]{--status-bg:#def2e4;--status-ink:#205b3a;--status-line:#9ecab0}
+:is(.chapter-status-badge,.chapter-status-options button)[data-status=needs_practice]{--status-bg:#fbe8e4;--status-ink:#803e34;--status-line:#dfb0a6}
+.chapter-status-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,145px),1fr));gap:8px;margin:12px 0}
+.chapter-status-options button{min-height:76px;display:grid;gap:4px;align-content:start;text-align:left;padding:10px 12px;border-radius:12px;cursor:pointer}
+.chapter-status-options button[aria-pressed=true]{outline:2px solid var(--status-ink);outline-offset:-2px}
+.chapter-status-options button:disabled{cursor:default}
+.chapter-status-options button small{line-height:1.35}
+#chapter-reading,#chapter-status,#chapter-tests,#study-material-studio{scroll-margin-top:110px}
+@media(max-width:720px){
+ .chapter-path-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .chapter-path-title{grid-column:1 / -1}
+}

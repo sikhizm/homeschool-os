@@ -20,10 +20,12 @@ import { chapterPdfSources, prefersOfficialNcert } from '@/lib/ncert/pdf-source'
 
 export const dynamic = 'force-dynamic';
 
-export default async function ChapterLearningPage({ params, searchParams }: { params: Promise<{ chapterId: string }>; searchParams: Promise<{ testLearner?: string }> }) {
+export default async function ChapterLearningPage({ params, searchParams }: { params: Promise<{ chapterId: string }>; searchParams: Promise<{ testLearner?: string; learner?: string; revision?: string }> }) {
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const { chapterId } = await params;
+  const query = await searchParams;
+  const learnerId = query.learner ?? query.testLearner;
   const chapter = ncertChapterSlots.find((c) => c.id === chapterId);
   if (!chapter) notFound();
   const book = textbookById(chapter.bookId);
@@ -48,7 +50,7 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
   return (
     <main className="family-dashboard studio-stack">
       <nav className="global-crumbs" style={{ margin: 0 }}>
-        <Link href="/dashboard">Home</Link>
+        {learnerId ? <Link href={`/learn/path?learner=${encodeURIComponent(learnerId)}`}>Learning Path</Link> : <Link href="/dashboard">Home</Link>}
         <span>/</span>
         <Link href="/ncert-books">NCERT books</Link>
         <span>/</span>
@@ -57,8 +59,9 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
         <strong>{chapter.label}</strong>
       </nav>
 
+      <ChapterProgress key={chapter.id + (learnerId ?? '')} chapterId={chapter.id} initialLearnerId={learnerId}>
       <ResourcePlanActions resourceKey={'ncert:'+chapter.id}/>
-      <section className="workspace-panel family-hero" style={{ alignItems: 'flex-start' }}>
+      <section id="chapter-reading" className="workspace-panel family-hero" style={{ alignItems: 'flex-start' }}>
         <div className="family-hero-copy" style={{ maxWidth: '100%' }}>
           <span className="eyebrow">
             CLASS {book.grade} · {book.subject} · {chapter.label.toUpperCase()} OF {siblings.length}
@@ -79,7 +82,7 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
           <div className="hero-actions">
             {readerHref && releaseUrl ? (
               <>
-                <Link className="hero-action-primary" href={readerHref}>Read in Homeschool OS</Link>
+                <Link className="hero-action-primary" href={learnerId ? readerHref + '?learner=' + encodeURIComponent(learnerId) : readerHref}>Read in Homeschool OS</Link>
                 <a className="hero-action-secondary" href={pdf.href} target="_blank" rel="noopener noreferrer">{hasOfficialPdf ? 'Official NCERT PDF ↗' : 'Official textbook portal ↗'}</a>
                 <a className="hero-action-secondary" href={releaseUrl} target="_blank" rel="noopener noreferrer">Open / download release PDF ↗</a>
               </>
@@ -110,17 +113,13 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
 
       {sessionEligible && chapter.verifiedTitle ? (
         <div id="study-material-studio">
-          <StudyMaterialStudio chapter={chapter} book={book} grade={book.grade} resourceUrl={officialPdf ?? book.sourceUrl} />
+          <StudyMaterialStudio chapter={chapter} book={book} grade={book.grade} resourceUrl={officialPdf ?? book.sourceUrl} initialLearnerId={learnerId} revisionPreset={query.revision === '1'} />
         </div>
       ) : null}
 
-      <div id="chapter-tests"><ChapterTests key={chapter.id} chapterId={chapter.id} initialLearnerId={(await searchParams).testLearner} /></div>
+      <div id="chapter-tests"><ChapterTests key={chapter.id} chapterId={chapter.id} initialLearnerId={learnerId} /></div>
 
-      <ChapterProgress
-        chapterId={chapter.id}
-        contentLabel={contentLabel}
-        selectionRequired={chapter.selection === 'choose-one'}
-      />
+      </ChapterProgress>
 
       <nav className="workspace-panel chapter-pager" aria-label={`Adjacent ${contentLabel.toLowerCase()}s`}>
         {previous ? (
