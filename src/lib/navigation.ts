@@ -6,7 +6,7 @@ export function navigationForPath(pathname:string){
  const activePrimary=within(pathname,'/dashboard')?'home'
   :within(pathname,'/planning')?'planner'
   :['/curriculum-mapping','/global-curriculum','/ncert-books','/roadmap'].some(route=>within(pathname,route))?'explore'
-  :['/portfolio','/reports'].some(route=>within(pathname,route))?'progress':null;
+  :within(pathname,'/reports')?'progress':null;
  let context:NavigationContext|null=null;
  if(within(pathname,'/planning'))context={label:'Plan your week',links:[
   {href:'/dashboard',label:'Daily coach'},
@@ -21,10 +21,6 @@ export function navigationForPath(pathname:string){
  else if(['/curriculum-mapping','/global-curriculum','/ncert-books','/roadmap'].some(route=>within(pathname,route)))context={label:'Explore learning',links:[
   {href:'/global-curriculum',label:'Global pathways'},
   {href:'/ncert-books',label:'NCERT books'},
- ]};
- else if(['/portfolio','/reports'].some(route=>within(pathname,route)))context={label:'Your progress',links:[
-  {href:'/challenges',label:'Challenges & Rewards'},
-  {href:'/reports',label:'Insights'},
  ]};
  else if(within(pathname,'/learn'))context={label:'Learning Path',links:[
   {href:'/learn/path',label:'Learning path'},
@@ -47,7 +43,7 @@ export const bottomDestinations:ShellDestination[]=[
  {id:'learn',href:'/learn/path',label:'Learning Path',glyph:'▶',hint:'NCERT chapters by learner',match:['/learn']},
  {id:'library',href:'/library',label:'Library',glyph:'❖',hint:'Curriculum library',match:['/library','/ncert-books','/curriculum-mapping','/global-curriculum','/roadmap']},
  {id:'progress',href:'/reports',label:'Progress',glyph:'↗',hint:'Learning insights',match:['/reports']},
- {id:'settings',href:'/settings',label:'Profile',glyph:'☺',hint:'Profile, family tools and settings',match:['/settings','/learners','/portfolio']},
+ {id:'settings',href:'/settings',label:'Profile',glyph:'☺',hint:'Profile, family tools and settings',match:['/settings','/learners']},
 ];
 export function shellDestinationIsActive(pathname:string,destination:ShellDestination){
  return destination.match.some(route=>within(pathname,route));
@@ -56,7 +52,7 @@ export function activeShellDestination(pathname:string,destinations:ShellDestina
  return destinations.find(destination=>shellDestinationIsActive(pathname,destination))??null;
 }
 /** Routes that render inside the authenticated app shell. */
-export const privateRoutes=['/roadmap','/dashboard','/planning','/learners','/library','/settings','/learn','/curriculum-mapping','/global-curriculum','/ncert-books','/portfolio','/challenges','/reports','/november-pilot','/study-reader'];
+export const privateRoutes=['/roadmap','/dashboard','/planning','/learners','/library','/settings','/learn','/curriculum-mapping','/global-curriculum','/ncert-books','/challenges','/reports','/november-pilot','/study-reader'];
 export function isPrivateRoute(pathname:string){
  return privateRoutes.some(route=>within(pathname,route));
 }
