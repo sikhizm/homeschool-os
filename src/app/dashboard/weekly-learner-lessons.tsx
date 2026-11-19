@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import { useEffect, useState } from 'react';
 
 const labels = {
@@ -9,8 +10,8 @@ const labels = {
   done: 'Chapter Read',
 };
 type Outcome = keyof typeof labels;
-type Chapter = { id: string; title: string; subject: string; outcome: Outcome | null; assessed: boolean; addedToday: boolean };
-type WeeklyPlan = { chapters: Chapter[]; canRecord: boolean; canAdd: boolean };
+type Chapter = { id: string; title: string; subject: string; outcome: Outcome | null; assessed: boolean };
+type WeeklyPlan = { chapters: Chapter[]; canRecord: boolean };
 
 export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId: string; canEdit: boolean }) {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
@@ -30,24 +31,24 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     return () => controller.abort();
   }, [learnerId]);
 
-  async function save(chapterId: string, outcome?: Outcome) {
+  async function save(chapterId: string, outcome: Outcome) {
     setBusy(true);
     setMessage('');
     try {
       const response = await fetch('/api/weekly-lessons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(outcome ? { learnerId, chapterId, outcome } : { learnerId, chapterId, action: 'add-today' }),
+        body: JSON.stringify({ learnerId, chapterId, outcome }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setPlan((previous) => previous && {
         ...previous,
-        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, ...(outcome ? { outcome } : { addedToday: true }) } : chapter),
+        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, outcome } : chapter),
       });
-      if (outcome) setOpen('');
+      setOpen('');
       window.dispatchEvent(new Event('daily-plan-updated'));
-      setMessage(outcome ? 'Outcome recorded.' : 'Chapter added to today’s plan.');
+      setMessage('Outcome recorded.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to save the chapter update.');
     } finally {
@@ -68,7 +69,6 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     {message && <p role="status">{message}</p>}
     {plan && !plan.chapters.length && <p>No chapters selected for this week. <Link href="/planning">Open Learning Plan</Link></p>}
     {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Apply the weekly chapter outcomes migration to record Chapter Read or Need More Practice.</p> : null}
-    {plan?.chapters.length && canEdit && !plan.canAdd ? <p>Apply the daily plans migration to add chapters to today’s plan.</p> : null}
     {chaptersBySubject.size > 0 && <div className="weekly-subjects">
       {Array.from(chaptersBySubject, ([subject, chapters]) => <section className="weekly-subject" key={subject}>
         <h4>{subject}</h4>
@@ -86,11 +86,7 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
                     </div>}
                   </div>
                   {canEdit && <div className="coach-actions weekly-chapter-actions">
-                    <button type="button" className="btn-secondary weekly-chapter-add"
-                      aria-label={chapter.addedToday ? `${chapter.title} is in today’s plan` : `Add ${chapter.title} to today’s plan`}
-                      disabled={busy || chapter.addedToday || !plan?.canAdd} onClick={() => void save(chapter.id)}>
-                      <span aria-hidden="true">{chapter.addedToday ? '✓' : '+'}</span>
-                    </button>
+                    <ChapterPlanMenu inline chapterId={chapter.id} title={chapter.title} learnerId={learnerId} />
                     <button type="button" className="coach-revise" aria-label={`Check & record for ${chapter.title}`} aria-expanded={open === chapter.id}
                       disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check &amp; record</button>
                   </div>}
