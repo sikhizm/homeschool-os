@@ -2,6 +2,8 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {isDefaultChapterSessionEligible, ncertChapterSlots, textbookById} from '@/lib/ncert/textbooks';
 import {activityLabels, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
+import {passingChapters} from '@/lib/ncert/passing-chapters';
+import {normalizeChapterStatus} from '@/lib/ncert/chapter-status';
 import {isTeachingDay, readingTiming} from '@/lib/planning/reading-rhythm';
 import {addDays, mondayOf, periodDates, validPlanningDate} from '@/lib/planning/periods';
 
@@ -39,7 +41,7 @@ export async function GET(request: Request) {
     const ids = learners.map(row => String(row.id)).filter(id => !requestedLearner || id === requestedLearner);
     if (requestedLearner && !ids.length) return json({error: 'Learner unavailable.'}, 404);
     if (!schema.ready || !ids.length) return json({ready: Boolean(schema.ready), learners, canEdit, items: []});
-    const [planned, progress, tests, weeklyReads] = await Promise.all([
+    const [planned, progress, tests, weeklyReads, yearPlans, passedChapters] = await Promise.all([
       sql`SELECT p.learner_id::text, p.chapter_id, p.activity, p.period, p.starts_on::text,
         to_jsonb(p)->>'completed_on' AS completed_on,
         (to_jsonb(p)->>'optional_test')::boolean AS optional_test FROM chapter_plan_activities p
@@ -58,6 +60,13 @@ export async function GET(request: Request) {
       schema.outcomes ? sql`SELECT learner_id::text, chapter_id, (updated_at AT TIME ZONE 'Asia/Kolkata')::date::text AS read_on
         FROM ncert_weekly_chapter_outcomes WHERE learner_id::text = ANY(${ids}::text[]) AND (${rhythm} OR ${includeCarryover} OR week_start = ${week}::date)
           AND outcome IN ('done', 'understood')` : [],
+      rhythm ? sql`SELECT learner_id::text, chapter_ids FROM learning_planning_periods
+        WHERE learner_id::text = ANY(${ids}::text[]) AND kind = 'year'
+          AND start_date = ${periodDates('year', day).startDate}::date`.catch(error => {
+          if ((error as {code?: string}).code === '42P01') return [];
+          throw error;
+        }) : [],
+      rhythm && schema.tests ? passingChapters(sql, ids) : [],
     ]);
     const key = (learnerId: unknown, chapterId: unknown) => `${learnerId}:${chapterId}`;
     const progressByChapter = new Map(progress.map(row => [key(row.learner_id, row.chapter_id), row]));
@@ -133,7 +142,20 @@ export async function GET(request: Request) {
             title: chapter.verifiedTitle ?? chapter.label, activity,
           }] : [];
         }).sort((a, b) => a.activity.localeCompare(b.activity) || a.title.localeCompare(b.title)).slice(0, 2));
-    return json({ready: true, learners, canEdit, items: [...deduped.values()], readingWeek, weekendSuggestions});
+    const passed = new Set(passedChapters.map(row => key(row.learner_id, row.chapter_id)));
+    const chapterCoverage = schema.progress ? yearPlans.map(row => {
+      const learnerId = String(row.learner_id);
+      const chapters = [...new Set(Array.isArray(row.chapter_ids) ? row.chapter_ids.map(String) : [])];
+      const records = chapters.map(chapterId => progressByChapter.get(key(learnerId, chapterId)));
+      return {
+        learnerId,
+        total: chapters.length,
+        read: records.filter(record => Boolean(record?.read_on) || normalizeChapterStatus(record?.status) === 'read').length,
+        revised: records.filter(record => normalizeChapterStatus(record?.status) === 'revised').length,
+        finished: chapters.filter(chapterId => passed.has(key(learnerId, chapterId))).length,
+      };
+    }) : null;
+    return json({ready: true, learners, canEdit, items: [...deduped.values()], readingWeek, weekendSuggestions, chapterCoverage});
   } catch {
     return json({error: 'Unable to load planned chapter activities.'}, 503);
   }
