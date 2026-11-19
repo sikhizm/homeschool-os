@@ -134,3 +134,22 @@ section.progressSection {
   .coverage { grid-template-columns: 1fr; }
   .coverage span { grid-column: auto; grid-row: auto; }
 }
+
+.olympiadTopics { list-style: none; padding: 0; margin: .75rem 0; }
+.olympiadTopic {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(7rem, auto) minmax(10rem, auto);
+  align-items: center;
+  gap: .75rem;
+  padding: .65rem .25rem;
+  border-bottom: 1px solid var(--line);
+}
+.olympiadGoal, .olympiadSchedule { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; }
+.olympiadGoal { font-size: .875rem; min-height: 44px; }
+.olympiadSchedule { justify-content: flex-end; }
+.olympiadSchedule summary { cursor: pointer; }
+@media (max-width: 600px) {
+  .olympiadTopic { grid-template-columns: minmax(0, 1fr) auto; }
+  .olympiadTopic > strong { grid-column: 1 / -1; }
+  .olympiadSchedule { justify-content: flex-start; }
+}

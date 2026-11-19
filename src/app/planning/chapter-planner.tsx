@@ -7,7 +7,7 @@ import {
 import Link from "next/link";
 import { olympiadResources } from "@/lib/olympiad/catalogue";
 import styles from "./chapter-planner.module.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   chaptersFor,
   ncertChapterSlots,
@@ -17,7 +17,7 @@ import {
 import {chapterDisplayStatuses, normalizeChapterStatus} from "@/lib/ncert/chapter-status";
 import WeeklyChapterActivities from "./weekly-chapter-activities";
 export type ChapterRecord = {chapter_id: string; status: string; has_read: boolean};
-import { academicYear, daysInWeek } from "@/lib/planning/periods";
+import { academicYear, daysInWeek, mondayOf } from "@/lib/planning/periods";
 
 async function changeChapter(input: Record<string, unknown>) {
   const res = await fetch("/api/planning/chapters", {
@@ -70,6 +70,24 @@ export function ChapterPlanner({
   const [weekSearch, setWeekSearch] = useState('');
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [olympiadTab, setOlympiadTab] = useState<'topics' | 'papers'>('topics');
+  const [practice, setPractice] = useState<{id: string; topic: string; period: 'day' | 'week'; completed: boolean; practice_date: string}[]>([]);
+  const [scheduleVersion, setScheduleVersion] = useState(0);
+  const [scheduleError, setScheduleError] = useState('');
+  useEffect(() => {
+    const request = new AbortController();
+    const params = new URLSearchParams({olympiadLearner: learnerId, date});
+    void fetch('/api/my-books?' + params, {cache: 'no-store', signal: request.signal})
+      .then(async response => {
+        if (!response.ok) throw new Error('Could not load scheduled Olympiad topics.');
+        const result = await response.json();
+        if (!request.signal.aborted) {
+          setPractice(result.activities);
+          setScheduleError('');
+        }
+      }).catch(error => {if (!request.signal.aborted) setScheduleError(error.message);});
+    return () => request.abort();
+  }, [learnerId, date, scheduleVersion]);
   const week = daysInWeek(date);
   const passed = new Set(passedChapterIds);
   const records = new Map(chapterRecords.map(record => [record.chapter_id, record]));
@@ -126,14 +144,15 @@ export function ChapterPlanner({
       setBusy(false);
     }
   }
-  async function addOlympiadTopic(topic: string) {
+  async function scheduleOlympiad(input: {topic: string; period: 'day' | 'week'} | {entryId: string}) {
     setBusy(true);
     setMessage('');
     try {
       const response = await fetch('/api/my-books', {method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({action: 'plan-olympiad', learnerId, topic})});
+        body: JSON.stringify({action: 'entryId' in input ? 'move-olympiad' : 'plan-olympiad', learnerId, date, ...input})});
       if (!response.ok) throw new Error((await response.json()).error);
-      setMessage(`${topic} added to Today’s rhythm.`);
+      setScheduleVersion(value => value + 1);
+      setMessage('Olympiad schedule saved.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not add the topic.');
     } finally {
@@ -346,28 +365,64 @@ export function ChapterPlanner({
               })}
             </section>
           )}
-          {canEdit && (
-            <details>
-              <summary>Choose practice goals</summary>
-              <h3>SOF Mathematics · topic practice</h3>
-              {topics.map(topic => <div className={styles.actions} key={topic}>
-                {goalOption(topic, topic)}
-                <button type="button" className="btn-secondary" disabled={busy}
-                  aria-label={`Add ${topic} to Today`} onClick={() => void addOlympiadTopic(topic)}>Add to Today</button>
-              </div>)}
-              <h3>Sample papers by subject</h3>
-              {[...new Set(papers.map((r) => r.subject))].map((subject) => (
-                <details key={subject}>
-                  <summary>{subject}</summary>
-                  {papers
-                    .filter((r) => r.subject === subject)
-                    .map((r) =>
-                      goalOption("paper:" + r.id, r.provider + " · " + r.title),
-                    )}
-                </details>
-              ))}
-            </details>
-          )}
+          <div className={styles.actions} aria-label="Olympiad practice view">
+            <button type="button" aria-pressed={olympiadTab === 'topics'} className={olympiadTab === 'topics' ? 'btn-primary' : 'btn-secondary'}
+              onClick={() => setOlympiadTab('topics')}>Topics</button>
+            <button type="button" aria-pressed={olympiadTab === 'papers'} className={olympiadTab === 'papers' ? 'btn-primary' : 'btn-secondary'}
+              onClick={() => setOlympiadTab('papers')}>Sample papers</button>
+          </div>
+          {olympiadTab === 'topics' ? <>
+            <h3>SOF Mathematics</h3>
+            {scheduleError && <p role="status">{scheduleError}</p>}
+            <ul className={styles.olympiadTopics} aria-label="Olympiad topics">
+              {topics.map(topic => {
+                const weekly = practice.find(item => item.topic === topic && item.period === 'week');
+                const daily = practice.find(item => item.topic === topic && item.period === 'day' && item.practice_date === today);
+                const past = week[0] < mondayOf(today);
+                return <li key={topic} className={styles.olympiadTopic}>
+                  <strong>{topic}</strong>
+                  <label className={styles.olympiadGoal}>
+                    <input type="checkbox" checked={Boolean(olympiad[grade + ':' + topic])} disabled={!canEdit || busy}
+                      aria-label={`Year goal for ${topic}`} onChange={event => void save({
+                        action: 'olympiad', topic, status: event.target.checked ? 'planned' : 'unplanned',
+                      })} />
+                    Year goal
+                  </label>
+                  <div className={styles.olympiadSchedule}>
+                    {weekly && <span className="pill">{weekly.completed ? 'Practised' : past ? 'Unfinished' : 'In week plan'}</span>}
+                    {!weekly && daily && <span className="pill">{daily.completed ? 'Practised today' : 'Today'}</span>}
+                    {canEdit && weekly && past && !weekly.completed &&
+                      <button type="button" className="btn-secondary" disabled={busy}
+                        onClick={() => void scheduleOlympiad({entryId: weekly.id})}>Move to this week</button>}
+                    {canEdit && !past && !weekly && <details>
+                      <summary className="btn-secondary" aria-label={`Schedule ${topic}`}>＋ Schedule</summary>
+                      <div className={styles.actions}>
+                        <button type="button" className="btn-primary" disabled={busy}
+                          onClick={() => void scheduleOlympiad({topic, period: 'week'})}>
+                          {week[0] === mondayOf(today) ? 'Add to this week' : 'Add to selected week'}
+                        </button>
+                        {!daily && <button type="button" className="btn-secondary" disabled={busy}
+                          onClick={() => void scheduleOlympiad({topic, period: 'day'})}>Add to Today</button>}
+                      </div>
+                    </details>}
+                  </div>
+                </li>;
+              })}
+            </ul>
+          </> : <div>
+            <h3>Sample papers by subject</h3>
+            {[...new Set(papers.map(paper => paper.subject))].map(subject => (
+              <details key={subject}>
+                <summary>{subject}</summary>
+                {papers.filter(paper => paper.subject === subject).map(paper => (
+                  <div className={styles.practiceRow} key={paper.id}>
+                    {canEdit ? goalOption('paper:' + paper.id, paper.provider + ' · ' + paper.title) : <span>{paper.title}</span>}
+                    <a className="btn-secondary" href={paper.pdfUrl ? '/library/olympiad/read/' + paper.id : paper.sourceUrl}>Open paper</a>
+                  </div>
+                ))}
+              </details>
+            ))}
+          </div>}
           <a href={olympiadSourcesFor(grade)[0]}>Official SOF maths syllabus</a>
         </section>
       )}
