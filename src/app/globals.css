@@ -3026,7 +3026,14 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:620px){
  .weekly-subject{grid-template-columns:minmax(0,1fr)}
  .weekly-subject > h4{border-inline-end:0;border-bottom:1px solid #dce7dd;padding:6px 12px}
- .weekly-chapter-title{flex-basis:8rem}
+ .weekly-chapter-row{padding:6px 9px}
+ .weekly-chapter-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}
+ .weekly-chapter-title{font-size:.9rem;line-height:1.35}
+ .weekly-chapter-title .coach-task-tags{gap:4px;margin-top:3px}
+ .weekly-chapter-title .coach-task-tags span{padding:2px 7px}
+ .weekly-chapter-heading .weekly-chapter-actions{gap:4px}
+ .weekly-chapter-actions .chapter-plan-plus{width:44px;min-height:44px;padding:0}
+ .weekly-chapter-actions > a.btn-secondary{min-height:44px;padding:4px 7px;font-size:.75rem;white-space:nowrap}
 }
 
 /* Chapter status and the compact Learning Path */
