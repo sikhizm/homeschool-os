@@ -3,26 +3,23 @@ import { auth } from '@/lib/auth/server';
 import { redirect } from 'next/navigation';
 import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
-import LearningWorkspace from './learning-workspace';
 import { FamilyHome } from './family-home';
-import { competencies } from '@/lib/curriculum/library';
-import { globalSkillById } from '@/lib/global-curriculum/catalogue';
-import { validPlanningDate } from '@/lib/planning/periods';
 import AutomaticLearning from './automatic-learning';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Dashboard({ searchParams }: { searchParams: Promise<{ competency?: string; globalSkill?: string; date?: string }> }) {
   const params = await searchParams;
-  const competency = competencies.find(item => item.id === params.competency);
-  const globalSuggestion = params.globalSkill ? globalSkillById(params.globalSkill) : undefined;
-  const suggestion = competency?.outcome ?? globalSuggestion?.outcome ?? '';
-  const suggestedSubject = competency?.subject ?? globalSuggestion?.subject ?? '';
+  const savedRecordQuery = new URLSearchParams();
+  for (const key of ['date', 'competency', 'globalSkill'] as const) {
+    if (typeof params[key] === 'string' && params[key]) savedRecordQuery.set(key, params[key]);
+  }
+  if (savedRecordQuery.size) redirect(`/dashboard/saved-learning?${savedRecordQuery}`);
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
   const families = await sql`
-    SELECT f.id, f.name, fm.role
+    SELECT f.name, fm.role
     FROM families f JOIN family_members fm ON fm.family_id = f.id
     WHERE fm.auth_user_id = ${session.user.id}
     ORDER BY fm.created_at, fm.family_id LIMIT 1
@@ -40,16 +37,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </main>
     );
   const family = families[0];
-  const learners = await sql`
-    SELECT id, display_name, stage FROM learners
-    WHERE family_id = ${family.id} AND archived_at IS NULL
-    ORDER BY created_at, id
-  `;
-  const today = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Kolkata',
-  }).format(new Date());
-  const initialDate = validPlanningDate(params.date) ? params.date : today;
-  const hasPrefill = Boolean(suggestion || params.date);
   return (
     <main className="family-dashboard studio-stack">
       <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} />
@@ -87,29 +74,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </Link>
         </div>
       </section>
-
-      {hasPrefill && <details className="workspace-panel studio-disclosure" open>
-        <summary>
-          <div>
-            <strong>Saved day &amp; goal details</strong>
-            <small>Optional custom subjects, observable goals and day-by-day activity logs</small>
-          </div>
-          <span className="disclosure-pill" aria-hidden="true">Expand ⌄</span>
-        </summary>
-        <div className="studio-disclosure-body">
-          <LearningWorkspace
-            learners={learners.map((l) => ({
-              id: String(l.id),
-              display_name: String(l.display_name),
-              stage: String(l.stage || 'Early Years'),
-            }))}
-            canEdit={family.role === 'owner'}
-            initialDate={initialDate}
-            suggestedGoal={suggestion}
-            suggestedSubject={suggestedSubject}
-          />
-        </div>
-      </details>}
 
       {family.role === 'owner' && (
         <details className="workspace-panel studio-disclosure add-learner-panel">
