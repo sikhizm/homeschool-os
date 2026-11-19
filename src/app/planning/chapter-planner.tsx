@@ -74,12 +74,13 @@ export function ChapterPlanner({
   const [practice, setPractice] = useState<{id: string; topic: string; period: 'day' | 'week'; completed: boolean; practice_date: string}[]>([]);
   const [scheduleVersion, setScheduleVersion] = useState(0);
   const [scheduleError, setScheduleError] = useState('');
+  const [scheduleNotice, setScheduleNotice] = useState('');
   useEffect(() => {
     const request = new AbortController();
     const params = new URLSearchParams({olympiadLearner: learnerId, date});
     void fetch('/api/my-books?' + params, {cache: 'no-store', signal: request.signal})
       .then(async response => {
-        if (!response.ok) throw new Error('Could not load scheduled Olympiad topics.');
+        if (!response.ok) throw new Error('Could not load scheduled Olympiad topics. Check that migrations 022 and 023 have been applied.');
         const result = await response.json();
         if (!request.signal.aborted) {
           setPractice(result.activities);
@@ -146,14 +147,14 @@ export function ChapterPlanner({
   }
   async function scheduleOlympiad(input: {topic: string; period: 'day' | 'week'} | {entryId: string}) {
     setBusy(true);
-    setMessage('');
+    setScheduleNotice('Saving Olympiad schedule…');
     try {
       const response = await fetch('/api/my-books', {method: 'POST', headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({action: 'entryId' in input ? 'move-olympiad' : 'plan-olympiad', learnerId, date, ...input})});
       if (!response.ok) throw new Error((await response.json()).error);
       setScheduleVersion(value => value + 1);
       window.dispatchEvent(new Event('daily-plan-updated'));
-      setMessage('Olympiad schedule saved.');
+      setScheduleNotice('Olympiad schedule saved.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not add the topic.');
     } finally {
@@ -364,6 +365,7 @@ export function ChapterPlanner({
           )}
           {olympiadTab === 'topics' ? <>
             {scheduleError && <p role="status">{scheduleError}</p>}
+            {scheduleNotice && <p role="status">{scheduleNotice}</p>}
             <div className={styles.olympiadColumns} aria-hidden="true">
               <strong>SOF Mathematics</strong><strong>Year goal</strong><strong>Schedule</strong>
             </div>
@@ -390,11 +392,19 @@ export function ChapterPlanner({
                       <summary className="btn-secondary" aria-label={`Schedule ${topic}`}>＋ Schedule</summary>
                       <div className={styles.olympiadMenuActions}>
                         <button type="button" className="btn-primary" disabled={busy}
-                          onClick={() => void scheduleOlympiad({topic, period: 'week'})}>
+                          onClick={event => {
+                            const menu = event.currentTarget.closest('details');
+                            if (menu) menu.open = false;
+                            void scheduleOlympiad({topic, period: 'week'});
+                          }}>
                           {week[0] === mondayOf(today) ? 'Add to this week' : 'Add to selected week'}
                         </button>
                         {!daily && <button type="button" className="btn-secondary" disabled={busy}
-                          onClick={() => void scheduleOlympiad({topic, period: 'day'})}>Add to Today</button>}
+                          onClick={event => {
+                            const menu = event.currentTarget.closest('details');
+                            if (menu) menu.open = false;
+                            void scheduleOlympiad({topic, period: 'day'});
+                          }}>Add to Today</button>}
                       </div>
                     </details>}
                   </div>
