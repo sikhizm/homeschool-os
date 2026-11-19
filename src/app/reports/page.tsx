@@ -5,6 +5,7 @@ import { getSql } from '@/lib/db';
 import { validDate } from '@/lib/learning/model';
 import {parseReportPeriod, reportWindow} from '@/lib/reports/model';
 import {ncertChapterSlots, textbookById} from '@/lib/ncert/textbooks';
+import {readingTiming} from '@/lib/planning/reading-rhythm';
 import PrintReport from './print-report';
 import LearnerReportCard from './learner-report-card';
 import TestPerformance from './test-performance';
@@ -57,12 +58,14 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
   const learner = learners.find((l) => String(l.id) === params.learner) ?? learners[0];
   const learnerId = learner ? String(learner.id) : '';
   let reading: {id: string; date: string; title: string; subject?: string}[] = [];
+  let scheduledReading: {planned: number; onTime: number; late: number} | null = null;
   let readingUnavailable = false;
   if (learner) {
     try {
       const [schema] = await sql`SELECT to_regclass('public.ncert_chapter_progress') IS NOT NULL AS chapters,
-        to_regclass('public.ncert_weekly_chapter_outcomes') IS NOT NULL AS weekly`;
-      const [chapterReads, weeklyReads] = await Promise.all([
+        to_regclass('public.ncert_weekly_chapter_outcomes') IS NOT NULL AS weekly,
+        to_regclass('public.chapter_plan_activities') IS NOT NULL AS planned`;
+      const [chapterReads, weeklyReads, plannedReads] = await Promise.all([
         schema?.chapters ? sql`
           SELECT p.chapter_id, (p.completed_at AT TIME ZONE 'Asia/Kolkata')::date::text AS read_date
           FROM ncert_chapter_progress p JOIN learners l ON l.id = p.learner_id
@@ -76,11 +79,27 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
             AND p.outcome IN ('done', 'understood')
             AND (p.updated_at AT TIME ZONE 'Asia/Kolkata')::date BETWEEN ${window.startDate}::date AND ${window.endDate}::date
         ` : [],
+        schema?.planned ? sql`
+          SELECT p.chapter_id, p.starts_on::text, to_jsonb(p)->>'completed_on' AS completed_on
+          FROM chapter_plan_activities p JOIN learners l ON l.id = p.learner_id
+          WHERE l.id::text = ${learnerId} AND l.family_id = ${family.id} AND l.archived_at IS NULL
+            AND p.activity = 'reading' AND p.period = 'day'
+            AND p.starts_on BETWEEN ${window.startDate}::date AND ${window.endDate}::date
+        ` : [],
       ]);
+      const allReads = [...chapterReads, ...weeklyReads, ...plannedReads.flatMap(row =>
+        row.completed_on ? [{chapter_id: row.chapter_id, read_date: row.completed_on}] : [])];
+      if (plannedReads.length) {
+        const timing = plannedReads.map(row => readingTiming(String(row.starts_on), String(row.starts_on), window.endDate,
+          allReads.filter(read => read.chapter_id === row.chapter_id).map(read => read.read_date)));
+        scheduledReading = {planned: timing.length, onTime: timing.filter(item => item.onTime).length,
+          late: timing.filter(item => item.completedOn && !item.onTime).length};
+      }
       const chapters = new Map(ncertChapterSlots.map(chapter => [chapter.id, chapter]));
       const records = new Map<string, typeof reading[number]>();
-      for (const row of [...chapterReads, ...weeklyReads]) {
+      for (const row of allReads) {
         const id = String(row.chapter_id), date = String(row.read_date);
+        if (date < window.startDate || date > window.endDate) continue;
         const chapter = chapters.get(id);
         records.set(`${date}:${id}`, {
           id, date, title: chapter?.verifiedTitle ?? chapter?.label ?? id,
@@ -131,6 +150,8 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
           <h2>Chapter reading timeline</h2>
           {reading.length > 0 && <span className="pill">{reading.length} recorded</span>}
         </header>
+        {scheduledReading && <p className="muted">{scheduledReading.onTime} of {scheduledReading.planned} daily readings on time
+          {scheduledReading.late > 0 ? ` · ${scheduledReading.late} read after the due date` : ''}</p>}
         {readingUnavailable ? <p className="muted" role="status">Chapter reading records are unavailable.</p>
           : reading.length ? <ol className="report-reading-timeline">
             {reading.map(entry => <li key={`${entry.date}:${entry.id}`}>
