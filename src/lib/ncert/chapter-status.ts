@@ -12,3 +12,10 @@ export function normalizeChapterStatus(value: unknown): ChapterStatus {
   if (value === 'completed') return 'read';
   return chapterStatuses.find(status => status.id === value)?.id ?? 'pending';
 }
+
+export const finishedChapterStatus = {
+  id: 'finished', label: 'Finished', detail: 'Automatically awarded for a chapter test score of 60% or higher.',
+} as const;
+
+export const chapterDisplayStatuses = [...chapterStatuses, finishedChapterStatus] as const;
+export type ChapterDisplayStatus = typeof chapterDisplayStatuses[number]['id'];

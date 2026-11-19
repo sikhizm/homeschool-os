@@ -3044,3 +3044,11 @@ button:active:not(:disabled){transform:translateY(1px)}
 .report-card-table th,.report-card-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:start}
 .report-card-table th{background:#eef5ee}
 .challenge-recipients{grid-column:1 / -1;display:flex;gap:8px 16px;flex-wrap:wrap;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:10px}.challenge-recipients label{display:flex;gap:6px;align-items:center}
+
+.chapter-status-auto{
+ display:grid;gap:4px;align-content:start;padding:10px 12px;border-radius:12px;
+ background:#d9efe5;color:#164f39;border:1px solid #94bea9;
+}
+.chapter-status-auto small{line-height:1.35}
+.chapter-status-auto[aria-current=true]{outline:2px solid #164f39;outline-offset:-2px}
+.chapter-status-badge[data-status=finished]{--status-bg:#d9efe5;--status-ink:#164f39;--status-line:#94bea9}

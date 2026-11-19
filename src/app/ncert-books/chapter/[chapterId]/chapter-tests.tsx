@@ -1,5 +1,6 @@
 'use client';
 
+import {useRouter} from 'next/navigation';
 import { useEffect, useState, type FormEvent } from 'react';
 import { NEEDS_PRACTICE_PERCENT, percentage, percentLabel, summarizeTests, type Attempt } from '@/lib/chapter-tests/model';
 
@@ -15,6 +16,7 @@ async function readTests(endpoint: string, signal?: AbortSignal): Promise<Data> 
 }
 
 export default function ChapterTests({ chapterId, initialLearnerId = '' }: { chapterId: string; initialLearnerId?: string }) {
+  const router = useRouter();
   const endpoint = `/api/ncert-chapters/${encodeURIComponent(chapterId)}/tests`;
   const [data, setData] = useState<Data | null>(null);
   const [learnerId, setLearnerId] = useState(initialLearnerId);
@@ -44,6 +46,8 @@ export default function ChapterTests({ chapterId, initialLearnerId = '' }: { cha
       const body = await response.json();
       if (response.status === 409) setData(await readTests(endpoint));
       if (!response.ok) throw new Error(body.error);
+      window.dispatchEvent(new Event('chapter-tests-updated'));
+      router.refresh();
       setDraft(null);
       setData(await readTests(endpoint));
       setMessage('Test history updated.');
@@ -94,7 +98,7 @@ export default function ChapterTests({ chapterId, initialLearnerId = '' }: { cha
         {summary.assessments.map(({ first, latest, attempts, improvement }) => (
           <article key={first.assessmentId} className="portfolio-record" style={{ marginTop: 12, overflowWrap: 'anywhere' }}>
             <h3>{first.title}</h3>
-            {percentage(latest) < NEEDS_PRACTICE_PERCENT && <span className="pill">Needs Practice</span>}
+            {percentage(latest) < NEEDS_PRACTICE_PERCENT && <span className="pill">Latest attempt below {NEEDS_PRACTICE_PERCENT}%</span>}
             <p className="muted">First-to-latest change {improvement === null ? '—' : `${improvement > 0 ? '+' : ''}${Number(improvement.toFixed(2))} percentage points`}</p>
             {learner.role === 'owner' && <button type="button" className="btn-secondary" disabled={busy}
               onClick={() => setDraft({ operation: 'retest', target: first.assessmentId, title: first.title, total: latest.total })}>Add retest</button>}

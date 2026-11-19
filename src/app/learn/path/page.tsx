@@ -3,7 +3,8 @@ import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {queueCatalogue} from '@/lib/auto-learning/catalogue';
 import {ncertChapterSlots} from '@/lib/ncert/textbooks';
-import {normalizeChapterStatus} from '@/lib/ncert/chapter-status';
+import {passingChapters} from '@/lib/ncert/passing-chapters';
+import {normalizeChapterStatus, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
 import {LearningPath} from './learning-path';
 
 export const dynamic = 'force-dynamic';
@@ -26,7 +27,9 @@ export default async function LearningPathPage({searchParams}: {searchParams: Pr
       WHERE l.family_id = ${family.family_id} AND l.archived_at IS NULL`,
   ]);
   const chapterById = new Map(ncertChapterSlots.map(chapter => [chapter.id, chapter]));
-  const statusByChapter = new Map(progress.map(row => [`${row.learner_id}:${row.chapter_id}`, normalizeChapterStatus(row.status)]));
+  const statusByChapter = new Map<string, ChapterDisplayStatus>(progress.map(row => [`${row.learner_id}:${row.chapter_id}`, normalizeChapterStatus(row.status)]));
+  const passes = await passingChapters(sql, learners.map(learner => String(learner.id)));
+  for (const row of passes) statusByChapter.set(`${row.learner_id}:${row.chapter_id}`, 'finished');
   return <LearningPath initialLearnerId={initialLearnerId} learners={learners.map(learner => {
     const id = String(learner.id);
     const grade = String(learner.stage);

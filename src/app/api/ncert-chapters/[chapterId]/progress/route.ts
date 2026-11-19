@@ -5,6 +5,7 @@ import {ncertChapterSlots} from '@/lib/ncert/textbooks';
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const respond=(body:unknown,status=200)=>NextResponse.json(body,{status,headers:{'Cache-Control':'private, no-store'}});
+import {passingChapters} from '@/lib/ncert/passing-chapters';
 import {chapterStatuses} from '@/lib/ncert/chapter-status';
 const allowed=new Set<string>(['assigned','in_progress','completed',...chapterStatuses.map(status=>status.id)]);
 type Context={params:Promise<{chapterId:string}>};
@@ -30,7 +31,9 @@ export async function GET(_request:Request,context:Context){
    WHERE fm.auth_user_id=${who.userId} AND l.archived_at IS NULL
    ORDER BY l.created_at,l.id
   `;
-  return respond({learners:rows});
+  const passes = await passingChapters(sql, rows.map(row => String(row.learner_id)), chapterId);
+  const passed = new Set(passes.map(row => String(row.learner_id)));
+  return respond({learners:rows.map(row => ({...row, finished: passed.has(String(row.learner_id))}))});
  }catch{return respond({error:'Unable to load progress. Check that the NCERT chapter status migrations have been applied.'},503);}
 }
 export async function POST(request:Request,context:Context){

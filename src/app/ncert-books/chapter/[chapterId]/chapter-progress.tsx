@@ -1,9 +1,9 @@
 'use client';
 
 import {useEffect, useState, type ReactNode} from 'react';
-import {chapterStatuses, normalizeChapterStatus, type ChapterStatus} from '@/lib/ncert/chapter-status';
+import {chapterDisplayStatuses, chapterStatuses, finishedChapterStatus, normalizeChapterStatus, type ChapterStatus} from '@/lib/ncert/chapter-status';
 
-type Learner = {learner_id: string; display_name: string; stage: string; status: string | null; parent_note: string | null; role: string};
+type Learner = {learner_id: string; display_name: string; stage: string; status: string | null; parent_note: string | null; role: string; finished?: boolean};
 
 export default function ChapterProgress({chapterId, initialLearnerId, children}: {
   chapterId: string;
@@ -16,12 +16,14 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');
   const learner = learners.find(item => item.learner_id === selected);
-  const status = normalizeChapterStatus(learner?.status);
+  const manualStatus = normalizeChapterStatus(learner?.status);
+  const status = learner?.finished ? finishedChapterStatus.id : manualStatus;
   const canEdit = learner?.role === 'owner';
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch(`/api/ncert-chapters/${encodeURIComponent(chapterId)}/progress`, {cache: 'no-store', signal: controller.signal})
+    const endpoint = `/api/ncert-chapters/${encodeURIComponent(chapterId)}/progress`;
+    fetch(endpoint, {cache: 'no-store', signal: controller.signal})
       .then(async response => {
         const body = await response.json();
         if (!response.ok) throw new Error(body.error);
@@ -33,7 +35,22 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
         if (!current) setMessage('Add a learner to record chapter status.');
       })
       .catch(error => { if (!controller.signal.aborted) setMessage(error.message); });
-    return () => controller.abort();
+    async function refreshFinished() {
+      try {
+        const response = await fetch(endpoint, {cache: 'no-store', signal: controller.signal});
+        if (!response.ok) throw new Error('Unable to refresh chapter status.');
+        const body = await response.json() as {learners: Learner[]};
+        const passed = new Set(body.learners.filter(item => item.finished).map(item => item.learner_id));
+        setLearners(items => items.map(item => ({...item, finished: passed.has(item.learner_id)})));
+      } catch {
+        if (!controller.signal.aborted) setMessage('Reload the page to see updated chapter status.');
+      }
+    }
+    window.addEventListener('chapter-tests-updated', refreshFinished);
+    return () => {
+      controller.abort();
+      window.removeEventListener('chapter-tests-updated', refreshFinished);
+    };
   }, [chapterId, initialLearnerId]);
 
   async function save(next: ChapterStatus, noteOnly = false) {
@@ -60,7 +77,7 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
   return <>
     {learner && <div className="chapter-status-sticky">
       <a className="chapter-status-badge" data-status={status} href="#chapter-status">
-        {learner.display_name} · {chapterStatuses.find(item => item.id === status)?.label}
+        {learner.display_name} · {chapterDisplayStatuses.find(item => item.id === status)?.label}
       </a>
     </div>}
     {children}
@@ -80,17 +97,21 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
         </label>
         <div className="chapter-status-options" role="group" aria-label="Choose one chapter status">
           {chapterStatuses.map(item => <button key={item.id} type="button" data-status={item.id}
-            disabled={busy || !canEdit} aria-pressed={status === item.id} onClick={() => void save(item.id)}>
+            disabled={busy || !canEdit || learner?.finished} aria-pressed={status === item.id} onClick={() => void save(item.id)}>
             <strong>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
             <small>{item.detail}</small>
           </button>)}
+          <div className="chapter-status-auto" data-status="finished" aria-current={learner?.finished ? 'true' : undefined}>
+            <strong>{learner?.finished && <span aria-hidden="true">✓ </span>}{finishedChapterStatus.label}</strong>
+            <small>{finishedChapterStatus.detail}</small>
+          </div>
         </div>
         <label className="workspace-field">
           <span>Parent note</span>
           <textarea value={note} maxLength={1000} disabled={busy || !canEdit} onChange={event => setNote(event.target.value)} />
         </label>
         {canEdit && <button className="btn-secondary" type="button" disabled={busy || note === (learner?.parent_note ?? '')}
-          onClick={() => void save(status, true)}>Save note</button>}
+          onClick={() => void save(manualStatus, true)}>Save note</button>}
       </>}
       <p role="status" className="muted">{message}</p>
     </section>

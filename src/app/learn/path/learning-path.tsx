@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import {useState} from 'react';
-import {chapterStatuses, type ChapterStatus} from '@/lib/ncert/chapter-status';
+import {chapterDisplayStatuses, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
 
-type Chapter = {id: string; title: string; subject: string; status: ChapterStatus};
+type Chapter = {id: string; title: string; subject: string; status: ChapterDisplayStatus};
 type Learner = {id: string; name: string; grade: string; chapters: Chapter[]};
 
 export function LearningPath({initialLearnerId, learners}: {initialLearnerId?: string; learners: Learner[]}) {
@@ -39,7 +39,7 @@ export function LearningPath({initialLearnerId, learners}: {initialLearnerId?: s
           <div className="chapter-path-title">
             <strong>{chapter.title}</strong>
             <Link className="chapter-status-badge" data-status={chapter.status} href={href + '#chapter-status'}>
-              {chapterStatuses.find(status => status.id === chapter.status)?.label}
+              {chapterDisplayStatuses.find(status => status.id === chapter.status)?.label}
             </Link>
           </div>
           <Link className="btn-primary" href={href + '#chapter-reading'}>Read chapter</Link>

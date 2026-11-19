@@ -1,6 +1,6 @@
 import { validDate } from '../learning/model';
 
-export const NEEDS_PRACTICE_PERCENT = 70;
+export const NEEDS_PRACTICE_PERCENT = 60;
 
 export type Attempt = {
   id: string;
