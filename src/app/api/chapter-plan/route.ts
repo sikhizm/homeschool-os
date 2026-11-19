@@ -44,24 +44,24 @@ export async function GET() {
         WHERE a.learner_id::text = ANY(${ids}::text[]) AND t.test_date BETWEEN ${week}::date AND ${day}::date
         GROUP BY a.learner_id, a.chapter_id` : [],
     ]);
-    const key = (row: {learner_id: unknown; chapter_id: unknown}) => `${row.learner_id}:${row.chapter_id}`;
-    const progressByChapter = new Map(progress.map(row => [key(row), row]));
-    const testByChapter = new Map(tests.map(row => [key(row), row.tested_on]));
-    const inToday = new Set(planned.filter(row => row.period === 'day').map(row => `${key(row)}:${row.activity}`));
+    const key = (learnerId: unknown, chapterId: unknown) => `${learnerId}:${chapterId}`;
+    const progressByChapter = new Map(progress.map(row => [key(row.learner_id, row.chapter_id), row]));
+    const testByChapter = new Map(tests.map(row => [key(row.learner_id, row.chapter_id), row.tested_on]));
+    const inToday = new Set(planned.filter(row => row.period === 'day').map(row => `${key(row.learner_id, row.chapter_id)}:${row.activity}`));
     const items: ChapterPlanItem[] = planned.flatMap(row => {
       const chapter = catalogue.get(String(row.chapter_id));
       const learner = learners.find(item => item.id === row.learner_id);
       if (!chapter || !learner) return [];
       const activity = row.activity as ChapterPlanItem['activity'];
-      const saved = progressByChapter.get(key(row));
-      const completedOn = activity === 'test' ? testByChapter.get(key(row)) : activity === 'revision'
+      const saved = progressByChapter.get(key(row.learner_id, row.chapter_id));
+      const completedOn = activity === 'test' ? testByChapter.get(key(row.learner_id, row.chapter_id)) : activity === 'revision'
         ? saved?.status === 'revised' ? saved.updated_on : null
         : saved?.status === 'completed' ? saved.updated_on : saved?.read_on;
       return [{
         chapterId: chapter.id, learnerId: String(learner.id), learnerName: String(learner.name),
         title: chapter.verifiedTitle ?? chapter.label, activity, period: row.period as ChapterPlanItem['period'],
         done: typeof completedOn === 'string' && completedOn >= row.starts_on && completedOn <= day,
-        inToday: inToday.has(`${key(row)}:${activity}`),
+        inToday: inToday.has(`${key(row.learner_id, row.chapter_id)}:${activity}`),
       }];
     });
     return json({ready: true, learners, canEdit, items});
