@@ -40,7 +40,7 @@ export const sidebarDestinations:ShellDestination[]=[
 /** Fixed mobile bottom navigation — five destinations, never a shrunken sidebar. */
 export const bottomDestinations:ShellDestination[]=[
  {id:'home',href:'/dashboard',label:'Home',glyph:'⌂',hint:'Today’s family learning plan',match:['/dashboard']},
- {id:'learn',href:'/learn/path',label:'Learning Path',glyph:'▶',hint:'NCERT chapters by learner',match:['/learn']},
+ {id:'plan',href:'/planning',label:'Planner',glyph:'▦',hint:'Weekly and yearly learning plans',match:['/planning']},
  {id:'library',href:'/library',label:'Library',glyph:'❖',hint:'Curriculum library',match:['/library','/ncert-books','/curriculum-mapping','/global-curriculum','/roadmap']},
  {id:'progress',href:'/reports',label:'Progress',glyph:'↗',hint:'Learning insights',match:['/reports']},
  {id:'settings',href:'/settings',label:'Profile',glyph:'☺',hint:'Profile, family tools and settings',match:['/settings','/learners']},
