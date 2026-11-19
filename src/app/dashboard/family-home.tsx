@@ -63,6 +63,9 @@ function streakDays(history:{updatedAt:string}[]):number{
 export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:boolean}){
  const [data,setData]=useState<HomeData|null>(null);
  const [chapterPlan,setChapterPlan]=useState<ChapterPlanItem[]>([]);
+ const [readingWeek,setReadingWeek]=useState<{id:string;name:string;planned:number;onTime:number;late:number}[]>([]);
+ const [weekendSuggestions,setWeekendSuggestions]=useState<(Pick<ChapterPlanItem,'chapterId'|'learnerId'|'learnerName'|'title'> & {activity:'test'|'revision'})[]>([]);
+ const [rhythmReady,setRhythmReady]=useState(false);
  const [chapterPlanError,setChapterPlanError]=useState(false);
  const [error,setError]=useState('');
  useEffect(()=>{
@@ -75,10 +78,19 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    .catch(()=>{if(alive)setError('We could not load today’s plan. Try refreshing.');});
   const loadChapterPlan=async()=>{
    try{
-    const response=await fetch('/api/chapter-plan',{cache:'no-store'});
+    if(canEdit) {
+     const scheduled=await fetch('/api/chapter-plan',{
+      method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'schedule-reading'}),
+     });
+     if(!scheduled.ok && scheduled.status!==503)throw new Error();
+    }
+    const response=await fetch('/api/chapter-plan?rhythm=1',{cache:'no-store'});
     if(!response.ok)throw new Error();
-    const result=await response.json() as {items:ChapterPlanItem[]};
-    if(alive){setChapterPlan(result.items.filter(item=>item.period==='day'));setChapterPlanError(false);}
+    const result=await response.json() as {ready:boolean;items:ChapterPlanItem[];readingWeek?:typeof readingWeek;weekendSuggestions?:typeof weekendSuggestions};
+    if(alive){
+     setChapterPlan(result.items);setReadingWeek(result.readingWeek??[]);setWeekendSuggestions(result.weekendSuggestions??[]);
+     setRhythmReady(result.ready);setChapterPlanError(false);
+    }
    }catch{if(alive)setChapterPlanError(true);}
   };
   const load=()=>{void loadAgenda();void loadChapterPlan();};
@@ -87,7 +99,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   const restore=(event:PageTransitionEvent)=>{if(event.persisted)void load();};
   window.addEventListener('pageshow',restore);
   return()=>{alive=false;window.removeEventListener('daily-plan-updated',load);window.removeEventListener('pageshow',restore);};
- },[]);
+ },[canEdit]);
 
  const now=new Date();
  const derived=useMemo(()=>{
@@ -146,15 +158,18 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     ...(item.activity==='reading'?[`${prefix}weekly-chapter:${item.chapterId}`]:[])];
   }));
   return [
-   ...chapterPlan.map(item=>({
+   ...chapterPlan.filter(item=>!item.optionalTest).map(item=>({
     key:`${item.learnerId}:${item.chapterId}:${item.activity}`,phase:activityLabels[item.activity],
     tone:item.activity==='reading'?'math':item.activity==='revision'?'language':'saffron',
     title:item.title,learner:item.learnerName,href:chapterActivityHref(item.chapterId,item.learnerId,item.activity),done:item.done,
+    status:item.activity==='reading' ? (item.done ? (item.onTime?'✓ Read on time':'✓ Read after due date') : (item.carriedOver?'Carried over':'Pending')) : (item.done?'✓ Done':'Pending'),
    })),
-   ...rows.filter(row=>!explicit.has(row.key)).map(row=>({...row,done:completed.has(row.key)})),
+   ...rows.filter(row=>!explicit.has(row.key) && (!rhythmReady || !/:ncert:[^:]+:(read|practice|review)$/.test(row.key)))
+    .map(row=>({...row,done:completed.has(row.key),status:completed.has(row.key)?'✓ Done':'Pending'})),
   ];
- },[data,chapterPlan]);
+ },[data,chapterPlan,rhythmReady]);
 
+ const sundayTests=chapterPlan.filter(item=>item.optionalTest);
  const todayDone=timeline.filter(row=>row.done).length;
  const heroPercent=timeline.length?Math.round(todayDone/timeline.length*100):0;
  return <section aria-labelledby="family-home-title" className="family-home">
@@ -191,9 +206,22 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       </p>
       <span className="family-agenda-learner">{row.learner}</span>
       <span className="family-agenda-phase">{row.phase}</span>
-      <span className={`family-agenda-status${row.done?' is-done':''}`}>{row.done?'✓ Done':'Pending'}</span>
+      <span className={`family-agenda-status${row.done?' is-done':''}`}>{row.status}</span>
      </li>)}
     </ol>:<p className="muted family-agenda-message">{data?'Nothing scheduled yet.':'Loading today’s activities.'}</p>}
+    {readingWeek.map(item=><p className="muted family-agenda-message" key={item.id}>{item.name} · {item.onTime} of {item.planned} daily readings on time this week{item.late>0?` · ${item.late} read after the due date`:''}</p>)}
+    {sundayTests.length>0&&<div className="family-agenda-message">
+     <strong>Optional Sunday tests</strong>
+     <ul>{sundayTests.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>
+      <Link href={chapterActivityHref(item.chapterId,item.learnerId,'test')}>{item.title}</Link> · {item.learnerName} · {item.done?'Done':'Scheduled'}
+     </li>)}</ul>
+    </div>}
+    {weekendSuggestions.length>0&&<div className="family-agenda-message">
+     <strong>Optional weekend review</strong>
+     <ul>{weekendSuggestions.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>
+      <Link href={chapterActivityHref(item.chapterId,item.learnerId,item.activity)}>{activityLabels[item.activity]} · {item.title}</Link> · {item.learnerName}
+     </li>)}</ul>
+    </div>}
   </div>
 
   <div className="family-learner-grid" aria-label="Learners">
