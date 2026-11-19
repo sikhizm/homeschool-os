@@ -185,7 +185,7 @@ export function buildAnnualPathway(definition: GradeDefinition): AnnualStep[] {
         ? `annual:${gradeSlug}:w${pad((focusIndex - 1) * definition.units.length + unitIndex + 1)}:core`
         : week > 1 ? `annual:${gradeSlug}:w${pad(week - 1)}:core` : null;
       const milestone = week % TERM_WEEKS === 0 ? definition.milestones[term - 1] : null;
-      const href = `/learning-pathways?grade=${gradeSlug}&week=${week}`;
+      const href = '/dashboard#today-plan';
       steps.push({
         id: coreId, gradeKey: definition.key, grade: definition.grade, week, term,
         unitId: seed.id, subject: seed.subject, strand: seed.strand,

@@ -14,7 +14,7 @@ test('feature links correspond to implemented routes and owner tools stay owner-
     assert.ok(existsSync('src/app' + route + '/page.tsx'), feature.href);
   }
   assert.equal(searchCatalogue('progress').results[0].href, '/reports');
-  assert.equal(searchCatalogue('annual').results[0].href, '/learning-pathways');
+  assert.ok(searchCatalogue('annual').results.every(result => !result.href.startsWith('/learning-pathways')));
   assert.match(searchCatalogue('study material studio').results[0].href, /#study-material-studio$/);
   assert.ok(!searchCatalogue('mapping review').results.some(result => result.href === '/curriculum-mapping'));
   assert.equal(searchCatalogue('mapping review', 'features', { includeOwner: true }).results[0].href, '/curriculum-mapping');
@@ -52,7 +52,6 @@ test('activities, publisher resources and framework sources remain distinguishab
   }
   assert.equal(searchCatalogue('Cambridge Primary', 'curriculum').results[0].href, '/global-curriculum#framework-cambridge');
   assert.match(searchCatalogue('original homeschool', 'curriculum').results[0].metadata ?? '', /Original content/);
-  assert.ok(searchCatalogue('week', 'pathways').results[0].href.includes('#week-'));
 });
 
 test('pagination, deduplication, and isolation from family data', () => {

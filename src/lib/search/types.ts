@@ -4,7 +4,6 @@ export const searchCategories = {
   activities: { label: 'Activities', icon: '✦' },
   curriculum: { label: 'Curriculum', icon: '◎' },
   resources: { label: 'Resources', icon: '◇' },
-  pathways: { label: 'Learning Pathways', icon: '↝' },
 } as const;
 export type SearchCategory = keyof typeof searchCategories;
 export type SearchFilter = SearchCategory | 'all';

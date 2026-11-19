@@ -14,10 +14,10 @@ async function readTests(endpoint: string, signal?: AbortSignal): Promise<Data> 
   return body;
 }
 
-export default function ChapterTests({ chapterId }: { chapterId: string }) {
+export default function ChapterTests({ chapterId, initialLearnerId = '' }: { chapterId: string; initialLearnerId?: string }) {
   const endpoint = `/api/ncert-chapters/${encodeURIComponent(chapterId)}/tests`;
   const [data, setData] = useState<Data | null>(null);
-  const [learnerId, setLearnerId] = useState('');
+  const [learnerId, setLearnerId] = useState(initialLearnerId);
   const [draft, setDraft] = useState<Draft | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState('');

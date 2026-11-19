@@ -20,7 +20,7 @@ import { chapterPdfSources, prefersOfficialNcert } from '@/lib/ncert/pdf-source'
 
 export const dynamic = 'force-dynamic';
 
-export default async function ChapterLearningPage({ params }: { params: Promise<{ chapterId: string }> }) {
+export default async function ChapterLearningPage({ params, searchParams }: { params: Promise<{ chapterId: string }>; searchParams: Promise<{ testLearner?: string }> }) {
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
   const { chapterId } = await params;
@@ -114,7 +114,7 @@ export default async function ChapterLearningPage({ params }: { params: Promise<
         </div>
       ) : null}
 
-      <ChapterTests key={chapter.id} chapterId={chapter.id} />
+      <div id="chapter-tests"><ChapterTests key={chapter.id} chapterId={chapter.id} initialLearnerId={(await searchParams).testLearner} /></div>
 
       <ChapterProgress
         chapterId={chapter.id}
