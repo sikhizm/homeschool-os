@@ -2204,6 +2204,27 @@ button:active:not(:disabled){transform:translateY(1px)}
   background: linear-gradient(155deg, #EAF4EC, #FAF6E8);
   border-color: #7DB596;
 }
+.week-strip-grid button.week-day-card {
+  background: #FAFBF7;
+  border: 1px solid #C9D9D0;
+  color: #203C30;
+}
+.week-strip-grid button.week-day-card.is-today {
+  background: #EAF4EC;
+  border-color: #68937A;
+}
+.week-strip-grid button.week-day-card[aria-pressed="true"] {
+  background: #005641;
+  border-color: #005641;
+  color: #fff;
+}
+.week-strip-grid button.week-day-card :is(strong, span, small) {
+  color: inherit;
+}
+.week-strip-grid button.week-day-card:focus-visible {
+  outline: 2px solid #005641;
+  outline-offset: 2px;
+}
 .week-day-top {
   display: flex;
   align-items: center;
