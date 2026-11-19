@@ -3066,7 +3066,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media(max-width:720px){
  .chapter-path-row{grid-template-columns:repeat(4,minmax(0,1fr))}
  .chapter-path-row > .btn-primary{grid-column:span 3}
- .chapter-path-row > .btn-secondary{grid-column:span 2}
+ .chapter-path-row > a.btn-secondary{grid-column:span 2}
  .chapter-path-row > a{min-width:0;white-space:normal;overflow-wrap:anywhere}
  .app-bottom-link{min-width:0;text-align:center;line-height:1.2}
 }
