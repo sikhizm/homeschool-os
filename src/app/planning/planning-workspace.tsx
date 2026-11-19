@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
+import WeeklyChapterActivities from './weekly-chapter-activities';
 import { ChapterPlanner } from './chapter-planner';
 import type { ChapterTask } from '@/lib/planning/chapters';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
@@ -27,6 +28,7 @@ type PlanningData = {
   periods: Period[];
   days: Day[];
   tasks: ChapterTask[];
+  passedChapterIds?: string[];
 };
 type Props = { learners: Learner[]; canEdit: boolean; initialDate: string };
 
@@ -271,8 +273,10 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
 
       {data && !loading && (
         <>
+          <WeeklyChapterActivities key={learnerId + ':' + date} learnerId={learnerId} date={date}
+            weekIds={weekPlan?.chapter_ids ?? []} today={initialDate} />
           <ChapterPlanner key={learnerId+date} learnerId={learnerId} stage={selected?.stage??''} date={date}
-            weekIds={weekPlan?.chapter_ids??[]} finishedChapters={yearPlan?.finished_chapters??[]} olympiad={yearPlan?.olympiad_topics??{}} ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
+            weekIds={weekPlan?.chapter_ids??[]} finishedChapters={yearPlan?.finished_chapters??[]} passedChapterIds={data.passedChapterIds ?? []} olympiad={yearPlan?.olympiad_topics??{}} ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
           <section className="workspace-panel">
             <div className="panel-heading">
               <div>

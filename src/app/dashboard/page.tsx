@@ -88,10 +88,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </div>
       </section>
 
-      <details className="workspace-panel studio-disclosure" open={hasPrefill || undefined}>
+      {hasPrefill && <details className="workspace-panel studio-disclosure" open>
         <summary>
           <div>
-            <strong>Manual planning &amp; goals workspace</strong>
+            <strong>Saved day &amp; goal details</strong>
             <small>Optional custom subjects, observable goals and day-by-day activity logs</small>
           </div>
           <span className="disclosure-pill" aria-hidden="true">Expand ⌄</span>
@@ -109,7 +109,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             suggestedSubject={suggestedSubject}
           />
         </div>
-      </details>
+      </details>}
 
       {family.role === 'owner' && (
         <details className="workspace-panel studio-disclosure add-learner-panel">

@@ -5,11 +5,12 @@ import {activityLabels} from '@/lib/planning/chapter-activities';
 
 type Learner = {id: string; name: string};
 
-export default function ChapterPlanMenu({chapterId, title, learnerId, inline = false, canRevise = true}: {
-  chapterId: string; title: string; learnerId?: string; inline?: boolean; canRevise?: boolean;
+export default function ChapterPlanMenu({chapterId, title, learnerId, inline = false, canRevise = true, initialDate}: {
+  chapterId: string; title: string; learnerId?: string; inline?: boolean; canRevise?: boolean; initialDate?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [period, setPeriod] = useState<'day' | 'week'>('day');
+  const [date, setDate] = useState(initialDate ?? '');
   const [learners, setLearners] = useState<Learner[]>([]);
   const [selected, setSelected] = useState('');
   const [canSave, setCanSave] = useState(false);
@@ -18,8 +19,10 @@ export default function ChapterPlanMenu({chapterId, title, learnerId, inline = f
 
   async function open(next: 'day' | 'week') {
     setPeriod(next);
+    setDate(initialDate ?? new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Kolkata'}).format(new Date()));
     setMessage('Loading learners…');
     setCanSave(false);
+    setLearners([]);
     dialog.current?.showModal();
     try {
       const response = await fetch('/api/chapter-plan', {cache: 'no-store'});
@@ -43,10 +46,10 @@ export default function ChapterPlanMenu({chapterId, title, learnerId, inline = f
     const fields = new FormData(event.currentTarget);
     try {
       const response = await fetch('/api/chapter-plan', {method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({chapterId, learnerId: selected, activity: fields.get('activity'), period})});
+        body: JSON.stringify({chapterId, learnerId: selected, activity: fields.get('activity'), period, date})});
       const data = await response.json();
       if (!response.ok) throw new Error(data.error);
-      setMessage(period === 'day' ? 'Saved to Today’s plan.' : 'Saved to This week’s plan.');
+      setMessage(period === 'day' ? 'Saved to the daily plan.' : 'Saved to the weekly plan.');
       window.dispatchEvent(new Event('daily-plan-updated'));
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not save this activity.');
@@ -64,7 +67,7 @@ export default function ChapterPlanMenu({chapterId, title, learnerId, inline = f
       <h2>Plan chapter activity</h2>
       <p>{title}</p>
       <form onSubmit={save} className="studio-stack">
-        <fieldset disabled={!canSave || busy}>
+        <fieldset disabled={!learners.length || busy}>
           <label className="workspace-field"><span>Learner</span>
             <select value={selected} onChange={event => setSelected(event.target.value)} required>
               {learners.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}
@@ -72,12 +75,16 @@ export default function ChapterPlanMenu({chapterId, title, learnerId, inline = f
           </label>
           <label className="workspace-field"><span>When</span>
             <select value={period} onChange={event => setPeriod(event.target.value === 'week' ? 'week' : 'day')}>
-              <option value="day">Today</option><option value="week">This week</option>
+              <option value="day">Daily plan</option><option value="week">Weekly plan</option>
             </select>
+          </label>
+          <label className="workspace-field"><span>{period === 'week' ? 'Week containing' : 'Scheduled date'}</span>
+            <input type="date" value={date} onChange={event => setDate(event.target.value)} required />
           </label>
           <label className="workspace-field"><span>Activity</span>
             <select name="activity" defaultValue="reading">
               {Object.entries(activityLabels).filter(([key]) => canRevise || key !== 'revision').map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+              {canRevise && <option value="reading-revision">Reading + Revision</option>}
               {canRevise && <option value="all">All three</option>}
             </select>
           </label>

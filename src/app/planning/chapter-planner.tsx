@@ -36,6 +36,7 @@ export function ChapterPlanner({
   ids,
   weekIds,
   finishedChapters,
+  passedChapterIds,
   olympiad,
   tasks,
   canEdit,
@@ -47,6 +48,7 @@ export function ChapterPlanner({
   ids: string[];
   weekIds: string[];
   finishedChapters: string[];
+  passedChapterIds: string[];
   olympiad: Record<string, string>;
   tasks: ChapterTask[];
   canEdit: boolean;
@@ -62,10 +64,12 @@ export function ChapterPlanner({
   const [message, setMessage] = useState("");
   const week = daysInWeek(date);
   const year = yearDates(academicYear(date));
+  const passed = new Set(passedChapterIds);
   const progress = chapterProgress(
     ids,
     tasks.filter((t) => t.date >= year.startDate && t.date <= year.endDate),
     finishedChapters,
+    passed,
   );
   const bookIds = chaptersFor(book).map((c) => c.id);
   const allSelected = bookIds.every((id) => draft.includes(id));
@@ -239,9 +243,9 @@ export function ChapterPlanner({
                   <ul>
                     {entries.map((c) => (
                       <li key={c.id}>
-                        {chapterName(c.id)} — {c.status} · {c.done}/{c.total}{" "}
+                        {chapterName(c.id)} — {passed.has(c.id) ? "Finished · test passed" : c.status} · {c.done}/{c.total}{" "}
                         tasks
-                        {canEdit && !c.total && (
+                        {canEdit && !c.total && !passed.has(c.id) && (
                           <button
                             type="button"
                             disabled={busy}

@@ -46,15 +46,14 @@ test('all authored stages offer home-language and heritage activities', () => {
 test('verification is recorded independently and only successful opens have a verification date', () => {
   const expected = {
     'ncf-foundational': 'temporarily-inaccessible',
-    'jaadui-pitara': 'verified',
-    'punjab-educare': 'verified',
+    'punjab-educare': 'pending',
     'ncert-hindi': 'temporarily-inaccessible',
     'sgpc-langar': 'pending',
   };
   assert.deepEqual(Object.fromEntries(supplementaryResources.map(source => [
     source.id, source.verification.status,
   ])), expected);
-  assert.equal(new Set(supplementaryResources.map(source => source.verification.evidence)).size, 5);
+  assert.equal(new Set(supplementaryResources.map(source => source.verification.evidence)).size, 4);
   for (const { verification } of supplementaryResources) {
     if (verification.status === 'verified') {
       assert.match(verification.lastVerifiedOn, /^\d{4}-\d{2}-\d{2}$/);
@@ -67,11 +66,10 @@ test('verification is recorded independently and only successful opens have a ve
   assert.notEqual(resourceVerificationLabels['temporarily-inaccessible'], resourceVerificationLabels.broken);
 });
 
-test('original publisher URLs are preserved', () => {
+test('resource links point to the named documents', () => {
   assert.deepEqual(Object.fromEntries(supplementaryResources.map(({ id, url }) => [id, url])), {
     "ncf-foundational": "https://www.ncert.nic.in/pdf/NCF_for_Foundational_Stage_20_October_2022.pdf",
-    "jaadui-pitara": "https://ejaaduipitara.ncert.gov.in/",
-    "punjab-educare": "https://www.punjabeducare.org/1st-punjabi",
+    "punjab-educare": "https://drive.google.com/file/d/1rr0oV0fjafmdpoGO-dSnrpe-jkaW57Hx/view",
     "ncert-hindi": "https://www.ncert.nic.in/pdf/publication/otherpublications/Learning_Outcome_for_the_Foundational_Stage.pdf",
     "sgpc-langar": "https://publication.sgpc.net/assets/publication_pdf/other_publication_pdf/Sikh_Rehat_Maryada_English.pdf"
   });
