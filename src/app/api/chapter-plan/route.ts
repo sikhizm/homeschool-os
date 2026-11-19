@@ -173,10 +173,14 @@ async function scheduleReading(sql: ReturnType<typeof getSql>, familyId: string,
           SELECT 1 FROM chapter_plan_activities a
           WHERE a.learner_id = p.learner_id AND a.activity = 'reading' AND a.starts_on <= ${day}::date
             AND ((a.period = 'day' AND a.starts_on = ${day}::date) OR
-              ((a.period = 'day' OR a.starts_on < ${week}::date) AND to_jsonb(a)->>'completed_on' IS NULL AND NOT EXISTS (
-                SELECT 1 FROM read_dates r WHERE r.learner_id = a.learner_id AND r.chapter_id = a.chapter_id
-                  AND r.read_on BETWEEN a.starts_on AND ${day}::date
-              )))
+              ((a.period = 'day' OR a.starts_on < ${week}::date) AND (
+                to_jsonb(a)->>'completed_on' = ${day} OR
+                (to_jsonb(a)->>'completed_on' IS NULL AND NOT EXISTS (
+                  SELECT 1 FROM read_dates r WHERE r.learner_id = a.learner_id AND r.chapter_id = a.chapter_id
+                    AND r.read_on BETWEEN a.starts_on AND (${day}::date - 1)
+                ))
+              ))
+            )
         )
       ORDER BY p.learner_id, p.priority, p.position, p.chapter_id
     )
