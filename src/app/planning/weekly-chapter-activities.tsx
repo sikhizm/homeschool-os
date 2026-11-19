@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import {useEffect, useState} from 'react';
+import styles from './chapter-planner.module.css';
 import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import {ncertChapterSlots, textbookById, isDefaultChapterSessionEligible} from '@/lib/ncert/textbooks';
 import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
@@ -64,14 +65,23 @@ export default function WeeklyChapterActivities({learnerId, date, weekIds, today
     return chapter ? [chapter] : [];
   });
 
-  return <section className="workspace-panel" id="weekly-chapter-activities">
-    <h2>Chapter activities for this week</h2>
+  const subjectFor = (chapterId: string) => {
+    const chapter = catalogue.get(chapterId);
+    return (chapter && textbookById(chapter.bookId)?.subject) ?? 'Other';
+  };
+  const scheduled = items.filter(item => !item.optionalTest);
+  const optional = items.filter(item => item.optionalTest);
+  const subjects = [...new Set([...unassigned.map(item => subjectFor(item.id)), ...scheduled.map(item => subjectFor(item.chapterId))])];
+
+  return <div id="weekly-chapter-activities">
     {notice && <p role="status">{notice}</p>}
     {!plan && !notice && <p className="muted">Loading chapter activities…</p>}
     {plan && !plan.ready && <p className="muted">Chapter activity storage is unavailable.</p>}
     {plan && !items.length && !unassigned.length && <p className="muted">No chapters or activities for this learner and week. <Link href="/learn/path">Open Learning Path</Link></p>}
-    <ul className="weekly-chapter-activity-list">
-      {unassigned.map(chapter => {
+    {subjects.map(subject => <section className={styles.weekGroup} key={subject}>
+      <h3>{subject}</h3>
+      <ul className={styles.chapterRows}>
+      {unassigned.filter(chapter => subjectFor(chapter.id) === subject).map(chapter => {
         const grade = textbookById(chapter.bookId)?.grade ?? 0;
         const title = chapter.verifiedTitle ?? chapter.label;
         return <li key={chapter.id}>
@@ -81,11 +91,12 @@ export default function WeeklyChapterActivities({learnerId, date, weekIds, today
             canRevise={Boolean(chapter.verifiedTitle) && isDefaultChapterSessionEligible(chapter) && grade >= 1 && grade <= 10} />}
         </li>;
       })}
-      {items.map(item => <li key={`${item.chapterId}:${item.activity}:${item.period}:${item.startsOn}`}>
-        <Link href={chapterActivityHref(item.chapterId, item.learnerId, item.activity)}>{item.title} · {activityLabels[item.activity]}</Link>
+      {scheduled.filter(item => subjectFor(item.chapterId) === subject).map(item => <li key={`${item.chapterId}:${item.activity}:${item.period}:${item.startsOn}`}>
+        <Link href={chapterActivityHref(item.chapterId, item.learnerId, item.activity)}>{item.title}</Link>
+        <span>{activityLabels[item.activity]}</span>
         <span className="muted">{item.period === 'week' ? 'Weekly plan' : item.startsOn}</span>
-        <span>{item.done ? 'Done' : 'Pending'}</span>
-        {plan?.canEdit && <>
+        <span className="pill">{item.done ? (item.activity === 'reading' ? 'Read' : item.activity === 'revision' ? 'Revised' : 'Done') : item.carriedOver && item.activity === 'reading' ? 'Carried over' : 'Pending'}</span>
+        {plan?.canEdit && <details className={styles.rowActions}><summary>Manage</summary><div className={styles.actions}>
           {item.period === 'week' ? <button className="btn-secondary" type="button" disabled={busy || item.inToday}
             onClick={() => void change(item, 'today')}>{item.inToday ? 'In today’s plan' : 'Add to Today'}</button> :
             <form className="chapter-plan-buttons" onSubmit={event => {
@@ -98,8 +109,16 @@ export default function WeeklyChapterActivities({learnerId, date, weekIds, today
           <button className="btn-secondary" type="button" disabled={busy}
             aria-label={`Remove ${item.title} · ${activityLabels[item.activity]} from ${item.period === 'week' ? 'weekly plan' : item.startsOn}`}
             onClick={() => void change(item, 'remove')}>Remove</button>
-        </>}
+        </div></details>}
       </li>)}
-    </ul>
-  </section>;
+      </ul>
+    </section>)}
+    {optional.length > 0 && <section className={styles.weekGroup}>
+      <h3>Optional Sunday tests</h3>
+      <ul className={styles.chapterRows}>{optional.map(item => <li key={item.chapterId}>
+        <Link href={chapterActivityHref(item.chapterId, learnerId, 'test')}>{item.title}</Link>
+        <span className="pill">{item.done ? 'Done' : 'Scheduled'}</span>
+      </li>)}</ul>
+    </section>}
+  </div>;
 }

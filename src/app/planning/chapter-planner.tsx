@@ -14,8 +14,10 @@ import {
   selectTextbooks,
   textbookById,
 } from "@/lib/ncert/textbooks";
-import { chapterProgress, type ChapterTask } from "@/lib/planning/chapters";
-import { academicYear, daysInWeek, yearDates } from "@/lib/planning/periods";
+import {chapterDisplayStatuses, normalizeChapterStatus} from "@/lib/ncert/chapter-status";
+import WeeklyChapterActivities from "./weekly-chapter-activities";
+export type ChapterRecord = {chapter_id: string; status: string; has_read: boolean};
+import { academicYear, daysInWeek } from "@/lib/planning/periods";
 
 async function changeChapter(input: Record<string, unknown>) {
   const res = await fetch("/api/planning/chapters", {
@@ -35,10 +37,12 @@ export function ChapterPlanner({
   date,
   ids,
   weekIds,
-  finishedChapters,
+  chapterRecords,
+  today,
+  tab,
+  onTabChange,
   passedChapterIds,
   olympiad,
-  tasks,
   canEdit,
   refresh,
 }: {
@@ -47,10 +51,12 @@ export function ChapterPlanner({
   date: string;
   ids: string[];
   weekIds: string[];
-  finishedChapters: string[];
+  chapterRecords: ChapterRecord[];
+  today: string;
+  tab: 'week' | 'year';
+  onTabChange: (tab: 'week' | 'year') => void;
   passedChapterIds: string[];
   olympiad: Record<string, string>;
-  tasks: ChapterTask[];
   canEdit: boolean;
   refresh: () => void;
 }) {
@@ -63,14 +69,16 @@ export function ChapterPlanner({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const week = daysInWeek(date);
-  const year = yearDates(academicYear(date));
   const passed = new Set(passedChapterIds);
-  const progress = chapterProgress(
-    ids,
-    tasks.filter((t) => t.date >= year.startDate && t.date <= year.endDate),
-    finishedChapters,
-    passed,
-  );
+  const records = new Map(chapterRecords.map(record => [record.chapter_id, record]));
+  const chapters = ids.map(id => {
+    const record = records.get(id);
+    const status = normalizeChapterStatus(record?.status);
+    return {id, status, read: record?.has_read === true || status === 'read'};
+  });
+  const read = chapters.filter(chapter => chapter.read).length;
+  const revised = chapters.filter(chapter => chapter.status === 'revised').length;
+  const tested = chapters.filter(chapter => passed.has(chapter.id)).length;
   const bookIds = chaptersFor(book).map((c) => c.id);
   const allSelected = bookIds.every((id) => draft.includes(id));
   const grade = promptClassForStage(stage);
@@ -84,18 +92,17 @@ export function ChapterPlanner({
   const done = planned.filter(
     (t) => olympiad[grade + ":" + t] === "done",
   ).length;
-  const subjects = new Map<string, { total: number; done: number }>();
-  for (const chapter of progress.chapters) {
-    const item = ncertChapterSlots.find((c) => c.id === chapter.id);
-    const subject = item && textbookById(item.bookId)?.subject;
+  const subjects = new Map<string, typeof chapters>();
+  for (const chapter of chapters) {
+    const slot = ncertChapterSlots.find(item => item.id === chapter.id);
+    const subject = slot && textbookById(slot.bookId)?.subject;
     if (!subject) continue;
-    const count = subjects.get(subject) ?? { total: 0, done: 0 };
-    count.total++;
-    if (chapter.status === "Completed") count.done++;
-    subjects.set(subject, count);
+    const entries = subjects.get(subject) ?? [];
+    entries.push(chapter);
+    subjects.set(subject, entries);
   }
-  const weekly = tasks.filter((t) => week.includes(t.date));
-  const finished = weekly.filter((t) => t.completed).length;
+  const weekLabel = new Intl.DateTimeFormat('en-IN', {day: 'numeric', month: 'short', timeZone: 'UTC'})
+    .formatRange(new Date(week[0] + 'T12:00:00Z'), new Date(week[6] + 'T12:00:00Z'));
   async function save(input: Record<string, unknown>) {
     setBusy(true);
     setMessage("");
@@ -130,12 +137,22 @@ export function ChapterPlanner({
   }
   return (
     <>
-      <div className="subject-grid">
-        <section className="workspace-panel">
-          <h2>
-            NCERT year plan · {academicYear(date)}–{academicYear(date) + 1}
-          </h2>
-          {canEdit && books.length > 0 && (
+      <section className="workspace-panel">
+        <div className={styles.actions} aria-label="Planner view">
+          <button type="button" className={tab === 'week' ? 'btn-primary' : 'btn-secondary'}
+            aria-pressed={tab === 'week'} onClick={() => onTabChange('week')}>Weekly plan</button>
+          <button type="button" className={tab === 'year' ? 'btn-primary' : 'btn-secondary'}
+            aria-pressed={tab === 'year'} onClick={() => onTabChange('year')}>Yearly plan</button>
+        </div>
+        {tab === 'year' ? <>
+          <h2>NCERT year plan · {academicYear(date)}–{academicYear(date) + 1}</h2>
+          {ids.length > 0 ? <div className={styles.coverage}>
+            <strong>{read} of {ids.length} chapters read</strong>
+            <progress value={read} max={ids.length} aria-label="Chapters read" />
+            <span>{revised} revised · {tested} finished by test</span>
+          </div> : <p>No chapters selected yet.</p>}
+          {canEdit && books.length > 0 && <details className={styles.picker}>
+            <summary>Edit chapter selection</summary>
             <fieldset disabled={busy} className={styles.yearPicker}>
               <label className="workspace-field">
                 Textbook · {stage}
@@ -190,98 +207,29 @@ export function ChapterPlanner({
                 Save year plan ({draft.length} chapters)
               </button>
             </fieldset>
-          )}
-          {!books.length && (
-            <p>No NCERT chapters are catalogued for {stage}.</p>
-          )}
-          <section className={styles.progressSection}>
-            <h3>Year progress</h3>
-            <p>
-              {ids.length
-                ? progress.percent +
-                  "% complete · " +
-                  (100 - progress.percent) +
-                  "% remaining · " +
-                  progress.done +
-                  " of " +
-                  ids.length +
-                  " chapters finished · " +
-                  progress.remaining +
-                  " remaining"
-                : "No chapters selected yet."}
-            </p>
-          </section>
-          {subjects.size > 0 && (
-            <section className={styles.progressSection}>
-              <h3>Progress by subject</h3>
-              {Array.from(subjects, ([subject, count]) => (
-                <div key={subject} className={styles.subjectRow}>
-                  <strong>{subject}</strong>
-                  <span>
-                    {Math.round((100 * count.done) / count.total)}% complete
-                  </span>
-                  <small>
-                    {count.done} of {count.total} chapters finished ·{" "}
-                    {count.total - count.done} remaining
-                  </small>
-                </div>
-              ))}
-            </section>
-          )}
-          {books.map((b) => {
-            const entries = progress.chapters.filter((c) =>
-              chaptersFor(b.id).some((s) => s.id === c.id),
-            );
-            return (
-              entries.length > 0 && (
-                <details key={b.id}>
-                  <summary>
-                    {b.subject} · {b.title} ·{" "}
-                    {entries.filter((c) => c.status === "Completed").length}/
-                    {entries.length} chapters
-                  </summary>
-                  <ul>
-                    {entries.map((c) => (
-                      <li key={c.id}>
-                        {chapterName(c.id)} — {passed.has(c.id) ? "Finished · test passed" : c.status} · {c.done}/{c.total}{" "}
-                        tasks
-                        {canEdit && !c.total && !passed.has(c.id) && (
-                          <button
-                            type="button"
-                            disabled={busy}
-                            onClick={() =>
-                              void save({
-                                action: "finishChapter",
-                                finished: c.status !== "Completed",
-                                chapter: c.id,
-                              })
-                            }
-                          >
-                            {c.status === "Completed"
-                              ? "Reopen chapter"
-                              : "Mark chapter done"}
-                          </button>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              )
-            );
-          })}
-        </section>
-        <section className="workspace-panel">
-          <h2>This week’s chapters</h2>
-          <p>
-            {week[0]} – {week[6]} ·{" "}
-            {weekIds.filter((id) => ids.includes(id)).length} chapters selected
-          </p>
-          {!ids.length && <p>Choose chapters in the year plan first.</p>}
+          </details>}
+          {[...subjects].map(([subject, entries]) => <details key={subject} className={styles.subjectDetails}>
+            <summary><strong>{subject}</strong><span>{entries.filter(chapter => chapter.read).length} / {entries.length} read</span></summary>
+            <ul className={styles.chapterRows}>{entries.map(chapter => {
+              const status = passed.has(chapter.id) ? 'finished' : chapter.status;
+              return <li key={chapter.id}>
+                <Link href={`/ncert-books/chapter/${encodeURIComponent(chapter.id)}?learner=${encodeURIComponent(learnerId)}#chapter-status`}>
+                  {chapterName(chapter.id)}
+                </Link>
+                <span className="pill">{chapterDisplayStatuses.find(item => item.id === status)?.label}</span>
+              </li>;
+            })}</ul>
+          </details>)}
+        </> : <>
+          <div className={styles.actions}>
+            <h2>This week · {weekLabel}</h2>
+            <Link className="btn-secondary" href="/dashboard">Today’s rhythm →</Link>
+          </div>
+          {!ids.length && <p>Choose chapters in the yearly plan first.</p>}
+          {canEdit && ids.length > 0 && <details className={styles.picker}>
+            <summary>＋ Add chapters</summary>
           {[...subjects.keys()].map((subject) => {
-            const options = progress.chapters.filter((c) => {
-              const slot = ncertChapterSlots.find((s) => s.id === c.id);
-              return slot && textbookById(slot.bookId)?.subject === subject;
-            });
+            const options = subjects.get(subject) ?? [];
             return (
               <details key={subject}>
                 <summary>
@@ -331,46 +279,11 @@ export function ChapterPlanner({
                 Save weekly chapters
               </button>
             )}
-            <Link className="btn-secondary" href="/dashboard">
-              Open daily schedule →
-            </Link>
           </div>
-          {weekIds.some((id) => ids.includes(id)) && (
-            <section>
-              <h3>Weekly focus</h3>
-              {[...subjects.keys()].map((subject) => {
-                const selected = ncertChapterSlots.filter(
-                  (c) =>
-                    weekIds.includes(c.id) &&
-                    ids.includes(c.id) &&
-                    textbookById(c.bookId)?.subject === subject,
-                );
-                return (
-                  selected.length > 0 && (
-                    <div key={subject}>
-                      <strong>{subject}</strong>
-                      <ul>
-                        {selected.map((c) => (
-                          <li key={c.id}>
-                            <Link href={"/ncert-books/chapter/" + c.id}>
-                              {chapterName(c.id)}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )
-                );
-              })}
-            </section>
-          )}
-          {weekly.length > 0 && (
-            <p>
-              Daily chapter tasks · {finished}/{weekly.length} done
-            </p>
-          )}
-        </section>
-      </div>
+          </details>}
+          <WeeklyChapterActivities learnerId={learnerId} date={date} weekIds={weekIds} today={today} />
+        </>}
+      </section>
       {grade && (
         <section className="workspace-panel">
           <h2>
