@@ -55,48 +55,60 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     }
   }
 
-  return <div className="coach-content">
+  const chaptersBySubject = new Map<string, Chapter[]>();
+  for (const chapter of plan?.chapters ?? []) {
+    const chapters = chaptersBySubject.get(chapter.subject);
+    if (chapters) chapters.push(chapter);
+    else chaptersBySubject.set(chapter.subject, [chapter]);
+  }
+
+  return <div className="coach-content weekly-chapters">
     <h3>This Week’s Chapters</h3>
     {!plan && !message && <p>Loading weekly chapters…</p>}
     {message && <p role="status">{message}</p>}
     {plan && !plan.chapters.length && <p>No chapters selected for this week. <Link href="/planning">Open Learning Plan</Link></p>}
     {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Apply the weekly chapter outcomes migration to record Chapter Read or Need More Practice.</p> : null}
     {plan?.chapters.length && canEdit && !plan.canAdd ? <p>Apply the daily plans migration to add chapters to today’s plan.</p> : null}
-    <div className="coach-task-list">
-      {plan?.chapters.map((chapter) => {
-        const href = '/ncert-books/chapter/' + encodeURIComponent(chapter.id);
-        const testHref = href + '?' + new URLSearchParams({ testLearner: learnerId }) + '#chapter-tests';
-        return <article key={chapter.id} className="coach-task">
-          <div className="coach-task-main">
-            <div className="coach-task-tags"><span>{chapter.subject}</span>
-              {chapter.outcome && <span>{labels[chapter.outcome]}</span>}
-              {chapter.assessed && <span>Test Attempted</span>}
-            </div>
-            <div className="weekly-chapter-heading">
-              <h4><Link href={href}>{chapter.title}</Link></h4>
-              {canEdit && <div className="coach-actions weekly-chapter-actions">
-                <button type="button" className="btn-secondary weekly-chapter-add"
-                  aria-label={chapter.addedToday ? `${chapter.title} is in today’s plan` : `Add ${chapter.title} to today’s plan`}
-                  disabled={busy || chapter.addedToday || !plan?.canAdd} onClick={() => void save(chapter.id)}>
-                  <span aria-hidden="true">{chapter.addedToday ? '✓' : '+'}</span>
-                </button>
-                <button type="button" className="coach-revise" aria-expanded={open === chapter.id}
-                  disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check understanding &amp; record</button>
-              </div>}
-            </div>
-            {open === chapter.id && <div className="lesson-check">
-              <div className="coach-actions">
-                <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
-                  onClick={() => void save(chapter.id, 'done')}>Chapter Read</button>
-                <Link className="btn-secondary" href={testHref}>Test Attempted</Link>
-                <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
-                  onClick={() => void save(chapter.id, 'practice')}>Need More Practice</button>
-              </div>
-              <button type="button" className="btn-secondary" disabled={busy} onClick={() => setOpen('')}>Close</button>
-            </div>}
-          </div>
-        </article>;
-      })}
-    </div>
+    {chaptersBySubject.size > 0 && <div className="weekly-subjects">
+      {Array.from(chaptersBySubject, ([subject, chapters]) => <section className="weekly-subject" key={subject}>
+        <h4>{subject}</h4>
+        <ul>
+          {chapters.map((chapter) => {
+              const href = '/ncert-books/chapter/' + encodeURIComponent(chapter.id);
+              const testHref = href + '?' + new URLSearchParams({ testLearner: learnerId }) + '#chapter-tests';
+              return <li key={chapter.id} className="weekly-chapter-row">
+                <div className="weekly-chapter-heading">
+                  <div className="weekly-chapter-title">
+                    <Link href={href}>{chapter.title}</Link>
+                    {(chapter.outcome || chapter.assessed) && <div className="coach-task-tags">
+                      {chapter.outcome && <span>{labels[chapter.outcome]}</span>}
+                      {chapter.assessed && <span>Test Attempted</span>}
+                    </div>}
+                  </div>
+                  {canEdit && <div className="coach-actions weekly-chapter-actions">
+                    <button type="button" className="btn-secondary weekly-chapter-add"
+                      aria-label={chapter.addedToday ? `${chapter.title} is in today’s plan` : `Add ${chapter.title} to today’s plan`}
+                      disabled={busy || chapter.addedToday || !plan?.canAdd} onClick={() => void save(chapter.id)}>
+                      <span aria-hidden="true">{chapter.addedToday ? '✓' : '+'}</span>
+                    </button>
+                    <button type="button" className="coach-revise" aria-label={`Check & record for ${chapter.title}`} aria-expanded={open === chapter.id}
+                      disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check &amp; record</button>
+                  </div>}
+                </div>
+                {open === chapter.id && <div className="lesson-check">
+                  <div className="coach-actions">
+                    <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
+                      onClick={() => void save(chapter.id, 'done')}>Chapter Read</button>
+                    <Link className="btn-secondary" href={testHref}>Test Attempted</Link>
+                    <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
+                      onClick={() => void save(chapter.id, 'practice')}>Need More Practice</button>
+                  </div>
+                  <button type="button" className="btn-secondary" disabled={busy} onClick={() => setOpen('')}>Close</button>
+                </div>}
+              </li>;
+          })}
+        </ul>
+      </section>)}
+    </div>}
   </div>;
 }

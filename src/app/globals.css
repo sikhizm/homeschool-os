@@ -2979,9 +2979,25 @@ button:active:not(:disabled){transform:translateY(1px)}
   }
 }
 
-.weekly-chapter-heading{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px}
-.weekly-chapter-heading h4{flex:1 1 10rem;min-width:0;margin:0;overflow-wrap:anywhere}
-.weekly-chapter-heading .weekly-chapter-actions{flex-wrap:nowrap;align-items:center;gap:8px;max-width:100%;margin:0 0 0 auto}
-.weekly-chapter-actions .coach-revise{min-width:0;min-height:44px;overflow-wrap:anywhere}
-.weekly-chapter-heading h4 a{text-decoration:underline;text-underline-offset:.18em}
-.weekly-chapter-heading .weekly-chapter-add{flex:0 0 44px;min-height:44px;padding:0;font-size:1.25rem}
+
+.weekly-chapters > h3{margin:0 0 10px}
+.weekly-chapters > p{margin:0 0 10px}
+.weekly-subjects{border:1px solid #dce7dd;border-radius:12px;overflow:hidden}
+.weekly-subject{display:grid;grid-template-columns:minmax(125px,18%) minmax(0,1fr)}
+.weekly-subject + .weekly-subject,.weekly-chapter-row + .weekly-chapter-row{border-top:1px solid #dce7dd}
+.weekly-subject > h4{margin:0;background:#edf4eb;border-inline-end:1px solid #dce7dd;padding:12px 14px;font-size:.9rem;overflow-wrap:anywhere}
+.weekly-subject > ul{margin:0;padding:0;list-style:none;min-width:0}
+.weekly-chapter-row{padding:4px 12px}
+.weekly-chapter-heading{display:flex;align-items:center;justify-content:space-between;gap:6px 12px;flex-wrap:wrap}
+.weekly-chapter-title{flex:1 1 10rem;min-width:0;overflow-wrap:anywhere}
+.weekly-chapter-title > a{color:var(--accent);font-weight:750;text-decoration:underline;text-underline-offset:.18em}
+.weekly-chapter-title .coach-task-tags{margin-top:4px}
+.weekly-chapter-heading .weekly-chapter-actions{flex-wrap:nowrap;align-items:center;gap:6px;max-width:100%;margin:0 0 0 auto}
+.weekly-chapter-heading .weekly-chapter-add{flex:0 0 44px;min-height:44px;padding:0;font-size:1.15rem}
+.weekly-chapter-actions .coach-revise{min-width:0;min-height:44px;padding:6px 10px;font-size:.8rem;overflow-wrap:anywhere}
+.weekly-chapter-row .lesson-check{margin:6px 0}
+@media(max-width:620px){
+ .weekly-subject{grid-template-columns:minmax(0,1fr)}
+ .weekly-subject > h4{border-inline-end:0;border-bottom:1px solid #dce7dd;padding:6px 12px}
+ .weekly-chapter-title{flex-basis:8rem}
+}
