@@ -19,7 +19,7 @@ type ActiveChapter={
 type RevisionChapter={chapterId:string;title:string;subject:string;href:string;completedSessions:number;totalSessions:number;updatedAt:string|null};
 type LearnerBook={id:string;title:string;subject:string;language:string;chapterCount:number;chaptersStarted:number;chaptersCompleted:number;href:string};
 type ChapterStats={total:number;notStarted:number;inProgress:number;practiceDue:number;understandingCheckDue:number;needsRevision:number;completed:number;retained:number;touched:number};
-type HistoryItem={id:string;title:string;subject:string;updatedAt:string};
+type HistoryItem={id:string;href?:string;title:string;subject:string;updatedAt:string};
 type ApiLearner={
  id:string;name:string;grade:string;canEdit:boolean;tasks:Task[];assignedTasks?:Task[];upcoming:Task[];
  history:HistoryItem[];
@@ -274,7 +274,7 @@ function RecentLearning({learner}:{learner:ApiLearner}){
   <ul className="recent-list">
    {history.map(item=><li key={item.id}>
     <span className="recent-dot" style={{background:subjectTint(item.subject)}} aria-hidden="true"/>
-    <div><strong>{item.title}</strong><span>{item.subject}{item.updatedAt?` · ${dayWords(item.updatedAt)}`:''}</span></div>
+    <div>{item.href?<Link href={item.href}><strong>{item.title}</strong></Link>:<strong>{item.title}</strong>}<span>{item.subject}{item.updatedAt?` · ${dayWords(item.updatedAt)}`:''}</span></div>
    </li>)}
   </ul>
  </section>;
@@ -388,13 +388,6 @@ function IndependentHome({learner}:{learner:ApiLearner}){
     {!learner.earnedBadges?.length&&<li className="muted">Badges appear as you finish activities and recalls.</li>}
    </ul>
    <p className="muted">{assessment.understood} understanding checks · {assessment.mastered} lasting masteries · {assessment.completed} sessions finished.</p>
-  </section>
-  <section className="card">
-   <p className="tag">Reading &amp; reasoning</p>
-   <div className="hero-actions">
-    <Link className="hero-action-secondary" href="/lessons">Lesson library</Link>
-    <Link className="hero-action-secondary" href="/curriculum-studio">Reasoning studio</Link>
-   </div>
   </section>
  </div>;
 }

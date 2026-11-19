@@ -74,7 +74,8 @@ export async function GET(request:Request){
     if(item.id.startsWith('ncert:')&&recordedDone.has(item.id.replace(/:(read|practice|review)$/,'')))done.add(item.id);
    }
    const history=all.filter(t=>done.has(t.id)).slice(-30).reverse().map(t=>({
-    id:t.id,title:t.title,subject:t.subject,
+    id:t.id,title:t.title,subject:t.subject,href:t.href==='/learn/path'||t.href.startsWith('/dashboard')
+      ? `/learn/path?learner=${encodeURIComponent(String(l.id))}` : t.href,
     updatedAt:String(myProgress.find(p=>p.task_id===t.id)?.updated_at??'')
    }));
    const recommended=prioritizedQueue(all,myProgress.map(p=>({...p,updated_at:p.updated_at??''})),new Date(),5);

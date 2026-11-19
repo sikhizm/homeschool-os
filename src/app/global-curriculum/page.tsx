@@ -21,7 +21,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
  return <>
  <main className="family-dashboard">
  <div className="dashboard-welcome"><div><span className="tag">CURRICULUM ENGINE · FOUNDATION</span><h1>Rooted here. Ready for the world.</h1><p className="muted">One thoughtful learning journey, informed by international education approaches and grounded in your family&apos;s needs.</p></div><SectionArtwork theme="explore"/></div>
- <div className="global-crosslink"><div><span className="eyebrow">INTEGRATED CURRICULUM</span><h2>Your learning plan, resources and verified coverage</h2><p>See original lessons, stage-sensitive parent-reviewable guidance and a transparent NCERT inventory together.</p></div><Link href="/curriculum-studio">Open Curriculum Studio →</Link></div><section className="global-intro">
+ <section className="global-intro">
   <div><span className="eyebrow">ONE FOUNDATION, MANY PERSPECTIVES</span><h2>Learn deeply, not endlessly.</h2><p>NCERT/Indian frameworks guide the core. International frameworks help us choose teaching approaches, inquiry questions and stretch opportunities. No child needs to complete six boards at once.</p></div>
   <div className="global-intro-art" aria-hidden="true"><span>✳</span><strong>Explore</strong><small>Understand · Practice · Apply</small></div>
  </section>
@@ -85,7 +85,7 @@ export default async function GlobalCurriculum({searchParams}:{searchParams:Prom
  {skills.length===0&&<section className="workspace-panel"><h2>No skills matched</h2><p>Try a different stage or clear the filters. It does not mean a learner has no available learning options.</p></section>}
  <section className="global-bottom-row">
   <article className="workspace-panel"><span className="eyebrow">TEXTBOOK ACCESS</span><h2>Learn from official books</h2><p>Open NCERT material using ePathshala. We do not copy, download, rehost, or reproduce textbook chapters inside this catalogue.</p><a href="https://epathshala.nic.in/" target="_blank" rel="noopener noreferrer">Open ePathshala ↗</a></article>
-  <article className="workspace-panel"><span className="eyebrow">EDITORIAL TRUST</span><h2>Know what is verified</h2><p>Sources link to real curriculum organisations; our learning suggestions are independently written. Chapter-level links, syllabus edition, alignment and equivalence must be individually reviewed before they can be labelled official.</p><Link href="/curriculum">View existing curriculum pathways →</Link></article>
+  <article className="workspace-panel"><span className="eyebrow">EDITORIAL TRUST</span><h2>Know what is verified</h2><p>Sources link to real curriculum organisations; our learning suggestions are independently written. Chapter-level links, syllabus edition, alignment and equivalence must be individually reviewed before they can be labelled official.</p></article>
  </section>
  </main></>;
 }

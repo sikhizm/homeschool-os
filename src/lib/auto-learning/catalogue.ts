@@ -184,12 +184,12 @@ export function queueCatalogue(grade:string):QueueTask[]{
  if(!stage)return annual;
  const original=lessons.filter(x=>x.stage===stage).map(x=>({
   id:'original:'+x.id,title:x.title,subject:x.subject,minutes:x.minutes,
-  source:'Original activity · educator review recommended',href:'/lessons',
+  source:'Original activity · educator review recommended',href:'/library/enrichment',
   instructions:x.steps,check:x.questions[0]??x.objective,grade
  }));
  const structured=modulesForGrade(grade).sort((a,b)=>a.week-b.week||a.subject.localeCompare(b.subject)).map(m=>({
   id:m.id,title:m.title,subject:m.subject,minutes:m.minutes,
-  source:'Original grade-specific learning pathway · editor review recommended',href:'/curriculum-studio',
+  source:'Original grade-specific learning pathway · editor review recommended',href:'/learn/path',
   instructions:[...m.steps],check:m.check,grade
  }));
  const chapterGrade=Number(grade.replace('Class ',''));
