@@ -3064,7 +3064,11 @@ button:active:not(:disabled){transform:translateY(1px)}
 .weekly-chapter-activity-list li{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;border-top:1px solid var(--line);padding:8px 0}
 .weekly-chapter-activity-list li a{flex:1 1 220px;overflow-wrap:anywhere}
 @media(max-width:720px){
- .chapter-path-row{grid-template-columns:44px repeat(3,minmax(0,1fr))}
+ .chapter-path-row{grid-template-columns:repeat(4,minmax(0,1fr))}
+ .chapter-path-row > .btn-primary{grid-column:span 3}
+ .chapter-path-row > .btn-secondary{grid-column:span 2}
+ .chapter-path-row > a{min-width:0;white-space:normal;overflow-wrap:anywhere}
+ .app-bottom-link{min-width:0;text-align:center;line-height:1.2}
 }
 
 .report-toolbar{background:linear-gradient(115deg,#edf4ea,#fffdfa)}
