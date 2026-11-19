@@ -1,3 +1,4 @@
+import {weeklyPracticeChapters,weeklyPracticeTasks} from '@/lib/auto-learning/weekly-practice';
 import {NextResponse} from 'next/server';
 import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
@@ -58,7 +59,8 @@ export async function GET(request:Request){
    `;
    assignedSlots=Array.isArray(dailyRows[0]?.slots)?dailyRows[0].slots as {learnerId:string;task:Record<string,unknown>}[]:[];
   }catch{/* Older deployments without migration 006 retain the ordinary learner queue. */}
-  const family: {id:string;name:string;grade:string;tasks:ReturnType<typeof prioritizedQueue>}[]=[];
+  const practice=await weeklyPracticeChapters(sql,rows.map(row=>String(row.id)),todayIST());
+  const family: {id:string;name:string;grade:string;tasks:(ReturnType<typeof prioritizedQueue>[number] & {status:string})[]}[]=[];
   const learners=rows.map(l=>{
    const learnerId=String(l.id);
    const all=queueCatalogue(String(l.stage));
@@ -90,7 +92,9 @@ export async function GET(request:Request){
    const mastered=masteredTasks(myProgress);
    const annual=annualCoverageForStage(String(l.stage),done);
    const tasks=recommended.map(t=>({...t,status:revise.has(t.id)?'needs_revision':'pending'}));
-   family.push({id:learnerId,name:String(l.display_name),grade:String(l.stage),tasks});
+   const followUps=weeklyPracticeTasks(all,practice.filter(row=>row.learner_id===learnerId).map(row=>String(row.chapter_id)));
+   const queued=[...followUps,...tasks.filter(task=>!followUps.some(item=>item.id===task.id))].slice(0,5);
+   family.push({id:learnerId,name:String(l.display_name),grade:String(l.stage),tasks:queued});
    // Learning-path view: every catalogue node with its real state. No locks —
    // upcoming lessons stay open; revision sits inline in the path.
    let path:unknown=undefined;
@@ -127,7 +131,7 @@ export async function GET(request:Request){
      completedSessions:c.completedSessions,totalSessions:c.totalSessions,updatedAt:c.updatedAt})),
     books:booksForLearner(String(l.stage),chapterProgress),
     earnedBadges:[...participationBadges(summary.completed),...masteryBadges(summary.understood,summary.mastered)],
-    tasks,assignedTasks:assignedSlots.filter(slot=>slot.learnerId===learnerId).map(slot=>slot.task),...(path?{path}:{}),...(taskDetail?{taskDetail}:{})};
+    tasks:queued,assignedTasks:assignedSlots.filter(slot=>slot.learnerId===learnerId).map(slot=>slot.task),...(path?{path}:{}),...(taskDetail?{taskDetail}:{})};
   });
   const dayOfWeek=new Date(todayIST()+'T12:00:00Z').getUTCDay();
   const planned=buildFamilyPlan(sharedBudgetTasks(family),budget,dayOfWeek);
@@ -137,8 +141,11 @@ export async function GET(request:Request){
     mode:entry.task.mode??'play',href:entry.task.href,source:entry.task.source,
     instructions:entry.task.instructions,check:entry.task.check,lesson:entry.task.lesson??null}
   }));
+  const reading=learners.flatMap(learner=>learner.assignedTasks.flatMap(task=>
+   typeof task.id==='string'&&task.id.startsWith('weekly-chapter:')
+    ? [{learnerId:learner.id,name:learner.name,grade:learner.grade,task}] : []));
   const familyPlan={budget:planned.budget,allocated:planned.allocated,unallocated:planned.unallocated,
-   notes:planned.notes,slots:planned.slots,separate};
+   notes:planned.notes,slots:planned.slots,separate:[...reading,...separate]};
   return send({learners,familyPlan,
    notice:'Ready-to-teach 36-week pathways for all four learning stages, sequenced with prerequisites. One shared family time budget is applied across every child; independent practice and infant interaction are shown separately. Original HomeSchool OS content — not official NCERT lessons or accredited board coverage.'});
  }catch{return send({error:'Automatic learning database is not ready. Apply migration 005.'},503);}

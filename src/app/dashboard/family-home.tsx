@@ -64,13 +64,15 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
-  fetch('/api/auto-learning',{cache:'no-store'})
-   .then(r=>r.json())
+  const load=()=>fetch('/api/auto-learning',{cache:'no-store'})
+   .then(r=>{if(!r.ok)throw new Error('Unable to load plan');return r.json()})
    .then((json:{learners?:LearnerCard[];familyPlan?:HomeData['familyPlan']})=>{
     if(alive)setData({learners:json.learners??[],familyPlan:json.familyPlan??{slots:[],separate:[],budget:60,allocated:0,notes:[]}});
    })
    .catch(()=>{if(alive)setError('We could not load today’s plan. Try refreshing.');});
-  return()=>{alive=false;};
+  void load();
+  window.addEventListener('daily-plan-updated',load);
+  return()=>{alive=false;window.removeEventListener('daily-plan-updated',load);};
  },[]);
 
  const now=new Date();
@@ -109,14 +111,14 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   for(const slot of data.familyPlan.slots){
    const phase=slot.mode==='play'?'Shared family warm-up':'Parent-guided learning';
    rows.push({
-    key:slot.task.id,
+    key:`${slot.learnerId}:${slot.task.id}`,
     phase,tone:slot.mode==='play'?'saffron':'mint',title:slot.task.title,learner:slot.name,
     href:slot.task.href,
    });
   }
   for(const entry of data.familyPlan.separate){
    rows.push({
-    key:entry.task.id,phase:entry.task.mode==='independent'?'Independent learning':'Family play',
+    key:`${entry.learnerId}:${entry.task.id}`,phase:entry.task.id.startsWith('weekly-chapter:')?'Chapter reading':entry.task.mode==='independent'?'Independent learning':'Family play',
     tone:entry.task.mode==='independent'?'math':'creativity',title:entry.task.title,learner:entry.name,
     href:entry.task.href,
    });
@@ -124,9 +126,10 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   const seen=new Set(rows.map(r=>r.key));
   for(const learner of data.learners){
    for(const task of learner.tasks??[]){
-    if((task.status==='needs_revision'||task.id.startsWith('review:'))&&!seen.has(task.id)){
-     seen.add(task.id);
-     rows.push({key:task.id,phase:'Revision',tone:'language',title:task.title,learner:learner.name,href:task.href});
+    const key=`${learner.id}:${task.id}`;
+    if((task.status==='needs_revision'||task.id.startsWith('review:'))&&!seen.has(key)){
+     seen.add(key);
+     rows.push({key,phase:'Revision',tone:'language',title:task.title,learner:learner.name,href:task.href});
     }
    }
   }
@@ -151,9 +154,8 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
 
   <div className="family-hero card">
    <div className="family-hero-copy">
-    <p className="eyebrow">Today’s Family Learning Plan</p>
-    <h2>{data?`${data.familyPlan.allocated} of ${data.familyPlan.budget} guided minutes ready`:'Preparing today’s plan…'}</h2>
-    <p className="muted">{error||(data?`Every activity below was picked automatically from what each learner is ready for next. ${data.familyPlan.notes[0]??''}`:'No manual planning needed.')}</p>
+    <h2>Today’s rhythm</h2>
+    {error&&<p className="muted" role="status">{error}</p>}
     <div className="family-hero-progress" role="img" aria-label={`Today’s progress: ${derived?.todayDone??0} activities finished, ${heroPercent}% through the queue`}>
      <div className="progress-track"><div className="progress-fill" style={{width:`${heroPercent}%`}}/></div>
      <span>{derived?.todayDone??0} done today · {heroPercent}%</span>
@@ -168,6 +170,17 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     <li><strong>{data?.familyPlan.separate.length??0}</strong><span>independent / play</span></li>
     <li><strong>{derived?.attention.length??0}</strong><span>need parent attention</span></li>
    </ul>
+   <div className="family-hero-timeline">
+   {timeline.length>0?<ol className="timeline-list">
+    {timeline.map(row=><li className="timeline-item" key={`${row.key}-${row.phase}`}>
+     <span className={`timeline-dot tone-${row.tone}`} aria-hidden="true"/>
+     <div className="timeline-body">
+      <p className="timeline-meta"><span>{row.phase}</span> · <strong>{row.learner}</strong></p>
+      <p className="timeline-title">{row.href?<a href={row.href}>{row.title}</a>:row.title}</p>
+     </div>
+    </li>)}
+   </ol>:<p className="muted">Nothing scheduled yet. The plan is prepared automatically from each learner’s next steps.</p>}
+   </div>
   </div>
 
   <div className="family-learner-grid" aria-label="Learners">
@@ -219,25 +232,6 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    })}
    {data&&data.learners.length===0&&<p className="muted">No learners yet — add your first learner below to prepare a plan.</p>}
    {!data&&!error&&<p className="muted">Loading learners…</p>}
-  </div>
-
-  <div className="family-timeline card">
-   <header className="section-heading">
-    <div>
-     <p className="tag">Today’s rhythm</p>
-     <h2>The day, one step at a time</h2>
-    </div>
-    <p className="muted">{timeline.length?`${timeline.length} moments planned`:'The plan appears once it is prepared'}</p>
-   </header>
-   {timeline.length>0?<ol className="timeline-list">
-    {timeline.map(row=><li className="timeline-item" key={`${row.key}-${row.phase}`}>
-     <span className={`timeline-dot tone-${row.tone}`} aria-hidden="true"/>
-     <div className="timeline-body">
-      <p className="timeline-meta"><span>{row.phase}</span> · <strong>{row.learner}</strong></p>
-      <p className="timeline-title">{row.href?<a href={row.href}>{row.title}</a>:row.title}</p>
-     </div>
-    </li>)}
-   </ol>:<p className="muted">Nothing scheduled yet. The plan is prepared automatically from each learner’s next steps.</p>}
   </div>
 
   <section className="family-attention card" id="parent-attention" aria-labelledby="attention-title">

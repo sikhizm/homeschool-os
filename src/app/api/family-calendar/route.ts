@@ -1,3 +1,4 @@
+import {weeklyPracticeChapters,weeklyPracticeTasks} from '@/lib/auto-learning/weekly-practice';
 import {NextResponse} from 'next/server';
 import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
@@ -54,8 +55,9 @@ export async function POST(request:Request){
   if(member.role!=='owner')return reply({error:'Family owner required'},403);
   const sql=getSql();
   const existing=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
-  if(existing.length&&replace!==true)return reply({date,plan:existing[0],saved:false,budgetEnabled:Number(existing[0].budget_minutes)!==180});
+  if(existing.length&&replace!==true&&existing[0].slots.some((slot:{task?:{id?:string}})=>!slot.task?.id?.startsWith('weekly-chapter:')))return reply({date,plan:existing[0],saved:false,budgetEnabled:Number(existing[0].budget_minutes)!==180});
   const learners=await sql`SELECT l.id::text AS id,l.display_name,l.stage FROM learners l WHERE l.family_id::text=${member.id} AND l.archived_at IS NULL ORDER BY l.created_at,l.id`;
+  const practice=await weeklyPracticeChapters(sql,learners.map(row=>String(row.id)),date);
   const progress=await sql`SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id WHERE l.family_id::text=${member.id}`;
   const previous=await sql`SELECT slots FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date<${date}::date AND learning_date>=${date}::date-6 ORDER BY learning_date ASC`;
   const priorSlots=previous.flatMap(row=>Array.isArray(row.slots)?row.slots:[]);
@@ -64,12 +66,14 @@ export async function POST(request:Request){
    const learnerId=String(l.id),grade=String(l.stage);
    const entries=progress.filter(p=>String(p.learner_id)===learnerId).map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
    const completed=new Set(entries.filter(p=>p.status==='completed').map(p=>p.task_id));
-   const queue=prioritizedQueue(queueCatalogue(grade),entries,new Date(),50);
+   const catalogue=queueCatalogue(grade);
+   const queue=prioritizedQueue(catalogue,entries,new Date(),50);
    const carriedIds=priorSlots.filter((slot:Record<string,unknown>)=>slot.learnerId===learnerId)
     .map((slot:Record<string,unknown>)=>(slot.task as {id?:string}|undefined)?.id)
     .filter((taskId):taskId is string=>typeof taskId==='string');
    const carried=carriedIds.map(taskId=>queue.find(task=>task.id===taskId)).filter((task):task is typeof queue[number]=>Boolean(task));
-   const tasks=carryForwardTasks(queue,carried,completed);
+   const followUps=weeklyPracticeTasks(catalogue,practice.filter(row=>row.learner_id===learnerId).map(row=>String(row.chapter_id)));
+   const tasks=[...followUps,...carryForwardTasks(queue,carried,completed).filter(task=>!followUps.some(item=>item.id===task.id))];
    const chosen=requested?.[learnerId];
    if(chosen!==undefined&&(typeof chosen!=='number'||!Number.isInteger(chosen)||chosen<0||chosen>tasks.length))throw Error('Choose a valid number of required activities.');
    return {id:learnerId,name:String(l.display_name),grade,tasks:chosen===undefined?tasks:tasks.slice(0,chosen as number)};
@@ -80,7 +84,16 @@ export async function POST(request:Request){
   // The unique key makes concurrent first-open requests idempotent; no silent replacement.
   const saved=await sql`INSERT INTO family_daily_plans(family_id,learning_date,budget_minutes,slots)
    SELECT f.id,${date}::date,${storedBudget},${JSON.stringify(slots)}::jsonb FROM families f WHERE f.id::text=${member.id}
-   ON CONFLICT(family_id,learning_date) DO UPDATE SET budget_minutes=EXCLUDED.budget_minutes,slots=EXCLUDED.slots WHERE ${Boolean(replace)}
+   ON CONFLICT(family_id,learning_date) DO UPDATE SET budget_minutes=EXCLUDED.budget_minutes,slots=EXCLUDED.slots || COALESCE((
+     SELECT jsonb_agg(slot) FROM jsonb_array_elements(family_daily_plans.slots) AS slot
+     WHERE starts_with(slot->'task'->>'id', 'weekly-chapter:')
+   ), '[]'::jsonb)
+   WHERE ${Boolean(replace)} OR (
+     jsonb_array_length(family_daily_plans.slots) > 0 AND NOT EXISTS (
+       SELECT FROM jsonb_array_elements(family_daily_plans.slots) AS slot
+       WHERE NOT starts_with(slot->'task'->>'id', 'weekly-chapter:')
+     )
+   )
    RETURNING learning_date::text AS date,budget_minutes,slots,created_at`;
   if(saved.length)return reply({date,plan:saved[0],saved:true,budgetEnabled:useBudget});
   const concurrent=await sql`SELECT learning_date::text AS date,budget_minutes,slots,created_at FROM family_daily_plans WHERE family_id::text=${member.id} AND learning_date=${date}::date LIMIT 1`;
