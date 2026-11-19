@@ -1,4 +1,4 @@
-import ResourcePlanActions from '@/components/resource-plan-actions';
+import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import Link from 'next/link';
 import ChapterProgress from './chapter-progress';
 import ChapterTests from './chapter-tests';
@@ -60,7 +60,10 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
       </nav>
 
       <ChapterProgress key={chapter.id + (learnerId ?? '')} chapterId={chapter.id} initialLearnerId={learnerId}>
-      <ResourcePlanActions resourceKey={'ncert:'+chapter.id}/>
+      <div className="resource-plan-actions" aria-label="Plan this chapter">
+        <ChapterPlanMenu chapterId={chapter.id} title={title} learnerId={learnerId} canRevise={sessionEligible && Boolean(chapter.verifiedTitle)} />
+        <Link className="btn-secondary" href={'/planning?resource=' + encodeURIComponent('ncert:' + chapter.id) + '&intent=save#family-workflow'}>Save for later</Link>
+      </div>
       <section id="chapter-reading" className="workspace-panel family-hero" style={{ alignItems: 'flex-start' }}>
         <div className="family-hero-copy" style={{ maxWidth: '100%' }}>
           <span className="eyebrow">

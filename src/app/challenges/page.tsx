@@ -39,7 +39,6 @@ export default async function ChallengesPage({searchParams}: {searchParams: Prom
   return <main className="family-dashboard studio-stack">
     <header className="studio-page-head">
       <div><h1>Challenges &amp; Rewards</h1><p className="muted">Assign challenges, verify attempts and track earned rewards.</p></div>
-      <Link className="btn-secondary" href="/portfolio">Portfolio archive</Link>
     </header>
     {!schema.ready ? <p className="workspace-panel">Apply the learning challenges migration to start recording challenges.</p> : !learner ?
       <p className="workspace-panel">Add a learner to assign a challenge.</p> : <>

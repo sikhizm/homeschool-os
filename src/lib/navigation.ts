@@ -24,7 +24,6 @@ export function navigationForPath(pathname:string){
  ]};
  else if(['/portfolio','/reports'].some(route=>within(pathname,route)))context={label:'Your progress',links:[
   {href:'/challenges',label:'Challenges & Rewards'},
-  {href:'/portfolio',label:'Portfolio archive'},
   {href:'/reports',label:'Insights'},
  ]};
  else if(within(pathname,'/learn'))context={label:'Learning Path',links:[

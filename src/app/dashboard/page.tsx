@@ -73,10 +73,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             <span>Shape the week ahead</span>
             <span className="quick-start-arrow" aria-hidden="true">↗</span>
           </Link>
-          <Link href="/portfolio" className="quick-start-card tint-lilac">
+          <Link href="/challenges" className="quick-start-card tint-lilac">
             <span className="quick-start-icon" aria-hidden="true">❋</span>
-            <strong>Capture growth</strong>
-            <span>Celebrate little steps</span>
+            <strong>Challenges &amp; Rewards</strong>
+            <span>Assign challenges and track rewards</span>
             <span className="quick-start-arrow" aria-hidden="true">↗</span>
           </Link>
           <Link href="/reports" className="quick-start-card tint-butter">

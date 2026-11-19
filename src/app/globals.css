@@ -3052,3 +3052,17 @@ button:active:not(:disabled){transform:translateY(1px)}
 .chapter-status-auto small{line-height:1.35}
 .chapter-status-auto[aria-current=true]{outline:2px solid #164f39;outline-offset:-2px}
 .chapter-status-badge[data-status=finished]{--status-bg:#d9efe5;--status-ink:#164f39;--status-line:#94bea9}
+
+.chapter-path-row{grid-template-columns:minmax(0,1fr) 44px repeat(3,minmax(0,154px))}
+.chapter-path-row .chapter-plan-plus{width:44px;height:44px;min-height:44px;padding:0;display:grid;place-items:center;border-radius:50%;font-size:1.3rem}
+.chapter-plan-dialog{position:fixed;inset:0;margin:auto;width:min(440px,calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;border:1px solid var(--line);border-radius:16px;background:#fffdfa;color:var(--ink);padding:20px}
+.chapter-plan-dialog::backdrop{background:#142e25a6}
+.chapter-plan-dialog h2,.chapter-plan-dialog p{margin:0 0 8px}
+.chapter-plan-dialog fieldset{border:0;padding:0;margin:0;display:grid;gap:10px}
+.chapter-plan-buttons{display:flex;gap:8px;flex-wrap:wrap}
+.weekly-chapter-activity-list{list-style:none;padding:0;margin:10px 0 0}
+.weekly-chapter-activity-list li{display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;border-top:1px solid var(--line);padding:8px 0}
+.weekly-chapter-activity-list li a{flex:1 1 220px;overflow-wrap:anywhere}
+@media(max-width:720px){
+ .chapter-path-row{grid-template-columns:44px repeat(3,minmax(0,1fr))}
+}

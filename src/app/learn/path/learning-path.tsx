@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import {useState} from 'react';
 import {chapterDisplayStatuses, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
 
@@ -42,6 +43,7 @@ export function LearningPath({initialLearnerId, learners}: {initialLearnerId?: s
               {chapterDisplayStatuses.find(status => status.id === chapter.status)?.label}
             </Link>
           </div>
+          <ChapterPlanMenu inline chapterId={chapter.id} title={chapter.title} learnerId={learner.id} />
           <Link className="btn-primary" href={href + '#chapter-reading'}>Read chapter</Link>
           <Link className="btn-secondary" href={href + '&revision=1#study-material-studio'}>Revision materials</Link>
           <Link className="btn-secondary" href={href + '#chapter-tests'}>Test records</Link>

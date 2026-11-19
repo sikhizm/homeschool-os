@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import {useEffect,useMemo,useState} from 'react';
 import {subjectTint} from '@/lib/subject-tint';
+import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
 import {revisionState} from '@/lib/revision-state';
 
 type Task={id:string;title:string;subject:string;minutes:number;mode?:string;href:string|null;status?:string};
@@ -61,16 +62,27 @@ function streakDays(history:{updatedAt:string}[]):number{
  */
 export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:boolean}){
  const [data,setData]=useState<HomeData|null>(null);
+ const [chapterPlan,setChapterPlan]=useState<ChapterPlanItem[]>([]);
+ const [chapterPlanError,setChapterPlanError]=useState(false);
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
-  const load=()=>fetch('/api/auto-learning?agenda=1',{cache:'no-store'})
+  const loadAgenda=()=>fetch('/api/auto-learning?agenda=1',{cache:'no-store'})
    .then(r=>{if(!r.ok)throw new Error('Unable to load plan');return r.json()})
    .then((json:{learners?:LearnerCard[];familyPlan?:HomeData['familyPlan']})=>{
     if(alive)setData({learners:json.learners??[],familyPlan:json.familyPlan??{slots:[],separate:[],budget:60,allocated:0,notes:[]}});
    })
    .catch(()=>{if(alive)setError('We could not load today’s plan. Try refreshing.');});
-  void load();
+  const loadChapterPlan=async()=>{
+   try{
+    const response=await fetch('/api/chapter-plan',{cache:'no-store'});
+    if(!response.ok)throw new Error();
+    const result=await response.json() as {items:ChapterPlanItem[]};
+    if(alive){setChapterPlan(result.items.filter(item=>item.period==='day'));setChapterPlanError(false);}
+   }catch{if(alive)setChapterPlanError(true);}
+  };
+  const load=()=>{void loadAgenda();void loadChapterPlan();};
+  load();
   window.addEventListener('daily-plan-updated',load);
   const restore=(event:PageTransitionEvent)=>{if(event.persisted)void load();};
   window.addEventListener('pageshow',restore);
@@ -127,8 +139,21 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    }
   }
   const completed=new Set(data.learners.flatMap(learner=>(learner.completedToday??[]).map(id=>`${learner.id}:${id}`)));
-  return rows.map(row=>({...row,done:completed.has(row.key)}));
- },[data]);
+  const explicit = new Set(chapterPlan.flatMap(item => {
+   const prefix=`${item.learnerId}:`;
+   const session={reading:'read',revision:'practice',test:'review'}[item.activity];
+   return [`${prefix}ncert:${item.chapterId}:${session}`,
+    ...(item.activity==='reading'?[`${prefix}weekly-chapter:${item.chapterId}`]:[])];
+  }));
+  return [
+   ...chapterPlan.map(item=>({
+    key:`${item.learnerId}:${item.chapterId}:${item.activity}`,phase:activityLabels[item.activity],
+    tone:item.activity==='reading'?'math':item.activity==='revision'?'language':'saffron',
+    title:item.title,learner:item.learnerName,href:chapterActivityHref(item.chapterId,item.learnerId,item.activity),done:item.done,
+   })),
+   ...rows.filter(row=>!explicit.has(row.key)).map(row=>({...row,done:completed.has(row.key)})),
+  ];
+ },[data,chapterPlan]);
 
  const todayDone=timeline.filter(row=>row.done).length;
  const heroPercent=timeline.length?Math.round(todayDone/timeline.length*100):0;
@@ -156,6 +181,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     </a>}
     {!canEdit&&<span className="mode-chip">Read-only view</span>}
    </div>}
+   {chapterPlanError && <p className="muted family-agenda-message" role="status">Planned chapter activities could not be loaded.</p>}
    {error?<p className="muted family-agenda-message" role="status">{error}</p>
     :timeline.length>0?<ol className="family-agenda-list" aria-label="Today’s activities">
      {timeline.map(row=><li className="family-agenda-row" key={`${row.key}-${row.phase}`}>

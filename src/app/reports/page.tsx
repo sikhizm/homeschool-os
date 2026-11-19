@@ -378,9 +378,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                 {evidence.length === 0 ? (
                   <p className="muted" style={{ marginBottom: 0 }}>
                     No observations were recorded during this window. No mastery conclusion is drawn.{' '}
-                    <Link className="report-no-print" href="/portfolio">
-                      Record an observation in Family Portfolio →
-                    </Link>
+
                   </p>
                 ) : (
                   <ol className="report-evidence-cards">
@@ -423,9 +421,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
                 <span className="eyebrow">CONVERSATION &amp; NEXT STEPS</span>
                 <h2 style={{ margin: '4px 0 0' }}>Parent review and gentle adjustments</h2>
               </div>
-              <Link className="btn-secondary report-no-print" href="/portfolio">
-                Save reflection in Portfolio →
-              </Link>
+
             </div>
             <p className="muted" style={{ marginTop: 0 }}>
               Discuss what the learner enjoyed, what support helped and which single small adjustment to try next. Printing leaves clean space for handwritten notes.

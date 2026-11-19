@@ -47,6 +47,7 @@ export default function ChapterTests({ chapterId, initialLearnerId = '' }: { cha
       if (response.status === 409) setData(await readTests(endpoint));
       if (!response.ok) throw new Error(body.error);
       window.dispatchEvent(new Event('chapter-tests-updated'));
+      window.dispatchEvent(new Event('daily-plan-updated'));
       router.refresh();
       setDraft(null);
       setData(await readTests(endpoint));
