@@ -5,7 +5,6 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import { getSql } from '@/lib/db';
 import PlanningWorkspace from './planning-workspace';
-import { PrepareNextDay } from './prepare-next-day';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,7 +62,6 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         canEdit={family.role === 'owner'}
         initialDate={initialDate}
       />
-      <PrepareNextDay canEdit={family.role === 'owner'} />
     </main>
   );
 }

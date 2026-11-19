@@ -23,6 +23,33 @@ export async function GET(request: Request) {
     const day = today();
     const params = new URL(request.url).searchParams;
     const daily = params.get('today') === '1';
+    const overviewLearner = params.get('overviewLearner');
+    if (overviewLearner) {
+      const date = params.get('date');
+      if (!validPlanningDate(date)) return json({error: 'Choose a valid planning date.'}, 400);
+      const start = mondayOf(date), end = addDays(start, 6);
+      const [books, olympiad] = await Promise.all([
+        sql`SELECT p.id::text, p.learning_date::text AS date, b.title, p.first_page, p.last_page, p.completed
+          FROM family_book_pages p JOIN family_books b ON b.id = p.book_id
+          JOIN learners l ON l.id = p.learner_id AND l.family_id = b.family_id
+          WHERE b.family_id::text = ${familyId} AND l.id::text = ${overviewLearner} AND l.archived_at IS NULL
+            AND p.in_today_plan AND p.learning_date BETWEEN ${start}::date AND ${end}::date
+          ORDER BY p.learning_date, b.title, p.first_page`.catch(error => {
+            if ((error as {code?: string}).code === '42P01') return [];
+            throw error;
+          }),
+        sql`SELECT a.id::text, a.topic AS title, a.practice_date::text AS date,
+            COALESCE(to_jsonb(a)->>'period', 'day') AS period, a.completed_at IS NOT NULL AS completed
+          FROM olympiad_rhythm_activities a JOIN learners l ON l.id = a.learner_id
+          WHERE l.family_id::text = ${familyId} AND l.id::text = ${overviewLearner} AND l.archived_at IS NULL
+            AND a.practice_date BETWEEN ${start}::date AND ${end}::date
+          ORDER BY a.practice_date, a.topic`.catch(error => {
+            if ((error as {code?: string}).code === '42P01') return [];
+            throw error;
+          }),
+      ]);
+      return json({books, olympiad});
+    }
     const olympiadLearner = params.get('olympiadLearner');
     if (olympiadLearner) {
       const date = params.get('date');

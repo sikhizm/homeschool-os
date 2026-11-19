@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 
+import WeeklyOverview from './weekly-overview';
 import { ChapterPlanner, type ChapterRecord } from './chapter-planner';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
 
@@ -19,12 +20,10 @@ type Period = {
   chapter_ids: string[];
   olympiad_topics: Record<string,string>;
 };
-type Day = { date: string; activities: number; minutes: number; completed_minutes: number };
 type PlanningData = {
   year: { startDate: string; endDate: string };
   week: string[];
   periods: Period[];
-  days: Day[];
   passedChapterIds?: string[];
   chapterRecords?: ChapterRecord[];
 };
@@ -132,10 +131,6 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
       </section>
     );
 
-  const daily = new Map(data?.days.map((day) => [day.date, day]) ?? []);
-  const weekMinutes = weekRange.reduce((n, day) => n + (daily.get(day)?.minutes ?? 0), 0);
-  const completedMinutes = weekRange.reduce((n, day) => n + (daily.get(day)?.completed_minutes ?? 0), 0);
-  const weekPercent = weekMinutes > 0 ? Math.min(100, Math.round((completedMinutes / weekMinutes) * 100)) : 0;
 
   return (
     <div className="learning-workspace">
@@ -274,51 +269,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
             weekIds={weekPlan?.chapter_ids??[]} chapterRecords={data.chapterRecords??[]}
             passedChapterIds={data.passedChapterIds??[]} olympiad={yearPlan?.olympiad_topics??{}}
             ids={yearPlan?.chapter_ids??[]} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
-          <section className="workspace-panel">
-            <div className="panel-heading">
-              <div>
-                <span className="eyebrow">SEVEN-DAY OVERVIEW</span>
-                <h2 style={{ margin: '4px 0 0' }}>From intentions to daily learning</h2>
-              </div>
-              <span className="pill">{completedMinutes} / {weekMinutes} min completed · {weekPercent}%</span>
-            </div>
-            <p className="muted" style={{ marginTop: 0 }}>
-              Recorded activities across the week — not inferred achievements. One shared 60-minute family rhythm can span multiple children.
-            </p>
-            <div className="week-strip-grid">
-              {weekRange.map((day) => {
-                const summary = daily.get(day);
-                const dayName = new Intl.DateTimeFormat('en-IN', {
-                  weekday: 'short',
-                  timeZone: 'UTC',
-                }).format(new Date(day + 'T12:00:00Z'));
-                const planned = summary?.minutes ?? 0;
-                const done = summary?.completed_minutes ?? 0;
-                const dayPct = planned > 0 ? Math.min(100, Math.round((done / planned) * 100)) : 0;
-                const isToday = day === initialDate;
-                return (
-                  <article
-                    className={isToday ? 'week-day-card is-today' : 'week-day-card'}
-                    key={day}
-                  >
-                    <div className="week-day-top">
-                      <span className="eyebrow">{dayName}</span>
-                      {isToday && <span className="today-dot">Today</span>}
-                    </div>
-                    <strong className="week-day-date">{display(day)}</strong>
-                    <p className="week-day-count">{summary?.activities ?? 0} {(summary?.activities ?? 0) === 1 ? 'activity' : 'activities'}</p>
-                    <div className="progress-track" aria-hidden="true">
-                      <div className="progress-fill" style={{ width: `${dayPct}%` }} />
-                    </div>
-                    <small className="week-day-mins">{done}/{planned} min</small>
-                    <Link className="week-day-link" href={'/dashboard?date=' + encodeURIComponent(day)}>
-                      Open day →
-                    </Link>
-                  </article>
-                );
-              })}
-            </div>
-          </section>
+          <WeeklyOverview key={learnerId + ':' + date} learnerId={learnerId} date={date} today={initialDate} />
 
           <details><summary>Optional planning notes</summary>
           <div className="subject-grid">

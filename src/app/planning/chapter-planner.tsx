@@ -152,6 +152,7 @@ export function ChapterPlanner({
         body: JSON.stringify({action: 'entryId' in input ? 'move-olympiad' : 'plan-olympiad', learnerId, date, ...input})});
       if (!response.ok) throw new Error((await response.json()).error);
       setScheduleVersion(value => value + 1);
+      window.dispatchEvent(new Event('daily-plan-updated'));
       setMessage('Olympiad schedule saved.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Could not add the topic.');
@@ -305,26 +306,22 @@ export function ChapterPlanner({
         </>}
       </section>
       {grade && (
-        <section className="workspace-panel" id="olympiad-plan">
-          <h2>
-            Olympiad year plan · {academicYear(date)}–{academicYear(date) + 1}
-          </h2>
-          <p>Class {grade} · Topic practice and sample papers</p>
-          <p>
-            {planned.length
-              ? Math.round((100 * done) / planned.length) +
-                "% complete · " +
-                done +
-                " of " +
-                planned.length +
-                " practice goals done · " +
-                (planned.length - done) +
-                " remaining"
-              : "Choose a maths topic or a sample paper to practise."}
-          </p>
+        <section className={`workspace-panel ${styles.olympiadPanel}`} id="olympiad-plan">
+          <header className={styles.olympiadHeader}>
+            <div>
+              <h2>Olympiad year plan</h2>
+              <p>Class {grade} · {academicYear(date)}–{academicYear(date) + 1}</p>
+            </div>
+            <div className={styles.olympiadTabs} aria-label="Olympiad practice view">
+              <button type="button" aria-pressed={olympiadTab === 'topics'} className={olympiadTab === 'topics' ? 'btn-primary' : 'btn-secondary'}
+                onClick={() => setOlympiadTab('topics')}>Topics</button>
+              <button type="button" aria-pressed={olympiadTab === 'papers'} className={olympiadTab === 'papers' ? 'btn-primary' : 'btn-secondary'}
+                onClick={() => setOlympiadTab('papers')}>Sample papers</button>
+            </div>
+          </header>
           {planned.length > 0 && (
-            <section className={styles.progressSection}>
-              <h3>My practice checklist</h3>
+            <details className={styles.olympiadChecklist}>
+              <summary>My practice checklist · {done}/{planned.length} done</summary>
               {planned.map((item) => {
                 const paper = papers.find((r) => "paper:" + r.id === item);
                 const title = paper
@@ -363,18 +360,14 @@ export function ChapterPlanner({
                   </div>
                 );
               })}
-            </section>
+            </details>
           )}
-          <div className={styles.actions} aria-label="Olympiad practice view">
-            <button type="button" aria-pressed={olympiadTab === 'topics'} className={olympiadTab === 'topics' ? 'btn-primary' : 'btn-secondary'}
-              onClick={() => setOlympiadTab('topics')}>Topics</button>
-            <button type="button" aria-pressed={olympiadTab === 'papers'} className={olympiadTab === 'papers' ? 'btn-primary' : 'btn-secondary'}
-              onClick={() => setOlympiadTab('papers')}>Sample papers</button>
-          </div>
           {olympiadTab === 'topics' ? <>
-            <h3>SOF Mathematics</h3>
             {scheduleError && <p role="status">{scheduleError}</p>}
-            <ul className={styles.olympiadTopics} aria-label="Olympiad topics">
+            <div className={styles.olympiadColumns} aria-hidden="true">
+              <strong>SOF Mathematics</strong><strong>Year goal</strong><strong>Schedule</strong>
+            </div>
+            <ul className={styles.olympiadTopics} aria-label="SOF Mathematics topics">
               {topics.map(topic => {
                 const weekly = practice.find(item => item.topic === topic && item.period === 'week');
                 const daily = practice.find(item => item.topic === topic && item.period === 'day' && item.practice_date === today);
@@ -386,7 +379,6 @@ export function ChapterPlanner({
                       aria-label={`Year goal for ${topic}`} onChange={event => void save({
                         action: 'olympiad', topic, status: event.target.checked ? 'planned' : 'unplanned',
                       })} />
-                    Year goal
                   </label>
                   <div className={styles.olympiadSchedule}>
                     {weekly && <span className="pill">{weekly.completed ? 'Practised' : past ? 'Unfinished' : 'In week plan'}</span>}
@@ -394,9 +386,9 @@ export function ChapterPlanner({
                     {canEdit && weekly && past && !weekly.completed &&
                       <button type="button" className="btn-secondary" disabled={busy}
                         onClick={() => void scheduleOlympiad({entryId: weekly.id})}>Move to this week</button>}
-                    {canEdit && !past && !weekly && <details>
+                    {canEdit && !past && !weekly && <details className={styles.olympiadMenu}>
                       <summary className="btn-secondary" aria-label={`Schedule ${topic}`}>＋ Schedule</summary>
-                      <div className={styles.actions}>
+                      <div className={styles.olympiadMenuActions}>
                         <button type="button" className="btn-primary" disabled={busy}
                           onClick={() => void scheduleOlympiad({topic, period: 'week'})}>
                           {week[0] === mondayOf(today) ? 'Add to this week' : 'Add to selected week'}
@@ -423,7 +415,7 @@ export function ChapterPlanner({
               </details>
             ))}
           </div>}
-          <a href={olympiadSourcesFor(grade)[0]}>Official SOF maths syllabus</a>
+          <a className={styles.olympiadSource} href={olympiadSourcesFor(grade)[0]}>Official SOF maths syllabus ↗</a>
         </section>
       )}
       <p role="status">{message}</p>
