@@ -46,7 +46,7 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
         chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, ...(outcome ? { outcome } : { addedToday: true }) } : chapter),
       });
       if (outcome) setOpen('');
-      else window.dispatchEvent(new Event('daily-plan-updated'));
+      window.dispatchEvent(new Event('daily-plan-updated'));
       setMessage(outcome ? 'Outcome recorded.' : 'Chapter added to today’s plan.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to save the chapter update.');

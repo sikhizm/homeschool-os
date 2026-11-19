@@ -29,6 +29,8 @@ export async function GET(request:Request){
  const url=new URL(request.url);
  const requested=url.searchParams.get('budget');
  const budget=budgets.includes(Number(requested) as typeof budgets[number])?Number(requested):60;
+ const wantAgenda=url.searchParams.get('agenda')==='1';
+ const date=todayIST();
  const wantPath=url.searchParams.get('path')==='1';
  const wantTask=url.searchParams.get('task');
  const wantLearner=url.searchParams.get('learner');
@@ -43,22 +45,37 @@ export async function GET(request:Request){
    ORDER BY l.created_at,l.id
   `;
   const progress=await sql`
-   SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at
+   SELECT p.learner_id::text AS learner_id,p.task_id,p.status,p.updated_at,
+    (p.updated_at AT TIME ZONE 'Asia/Kolkata')::date=${date}::date AS is_today
    FROM auto_learning_progress p JOIN learners l ON l.id=p.learner_id
    JOIN family_members fm ON fm.family_id=l.family_id
    WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL
      AND (${requestedLearner}::text IS NULL OR l.id::text=${requestedLearner})
   `;
-  let assignedSlots:{learnerId:string;task:Record<string,unknown>}[]=[];
+  let assignedSlots:{learnerId:string;task:Record<string,unknown>;mode?:string}[]=[];
   try{
    const dailyRows=await sql`
     SELECT p.slots FROM family_daily_plans p
-    WHERE p.learning_date=${todayIST()}::date
+    WHERE p.learning_date=${date}::date
      AND p.family_id IN (SELECT fm.family_id FROM family_members fm WHERE fm.auth_user_id=${user})
     LIMIT 1
    `;
-   assignedSlots=Array.isArray(dailyRows[0]?.slots)?dailyRows[0].slots as {learnerId:string;task:Record<string,unknown>}[]:[];
+   assignedSlots=Array.isArray(dailyRows[0]?.slots)?dailyRows[0].slots as typeof assignedSlots:[];
   }catch{/* Older deployments without migration 006 retain the ordinary learner queue. */}
+  const completedChapters=wantAgenda?await sql`
+   SELECT l.id::text AS learner_id, p.chapter_id
+   FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
+   JOIN ncert_chapter_progress p ON p.learner_id=l.id
+   WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL AND p.status='completed'
+    AND (p.updated_at AT TIME ZONE 'Asia/Kolkata')::date=${date}::date
+  `.catch(()=>[]):[];
+  const weeklyReads=wantAgenda?await sql`
+   SELECT l.id::text AS learner_id, p.chapter_id
+   FROM learners l JOIN family_members fm ON fm.family_id=l.family_id
+   JOIN ncert_weekly_chapter_outcomes p ON p.learner_id=l.id
+   WHERE fm.auth_user_id=${user} AND l.archived_at IS NULL AND p.outcome IN ('done','understood')
+    AND (p.updated_at AT TIME ZONE 'Asia/Kolkata')::date=${date}::date
+  `.catch(()=>[]):[];
   const practice=await weeklyPracticeChapters(sql,rows.map(row=>String(row.id)),todayIST());
   const family: {id:string;name:string;grade:string;tasks:(ReturnType<typeof prioritizedQueue>[number] & {status:string})[]}[]=[];
   const learners=rows.map(l=>{
@@ -67,6 +84,12 @@ export async function GET(request:Request){
    const catalogueIds=new Set(all.map(task=>task.id));
    const myProgress:SavedRecord[]=progress.filter(p=>String(p.learner_id)===learnerId)
     .map(p=>({task_id:String(p.task_id),status:String(p.status),updated_at:String(p.updated_at)}));
+   const completedToday=wantAgenda?[
+    ...progress.filter(p=>p.learner_id===learnerId&&p.status==='completed'&&p.is_today===true&&
+     !isInternalProgressId(String(p.task_id))).map(p=>String(p.task_id)),
+    ...[...completedChapters,...weeklyReads].filter(row=>row.learner_id===learnerId)
+     .map(row=>`weekly-chapter:${row.chapter_id}`),
+   ]:[];
    const recordedDone=activityCompletions(myProgress);
    const done=new Set([...recordedDone].filter(id=>catalogueIds.has(id)));
    const revise=new Set(myProgress.filter(p=>p.status==='needs_revision'&&!isInternalProgressId(p.task_id)).map(p=>p.task_id));
@@ -131,7 +154,7 @@ export async function GET(request:Request){
      completedSessions:c.completedSessions,totalSessions:c.totalSessions,updatedAt:c.updatedAt})),
     books:booksForLearner(String(l.stage),chapterProgress),
     earnedBadges:[...participationBadges(summary.completed),...masteryBadges(summary.understood,summary.mastered)],
-    tasks:queued,assignedTasks:assignedSlots.filter(slot=>slot.learnerId===learnerId).map(slot=>slot.task),...(path?{path}:{}),...(taskDetail?{taskDetail}:{})};
+    tasks:queued,...(wantAgenda?{completedToday}:{}),assignedTasks:assignedSlots.filter(slot=>slot.learnerId===learnerId).map(slot=>slot.task),...(path?{path}:{}),...(taskDetail?{taskDetail}:{})};
   });
   const dayOfWeek=new Date(todayIST()+'T12:00:00Z').getUTCDay();
   const planned=buildFamilyPlan(sharedBudgetTasks(family),budget,dayOfWeek);
@@ -146,7 +169,12 @@ export async function GET(request:Request){
     ? [{learnerId:learner.id,name:learner.name,grade:learner.grade,task}] : []));
   const familyPlan={budget:planned.budget,allocated:planned.allocated,unallocated:planned.unallocated,
    notes:planned.notes,slots:planned.slots,separate:[...reading,...separate]};
-  return send({learners,familyPlan,
+  const savedAgenda=wantAgenda?assignedSlots.flatMap(slot=>{
+   const learner=learners.find(item=>item.id===slot.learnerId);
+   if(!learner||typeof slot.task.id!=='string'||slot.task.id.startsWith('weekly-chapter:'))return [];
+   return [{learnerId:learner.id,name:learner.name,grade:learner.grade,task:slot.task,mode:slot.mode}];
+  }):[];
+  return send({learners,familyPlan: savedAgenda.length?{...familyPlan,slots:savedAgenda}:familyPlan,
    notice:'Ready-to-teach 36-week pathways for all four learning stages, sequenced with prerequisites. One shared family time budget is applied across every child; independent practice and infant interaction are shown separately. Original HomeSchool OS content — not official NCERT lessons or accredited board coverage.'});
  }catch{return send({error:'Automatic learning database is not ready. Apply migration 005.'},503);}
 }

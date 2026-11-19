@@ -11,7 +11,7 @@ type Separate={learnerId:string;name:string;grade:string;task:Task};
 type Attention={id:string;tone:'revision'|'check'|'plan';text:string;href:string};
 type LearnerCard={
  id:string;name:string;grade:string;canEdit:boolean;completed:number;total:number;
- tasks:Task[];history:{id:string;updatedAt:string}[];
+ tasks:Task[];completedToday?:string[];history:{id:string;updatedAt:string}[];
  assessment:{completed:number;understood:number;mastered:number;independentRecall:number;recallWithHint:number};
  activeChapter?:{chapterId:string;title:string;subject:string;bookTitle:string;status:string;completedSessions:number;totalSessions:number;nextSessionKind:'read'|'practice'|'review'|null}|null;
  continueSession?:{taskId:string;chapterId:string;chapterTitle:string;bookTitle:string;kind:'read'|'practice'|'review';label:string}|null;
@@ -64,7 +64,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
-  const load=()=>fetch('/api/auto-learning',{cache:'no-store'})
+  const load=()=>fetch('/api/auto-learning?agenda=1',{cache:'no-store'})
    .then(r=>{if(!r.ok)throw new Error('Unable to load plan');return r.json()})
    .then((json:{learners?:LearnerCard[];familyPlan?:HomeData['familyPlan']})=>{
     if(alive)setData({learners:json.learners??[],familyPlan:json.familyPlan??{slots:[],separate:[],budget:60,allocated:0,notes:[]}});
@@ -72,20 +72,15 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    .catch(()=>{if(alive)setError('We could not load today’s plan. Try refreshing.');});
   void load();
   window.addEventListener('daily-plan-updated',load);
-  return()=>{alive=false;window.removeEventListener('daily-plan-updated',load);};
+  const restore=(event:PageTransitionEvent)=>{if(event.persisted)void load();};
+  window.addEventListener('pageshow',restore);
+  return()=>{alive=false;window.removeEventListener('daily-plan-updated',load);window.removeEventListener('pageshow',restore);};
  },[]);
 
  const now=new Date();
  const derived=useMemo(()=>{
   if(!data)return null;
-  const todayKey=istDateKey(new Date());
   const learners=data.learners;
-  const todayDone=new Set<string>();
-  for(const learner of learners){
-   for(const h of learner.history??[]){
-    if(istDateKey(new Date(h.updatedAt))===todayKey)todayDone.add(`${learner.id}:${h.id}`);
-   }
-  }
   const outstanding=learners.reduce((sum,l)=>sum+(l.tasks?.length??0),0);
   const planned=data.familyPlan.slots.length;
   const attention:Attention[]=[];
@@ -97,8 +92,6 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   }
   if(planned===0&&outstanding>0)attention.push({id:'plan',tone:'plan',text:'Today’s family plan has not been prepared yet — one tap prepares it',href:'#today-plan'});
   return{
-   todayDone:todayDone.size,
-   progress:Math.min(100,Math.round((todayDone.size/Math.max(1,todayDone.size+outstanding))*100)),
    attention:attention.slice(0,4),
    streaks:Object.fromEntries(learners.map(l=>[l.id,streakDays(l.history??[])])) as Record<string,number>,
    nextActivity:Object.fromEntries(learners.map(l=>[l.id,l.tasks?.[0]??null])) as Record<string,Task|null>,
@@ -133,10 +126,12 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     }
    }
   }
-  return rows;
+  const completed=new Set(data.learners.flatMap(learner=>(learner.completedToday??[]).map(id=>`${learner.id}:${id}`)));
+  return rows.map(row=>({...row,done:completed.has(row.key)}));
  },[data]);
 
- const heroPercent=derived?.progress??0;
+ const todayDone=timeline.filter(row=>row.done).length;
+ const heroPercent=timeline.length?Math.round(todayDone/timeline.length*100):0;
  return <section aria-labelledby="family-home-title" className="family-home">
   <div className="family-agenda card">
    <header className="family-agenda-header">
@@ -144,9 +139,9 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
      <p className="eyebrow">{greeting(now)}, {formatFamilyGreetingName(familyName)} — {DAY_NAMES[now.getDay()]}, {now.getDate()} {MONTH_NAMES[now.getMonth()]}</p>
      <h1 id="family-home-title">Today’s rhythm</h1>
     </div>
-    <div className="family-hero-progress" role="img" aria-label={`Today’s progress: ${derived?.todayDone??0} activities finished, ${heroPercent}% through the queue`}>
+    <div className="family-hero-progress" role="img" aria-label={`Today’s progress: ${todayDone} activities finished, ${heroPercent}% of today’s activities`}>
      <div className="progress-track"><div className="progress-fill" style={{width:`${heroPercent}%`}}/></div>
-     <span>{derived?.todayDone??0} done today · {heroPercent}%</span>
+     <span>{todayDone} done today · {heroPercent}%</span>
     </div>
     <div className="hero-actions">
      <a className="hero-action-primary start-today" href="#today-plan">Start today’s learning <span aria-hidden="true">→</span></a>
@@ -170,6 +165,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       </p>
       <span className="family-agenda-learner">{row.learner}</span>
       <span className="family-agenda-phase">{row.phase}</span>
+      <span className={`family-agenda-status${row.done?' is-done':''}`}>{row.done?'✓ Done':'Pending'}</span>
      </li>)}
     </ol>:<p className="muted family-agenda-message">{data?'Nothing scheduled yet.':'Loading today’s activities.'}</p>}
   </div>

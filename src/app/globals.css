@@ -1225,7 +1225,7 @@ button:active:not(:disabled){transform:translateY(1px)}
 .family-agenda-list{display:grid;gap:6px;list-style:none;margin:0;padding:0}
 .family-agenda-row{
  display:grid;
- grid-template-columns:minmax(0,2.6fr) minmax(0,.85fr) minmax(0,1fr);
+ grid-template-columns:minmax(0,2.6fr) minmax(0,.85fr) minmax(0,1fr) auto;
  align-items:center;
  gap:6px 14px;
  padding:10px 14px;
@@ -1239,6 +1239,8 @@ button:active:not(:disabled){transform:translateY(1px)}
 .family-agenda-learner,.family-agenda-phase{font-size:13px;color:var(--muted)}
 .family-agenda-learner{font-weight:750}
 .family-agenda-phase{border-inline-start:1px solid #DDE7DC;padding-inline-start:14px}
+.family-agenda-status{justify-self:end;padding:3px 9px;border-radius:999px;background:#edf0ec;color:#4e5f56;font-size:12px;font-weight:800;white-space:nowrap}
+.family-agenda-status.is-done{background:#dff0e4;color:#215c41}
 .family-agenda-message{margin:0}
 @media(max-width:1040px){
  .family-agenda-header{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto}
@@ -1254,8 +1256,9 @@ button:active:not(:disabled){transform:translateY(1px)}
  .family-agenda-header .family-hero-progress,.family-agenda-header .hero-actions{grid-column:1 / -1}
  .family-agenda-header .hero-actions{justify-self:stretch}
  .family-agenda .hero-actions a{width:auto;flex:1 1 auto}
- .family-agenda-row{grid-template-columns:repeat(2,minmax(0,1fr));padding:10px 12px}
- .family-agenda-row .timeline-title{grid-column:1 / -1}
+ .family-agenda-row{grid-template-columns:repeat(2,minmax(0,1fr)) auto;padding:10px 12px}
+ .family-agenda-row .timeline-title{grid-column:1 / 3}
+ .family-agenda-status{grid-area:1 / 3}
  .family-agenda-learner{padding-inline-start:26px}
  .family-agenda-phase{border:0;padding:0}
 }
