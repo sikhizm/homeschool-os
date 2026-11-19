@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import WeeklyChapterActivities from './weekly-chapter-activities';
-import { ChapterPlanner } from './chapter-planner';
-import type { ChapterTask } from '@/lib/planning/chapters';
+
+import { ChapterPlanner, type ChapterRecord } from './chapter-planner';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
 
 type Learner = { id: string; name: string; stage: string };
@@ -18,7 +17,6 @@ type Period = {
   notes: string;
   competency_ids: string[];
   chapter_ids: string[];
-  finished_chapters: string[];
   olympiad_topics: Record<string,string>;
 };
 type Day = { date: string; activities: number; minutes: number; completed_minutes: number };
@@ -27,8 +25,8 @@ type PlanningData = {
   week: string[];
   periods: Period[];
   days: Day[];
-  tasks: ChapterTask[];
   passedChapterIds?: string[];
+  chapterRecords?: ChapterRecord[];
 };
 type Props = { learners: Learner[]; canEdit: boolean; initialDate: string };
 
@@ -39,6 +37,7 @@ const display = (date: string) =>
 
 export default function PlanningWorkspace({ learners, canEdit, initialDate }: Props) {
   const [learnerId, setLearnerId] = useState(learners[0]?.id ?? '');
+  const [plannerTab, setPlannerTab] = useState<'week' | 'year'>('week');
   const [date, setDate] = useState(initialDate);
   const [data, setData] = useState<PlanningData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -63,10 +62,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
       const response = await fetch(endpoint + '?' + params.toString(), { cache: 'no-store', signal });
       const json = await response.json();
       if (!response.ok) throw new Error(json.error || 'Unable to open planning records.');
-      const taskResponse = await fetch('/api/planning/chapters?' + params, {cache:'no-store', signal});
-      const result = await taskResponse.json();
-      if (!taskResponse.ok) throw new Error(result.error);
-      return {...json, tasks:result.tasks} as PlanningData;
+      return json as PlanningData;
     },
     [learnerId, date],
   );
@@ -273,10 +269,11 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate }: Pr
 
       {data && !loading && (
         <>
-          <WeeklyChapterActivities key={learnerId + ':' + date} learnerId={learnerId} date={date}
-            weekIds={weekPlan?.chapter_ids ?? []} today={initialDate} />
           <ChapterPlanner key={learnerId+date} learnerId={learnerId} stage={selected?.stage??''} date={date}
-            weekIds={weekPlan?.chapter_ids??[]} finishedChapters={yearPlan?.finished_chapters??[]} passedChapterIds={data.passedChapterIds ?? []} olympiad={yearPlan?.olympiad_topics??{}} ids={yearPlan?.chapter_ids??[]} tasks={data.tasks} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
+            today={initialDate} tab={plannerTab} onTabChange={setPlannerTab}
+            weekIds={weekPlan?.chapter_ids??[]} chapterRecords={data.chapterRecords??[]}
+            passedChapterIds={data.passedChapterIds??[]} olympiad={yearPlan?.olympiad_topics??{}}
+            ids={yearPlan?.chapter_ids??[]} canEdit={canEdit} refresh={()=>setRefreshVersion(v=>v+1)} />
           <section className="workspace-panel">
             <div className="panel-heading">
               <div>
