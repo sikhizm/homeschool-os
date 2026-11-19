@@ -102,8 +102,8 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
                     <Link className="btn-secondary" href={testHref}>Test Attempted</Link>
                     <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
                       onClick={() => void save(chapter.id, 'practice')}>Need More Practice</button>
-                  </div>
                   <button type="button" className="btn-secondary" disabled={busy} onClick={() => setOpen('')}>Close</button>
+                  </div>
                 </div>}
               </li>;
           })}
