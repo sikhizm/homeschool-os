@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 const labels = {
-  understood: 'Yes, understood',
-  practice: 'Needs more practice',
-  done: 'Done, not assessed',
+  understood: 'Understanding recorded',
+  practice: 'Need More Practice',
+  done: 'Chapter Read',
 };
 type Outcome = keyof typeof labels;
-type Chapter = { id: string; title: string; subject: string; outcome: Outcome | null; assessed: boolean };
-type WeeklyPlan = { chapters: Chapter[]; canRecord: boolean };
+type Chapter = { id: string; title: string; subject: string; outcome: Outcome | null; assessed: boolean; addedToday: boolean };
+type WeeklyPlan = { chapters: Chapter[]; canRecord: boolean; canAdd: boolean };
 
 export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId: string; canEdit: boolean }) {
   const [plan, setPlan] = useState<WeeklyPlan | null>(null);
@@ -30,25 +30,26 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     return () => controller.abort();
   }, [learnerId]);
 
-  async function record(chapterId: string, outcome: Outcome) {
+  async function save(chapterId: string, outcome?: Outcome) {
     setBusy(true);
     setMessage('');
     try {
       const response = await fetch('/api/weekly-lessons', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ learnerId, chapterId, outcome }),
+        body: JSON.stringify(outcome ? { learnerId, chapterId, outcome } : { learnerId, chapterId, action: 'add-today' }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
       setPlan((previous) => previous && {
         ...previous,
-        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, outcome } : chapter),
+        chapters: previous.chapters.map((chapter) => chapter.id === chapterId ? { ...chapter, ...(outcome ? { outcome } : { addedToday: true }) } : chapter),
       });
-      setOpen('');
-      setMessage('Outcome recorded.');
+      if (outcome) setOpen('');
+      else window.dispatchEvent(new Event('daily-plan-updated'));
+      setMessage(outcome ? 'Outcome recorded.' : 'Chapter added to today’s plan.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to record the outcome.');
+      setMessage(error instanceof Error ? error.message : 'Unable to save the chapter update.');
     } finally {
       setBusy(false);
     }
@@ -59,7 +60,8 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
     {!plan && !message && <p>Loading weekly chapters…</p>}
     {message && <p role="status">{message}</p>}
     {plan && !plan.chapters.length && <p>No chapters selected for this week. <Link href="/planning">Open Learning Plan</Link></p>}
-    {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Apply the weekly chapter outcomes migration to record understanding.</p> : null}
+    {plan?.chapters.length && canEdit && !plan.canRecord ? <p>Apply the weekly chapter outcomes migration to record Chapter Read or Need More Practice.</p> : null}
+    {plan?.chapters.length && canEdit && !plan.canAdd ? <p>Apply the daily plans migration to add chapters to today’s plan.</p> : null}
     <div className="coach-task-list">
       {plan?.chapters.map((chapter) => {
         const href = '/ncert-books/chapter/' + encodeURIComponent(chapter.id);
@@ -67,21 +69,28 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
         return <article key={chapter.id} className="coach-task">
           <div className="coach-task-main">
             <div className="coach-task-tags"><span>{chapter.subject}</span>
-              {chapter.outcome && (!chapter.assessed || chapter.outcome !== 'done') && <span>{labels[chapter.outcome]}</span>}
-              {chapter.assessed && <span>Assessed</span>}
+              {chapter.outcome && <span>{labels[chapter.outcome]}</span>}
+              {chapter.assessed && <span>Test Attempted</span>}
             </div>
-            <h4>{chapter.title}</h4>
+            <div className="weekly-chapter-heading">
+              <h4><Link href={href}>{chapter.title}</Link></h4>
+              {canEdit && <button type="button" className="btn-secondary weekly-chapter-add"
+                aria-label={chapter.addedToday ? `${chapter.title} is in today’s plan` : `Add ${chapter.title} to today’s plan`}
+                disabled={busy || chapter.addedToday || !plan?.canAdd} onClick={() => void save(chapter.id)}>
+                <span aria-hidden="true">{chapter.addedToday ? '✓' : '+'}</span>
+              </button>}
+            </div>
             <div className="coach-actions">
-              <Link className="btn-secondary" href={href}>Open chapter</Link>
               {canEdit && <button type="button" className="coach-revise" aria-expanded={open === chapter.id}
                 disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check understanding &amp; record</button>}
             </div>
             {open === chapter.id && <div className="lesson-check">
               <div className="coach-actions">
-                {(Object.keys(labels) as Outcome[]).map((outcome) =>
-                  <button type="button" key={outcome} className="btn-secondary" disabled={busy || !plan?.canRecord}
-                    onClick={() => void record(chapter.id, outcome)}>{labels[outcome]}</button>)}
-                <Link className="btn-secondary" href={testHref}>Assessed</Link>
+                <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
+                  onClick={() => void save(chapter.id, 'done')}>Chapter Read</button>
+                <Link className="btn-secondary" href={testHref}>Test Attempted</Link>
+                <button type="button" className="btn-secondary" disabled={busy || !plan?.canRecord}
+                  onClick={() => void save(chapter.id, 'practice')}>Need More Practice</button>
               </div>
               <button type="button" className="btn-secondary" disabled={busy} onClick={() => setOpen('')}>Close</button>
             </div>}

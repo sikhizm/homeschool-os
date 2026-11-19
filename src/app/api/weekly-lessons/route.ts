@@ -18,7 +18,7 @@ async function weeklyScope(learnerId: unknown) {
   const week = mondayOf(today);
   const year = periodDates('year', today).startDate;
   const [scope] = await sql`
-    SELECT m.role, ARRAY(
+    SELECT m.role, l.family_id, l.display_name, l.stage, ARRAY(
       SELECT chapter_id FROM unnest(w.chapter_ids) AS chapter_id
       WHERE chapter_id = ANY(y.chapter_ids)
     ) AS chapter_ids
@@ -29,7 +29,7 @@ async function weeklyScope(learnerId: unknown) {
       AND l.family_id = (SELECT family_id FROM family_members WHERE auth_user_id = ${data.user.id} ORDER BY created_at, family_id LIMIT 1)
   `;
   if (!scope) return json({ error: 'Learner unavailable.' }, 404);
-  return { sql, learnerId, userId: data.user.id, week, year, role: scope.role, ids: scope.chapter_ids as string[] };
+  return { sql, learnerId, userId: data.user.id, today, week, year, role: scope.role, familyId: String(scope.family_id), name: String(scope.display_name), grade: String(scope.stage ?? ''), ids: scope.chapter_ids as string[] };
 }
 
 export async function GET(request: Request) {
@@ -39,20 +39,25 @@ export async function GET(request: Request) {
     const { sql, learnerId, ids, week } = scope;
     const [availability] = await sql`SELECT
       to_regclass('public.ncert_weekly_chapter_outcomes') IS NOT NULL AS outcomes,
-      to_regclass('public.ncert_test_attempts') IS NOT NULL AND to_regclass('public.ncert_test_assessments') IS NOT NULL AS tests`;
-    const [saved, tested] = await Promise.all([
+      to_regclass('public.ncert_test_attempts') IS NOT NULL AND to_regclass('public.ncert_test_assessments') IS NOT NULL AS tests,
+      to_regclass('public.family_daily_plans') IS NOT NULL AS daily`;
+    const [saved, tested, daily] = await Promise.all([
       availability.outcomes ? sql`SELECT chapter_id, outcome FROM ncert_weekly_chapter_outcomes
         WHERE learner_id::text = ${learnerId} AND week_start = ${week}::date` : [],
       availability.tests ? sql`SELECT DISTINCT a.chapter_id FROM ncert_test_assessments a
         JOIN ncert_test_attempts t ON t.assessment_id = a.id WHERE a.learner_id::text = ${learnerId}` : [],
+      availability.daily ? sql`SELECT slots FROM family_daily_plans WHERE family_id::text = ${scope.familyId} AND learning_date = ${scope.today}::date` : [],
     ]);
-    return json({ canRecord: availability.outcomes === true, chapters: ids.flatMap((id) => {
+    const slots = Array.isArray(daily[0]?.slots) ? daily[0].slots : [];
+    return json({ canRecord: availability.outcomes === true, canAdd: availability.daily === true, chapters: ids.flatMap((id) => {
       const chapter = chapters.get(id);
       const book = chapter && textbookById(chapter.bookId);
       if (!chapter || !book) return [];
       return [{ id, title: chapter.verifiedTitle ?? chapter.label, subject: book.subject,
         outcome: saved.find((row) => row.chapter_id === id)?.outcome ?? null,
-        assessed: tested.some((row) => row.chapter_id === id) }];
+        assessed: tested.some((row) => row.chapter_id === id),
+        addedToday: slots.some((slot: { learnerId: string; task?: { id: string } }) =>
+          slot.learnerId === learnerId && slot.task?.id === `weekly-chapter:${id}`) }];
     }) });
   } catch {
     return json({ error: 'Unable to load this week’s chapters.' }, 503);
@@ -64,7 +69,8 @@ export async function POST(request: Request) {
     return json({ error: 'Same-origin request required.' }, 403);
   try {
     const input = await request.json().catch(() => null);
-    if (typeof input?.chapterId !== 'string' || typeof input?.outcome !== 'string' || !outcomes.includes(input.outcome))
+    const addToday = input?.action === 'add-today';
+    if (typeof input?.chapterId !== 'string' || (!addToday && !outcomes.includes(input.outcome)))
       return json({ error: 'Choose a chapter and an outcome.' }, 400);
     const scope = await weeklyScope(input.learnerId);
     if (scope instanceof Response) return scope;
@@ -72,6 +78,31 @@ export async function POST(request: Request) {
     if (!scope.ids.includes(input.chapterId) || !chapters.has(input.chapterId))
       return json({ error: 'This chapter is no longer in the weekly plan.' }, 409);
     const { sql, learnerId, userId, week, year } = scope;
+    if (addToday) {
+      const chapter = chapters.get(input.chapterId)!;
+      const book = textbookById(chapter.bookId);
+      if (!book) return json({ error: 'Chapter unavailable.' }, 409);
+      const task = {
+        id: `weekly-chapter:${chapter.id}`, title: chapter.verifiedTitle ?? chapter.label,
+        subject: book.subject, minutes: 15, href: `/ncert-books/chapter/${encodeURIComponent(chapter.id)}`,
+        mode: 'independent', source: 'Weekly chapters', instructions: [],
+      };
+      const slot = { learnerId, name: scope.name, grade: scope.grade, task, minutes: task.minutes, startMinute: 0, mode: task.mode };
+      const saved = await sql`
+        INSERT INTO family_daily_plans (family_id, learning_date, budget_minutes, slots)
+        SELECT l.family_id, ${scope.today}::date, 60, ${JSON.stringify([slot])}::jsonb
+        FROM learners l JOIN family_members m ON m.family_id = l.family_id
+        JOIN learning_planning_periods w ON w.learner_id = l.id AND w.kind = 'week' AND w.start_date = ${week}::date
+        JOIN learning_planning_periods y ON y.learner_id = l.id AND y.kind = 'year' AND y.start_date = ${year}::date
+        WHERE l.id::text = ${learnerId} AND l.archived_at IS NULL AND m.auth_user_id = ${userId} AND m.role = 'owner'
+          AND l.family_id::text = ${scope.familyId} AND ${chapter.id} = ANY(w.chapter_ids) AND ${chapter.id} = ANY(y.chapter_ids)
+        ON CONFLICT (family_id, learning_date) DO UPDATE SET slots =
+          CASE WHEN family_daily_plans.slots @> ${JSON.stringify([{ learnerId, task: { id: task.id } }])}::jsonb
+               THEN family_daily_plans.slots ELSE family_daily_plans.slots || EXCLUDED.slots END
+        RETURNING family_id
+      `;
+      return saved.length ? json({ saved: true }) : json({ error: 'The weekly chapter is no longer available.' }, 409);
+    }
     const rows = await sql`
       INSERT INTO ncert_weekly_chapter_outcomes (learner_id, week_start, chapter_id, outcome)
       SELECT l.id, ${week}::date, ${input.chapterId}, ${input.outcome}
@@ -86,6 +117,6 @@ export async function POST(request: Request) {
     `;
     return rows.length ? json({ saved: true }) : json({ error: 'The weekly chapter is no longer available.' }, 409);
   } catch {
-    return json({ error: 'Unable to record the outcome.' }, 503);
+    return json({ error: 'Unable to save the chapter update.' }, 503);
   }
 }

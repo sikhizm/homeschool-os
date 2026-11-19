@@ -193,7 +193,7 @@ function TodaysLearning({learner}:{learner:ApiLearner}){
      <div className="idea-row">
       <strong>{index+1}. {task.title}</strong>
       {completed?<span className="status-chip is-done">Completed</span>
-       :<Link className="idea-start" href={lessonHref(learner.id,task.id)}>Start <span aria-hidden="true">→</span></Link>}
+       :<Link className="idea-start" href={task.id.startsWith('weekly-chapter:') && task.href ? task.href : lessonHref(learner.id,task.id)}>Start <span aria-hidden="true">→</span></Link>}
      </div>
      <span>{task.subject} · {task.minutes} min</span>
     </li>;

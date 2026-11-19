@@ -2943,3 +2943,9 @@ button:active:not(:disabled){transform:translateY(1px)}
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+
+.family-hero-timeline{flex:0 0 100%;min-width:0}
+.weekly-chapter-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.weekly-chapter-heading h4{overflow-wrap:anywhere}
+.weekly-chapter-heading h4 a{text-decoration:underline;text-underline-offset:.18em}
+.weekly-chapter-heading .weekly-chapter-add{flex:0 0 44px;min-height:44px;padding:0;font-size:1.25rem}
