@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import MyBooks from '@/components/my-books';
 import {useEffect,useMemo,useState} from 'react';
 import {subjectTint} from '@/lib/subject-tint';
 import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
@@ -216,6 +217,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       <Link href={chapterActivityHref(item.chapterId,item.learnerId,'test')}>{item.title}</Link> · {item.learnerName} · {item.done?'Done':'Scheduled'}
      </li>)}</ul>
     </div>}
+    <MyBooks daily />
     {weekendSuggestions.length>0&&<div className="family-agenda-message">
      <strong>Optional weekend review</strong>
      <ul>{weekendSuggestions.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>
