@@ -60,20 +60,30 @@ export default function MyBooks({daily = false}: {daily?: boolean}) {
     if (!data || (!data.entries.length && !data.olympiad?.length)) return null;
     return <section className="family-agenda-message" aria-labelledby="extra-activities">
       <h3 id="extra-activities">Extra activities</h3>
-      <ul className="family-agenda-list">{data.entries.map(entry => <li className="family-agenda-row" key={entry.id}>
-        <Link href="/ncert-books/my-books">{entry.title} · {entry.first_page === entry.last_page
-          ? `Page ${entry.first_page}` : `Pages ${entry.first_page}–${entry.last_page}`}</Link>
-        <span>{entry.learner_name}</span>
-        <span className="pill">{entry.completed ? 'Done' : 'Pending'}</span>
-        {!entry.completed && data.canEdit && <button type="button" className="btn-secondary" disabled={busy}
-          onClick={() => void save({action: 'complete', entryId: entry.id})}>Mark done</button>}
-      </li>)}
-      {data.olympiad?.map(entry => <li className="family-agenda-row" key={entry.id}>
-        <Link href="/planning#olympiad-plan">{entry.topic} · Olympiad</Link>
-        <span>{entry.learner_name} · {entry.period === 'week' ? 'This week' : 'Today'}</span>
-        <span className="pill">{entry.completed ? 'Done' : 'Pending'}</span>
-        {!entry.completed && data.canEdit && <button type="button" className="btn-secondary" disabled={busy}
-          onClick={() => void save({action: 'complete-olympiad', entryId: entry.id})}>Mark done</button>}
+      <ul className="family-agenda-list">{[
+        ...data.entries.map(entry => ({
+          ...entry,
+          label: entry.title,
+          phase: entry.first_page === entry.last_page ? `Book · Page ${entry.first_page}` : `Book · Pages ${entry.first_page}–${entry.last_page}`,
+          href: '/ncert-books/my-books', tone: 'math', action: 'complete',
+        })),
+        ...(data.olympiad ?? []).map(entry => ({
+          ...entry, label: entry.topic, phase: entry.period === 'week' ? 'Olympiad · This week' : 'Olympiad · Today',
+          href: '/planning#olympiad-plan', tone: 'saffron', action: 'complete-olympiad',
+        })),
+      ].map(entry => <li className="family-agenda-row" key={`${entry.action}:${entry.id}`}>
+        <p className="timeline-title">
+          <span className={`timeline-dot tone-${entry.tone}`} aria-hidden="true" />
+          <Link href={entry.href}>{entry.label}</Link>
+        </p>
+        <span className="family-agenda-learner">{entry.learner_name}</span>
+        <span className="family-agenda-phase">{entry.phase}</span>
+        <div className="family-agenda-extra-state">
+          <span className={`family-agenda-status${entry.completed ? ' is-done' : ''}`}>{entry.completed ? '✓ Done' : 'Pending'}</span>
+          {!entry.completed && data.canEdit && <button type="button" className="family-agenda-extra-done" disabled={busy}
+            aria-label={`Mark ${entry.label} done for ${entry.learner_name}`}
+            onClick={() => void save({action: entry.action, entryId: entry.id})}>Mark done</button>}
+        </div>
       </li>)}</ul>
       {notice && <p role="status">{notice}</p>}
     </section>;
