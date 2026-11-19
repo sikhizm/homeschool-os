@@ -304,24 +304,11 @@ test('adaptive recall UI records independent, hinted and not-yet outcomes on des
   const fixtureData = {
     learners: [{
       id: learnerId, name: 'Fixture learner', grade: 'Class 4', canEdit: true,
-      completed: 1, total: 72, tasks: [], upcoming: [], history: [], subjects: [],
+      completed: 1, total: 72, tasks: [{ id: taskId, title: 'First recall · Compare quantities', check: 'Explain the idea without looking.' }], upcoming: [], history: [], subjects: [],
       earnedBadges: [], annual: null,
       assessment: { completed: 1, understood: 1, mastered: 0, independentRecall: 0, recallWithHint: 0 },
       understood: ['annual:class4:w01:core'], mastered: []
     }],
-    familyPlan: {
-      budget: 60, allocated: 10, unallocated: 50, notes: [],
-      slots: [{
-        learnerId, name: 'Fixture learner', grade: 'Class 4', minutes: 10, startMinute: 0, mode: 'guided',
-        task: {
-          id: taskId, title: 'First recall · Compare quantities', subject: 'Mathematics',
-          minutes: 10, source: 'Adaptive recall · 3 days after the learner understood',
-          href: '/learning-pathways', instructions: ['Ask for a fresh example.'],
-          check: 'Explain the idea without looking.', status: 'pending'
-        }
-      }],
-      separate: []
-    },
     notice: 'Ready for a little learning.'
   };
   const bundle = await build({
@@ -377,10 +364,11 @@ test('adaptive recall UI records independent, hinted and not-yet outcomes on des
           }
           return new Response(JSON.stringify(data), { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
-        return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+        return new Response(JSON.stringify({ chapters: [], canRecord: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
       };
     }, fixtureData);
     await page.goto(`http://127.0.0.1:${address.port}`);
+    await page.getByRole('button', { name: 'Achievements' }).click();
     for (const [label, quality, status] of [
       ['Remembered independently', 'independent', 'completed'],
       ['Remembered with a hint', 'with_hint', 'completed'],

@@ -50,9 +50,6 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
           <p className="muted">
             Choose NCERT chapters for the year, schedule daily tasks and follow each learner’s progress.
           </p>
-          <div className="welcome-pills">
-            <span className="daily-badge">✧ One shared hour of guided time</span>
-          </div>
         </div>
         <SectionArtwork theme="plan" />
       </div>
@@ -66,7 +63,6 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         canEdit={family.role === 'owner'}
         initialDate={initialDate}
       />
-      {!params.resource && <FamilyWorkflow resourceKey="" intent={params.intent}/>}
       <PrepareNextDay canEdit={family.role === 'owner'} />
     </main>
   );

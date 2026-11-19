@@ -38,13 +38,6 @@ const SECTIONS = [
     tint: 'var(--math)',
   },
   {
-    title: 'Annual pathways',
-    description: 'Thirty-six prepared teaching weeks per stage, sequenced with prerequisites and full teaching scripts.',
-    href: '/learning-pathways',
-    glyph: '🧭',
-    tint: '#FBF0D9',
-  },
-  {
     title: 'Global curriculum',
     description: 'International learning objectives used as pedagogical inspiration, clearly separated from accreditation.',
     href: '/global-curriculum',

@@ -28,12 +28,6 @@ function istDateKey(date:Date):string{
  const ist=new Date(date.getTime()+330*60*1000);
  return ist.toISOString().slice(0,10);
 }
-function clock(minute:number):string{
- const h=Math.floor(minute/60),m=minute%60;
- const suffix=h>=12?'pm':'am';
- const hour=h%12===0?12:h%12;
- return `${hour}:${String(m).padStart(2,'0')} ${suffix}`;
-}
 function greeting(date:Date):string{
  const h=date.getHours();
  return h<12?'Good morning':h<17?'Good afternoon':'Good evening';
@@ -111,18 +105,18 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
 
  const timeline=useMemo(()=>{
   if(!data)return [];
-  const rows:{key:string;range:string;phase:string;tone:string;title:string;learner:string;href:string|null}[]=[];
+  const rows:{key:string;phase:string;tone:string;title:string;learner:string;href:string|null}[]=[];
   for(const slot of data.familyPlan.slots){
    const phase=slot.mode==='play'?'Shared family warm-up':'Parent-guided learning';
    rows.push({
-    key:slot.task.id,range:`${clock(slot.startMinute)} – ${clock(slot.startMinute+slot.minutes)}`,
+    key:slot.task.id,
     phase,tone:slot.mode==='play'?'saffron':'mint',title:slot.task.title,learner:slot.name,
     href:slot.task.href,
    });
   }
   for(const entry of data.familyPlan.separate){
    rows.push({
-    key:entry.task.id,range:'Any time',phase:entry.task.mode==='independent'?'Independent learning':'Family play',
+    key:entry.task.id,phase:entry.task.mode==='independent'?'Independent learning':'Family play',
     tone:entry.task.mode==='independent'?'math':'creativity',title:entry.task.title,learner:entry.name,
     href:entry.task.href,
    });
@@ -132,7 +126,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    for(const task of learner.tasks??[]){
     if((task.status==='needs_revision'||task.id.startsWith('review:'))&&!seen.has(task.id)){
      seen.add(task.id);
-     rows.push({key:task.id,range:'Later today',phase:'Revision',tone:'language',title:task.title,learner:learner.name,href:task.href});
+     rows.push({key:task.id,phase:'Revision',tone:'language',title:task.title,learner:learner.name,href:task.href});
     }
    }
   }
@@ -239,7 +233,7 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     {timeline.map(row=><li className="timeline-item" key={`${row.key}-${row.phase}`}>
      <span className={`timeline-dot tone-${row.tone}`} aria-hidden="true"/>
      <div className="timeline-body">
-      <p className="timeline-meta"><span>{row.range}</span> · <span>{row.phase}</span> · <strong>{row.learner}</strong></p>
+      <p className="timeline-meta"><span>{row.phase}</span> · <strong>{row.learner}</strong></p>
       <p className="timeline-title">{row.href?<a href={row.href}>{row.title}</a>:row.title}</p>
      </div>
     </li>)}

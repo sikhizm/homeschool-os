@@ -2,7 +2,6 @@ import { sidebarDestinations } from '../navigation';
 import { chaptersFor, contentUnitLabelFor, isDefaultChapterSessionEligible, ncertChapterSlots, ncertTextbooks } from '../ncert/textbooks';
 import { enrichmentActivities, enrichmentStages, enrichmentTopics, resourceVerificationLabels, supplementaryResources } from '../curriculum/enrichment';
 import { competencies, curriculumStages } from '../curriculum/library';
-import { annualGrades, annualSteps } from '../curriculum/annual';
 import { globalFrameworks, globalSkills, globalStages } from '../global-curriculum/catalogue';
 import { frameworkEvidenceFor } from '../global-curriculum/framework-evidence';
 import { lessons, lessonStages } from '../lessons/library';
@@ -39,7 +38,6 @@ const features: Document[] = [
     ['/curriculum-studio', 'Curriculum Studio', 'Browse integrated plans and curriculum coverage.', 'coverage inventory'],
     ['/global-curriculum', 'Global Curriculum', 'Explore teaching approaches and source evidence.', 'international frameworks'],
     ['/ncert-books', 'NCERT Books', 'Browse official textbook records and verified Contents entries.', 'textbook chapter publisher directory'],
-    ['/learning-pathways', 'Annual Learning Pathways', 'Open stage-specific plans and ready-to-teach weekly themes.', 'annual year yearly plan 36 weeks'],
     ['/curriculum', 'Competency Pathways', 'Find learning outcomes, prerequisites and goal ideas.', 'skills objectives milestones'],
     ['/lessons', 'Activities and Printables', 'Teach an activity or print an A4 worksheet.', 'lesson library printable worksheet'],
     ['/library/olympiad', 'Olympiad Resources', 'Official sample papers and practice collections for Classes 1–10.', 'olympiad pdf maths science english reasoning sof crest silverzone'],
@@ -122,16 +120,6 @@ const documents: Document[] = [
     terms: [skill.activity, ...skill.prerequisites.map(id => competencies.find(item => item.id === id)?.title)].join(' '),
     href: link('/curriculum', { stage: skill.stage, subject: skill.subject }, skill.id),
   })),
-  ...annualGrades.flatMap((grade): Document[] => [
-    { id: 'pathway:' + grade.key, category: 'pathways', title: grade.label, description: grade.description, metadata: grade.grade,
-      terms: 'annual year 36 weeks learning pathway', href: link('/learning-pathways', { grade: grade.key }) },
-    ...annualSteps(grade.key).filter(step => step.kind === 'core').map((step): Document => ({
-      id: 'week:' + step.id, category: 'pathways', title: step.title,
-      description: step.lesson.objective, metadata: `${step.grade} · Week ${step.week} · ${step.subject}`,
-      terms: step.strand + ' ' + step.lesson.exercise,
-      href: step.href + '#week-' + step.week,
-    })),
-  ]),
 ];
 
 function normalize(value: string) {
@@ -171,7 +159,6 @@ export function indexCounts() {
     activities: indexed.filter(({doc}) => doc.category === 'activities').length,
     resources: supplementaryResources.length,
     curriculum: indexed.filter(({doc}) => doc.category === 'curriculum').length,
-    pathways: indexed.filter(({doc}) => doc.category === 'pathways').length,
   };
 }
 
