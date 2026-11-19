@@ -7,7 +7,7 @@ import { academicYear, daysInWeek, parsePlanningInput, PlanInputError, validPlan
 export const runtime='nodejs';
 export const dynamic='force-dynamic';
 const respond=(payload:unknown,status=200)=>NextResponse.json(payload,{status,headers:{'Cache-Control':'private, no-store'}});
-const validLearner=(id:unknown)=>typeof id==='string' && /^[0-9a-f-]{1,70}$/i.test(id);
+const validLearner=(id:unknown): id is string=>typeof id==='string' && /^[0-9a-f-]{1,70}$/i.test(id);
 async function sessionUser(){
  const {data:session}=await auth.getSession();
  return session?.user?.id;
