@@ -1,6 +1,7 @@
 import {auth} from '@/lib/auth/server';
 import {getSql} from '@/lib/db';
 import {classTopics, promptClassForStage} from '@/lib/olympiad/prompt-classes';
+import {addDays, mondayOf, validPlanningDate} from '@/lib/planning/periods';
 import {bookKinds} from '@/lib/my-books';
 
 const today = () => new Intl.DateTimeFormat('en-CA', {timeZone: 'Asia/Kolkata'}).format(new Date());
@@ -20,7 +21,22 @@ export async function GET(request: Request) {
     if (!member) return json({error: 'Family sign-in required.'}, 401);
     const {sql, familyId, canEdit} = member;
     const day = today();
-    const daily = new URL(request.url).searchParams.get('today') === '1';
+    const params = new URL(request.url).searchParams;
+    const daily = params.get('today') === '1';
+    const olympiadLearner = params.get('olympiadLearner');
+    if (olympiadLearner) {
+      const date = params.get('date');
+      if (!validPlanningDate(date)) return json({error: 'Choose a valid planning date.'}, 400);
+      const week = mondayOf(date);
+      const activities = await sql`SELECT a.id, a.topic, a.practice_date::text, a.period,
+          a.completed_at IS NOT NULL AS completed
+        FROM olympiad_rhythm_activities a JOIN learners l ON l.id = a.learner_id
+        WHERE l.family_id::text = ${familyId} AND l.archived_at IS NULL AND l.id::text = ${olympiadLearner}
+          AND (a.period = 'week' AND a.practice_date = ${week}::date OR
+            a.period = 'day' AND a.practice_date BETWEEN ${week}::date AND ${addDays(week,6)}::date)
+        ORDER BY a.practice_date, a.topic`;
+      return json({activities});
+    }
     const [entries, books, learners, assignments, olympiad] = await Promise.all([
       sql`SELECT p.id, p.book_id, p.learner_id, p.learning_date::text, p.first_page, p.last_page, p.completed,
         b.title, b.kind, l.display_name AS learner_name
@@ -37,10 +53,15 @@ export async function GET(request: Request) {
       daily ? [] : sql`SELECT a.book_id, a.learner_id FROM family_book_assignments a
         JOIN family_books b ON b.id = a.book_id JOIN learners l ON l.id = a.learner_id AND l.family_id = b.family_id
         WHERE b.family_id::text = ${familyId} AND l.archived_at IS NULL`,
-      daily ? sql`SELECT a.id, a.topic, a.completed_at IS NOT NULL AS completed, l.display_name AS learner_name
+      daily ? sql`SELECT DISTINCT ON (a.learner_id, a.topic) a.id, a.topic,
+          a.completed_at IS NOT NULL AS completed, l.display_name AS learner_name,
+          COALESCE(to_jsonb(a)->>'period', 'day') AS period
         FROM olympiad_rhythm_activities a JOIN learners l ON l.id = a.learner_id
-        WHERE l.family_id::text = ${familyId} AND l.archived_at IS NULL AND a.practice_date = ${day}::date
-        ORDER BY l.display_name, a.topic, a.id`.catch(error => {
+        WHERE l.family_id::text = ${familyId} AND l.archived_at IS NULL
+          AND (a.practice_date = ${day}::date AND COALESCE(to_jsonb(a)->>'period', 'day') = 'day'
+            OR to_jsonb(a)->>'period' = 'week' AND a.practice_date = ${mondayOf(day)}::date
+              AND (a.completed_at IS NULL OR (a.completed_at AT TIME ZONE 'Asia/Kolkata')::date = ${day}::date))
+        ORDER BY a.learner_id, a.topic, period DESC, a.id`.catch(error => {
           if ((error as {code?: string}).code === '42P01') return [];
           throw error;
         }) : [],
@@ -61,14 +82,35 @@ export async function POST(request: Request) {
     const input = await request.json().catch(() => null);
     if (!input || typeof input !== 'object') return json({error: 'Invalid request.'}, 400);
     if (input.action === 'complete-olympiad') {
-      const rows = await sql`UPDATE olympiad_rhythm_activities a SET completed_at = COALESCE(a.completed_at, now())
-        FROM learners l WHERE l.id = a.learner_id AND l.family_id::text = ${familyId} AND l.archived_at IS NULL
-          AND a.id::text = ${String(input.entryId ?? '')} AND a.practice_date = ${today()}::date RETURNING a.id`;
+      const day = today();
+      const week = mondayOf(day);
+      const rows = await sql`WITH target AS (
+          SELECT a.learner_id, a.topic FROM olympiad_rhythm_activities a JOIN learners l ON l.id = a.learner_id
+          WHERE l.family_id::text = ${familyId} AND l.archived_at IS NULL AND a.id::text = ${String(input.entryId ?? '')}
+            AND (a.period = 'day' AND a.practice_date = ${day}::date OR a.period = 'week' AND a.practice_date = ${week}::date)
+        )
+        UPDATE olympiad_rhythm_activities a SET completed_at = COALESCE(a.completed_at, now())
+        FROM target WHERE a.learner_id = target.learner_id AND a.topic = target.topic
+          AND (a.period = 'day' AND a.practice_date = ${day}::date OR a.period = 'week' AND a.practice_date = ${week}::date)
+        RETURNING a.id`;
       return rows.length ? json({saved: true}) : json({error: 'Olympiad activity unavailable.'}, 404);
+    }
+    if (input.action === 'move-olympiad') {
+      const week = mondayOf(today());
+      const rows = await sql`UPDATE olympiad_rhythm_activities a SET practice_date = ${week}::date
+        FROM learners l WHERE l.id = a.learner_id AND l.family_id::text = ${familyId} AND l.archived_at IS NULL
+          AND a.id::text = ${String(input.entryId ?? '')} AND a.period = 'week'
+          AND a.completed_at IS NULL AND a.practice_date < ${week}::date RETURNING a.id`;
+      return rows.length ? json({saved: true}) : json({error: 'This weekly topic is no longer available to move.'}, 404);
     }
     if (input.action === 'plan-olympiad') {
       if (typeof input.learnerId !== 'string' || typeof input.topic !== 'string')
         return json({error: 'Choose a learner and an Olympiad topic.'}, 400);
+      const period = input.period ?? 'day';
+      const day = today();
+      if (period !== 'day' && (period !== 'week' || !validPlanningDate(input.date) || mondayOf(input.date) < mondayOf(day)))
+        return json({error: 'Choose this week or a future week.'}, 400);
+      const scheduledDate = period === 'week' ? mondayOf(input.date) : day;
       const [learner] = await sql`SELECT stage FROM learners WHERE id::text = ${input.learnerId}
         AND family_id::text = ${familyId} AND archived_at IS NULL`;
       const grade = learner ? promptClassForStage(String(learner.stage)) : null;
@@ -78,8 +120,8 @@ export async function POST(request: Request) {
           SELECT id FROM learners WHERE id::text = ${input.learnerId} AND family_id::text = ${familyId}
             AND archived_at IS NULL AND stage = ${String(learner.stage)}
         ), added AS (
-          INSERT INTO olympiad_rhythm_activities (learner_id, topic, practice_date)
-          SELECT id, ${input.topic}, ${today()}::date FROM eligible ON CONFLICT DO NOTHING
+          INSERT INTO olympiad_rhythm_activities (learner_id, topic, practice_date, period)
+          SELECT id, ${input.topic}, ${scheduledDate}::date, ${period} FROM eligible ON CONFLICT DO NOTHING
         )
         SELECT id FROM eligible`;
       return rows.length ? json({saved: true}) : json({error: 'Learner unavailable.'}, 404);
@@ -129,7 +171,9 @@ export async function POST(request: Request) {
       RETURNING p.id`;
     return rows.length ? json({saved: true}) : json({error: 'Choose an assigned learner and pages within this book.'}, 400);
   } catch (error) {
-    return json({error: (error as {code?: string}).code === '42P01'
+    const code = (error as {code?: string}).code;
+    if (code === '23505') return json({error: 'This topic is already scheduled for the current week.'}, 409);
+    return json({error: code === '42P01' || code === '42703'
       ? 'Activity storage is unavailable. Apply the latest database migrations.' : 'Could not save the activity.'}, 503);
   }
 }

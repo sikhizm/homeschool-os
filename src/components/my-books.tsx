@@ -8,7 +8,7 @@ type Book = {id: string; title: string; kind: keyof typeof bookKinds; page_count
 type Pages = {id: string; book_id: string; learner_id: string; learner_name: string; title: string;
   first_page: number; last_page: number; completed: boolean; learning_date: string};
 type Library = {books: Book[]; learners: {id: string; display_name: string}[];
-  assignments: {book_id: string; learner_id: string}[]; entries: Pages[]; olympiad?: {id: string; topic: string; learner_name: string; completed: boolean}[]; canEdit: boolean};
+  assignments: {book_id: string; learner_id: string}[]; entries: Pages[]; olympiad?: {id: string; topic: string; learner_name: string; completed: boolean; period?: 'day' | 'week'}[]; canEdit: boolean};
 
 const endpoint = '/api/my-books';
 
@@ -70,7 +70,7 @@ export default function MyBooks({daily = false}: {daily?: boolean}) {
       </li>)}
       {data.olympiad?.map(entry => <li className="family-agenda-row" key={entry.id}>
         <Link href="/planning#olympiad-plan">{entry.topic} · Olympiad</Link>
-        <span>{entry.learner_name}</span>
+        <span>{entry.learner_name} · {entry.period === 'week' ? 'This week' : 'Today'}</span>
         <span className="pill">{entry.completed ? 'Done' : 'Pending'}</span>
         {!entry.completed && data.canEdit && <button type="button" className="btn-secondary" disabled={busy}
           onClick={() => void save({action: 'complete-olympiad', entryId: entry.id})}>Mark done</button>}
