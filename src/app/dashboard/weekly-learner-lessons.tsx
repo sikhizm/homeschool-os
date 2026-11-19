@@ -74,15 +74,15 @@ export default function WeeklyLearnerLessons({ learnerId, canEdit }: { learnerId
             </div>
             <div className="weekly-chapter-heading">
               <h4><Link href={href}>{chapter.title}</Link></h4>
-              {canEdit && <button type="button" className="btn-secondary weekly-chapter-add"
-                aria-label={chapter.addedToday ? `${chapter.title} is in today’s plan` : `Add ${chapter.title} to today’s plan`}
-                disabled={busy || chapter.addedToday || !plan?.canAdd} onClick={() => void save(chapter.id)}>
-                <span aria-hidden="true">{chapter.addedToday ? '✓' : '+'}</span>
-              </button>}
-            </div>
-            <div className="coach-actions">
-              {canEdit && <button type="button" className="coach-revise" aria-expanded={open === chapter.id}
-                disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check understanding &amp; record</button>}
+              {canEdit && <div className="coach-actions weekly-chapter-actions">
+                <button type="button" className="btn-secondary weekly-chapter-add"
+                  aria-label={chapter.addedToday ? `${chapter.title} is in today’s plan` : `Add ${chapter.title} to today’s plan`}
+                  disabled={busy || chapter.addedToday || !plan?.canAdd} onClick={() => void save(chapter.id)}>
+                  <span aria-hidden="true">{chapter.addedToday ? '✓' : '+'}</span>
+                </button>
+                <button type="button" className="coach-revise" aria-expanded={open === chapter.id}
+                  disabled={busy} onClick={() => setOpen(open === chapter.id ? '' : chapter.id)}>Check understanding &amp; record</button>
+              </div>}
             </div>
             {open === chapter.id && <div className="lesson-check">
               <div className="coach-actions">
