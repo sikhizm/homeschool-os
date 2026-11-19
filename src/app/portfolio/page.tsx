@@ -40,7 +40,8 @@ export default async function PortfolioPage() {
       <div className="dashboard-welcome">
         <div>
           <span className="tag">FAMILY PORTFOLIO</span>
-          <h1>Notice what learning looks like</h1>
+          <h1>Portfolio archive</h1>
+          <Link href="/challenges" className="btn-secondary">Challenges &amp; Rewards</Link>
           <p className="muted">
             Record a baseline, a meaningful observation, a work sample description or a family reflection — without grades or automatic mastery.
           </p>

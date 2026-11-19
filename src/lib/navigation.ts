@@ -23,7 +23,8 @@ export function navigationForPath(pathname:string){
   {href:'/ncert-books',label:'NCERT books'},
  ]};
  else if(['/portfolio','/reports'].some(route=>within(pathname,route)))context={label:'Your progress',links:[
-  {href:'/portfolio',label:'Portfolio'},
+  {href:'/challenges',label:'Challenges & Rewards'},
+  {href:'/portfolio',label:'Portfolio archive'},
   {href:'/reports',label:'Insights'},
  ]};
  else if(within(pathname,'/learn'))context={label:'Learning Path',links:[
@@ -38,7 +39,7 @@ export const sidebarDestinations:ShellDestination[]=[
  {id:'learners',href:'/learners',label:'Learners',glyph:'☺',hint:'Profiles and learning spaces',match:['/learners']},
  {id:'library',href:'/library',label:'Curriculum Library',glyph:'❖',hint:'Books, pathways and activities',match:['/library','/ncert-books','/curriculum-mapping','/global-curriculum','/roadmap']},
  {id:'progress',href:'/reports',label:'Progress',glyph:'↗',hint:'Learning insights and reviews',match:['/reports']},
- {id:'portfolio',href:'/portfolio',label:'Family Portfolio',glyph:'❋',hint:'Work, milestones and discoveries',match:['/portfolio']},
+ {id:'portfolio',href:'/challenges',label:'Challenges & Rewards',glyph:'❋',hint:'Assign challenges and track rewards',match:['/challenges']},
  {id:'settings',href:'/settings',label:'Settings',glyph:'⚙',hint:'Family account and app settings',match:['/settings']},
 ];
 /** Fixed mobile bottom navigation — five destinations, never a shrunken sidebar. */
@@ -56,7 +57,7 @@ export function activeShellDestination(pathname:string,destinations:ShellDestina
  return destinations.find(destination=>shellDestinationIsActive(pathname,destination))??null;
 }
 /** Routes that render inside the authenticated app shell. */
-export const privateRoutes=['/roadmap','/dashboard','/planning','/learners','/library','/settings','/learn','/curriculum-mapping','/global-curriculum','/ncert-books','/portfolio','/reports','/november-pilot','/study-reader'];
+export const privateRoutes=['/roadmap','/dashboard','/planning','/learners','/library','/settings','/learn','/curriculum-mapping','/global-curriculum','/ncert-books','/portfolio','/challenges','/reports','/november-pilot','/study-reader'];
 export function isPrivateRoute(pathname:string){
  return privateRoutes.some(route=>within(pathname,route));
 }

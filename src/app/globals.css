@@ -3032,3 +3032,15 @@ button:active:not(:disabled){transform:translateY(1px)}
  .chapter-path-row{grid-template-columns:repeat(3,minmax(0,1fr))}
  .chapter-path-title{grid-column:1 / -1}
 }
+
+.challenge-form{display:grid;gap:10px 16px;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));margin-top:12px}
+.challenge-actions{display:flex;align-items:center;flex-wrap:wrap;gap:8px}
+.challenge-details summary{cursor:pointer;font-weight:750;color:var(--accent)}
+.challenge-card h2,.report-card-section h2{margin:0 0 6px}
+.challenge-card p{margin:5px 0 9px;overflow-wrap:anywhere}
+.challenge-card .challenge-details{margin-top:10px}
+.report-card-table{overflow-x:auto;margin:10px 0}
+.report-card-table table{width:100%;border-collapse:collapse;text-align:start}
+.report-card-table th,.report-card-table td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:start}
+.report-card-table th{background:#eef5ee}
+.challenge-recipients{grid-column:1 / -1;display:flex;gap:8px 16px;flex-wrap:wrap;margin:0;padding:8px 12px;border:1px solid var(--line);border-radius:10px}.challenge-recipients label{display:flex;gap:6px;align-items:center}

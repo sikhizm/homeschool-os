@@ -15,6 +15,7 @@ import {
   type GoalSnapshot,
 } from '@/lib/reports/model';
 import PrintReport from './print-report';
+import LearnerReportCard from './learner-report-card';
 import TestPerformance from './test-performance';
 
 export const dynamic = 'force-dynamic';
@@ -411,6 +412,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
             )}
           </section>
 
+          <LearnerReportCard learnerId={learnerId} familyId={String(family.id)} today={today} />
           <TestPerformance userId={session.user.id} learnerId={learnerId}
             learnerName={String(learner.display_name)} start={window.startDate} end={window.endDate}
             period={period} subject={params.testSubject} chapter={params.testChapter} />
