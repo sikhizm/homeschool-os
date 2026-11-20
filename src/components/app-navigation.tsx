@@ -3,14 +3,15 @@
 import BrandLogo from '@/components/brand-logo';
 
 import Link from 'next/link';
-import {usePathname} from 'next/navigation';
-import {useSyncExternalStore,type ReactNode} from 'react';
+import {usePathname,useRouter} from 'next/navigation';
+import {useEffect,useSyncExternalStore,type ReactNode} from 'react';
 import {
  activeShellDestination,bottomDestinations,isPrivateRoute,navigationForPath,
  navigationLinkIsActive,shellDestinationIsActive,sidebarDestinations,
 } from '@/lib/navigation';
 import GlobalSearch from '@/components/global-search';
 import {PwaInstallButton} from '@/components/pwa-tools';
+import {clearPrivateMemoryCache} from '@/lib/private-memory-cache';
 
 const COLLAPSE_KEY='homeschool-os-sidebar-collapsed';
 const COLLAPSE_EVENT='homeschool-os-sidebar-toggle';
@@ -57,6 +58,9 @@ function NavGlyph({id,fallback}:{id:string;fallback:string}){
  */
 export default function AppNavigation({children}:{children:ReactNode}){
  const pathname=usePathname()||'';
+ const router=useRouter();
+ useEffect(()=>{if(!isPrivateRoute(pathname))clearPrivateMemoryCache();},[pathname]);
+ const prefetchOnIntent=(href:string)=>{router.prefetch(href);};
  const collapsed=useSyncExternalStore(subscribeToCollapse,readCollapsed,serverCollapsed);
  function toggle(){
   try{localStorage.setItem(COLLAPSE_KEY,readCollapsed()?'0':'1');}catch{}
@@ -82,7 +86,9 @@ export default function AppNavigation({children}:{children:ReactNode}){
    <nav className="app-primary-nav" aria-label="Primary navigation">
     {sidebarDestinations.map(destination=>{
      const active=shellDestinationIsActive(pathname,destination);
-     return <Link key={destination.id} href={destination.href}
+     return <Link key={destination.id} href={destination.href} prefetch={false}
+      onPointerEnter={()=>prefetchOnIntent(destination.href)}
+      onFocus={()=>prefetchOnIntent(destination.href)}
       className={active?'app-nav-link is-active':'app-nav-link'}
       aria-current={active?'page':undefined} title={destination.hint}>
       <span className="app-nav-icon" aria-hidden="true"><NavGlyph id={destination.id} fallback={destination.glyph}/></span>
@@ -117,7 +123,7 @@ export default function AppNavigation({children}:{children:ReactNode}){
     <span className="app-context-label">{context.label}</span>
     {context.links.map(item=>{
      const active=navigationLinkIsActive(pathname,item.href);
-     return <Link key={item.href} href={item.href} className={active?'app-context-link is-active':'app-context-link'} aria-current={active?'page':undefined}>{item.label}</Link>;
+     return <Link key={item.href} href={item.href} prefetch={false} onPointerEnter={()=>prefetchOnIntent(item.href)} onFocus={()=>prefetchOnIntent(item.href)} className={active?'app-context-link is-active':'app-context-link'} aria-current={active?'page':undefined}>{item.label}</Link>;
     })}
    </nav></div>}
    <div className="app-shell-content">{children}</div>
@@ -125,7 +131,10 @@ export default function AppNavigation({children}:{children:ReactNode}){
   <nav className="app-bottom-nav" aria-label="Primary navigation">
    {bottomDestinations.map(destination=>{
     const active=activeBottom?.id===destination.id;
-    return <Link key={destination.id} href={destination.href}
+    return <Link key={destination.id} href={destination.href} prefetch={false}
+     onTouchStart={()=>prefetchOnIntent(destination.href)}
+     onPointerEnter={()=>prefetchOnIntent(destination.href)}
+     onFocus={()=>prefetchOnIntent(destination.href)}
      className={active?'app-bottom-link is-active':'app-bottom-link'}
      aria-current={active?'page':undefined}>
      <span className="app-bottom-icon" aria-hidden="true"><NavGlyph id={destination.id} fallback={destination.glyph}/></span>

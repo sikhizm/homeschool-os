@@ -4,6 +4,7 @@ import Link from 'next/link';
 import MyBooks from '@/components/my-books';
 import {useEffect,useMemo,useState} from 'react';
 import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
+import {clearPrivateMemoryCache,invalidatePrivateMemoryCache,readPrivateMemoryCache,writePrivateMemoryCache} from '@/lib/private-memory-cache';
 
 type ReadingProgress = {learnerId:string;name:string;total:number;read:number;
  remaining:{chapterId:string;title:string;current:boolean;inRhythm:boolean}[]};
@@ -37,7 +38,7 @@ function formatFamilyGreetingName(familyName:string|null):string{
  * Parent Home: greeting, today's family plan hero, per-learner cards,
  * the day's timeline and an "only urgent" attention list.
  */
-export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:boolean}){
+export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|null;canEdit:boolean;cacheScope:string}){
  const [data,setData]=useState<HomeData|null>(null);
  const [chapterPlan,setChapterPlan]=useState<ChapterPlanItem[]>([]);
  const [chapterCoverage,setChapterCoverage]=useState<{learnerId:string;total:number;read:number;revised:number;finished:number}[] | null>(null);
@@ -51,12 +52,37 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
  const [error,setError]=useState('');
  useEffect(()=>{
   let alive=true;
+  const day=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Kolkata',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+  const agendaKey=`dashboard:agenda:${day}`;
+  const rhythmKey=`dashboard:rhythm:${day}`;
+  type RhythmSnapshot={ready:boolean;items:ChapterPlanItem[];chapterCoverage?:typeof chapterCoverage;
+    readingWeek?:typeof readingWeek;readingProgress?:ReadingProgress[];weekendSuggestions?:typeof weekendSuggestions};
+  const cachedAgenda=readPrivateMemoryCache<HomeData>(cacheScope,agendaKey);
+  const cachedRhythm=readPrivateMemoryCache<RhythmSnapshot>(cacheScope,rhythmKey);
+  // Hydrate after the effect starts, rather than synchronously chaining React renders.
+  queueMicrotask(()=>{
+    if(!alive)return;
+    if(cachedAgenda)setData(cachedAgenda);
+    if(cachedRhythm){
+      setChapterCoverage(cachedRhythm.chapterCoverage??null);
+      setReadingProgress(cachedRhythm.readingProgress??[]);
+      setChapterPlan(cachedRhythm.items);
+      setReadingWeek(cachedRhythm.readingWeek??[]);
+      setWeekendSuggestions(cachedRhythm.weekendSuggestions??[]);
+      setRhythmReady(cachedRhythm.ready);
+    }
+  });
   const loadAgenda=()=>fetch('/api/auto-learning?agenda=1',{cache:'no-store'})
-   .then(r=>{if(!r.ok)throw new Error('Unable to load plan');return r.json()})
-   .then((json:{learners?:LearnerCard[];familyPlan?:HomeData['familyPlan']})=>{
-    if(alive)setData({learners:json.learners??[],familyPlan:json.familyPlan??{slots:[],separate:[],budget:60,allocated:0,notes:[]}});
+   .then(r=>{
+    if(r.status===401||r.status===403){clearPrivateMemoryCache();setData(null);throw new Error('Sign in required');}
+    if(!r.ok)throw new Error('Unable to load plan');
+    return r.json();
    })
-   .catch(()=>{if(alive)setError('We could not load today’s plan. Try refreshing.');});
+   .then((json:{learners?:LearnerCard[];familyPlan?:HomeData['familyPlan']})=>{
+    const result:HomeData={learners:json.learners??[],familyPlan:json.familyPlan??{slots:[],separate:[],budget:60,allocated:0,notes:[]}};
+    if(alive){writePrivateMemoryCache(cacheScope,agendaKey,result);setData(result);setError('');}
+   })
+   .catch(()=>{if(alive)setError('We could not refresh today’s plan. Try again.');});
   const loadChapterPlan=async()=>{
    try{
     if(canEdit) {
@@ -66,9 +92,11 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
      if(!scheduled.ok && scheduled.status!==503)throw new Error();
     }
     const response=await fetch('/api/chapter-plan?rhythm=1',{cache:'no-store'});
+    if(response.status===401||response.status===403){clearPrivateMemoryCache();setData(null);throw new Error('Sign in required');}
     if(!response.ok)throw new Error();
-    const result=await response.json() as {ready:boolean;items:ChapterPlanItem[];chapterCoverage?:typeof chapterCoverage;readingWeek?:typeof readingWeek;readingProgress?:ReadingProgress[];weekendSuggestions?:typeof weekendSuggestions};
+    const result=await response.json() as RhythmSnapshot;
     if(alive){
+     writePrivateMemoryCache(cacheScope,rhythmKey,result);
      setChapterCoverage(result.chapterCoverage??null);
      setReadingProgress(result.readingProgress??[]);
      setChapterPlan(result.items);setReadingWeek(result.readingWeek??[]);setWeekendSuggestions(result.weekendSuggestions??[]);
@@ -77,12 +105,34 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
    }catch{if(alive)setChapterPlanError(true);}
   };
   const load=()=>{void loadAgenda();void loadChapterPlan();};
+  const changed=()=>{
+   invalidatePrivateMemoryCache(cacheScope,'dashboard:');
+   invalidatePrivateMemoryCache(cacheScope,'planning:');
+   invalidatePrivateMemoryCache(cacheScope,'chapter-plan:');
+   // A mutation means the prior snapshot is no longer a safe progress display.
+   setData(null);
+   setChapterPlan([]);
+   setChapterCoverage(null);
+   setReadingProgress([]);
+   setReadingWeek([]);
+   setWeekendSuggestions([]);
+   setRhythmReady(false);
+   void load();
+  };
   load();
-  window.addEventListener('daily-plan-updated',load);
+  window.addEventListener('daily-plan-updated',changed);
+  window.addEventListener('chapter-tests-updated',changed);
+  window.addEventListener('chapter-status-updated',changed);
   const restore=(event:PageTransitionEvent)=>{if(event.persisted)void load();};
   window.addEventListener('pageshow',restore);
-  return()=>{alive=false;window.removeEventListener('daily-plan-updated',load);window.removeEventListener('pageshow',restore);};
- },[canEdit]);
+  return()=>{
+   alive=false;
+   window.removeEventListener('daily-plan-updated',changed);
+   window.removeEventListener('chapter-tests-updated',changed);
+   window.removeEventListener('chapter-status-updated',changed);
+   window.removeEventListener('pageshow',restore);
+  };
+ },[canEdit,cacheScope]);
 
  async function addReading(learnerId:string, chapterId:string) {
   setAddingReading(true);

@@ -39,10 +39,10 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const family = families[0];
   return (
     <main className="family-dashboard studio-stack">
-      <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} />
+      <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} cacheScope={session.user.id} />
 
       <section id="today-plan" aria-label="Detailed learning coach">
-        <AutomaticLearning />
+        <AutomaticLearning cacheScope={session.user.id} />
       </section>
 
       <section className="quick-start" aria-labelledby="quick-start-title">

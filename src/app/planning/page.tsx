@@ -62,6 +62,7 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         canEdit={family.role === 'owner'}
         initialDate={initialDate}
         initialLearner={params.learner}
+        cacheScope={session.user.id}
       />
     </main>
   );
