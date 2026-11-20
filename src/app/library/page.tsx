@@ -5,15 +5,9 @@ import { getSql } from '@/lib/db';
 import { readClass5ReviewOverview, type MappingSql } from '@/lib/curriculum/mapping-review-service';
 import SectionArtwork from '@/components/section-artwork';
 import { ContinueReading } from './continue-reading';
-import { libraryGradeOptions, librarySubjectOptions, libraryLearningOptions } from '@/lib/library/grade-options';
+import LibraryQuickBrowse from './quick-browse';
 
 export const dynamic = 'force-dynamic';
-
-const FILTERS = [
-  { label: 'Grade', options: libraryGradeOptions },
-  { label: 'Subject', options: librarySubjectOptions },
-  { label: 'Learning type', options: libraryLearningOptions },
-];
 
 const SECTIONS = [
   {
@@ -78,26 +72,7 @@ export default async function LibraryPage() {
         <SectionArtwork theme="explore" />
       </div>
 
-      <section className="library-filters card" aria-label="Filter the library">
-        <div className="panel-heading" style={{ marginBottom: 4 }}>
-          <div>
-            <span className="eyebrow">QUICK BROWSE</span>
-            <h2 style={{ margin: '3px 0 0', fontSize: 20 }}>Jump straight to a class or activity</h2>
-          </div>
-        </div>
-        {FILTERS.map((filter) => (
-          <div className="library-filter" key={filter.label}>
-            <span className="library-filter-label">{filter.label}</span>
-            <div className="library-filter-chips">
-              {filter.options.map((option) => (
-                <Link key={option.label} href={option.href} className="library-chip">
-                  {option.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        ))}
-      </section>
+      <LibraryQuickBrowse />
 
       <ContinueReading />
 
