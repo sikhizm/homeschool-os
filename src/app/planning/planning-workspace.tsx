@@ -28,15 +28,15 @@ type PlanningData = {
   passedChapterIds?: string[];
   chapterRecords?: ChapterRecord[];
 };
-type Props = { learners: Learner[]; canEdit: boolean; initialDate: string };
+type Props = { learners: Learner[]; canEdit: boolean; initialDate: string; initialLearner?: string };
 
 const display = (date: string) =>
   new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
     new Date(date + 'T12:00:00Z'),
   );
 
-export default function PlanningWorkspace({ learners, canEdit, initialDate }: Props) {
-  const [learnerId, setLearnerId] = useState(learners[0]?.id ?? '');
+export default function PlanningWorkspace({ learners, canEdit, initialDate, initialLearner }: Props) {
+  const [learnerId, setLearnerId] = useState(learners.find(learner => learner.id === initialLearner)?.id ?? learners[0]?.id ?? '');
   const [plannerTab, setPlannerTab] = useState<'week' | 'year'>('week');
   const [date, setDate] = useState(initialDate);
   const [data, setData] = useState<PlanningData | null>(null);

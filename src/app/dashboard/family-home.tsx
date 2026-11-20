@@ -210,28 +210,36 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     </ol>:<p className="muted family-agenda-message">{data?'Nothing scheduled yet.':'Loading today’s activities.'}</p>}
     {readingProgress.map(item=>{
      const next=item.remaining.find(chapter=>!chapter.inRhythm);
-     const hasPendingReading=chapterPlan.some(chapter=>chapter.learnerId===item.learnerId && chapter.activity==='reading' && !chapter.done);
-     return <section className="family-agenda-message" key={item.learnerId}>
-      <p><strong>{item.name}</strong>{item.total>0&&` · ${item.read} of ${item.total} weekly chapters read`}</p>
-      {canEdit && next && !hasPendingReading && <button type="button" className="hero-action-secondary"
-       disabled={addingReading} onClick={()=>void addReading(item.learnerId,next.chapterId)}>Add next chapter</button>}
-      {item.remaining.length>0&&<details open>
-       <summary>Still to read · {item.remaining.length}</summary>
-       <ul className="family-agenda-list">{item.remaining.map(chapter=><li className="family-agenda-row" key={chapter.chapterId}>
-        <p className="timeline-title"><Link href={chapterActivityHref(chapter.chapterId,item.learnerId,'reading')}>{chapter.title}</Link></p>
-        <span className="family-agenda-learner">{chapter.current?'This week':'From an earlier week'}</span>
-        <span className="family-agenda-phase">{chapter.inRhythm?'In Today’s rhythm':'Reading'}</span>
-        {canEdit && !chapter.inRhythm && <button type="button" className="hero-action-secondary"
-         disabled={addingReading} onClick={()=>void addReading(item.learnerId,chapter.chapterId)}>Add to today</button>}
-       </li>)}</ul>
+     const scheduled=item.remaining.filter(chapter=>chapter.inRhythm).length;
+     const history=readingWeek.find(entry=>entry.id===item.learnerId);
+     return <section className="weekly-reading-strip" key={item.learnerId} aria-label={`Weekly reading for ${item.name}`}>
+      <div className="weekly-reading-summary">
+       <strong>Weekly reading · {item.name}</strong>
+       <span>{item.total>0?`${item.read} of ${item.total} read`:'Reading carried forward'}{scheduled>0&&` · ${scheduled} in today’s rhythm`}</span>
+      </div>
+      {item.total>0&&<progress className="weekly-reading-progress" value={item.read} max={item.total}
+       aria-label={`Weekly chapters read by ${item.name}`}/>}
+      {next&&<div className="weekly-reading-next">
+       <span>{next.current?'Next to schedule':'From an earlier week'}</span>
+       <Link href={chapterActivityHref(next.chapterId,item.learnerId,'reading')}>{next.title}</Link>
+      </div>}
+      <div className="weekly-reading-actions">
+       {canEdit&&next&&<button type="button" className="hero-action-secondary" disabled={addingReading}
+        aria-label={`Add ${next.title} to today for ${item.name}`}
+        onClick={()=>void addReading(item.learnerId,next.chapterId)}>＋ Add to today</button>}
+       <Link href={`/planning?learner=${encodeURIComponent(item.learnerId)}#weekly-chapter-activities`}>View week →</Link>
+      </div>
+      {history&&<details className="weekly-reading-history">
+       <summary>Reading schedule history</summary>
+       <p>{history.onTime} of {history.planned} daily readings on time this week{history.late>0?` · ${history.late} read after the due date`:''}</p>
       </details>}
      </section>;
     })}
-    <p role="status" className={readingMessage?'family-agenda-message':undefined}>{readingMessage}</p>
-    {readingWeek.length>0&&<details className="muted family-agenda-message">
-     <summary>Reading schedule history</summary>
-     {readingWeek.map(item=><p className="muted family-agenda-message" key={item.id}>{item.name} · {item.onTime} of {item.planned} daily readings on time this week{item.late>0?` · ${item.late} read after the due date`:''}</p>)}
-    </details>}
+    {readingWeek.filter(entry=>!readingProgress.some(item=>item.learnerId===entry.id)).map(entry=><details key={entry.id} className="weekly-reading-history">
+     <summary>Reading schedule history · {entry.name}</summary>
+     <p>{entry.onTime} of {entry.planned} daily readings on time this week{entry.late>0?` · ${entry.late} read after the due date`:''}</p>
+    </details>)}
+    <div className="weekly-reading-notice" role="status">{readingMessage}</div>
     {sundayTests.length>0&&<div className="family-agenda-message">
      <strong>Optional Sunday tests</strong>
      <ul>{sundayTests.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>

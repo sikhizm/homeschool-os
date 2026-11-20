@@ -8,7 +8,7 @@ import PlanningWorkspace from './planning-workspace';
 
 export const dynamic = 'force-dynamic';
 
-export default async function PlanningPage({searchParams}:{searchParams:Promise<{resource?:string;intent?:string}>}) {
+export default async function PlanningPage({searchParams}:{searchParams:Promise<{resource?:string;intent?:string;learner?:string}>}) {
   const params=await searchParams;
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
@@ -61,6 +61,7 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
         }))}
         canEdit={family.role === 'owner'}
         initialDate={initialDate}
+        initialLearner={params.learner}
       />
     </main>
   );
