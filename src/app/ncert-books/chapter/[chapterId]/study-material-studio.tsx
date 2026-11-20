@@ -21,6 +21,7 @@ const MATERIAL_GROUPS: {id:string;title:string;items:IndividualMaterialId[]}[] =
 const emptyMessage='No active learners are available. Add a learner to prepare study materials.';
 export default function StudyMaterialStudio({chapter,book,grade,resourceUrl,initialLearnerId,revisionPreset=false}:{chapter:ChapterSlot;book:Textbook;grade:number;resourceUrl:string;initialLearnerId?:string;revisionPreset?:boolean}){
  const [learners,setLearners]=useState<Learner[]>([]),[learnerId,setLearnerId]=useState(''),[loading,setLoading]=useState(true);
+ const [advancedOpen,setAdvancedOpen]=useState(revisionPreset);
  const [chosen,setChosen]=useState<MaterialId[]>(['full-notes']),[difficulty,setDifficulty]=useState<Difficulty>('standard'),[language,setLanguage]=useState(book.language||'English'),[large,setLarge]=useState(false),[outputFormat,setOutputFormat]=useState<StudyOutputFormat>('pdf');
  const [materialsOpen,setMaterialsOpen]=useState(revisionPreset),[expandedGroup,setExpandedGroup]=useState<string|null>(MATERIAL_GROUPS[0].id);
  const groupPanelId=useId();
@@ -58,6 +59,9 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl,init
   <span className="muted">Paste the prompt into your preferred AI assistant.</span>
  </div>
  {loading?<p role="status" className="muted">Loading learners…</p>:!learners.length?<p role="status" className="study-empty">{message||emptyMessage}</p>:<>
+ <details className="study-studio-advanced" open={advancedOpen} onToggle={e=>setAdvancedOpen(e.currentTarget.open)}>
+  <summary><span>Customize study materials</span><small>{chosen.includes('complete-pack')?'Complete pack':`${chosen.length} selected`} · {outputFormat.toUpperCase()} <span aria-hidden="true">⌄</span></small></summary>
+  <div className="study-studio-advanced-body">
  <section className="study-pack-callout" aria-label="Complete chapter pack">
   <div className="study-pack-copy"><span className="study-pack-kicker">RECOMMENDED · ONE-STEP OPTION</span><strong>Complete Chapter Mastery Pack</strong><p>One coordinated PDF with original notes, practice at three levels, assessments, solutions and a parent guide.</p></div>
   <button type="button" className="btn-primary" onClick={()=>setChosen(['complete-pack'])}>{chosen.includes('complete-pack')?'Selected ✓':'Use complete pack'}</button>
@@ -111,7 +115,13 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl,init
  </section>
  <div className="study-output-row">
   <label className="workspace-field"><span>AI output format</span><select value={outputFormat} onChange={e=>setOutputFormat(e.target.value as StudyOutputFormat)}><option value="pdf">PDF · recommended</option><option value="html">HTML file · editable</option><option value="both">PDF + HTML files</option></select></label>
-  <div className="study-actions study-output-actions"><button className="btn-secondary" type="button" disabled={!learner||!chosen.length} onClick={copy}>Copy {outputFormat==='both'?'PDF + HTML':' '+outputFormat.toUpperCase()} prompt</button>{learner?.role==='owner'&&<button className="btn-secondary" type="button" onClick={()=>{setImportOpen(true);setPreview(false);setSelectedDoc('');}}>Import generated document</button>}<button className="btn-secondary" type="button" disabled={!learner} onClick={loadLibrary}>Open Study Library</button></div>
+  <div className="study-actions study-output-actions"><button className="btn-secondary" type="button" disabled={!learner||!chosen.length} onClick={copy}>Copy {outputFormat==='both'?'PDF + HTML':outputFormat.toUpperCase()} prompt</button></div>
+ </div>
+  </div>
+ </details>
+ <div className="study-studio-library-actions">
+  {learner?.role==='owner'&&<button className="btn-secondary" type="button" onClick={()=>{setImportOpen(true);setPreview(false);setSelectedDoc('');}}>Import generated document</button>}
+  <button className="btn-secondary" type="button" disabled={!learner} onClick={loadLibrary}>Open Study Library</button>
  </div>
  {promptMessage&&<p role="status" className="recorded-note">{promptMessage}</p>}{promptOpen&&<label className="workspace-field study-prompt-preview"><span>Complete prompt · select all to copy manually</span><textarea readOnly rows={20} value={prompt} onFocus={e=>e.currentTarget.select()} /></label>}
  {importOpen&&<div className="study-import"><div className="study-import-top"><div><span className="eyebrow">PRIVATE DOCUMENT WORKSPACE</span><h3>{selectedDoc?'Edit saved version':'Import AI-generated material'}</h3><p className="muted">Upload the downloadable PDF, HTML or Markdown file produced by your AI assistant. PDFs are stored as original private documents; HTML/Markdown can be previewed and saved as editable copies. You can also paste editable content below.</p></div><button type="button" className="btn-secondary" onClick={()=>{setImportOpen(false);setPreview(false)}}>Close</button></div>
