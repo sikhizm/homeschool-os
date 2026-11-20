@@ -1,3 +1,4 @@
+import BrandLogo from '@/components/brand-logo';
 'use client';
 
 import Link from 'next/link';
@@ -69,8 +70,7 @@ export default function AppNavigation({children}:{children:ReactNode}){
   <aside className="app-sidebar">
    <div className="app-sidebar-head">
     <Link className="app-brand" href="/dashboard" aria-label="Homeschool OS dashboard">
-     <span className="brand-mark" aria-hidden="true">✦</span>
-     <span className="brand-copy"><strong>Homeschool<span>OS</span></strong><small>Grow together, every day</small></span>
+     <BrandLogo/>
     </Link>
     <button type="button" className="app-sidebar-toggle" onClick={toggle}
      aria-expanded={!collapsed} aria-label={collapsed?'Expand navigation':'Collapse navigation'}>
@@ -99,8 +99,7 @@ export default function AppNavigation({children}:{children:ReactNode}){
   <div className="app-shell-body">
    <header className="app-topbar">
     <Link className="app-brand app-brand-mobile" href="/dashboard" aria-label="Homeschool OS dashboard">
-     <span className="brand-mark" aria-hidden="true">✦</span>
-     <span className="brand-copy"><strong>Homeschool<span>OS</span></strong></span>
+     <BrandLogo/>
     </Link>
     <div className="app-topbar-actions">
      <GlobalSearch placement="topbar"/>
