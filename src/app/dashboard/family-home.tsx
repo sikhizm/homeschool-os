@@ -88,8 +88,8 @@ export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|nu
      if(!scheduled.ok && scheduled.status!==503)throw new Error();
     }
     const response=await fetch('/api/chapter-plan?rhythm=1',{cache:'no-store'});
-    if(!response.ok)throw new Error();
     if(response.status===401||response.status===403){clearPrivateMemoryCache();setData(null);throw new Error('Sign in required');}
+    if(!response.ok)throw new Error();
     const result=await response.json() as RhythmSnapshot;
     if(alive){
      writePrivateMemoryCache(cacheScope,rhythmKey,result);
