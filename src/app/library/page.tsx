@@ -67,9 +67,9 @@ export default async function LibraryPage() {
   }
   return (
     <main className="library-page studio-stack">
-      <div className="dashboard-welcome library-welcome">
-        <div>
-          <span className="tag">CURRICULUM LIBRARY</span>
+      <div className="dashboard-welcome library-welcome library-hero">
+        <span className="tag library-hero-kicker">CURRICULUM LIBRARY</span>
+        <div className="library-hero-copy">
           <h1>Everything you teach from, in one place</h1>
           <p className="muted">
             Browse by grade, subject or learning type. Every source states what is verified and what is still pending — no guessed alignments.
