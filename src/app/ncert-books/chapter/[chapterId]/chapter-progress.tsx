@@ -106,7 +106,7 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
         <div className="chapter-status-options" role="group" aria-label="Choose one chapter status">
           {chapterStatuses.map(item => <button key={item.id} type="button" data-status={item.id}
             disabled={busy || !canEdit || learner?.finished} aria-pressed={status === item.id} onClick={() => void save(item.id)}>
-            <strong><span className="chapter-status-option-icon" aria-hidden="true">{item.id==='read'?'✓':item.id==='revised'?'↻':item.id==='needs_practice'?'◎':item.id==='revision_due'?'↗':'○'}</span>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
+            <strong><span className="chapter-status-option-icon" aria-hidden="true">{item.id==='read'?'✓':item.id==='revised'?'↻':item.id==='needs_practice'?'◎':'○'}</span>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
             <small>{item.detail}</small>
           </button>)}
           <div className="chapter-status-auto" data-status="finished" aria-current={learner?.finished ? 'true' : undefined}>
