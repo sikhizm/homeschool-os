@@ -24,7 +24,7 @@ test('desktop PDF reader can enter fullscreen and resize its page canvas',()=>{
   assert.ok(source.includes('requestFullscreen()'));
   assert.ok(source.includes("addEventListener('fullscreenchange'"));
   assert.ok(source.includes('pdfjs-fullscreen-toggle'));
-  assert.ok(source.includes('layoutRevision]'));
+  assert.ok(source.includes('layoutRevision,invalidateRenders]'));
   assert.ok(source.includes('rangeChunkSize:262144'));
   assert.ok(css.includes('.pdfjs-reader:fullscreen'));
   assert.ok(css.includes('max-height: none'));
