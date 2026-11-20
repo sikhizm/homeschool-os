@@ -82,7 +82,15 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
     </div>}
     {children}
     <section className="workspace-panel chapter-status-panel" id="chapter-status" aria-labelledby="chapter-status-heading">
-      <h2 id="chapter-status-heading">Chapter status</h2>
+      <div className="chapter-status-heading">
+        <span className="chapter-status-heading-icon" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6M8 10l1.3 1.3 2-2M13 10h3M8 16l1.3 1.3 2-2M13 16h3"/></svg>
+        </span>
+        <div>
+          <h2 id="chapter-status-heading">Chapter status</h2>
+          <p className="muted">Track reading and learning progress for this chapter.</p>
+        </div>
+      </div>
       {learners.length > 0 && <>
         <label className="workspace-field">
           <span>Learner</span>
@@ -98,11 +106,11 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
         <div className="chapter-status-options" role="group" aria-label="Choose one chapter status">
           {chapterStatuses.map(item => <button key={item.id} type="button" data-status={item.id}
             disabled={busy || !canEdit || learner?.finished} aria-pressed={status === item.id} onClick={() => void save(item.id)}>
-            <strong>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
+            <strong><span className="chapter-status-option-icon" aria-hidden="true">{item.id==='read'?'✓':item.id==='revised'?'↻':item.id==='needs_practice'?'◎':item.id==='revision_due'?'↗':'○'}</span>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
             <small>{item.detail}</small>
           </button>)}
           <div className="chapter-status-auto" data-status="finished" aria-current={learner?.finished ? 'true' : undefined}>
-            <strong>{learner?.finished && <span aria-hidden="true">✓ </span>}{finishedChapterStatus.label}</strong>
+            <strong><span className="chapter-status-option-icon" aria-hidden="true">★</span>{learner?.finished && <span aria-hidden="true">✓ </span>}{finishedChapterStatus.label}</strong>
             <small>{finishedChapterStatus.detail}</small>
           </div>
         </div>
