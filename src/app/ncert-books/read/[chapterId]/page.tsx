@@ -20,7 +20,7 @@ export default async function NcertReaderPage({params,searchParams}:{params:Prom
  if(!book)notFound();
  const preferOfficial=prefersOfficialNcert(await headers());
  const {official,releaseUrl,hasOfficialPdf}=chapterPdfSources(book,chapter,preferOfficial);
- if(preferOfficial||!releaseUrl)redirect(official.href);
+ if(!releaseUrl)redirect(official.href);
  const title=chapter.verifiedTitle??`${chapter.label} · ${book.title}`;
  return <main className="family-dashboard" style={{maxWidth:1440,margin:'0 auto'}}>
   <nav className="global-crumbs" style={{marginBottom:16}}><Link href="/ncert-books">NCERT books</Link><span>/</span><Link href={chapterHref}>Class {book.grade} · {book.title}</Link><span>/</span><strong>Reader</strong></nav>
