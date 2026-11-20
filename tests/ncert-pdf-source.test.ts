@@ -18,7 +18,7 @@ test('phones and tablets prefer NCERT while desktop uses the reader', () => {
   })), false);
 });
 
-test('mapped desktop chapters use GitHub with NCERT available, and mobile bypasses the reader', () => {
+test('mapped chapters use GitHub release PDFs on both mobile and desktop', () => {
   const chapter = ncertChapterSlots.find(item => item.id === 'ncert-4-maths-mela-ch-01')!;
   const book = textbookById(chapter.bookId)!;
   const desktop = chapterPdfSources(book, chapter, false);
@@ -27,7 +27,7 @@ test('mapped desktop chapters use GitHub with NCERT available, and mobile bypass
   assert.match(desktop.releaseUrl!, /homeschool-os-assets\/releases\/download\/class4\/demm101\.pdf$/);
   assert.equal(desktop.readerHref, '/ncert-books/read/ncert-4-maths-mela-ch-01');
   assert.equal(desktop.official.href, 'https://ncert.nic.in/textbook/pdf/demm101.pdf');
-  assert.equal(mobile.readerHref, null);
+  assert.equal(mobile.readerHref, desktop.readerHref);
   assert.equal(mobile.official.href, desktop.official.href);
 });
 
@@ -56,7 +56,7 @@ test('upper-class mirrors match the published PDF for the same titled chapter an
       const filename = new URL(desktop.official.href).pathname.split('/').pop();
       assert.equal(desktop.releaseUrl, `https://github.com/sikhizm/homeschool-os-assets/releases/download/class${grade}/${filename}`);
       assert.equal(desktop.readerHref, '/ncert-books/read/' + chapter.id);
-      assert.equal(chapterPdfSources(book, chapter, true).readerHref, null);
+      assert.equal(chapterPdfSources(book, chapter, true).readerHref, desktop.readerHref);
       assert.ok(!urls.has(desktop.releaseUrl));
       urls.add(desktop.releaseUrl);
     }

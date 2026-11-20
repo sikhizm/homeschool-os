@@ -15,7 +15,7 @@ export function chapterPdfSources(book: Textbook, chapter: ChapterSlot, preferOf
   return {
     official,
     releaseUrl,
-    readerHref: releaseUrl && !preferOfficial ? `/ncert-books/read/${chapter.id}` : null,
+    readerHref: releaseUrl ? `/ncert-books/read/${chapter.id}` : null,
     hasOfficialPdf: official.status === 'verified' || official.status === 'publisher',
   };
 }
