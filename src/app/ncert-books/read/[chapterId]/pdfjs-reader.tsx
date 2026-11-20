@@ -19,6 +19,14 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
   const canvases=useRef<Map<number,HTMLCanvasElement>>(new Map());
   const rendered=useRef<Set<number>>(new Set());
   const tasks=useRef<Map<number,{cancel:()=>void}>>(new Map());
+  // A cancelled PDF.js render still owns its canvas until its promise settles.
+  const canvasJobs=useRef<WeakMap<HTMLCanvasElement,Promise<void>>>(new WeakMap());
+  const renderRevision=useRef(0);
+  const invalidateRenders=useCallback(()=>{
+    renderRevision.current+=1;
+    tasks.current.forEach(task=>task.cancel());
+    rendered.current.clear();
+  },[]);
   const [ready,setReady]=useState(false);
   const [count,setCount]=useState(0);
   const [page,setPage]=useState(1);
@@ -42,17 +50,17 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     }catch(e){setError(e instanceof Error?e.message:'The PDF could not be loaded.');setStatus('');}
   },[src]);
 
-  useEffect(()=>()=>{tasks.current.forEach(t=>t.cancel());doc.current?.destroy();},[]);
+  useEffect(()=>()=>{invalidateRenders();doc.current?.destroy();},[]);
 
   useEffect(()=>{
     const syncFullscreen=()=>{
       setIsFullscreen(document.fullscreenElement===reader.current);
-      tasks.current.forEach(task=>task.cancel());tasks.current.clear();rendered.current.clear();
+      invalidateRenders();
       setLayoutRevision(revision=>revision+1);
     };
     document.addEventListener('fullscreenchange',syncFullscreen);
     return()=>document.removeEventListener('fullscreenchange',syncFullscreen);
-  },[]);
+  },[invalidateRenders]);
 
   const canvasRef=useCallback((number:number)=>(node:HTMLCanvasElement|null)=>{
     if(node)canvases.current.set(number,node);else canvases.current.delete(number);
@@ -86,29 +94,52 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
 
   useEffect(()=>{
     let cancelled=false;
+    const revision=renderRevision.current;
     async function render(number:number){
       const pdf=doc.current,canvas=canvases.current.get(number);
       if(!pdf||!canvas||rendered.current.has(number))return;
-      try{
-        const pdfPage=await pdf.getPage(number);if(cancelled)return;
-        const base=pdfPage.getViewport({scale:1});
-        const available=Math.max(1,canvas.parentElement?.clientWidth??800);
-        const scale=fit?Math.min(2.5,available/base.width):zoom;
-        const viewport=pdfPage.getViewport({scale});
-        const ratio=window.devicePixelRatio||1;
-        canvas.width=Math.floor(viewport.width*ratio);canvas.height=Math.floor(viewport.height*ratio);
-        canvas.style.width=`${viewport.width}px`;canvas.style.height=`${viewport.height}px`;
-        const context=canvas.getContext('2d');if(!context)throw new Error('Canvas rendering is unavailable.');
-        context.setTransform(ratio,0,0,ratio,0,0);
-        const task=pdfPage.render({canvasContext:context,viewport});tasks.current.set(number,task);
-        await task.promise;if(!cancelled){rendered.current.add(number);setPageSizes(current=>current[number]?current:{...current,[number]:base});}
-      }catch(e){if(!(e instanceof Error&&e.name==='RenderingCancelledException')&&!cancelled)setError(e instanceof Error?e.message:'A page could not be rendered.');}
+      // Serialize work for this physical canvas across React effects, zoom and fullscreen.
+      const previous=canvasJobs.current.get(canvas);
+      const job=(async()=>{
+        if(previous)await previous.catch(()=>{});
+        if(cancelled||revision!==renderRevision.current||doc.current!==pdf)return;
+        try{
+          const pdfPage=await pdf.getPage(number);
+          if(cancelled||revision!==renderRevision.current||doc.current!==pdf)return;
+          const base=pdfPage.getViewport({scale:1});
+          const available=Math.max(1,canvas.parentElement?.clientWidth??800);
+          const scale=fit?Math.min(2.5,available/base.width):zoom;
+          const viewport=pdfPage.getViewport({scale});
+          const ratio=window.devicePixelRatio||1;
+          canvas.width=Math.floor(viewport.width*ratio);canvas.height=Math.floor(viewport.height*ratio);
+          canvas.style.width=`${viewport.width}px`;canvas.style.height=`${viewport.height}px`;
+          const context=canvas.getContext('2d');if(!context)throw new Error('Canvas rendering is unavailable.');
+          context.setTransform(ratio,0,0,ratio,0,0);
+          const task=pdfPage.render({canvasContext:context,viewport});
+          tasks.current.set(number,task);
+          try{
+            await task.promise;
+            if(!cancelled&&revision===renderRevision.current){
+              rendered.current.add(number);
+              setPageSizes(current=>current[number]?current:{...current,[number]:base});
+            }
+          }finally{
+            if(tasks.current.get(number)===task)tasks.current.delete(number);
+          }
+        }catch(e){
+          if(cancelled||revision!==renderRevision.current)return;
+          if(e instanceof Error&&(e.name==='RenderingCancelledException'||e.message.includes('same canvas during multiple render')))return;
+          setError(e instanceof Error?e.message:'A page could not be rendered.');
+        }
+      })();
+      canvasJobs.current.set(canvas,job);
     }
     visible.forEach(n=>void render(n));
-    return()=>{cancelled=true;};
-  },[visible,fit,zoom,count,layoutRevision]);
+    return()=>{cancelled=true;invalidateRenders();};
+  },[visible,fit,zoom,count,layoutRevision,invalidateRenders]);
 
-  const changeZoom=(delta:number)=>{tasks.current.forEach(t=>t.cancel());tasks.current.clear();rendered.current.clear();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));};
+  const changeZoom=(delta:number)=>{invalidateRenders();setFit(false);setZoom(v=>Math.max(.5,Math.min(2.5,Math.round((v+delta)*10)/10)));};
+
   const go=(next:number)=>{const target=Math.max(1,Math.min(count,next));setPage(target);if(mode==='continuous')document.getElementById(`pdf-page-${target}`)?.scrollIntoView({behavior:'smooth',block:'start'});};
   const setView=(next:'continuous'|'single')=>{setMode(next);if(next==='continuous'&&page>1)requestAnimationFrame(()=>document.getElementById(`pdf-page-${page}`)?.scrollIntoView({behavior:'smooth',block:'start'}));};
   const toggleFullscreen=async()=>{
@@ -134,7 +165,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         <span className="pdfjs-control-divider"/>
         <button type="button" className="pdfjs-zoom-out" aria-label="Zoom out" onClick={()=>changeZoom(-.1)} disabled={!fit&&zoom<=.5}>−</button>
         <button type="button" className="pdfjs-zoom-in" aria-label="Zoom in" onClick={()=>changeZoom(.1)} disabled={!fit&&zoom>=2.5}>+</button>
-        <button type="button" className={`pdfjs-fit-width${fit?' is-active':''}`} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);}}>Fit width</button>
+        <button type="button" className={`pdfjs-fit-width${fit?' is-active':''}`} onClick={()=>{invalidateRenders();setFit(true);}}>Fit width</button>
         <button type="button" className="pdfjs-fullscreen-toggle" aria-label={isFullscreen?'Exit fullscreen PDF reader':'Fullscreen PDF reader'} onClick={()=>void toggleFullscreen()} aria-pressed={isFullscreen} ><span className="pdfjs-desktop-label">{isFullscreen?'Exit full screen':'Full screen'}</span><span className="pdfjs-mobile-label" aria-hidden="true">{isFullscreen?'✕':'⛶'}</span></button>
       </div>
     </header>
