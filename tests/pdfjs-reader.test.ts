@@ -72,3 +72,18 @@ test('PDF.js canvas rendering is serialized across fullscreen and zoom changes',
  assert.ok(source.includes("e.name==='RenderingCancelledException'"));
  assert.ok(source.includes("e.message.includes('same canvas during multiple render')"));
 });
+
+
+test('NCERT mobile chapter actions fit one row with accessible icon labels',()=>{
+ const page=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/page.tsx'),'utf8');
+ const css=readFileSync(resolve(process.cwd(),'src/app/pdfjs-reader.css'),'utf8');
+ assert.ok(page.includes('aria-label="Chapter resources and actions"'));
+ for(const name of ['official','release','details','status']){
+  assert.ok(page.includes('<ReaderActionIcon name="'+name+'"/>'));
+ }
+ assert.ok(page.includes('aria-label="Download GitHub release PDF"'));
+ assert.ok(page.includes('aria-label="Record chapter status"'));
+ assert.match(css,/\.ncert-reader-page \.ncert-reader-actions\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/s);
+ assert.match(css,/@media \(max-width: 359px\)/);
+ assert.ok(css.includes('.ncert-reader-action-short { display: none; }'));
+});
