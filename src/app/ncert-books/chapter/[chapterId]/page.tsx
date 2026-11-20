@@ -1,5 +1,6 @@
 import ChapterPlanMenu from '@/components/chapter-plan-menu';
 import Link from 'next/link';
+import Image from 'next/image';
 import ChapterProgress from './chapter-progress';
 import ChapterTests from './chapter-tests';
 import StudyMaterialStudio from './study-material-studio';
@@ -64,16 +65,23 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
         <ChapterPlanMenu chapterId={chapter.id} title={title} learnerId={learnerId} canRevise={sessionEligible && Boolean(chapter.verifiedTitle)} />
         <Link className="btn-secondary" href={'/planning?resource=' + encodeURIComponent('ncert:' + chapter.id) + '&intent=save#family-workflow'}>Save for later</Link>
       </div>
-      <section id="chapter-reading" className="workspace-panel family-hero" style={{ alignItems: 'flex-start' }}>
-        <div className="family-hero-copy" style={{ maxWidth: '100%' }}>
-          <span className="eyebrow">
-            CLASS {book.grade} · {book.subject} · {chapter.label.toUpperCase()} OF {siblings.length}
-          </span>
-          <h1 style={{ margin: '8px 0 6px' }}>{title}</h1>
-          <p className="muted" style={{ margin: '0 0 12px', fontWeight: 700 }}>
-            {book.title} · {book.publisher} · {book.language}
-          </p>
-          <p style={{ margin: 0 }}>
+      <section id="chapter-reading" className="workspace-panel family-hero chapter-reading-card" style={{ alignItems: 'flex-start' }}>
+        <div className="family-hero-copy chapter-reading-copy" style={{ maxWidth: '100%' }}>
+          <div className="chapter-reading-overview">
+            <div className="chapter-reading-titlegroup">
+              <span className="eyebrow">
+                CLASS {book.grade} · {book.subject} · {chapter.label.toUpperCase()} OF {siblings.length}
+              </span>
+              <h1 style={{ margin: '8px 0 6px' }}>{title}</h1>
+              <p className="muted chapter-reading-bookline" style={{ margin: 0, fontWeight: 700 }}>
+                {book.title} · {book.publisher} · {book.language}
+              </p>
+            </div>
+            <Image className="chapter-reading-illustration" src="/illustrations/chapter-open-book.svg" width={190} height={157} alt="" aria-hidden="true"/>
+          </div>
+          <div className="chapter-reading-evidence" role="note">
+            <span className="chapter-reading-evidence-icon" aria-hidden="true">ⓘ</span>
+            <p style={{ margin: 0 }}>
             {chapter.verifiedTitle
               ? `${contentLabel} title checked against the publisher table of contents.`
               : `${contentLabel} title has not been verified yet.`}{' '}
@@ -81,11 +89,12 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
               ? `Official selection note: ${selectionNote} This option remains browseable, but is intentionally excluded from the default auto-learning path. HomeSchool OS does not yet persist a parent or school selection of an alternative, so it will not claim that one has been chosen.`
               : ''}{' '}
             {mappingLabels[mappingStatus]}. {pdfLabels[pdf.status]}.
-          </p>
-          <div className="hero-actions">
+            </p>
+          </div>
+          <div className="hero-actions chapter-reading-actions">
             {readerHref && releaseUrl ? (
               <>
-                <Link className="hero-action-primary" href={learnerId ? readerHref + '?learner=' + encodeURIComponent(learnerId) : readerHref}>Read in Homeschool OS</Link>
+                <Link className="hero-action-primary" href={learnerId ? readerHref + '?learner=' + encodeURIComponent(learnerId) : readerHref}><span aria-hidden="true">▣</span> Read in HomeSchool OS <span aria-hidden="true">→</span></Link>
                 <a className="hero-action-secondary" href={pdf.href} target="_blank" rel="noopener noreferrer">{hasOfficialPdf ? 'Official NCERT PDF ↗' : 'Official textbook portal ↗'}</a>
                 <a className="hero-action-secondary" href={releaseUrl} target="_blank" rel="noopener noreferrer">Open / download release PDF ↗</a>
               </>
@@ -108,7 +117,7 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
               ← All {contentLabel.toLowerCase()}s
             </Link>
           </div>
-          <p className="muted" style={{ margin: '14px 0 0', fontSize: 12.5 }}>
+          <p className="muted chapter-reading-source-note" style={{ margin: '14px 0 0', fontSize: 12.5 }}>
             {readerHref ? 'This chapter opens in the Homeschool OS PDF reader using its matching class release asset; the official NCERT source remains available as a separate fallback.' : 'Official publisher material opens in a new tab. HomeSchool OS does not copy or host the textbook.'}
           </p>
         </div>
