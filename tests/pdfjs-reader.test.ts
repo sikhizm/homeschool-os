@@ -29,5 +29,21 @@ test('desktop PDF reader can enter fullscreen and resize its page canvas',()=>{
   assert.ok(css.includes('.pdfjs-reader:fullscreen'));
   assert.ok(css.includes('max-height: none'));
   assert.ok(css.includes('@media (max-width: 640px)'));
-  assert.ok(css.includes('.pdfjs-fullscreen-toggle { display: none; }'));
+  assert.ok(css.includes('.pdfjs-fullscreen-toggle { white-space: nowrap; }'));
+});
+
+
+test('mobile PDF reader has compact actions, toolbar and visible fullscreen control',()=>{
+  const source=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/pdfjs-reader.tsx'),'utf8');
+  const page=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/page.tsx'),'utf8');
+  const css=readFileSync(resolve(process.cwd(),'src/app/pdfjs-reader.css'),'utf8');
+  assert.ok(source.includes('aria-label={isFullscreen?'));
+  assert.ok(source.includes('pdfjs-previous'));
+  assert.ok(source.includes('pdfjs-fit-width'));
+  assert.ok(page.includes('ncert-reader-actions'));
+  assert.ok(page.includes('ncert-reader-panel'));
+  assert.match(css,/\.pdfjs-controls\s*\{\s*display:\s*grid/);
+  assert.match(css,/\.pdfjs-fullscreen-toggle\s*\{\s*grid-column:\s*5/);
+  assert.ok(css.includes('.pdfjs-reader:fullscreen .pdfjs-stage'));
+  assert.ok(!css.includes('.pdfjs-fullscreen-toggle { display: none; }'));
 });
