@@ -5,6 +5,7 @@ import '@fontsource/noto-sans-gurmukhi';
 import '@fontsource/noto-sans-devanagari';
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import './brand.css';
 import './global-search.css';
 import './study-material-studio.css';
 import './pdfjs-reader.css';
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: '/brand/homeschool-symbol.svg', type: 'image/svg+xml' },
       { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
@@ -34,7 +36,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#185B47',
+  themeColor: '#0866A8',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
