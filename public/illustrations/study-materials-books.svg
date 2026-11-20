@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 224" role="img" aria-labelledby="title">
+<title id="title">PDF document resting on a stack of books</title>
+<defs>
+ <linearGradient id="halo" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#d2eaff"/><stop offset="1" stop-color="#eaf6ff"/></linearGradient>
+ <linearGradient id="cover" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#1689d6"/><stop offset="1" stop-color="#065aab"/></linearGradient>
+ <linearGradient id="paper" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#edf7ff"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#28577d" flood-opacity=".17"/></filter>
+</defs>
+<circle cx="119" cy="108" r="94" fill="url(#halo)"/>
+<circle cx="35" cy="58" r="5" fill="#b9def9" opacity=".9"/><circle cx="207" cy="125" r="4" fill="#98d0ff"/>
+<g fill="#f7bf2b"><path d="M196 33l4 11 11 4-11 4-4 11-4-11-11-4 11-4z"/><path d="M56 33l2 7 7 2-7 2-2 7-2-7-7-2 7-2z"/></g>
+<ellipse cx="119" cy="197" rx="95" ry="10" fill="#c0d8e6" opacity=".55"/>
+<g filter="url(#shadow)" stroke-linejoin="round" stroke-width="2">
+ <path d="M37 174l54-18 106 28-54 18z" fill="#f4a726" stroke="#db8a11"/>
+ <path d="M37 174v12l106 30v-14z" fill="#eb9e19" stroke="#cb7f0c"/>
+ <path d="M143 202l54-18v12l-54 20z" fill="#ffd367" stroke="#db981e"/>
+ <path d="M45 163l57-19 102 23-58 21z" fill="#356fc2" stroke="#205aab"/>
+ <path d="M45 163v10l101 26v-11z" fill="#f6f9ff" stroke="#97b4d4"/>
+ <path d="M146 188l58-21v12l-58 20z" fill="#bedffc" stroke="#86b6e2"/>
+ <path d="M57 151l65-22 82 22-61 21z" fill="#0b8baf" stroke="#086c97"/>
+ <path d="M57 151v11l86 25v-15z" fill="#fff5dd" stroke="#c8b98e"/>
+ <path d="M143 172l61-21v13l-61 23z" fill="#bee9f3" stroke="#72bacc"/>
+</g>
+<g filter="url(#shadow)" transform="rotate(-5 119 105)">
+ <path d="M77 37h75l25 25v95H77z" fill="url(#paper)" stroke="#6caee2" stroke-width="2.2" stroke-linejoin="round"/>
+ <path d="M152 37v25h25z" fill="#c6e9ff" stroke="#6caee2" stroke-width="2.1" stroke-linejoin="round"/>
+ <rect x="91" y="77" width="72" height="40" rx="7" fill="url(#cover)"/>
+ <text x="127" y="105" text-anchor="middle" fill="#fff" font-family="Arial, sans-serif" font-size="27" font-weight="800">PDF</text>
+ <path d="M94 129h67M94 139h60M94 149h45" stroke="#9bcbed" stroke-width="5" stroke-linecap="round"/>
+ <path d="M89 58h38" stroke="#b7d8ed" stroke-width="5" stroke-linecap="round"/>
+</g>
+<path d="M174 27l2 7 7 2-7 2-2 7-2-7-7-2 7-2z" fill="#f6c23e"/>
+</svg>
