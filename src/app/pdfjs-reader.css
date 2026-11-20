@@ -115,3 +115,44 @@
   .pdfjs-reader:fullscreen .pdfjs-page-label { color: #cbd5e1; }
   .pdfjs-reader:fullscreen .pdfjs-page { padding-bottom: 8px; }
 }
+
+
+/* NCERT chapter resource links: four compact actions in one mobile row. */
+.ncert-reader-actions .ncert-reader-action-icon { flex: 0 0 auto; }
+.ncert-reader-actions .ncert-reader-action-short { display: none; }
+.ncert-reader-actions .ncert-reader-action-full { display: inline; }
+
+@media (max-width: 640px) {
+  .ncert-reader-page .ncert-reader-actions {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 5px;
+    width: 100%;
+    margin-top: 9px;
+  }
+  .ncert-reader-page .ncert-reader-actions .hero-action-secondary {
+    box-sizing: border-box;
+    display: inline-flex;
+    width: 100%;
+    min-width: 0;
+    min-height: 40px;
+    justify-content: center;
+    gap: 4px;
+    padding: 7px 3px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .ncert-reader-page .ncert-reader-actions .ncert-reader-action-full,
+  .ncert-reader-page .ncert-reader-actions .ncert-reader-action-external { display: none; }
+  .ncert-reader-page .ncert-reader-actions .ncert-reader-action-short { display: inline; }
+  .ncert-reader-page .ncert-reader-actions .ncert-reader-action-icon { width: 17px; height: 17px; }
+}
+
+/* Very narrow phones retain all four accessible actions without squeezing text. */
+@media (max-width: 359px) {
+  .ncert-reader-page .ncert-reader-actions .ncert-reader-action-short { display: none; }
+  .ncert-reader-page .ncert-reader-actions .hero-action-secondary { min-height: 42px; }
+  .ncert-reader-page .ncert-reader-actions .ncert-reader-action-icon { width: 19px; height: 19px; }
+}
