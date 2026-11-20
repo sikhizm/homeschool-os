@@ -112,7 +112,7 @@ section.progressSection {
   padding: .75rem 1rem;
 }
 .subjectDetails > summary span { float: right; margin-left: 1rem; }
-.picker summary, .subjectDetails summary, .rowActions summary { cursor: pointer; }
+.picker summary, .subjectDetails summary { cursor: pointer; }
 .weekGroup h3 {
   margin: 0;
   padding: .45rem 1rem;
@@ -129,7 +129,6 @@ section.progressSection {
   border-top: 1px solid #e2eae2;
 }
 .chapterRows li > a { flex: 1 1 12rem; min-width: 0; overflow-wrap: anywhere; }
-.rowActions { max-width: 100%; }
 @media (max-width: 580px) {
   .coverage { grid-template-columns: 1fr; }
   .coverage span { grid-column: auto; grid-row: auto; }
@@ -200,4 +199,135 @@ section.progressSection {
     padding-inline: .25rem;
   }
   .olympiadTabs button, .olympiadSchedule > button, .olympiadMenu > summary, .olympiadGoal { min-height: 44px; }
+}
+
+.weekHeader, .weekControls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+}
+
+.weekHeader {
+  justify-content: space-between;
+  margin-bottom: .35rem;
+}
+
+.weekHeader h2 { margin: 0; }
+.weekReadingSummary { margin: 0 0 .6rem; color: #506659; }
+
+.weekTable {
+  border: 1px solid #dce7dc;
+  border-radius: .75rem;
+}
+
+.weekColumns, .weekRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.7fr) minmax(0, .65fr) minmax(0, 1.3fr) minmax(7rem, auto);
+  align-items: center;
+  gap: .35rem .75rem;
+  padding: .2rem .75rem;
+}
+
+.weekColumns {
+  min-height: 36px;
+  border-radius: .7rem .7rem 0 0;
+  background: #edf4eb;
+  color: #214c3e;
+  font-size: .85rem;
+  font-weight: 700;
+}
+
+.weekRow {
+  min-height: 48px;
+  border-top: 1px solid #e2eae2;
+  font-size: .875rem;
+}
+
+.weekTitle { font-weight: 700; overflow-wrap: anywhere; }
+.weekSchedule { display: flex; flex-wrap: wrap; align-items: center; gap: .2rem .35rem; }
+.weekAction { justify-self: end; min-width: 0; }
+.weekAction > button { min-height: 38px; padding: .2rem .5rem; white-space: nowrap; }
+
+.weekDone, .weekCarry, .weekPending {
+  padding: .1rem .45rem;
+  border-radius: .75rem;
+  white-space: nowrap;
+  font-size: .75rem;
+  font-weight: 700;
+}
+
+.weekDone { color: #17533d; background: #deefe2; }
+.weekCarry { color: #754400; background: #fff0ca; }
+.weekPending { color: #40554b; background: #ecf0e9; }
+
+.weekMenu { position: relative; }
+.weekMenu > summary {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  list-style: none;
+  border-radius: .5rem;
+  color: #17533d;
+  font-size: 1.25rem;
+  cursor: pointer;
+}
+.weekMenu > summary::-webkit-details-marker { display: none; }
+.weekMenu[open] > summary, .weekMenu > summary:hover { background: #edf4eb; }
+.weekMenuItems {
+  position: absolute;
+  inset-block-start: calc(100% + .15rem);
+  inset-inline-end: 0;
+  z-index: 5;
+  width: max-content;
+  max-width: calc(100vw - 3rem);
+  padding: .25rem;
+  border: 1px solid #dce7dc;
+  border-radius: .6rem;
+  background: #fffefa;
+  box-shadow: 0 8px 20px #163e3224;
+}
+.weekMenuItems > button {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  padding: .4rem .65rem;
+  border: 0;
+  border-radius: .35rem;
+  background: transparent;
+  color: #214c3e;
+  text-align: start;
+  box-shadow: none;
+}
+.weekMenuItems > button:hover:not(:disabled) { background: #edf4eb; }
+
+@media (max-width: 760px) {
+  .weekColumns {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    min-height: 0;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .weekRow {
+    grid-template-areas:
+      "title title action"
+      "subject subject action"
+      "activity schedule action";
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: .15rem .4rem;
+    padding-block: .45rem;
+  }
+  .weekRow:nth-child(2) { border-top: 0; }
+  .weekTitle { grid-area: title; }
+  .weekSubject { grid-area: subject; color: #506659; }
+  .weekActivity { grid-area: activity; }
+  .weekSchedule { grid-area: schedule; }
+  .weekAction { grid-area: action; }
+  .weekSubject, .weekActivity, .weekSchedule { font-size: .75rem; }
+  .weekAction > button { min-height: 44px; }
 }

@@ -74,6 +74,7 @@ export function ChapterPlanner({
   const [book, setBook] = useState(books[0]?.id ?? "");
   const [draft, setDraft] = useState(ids);
   const [weekDraft, setWeekDraft] = useState(weekIds);
+  const [weekPickerOpen, setWeekPickerOpen] = useState(false);
   const [weekSubject, setWeekSubject] = useState('');
   const [weekSearch, setWeekSearch] = useState('');
   const [busy, setBusy] = useState(false);
@@ -146,6 +147,7 @@ export function ChapterPlanner({
     try {
       await changeChapter({ learnerId, date, ...input });
       refresh();
+      if (input.action === 'week') setWeekPickerOpen(false);
       setMessage("Saved.");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "Unable to save.");
@@ -275,13 +277,17 @@ export function ChapterPlanner({
             })}</ul>
           </details>)}
         </> : <>
-          <div className={styles.actions}>
+          <header className={styles.weekHeader}>
             <h2>This week · {weekLabel}</h2>
-            <Link className="btn-secondary" href="/dashboard">Today’s rhythm →</Link>
-          </div>
+            <div className={styles.weekControls}>
+              {canEdit && ids.length > 0 && <button type="button" className="btn-primary"
+                aria-expanded={weekPickerOpen} aria-controls="weekly-chapter-picker"
+                onClick={() => setWeekPickerOpen(open => !open)}>＋ Add chapters</button>}
+              <Link className="btn-secondary" href="/dashboard">Today’s rhythm →</Link>
+            </div>
+          </header>
           {!ids.length && <p>Choose chapters in the yearly plan first.</p>}
-          {canEdit && ids.length > 0 && <details className={styles.picker}>
-            <summary>＋ Add chapters</summary>
+          {canEdit && ids.length > 0 && <div id="weekly-chapter-picker" hidden={!weekPickerOpen} className={styles.picker}>
             <div className={styles.actions}>
               <label className="workspace-field">
                 Search chapters
@@ -310,8 +316,9 @@ export function ChapterPlanner({
                 <span>{chapterName(chapter.id)} <small>· {chapter.subject}</small></span>
               </label>)}
             </div> : <p className="muted">No chapters match your search.</p>}
-          </details>}
-          <WeeklyChapterActivities learnerId={learnerId} date={date} weekIds={weekIds} today={today} plan={chapterPlan} loadError={chapterPlanError} />
+          </div>}
+          <WeeklyChapterActivities learnerId={learnerId} date={date} weekIds={weekIds}
+            readChapterIds={weekIds.filter(id => records.get(id)?.has_read === true || normalizeChapterStatus(records.get(id)?.status) === 'read' || passed.has(id))} today={today} plan={chapterPlan} loadError={chapterPlanError} />
         </>}
       </section>
       {grade && (

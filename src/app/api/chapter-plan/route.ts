@@ -41,7 +41,7 @@ export async function GET(request: Request) {
     const ids = learners.map(row => String(row.id)).filter(id => !requestedLearner || id === requestedLearner);
     if (requestedLearner && !ids.length) return json({error: 'Learner unavailable.'}, 404);
     if (!schema.ready || !ids.length) return json({ready: Boolean(schema.ready), learners, canEdit, items: []});
-    const [planned, progress, tests, weeklyReads, yearPlans, passedChapters] = await Promise.all([
+    const [planned, progress, tests, weeklyReads, yearPlans, passedChapters, weeklyPlans] = await Promise.all([
       sql`SELECT p.learner_id::text, p.chapter_id, p.activity, p.period, p.starts_on::text,
         to_jsonb(p)->>'completed_on' AS completed_on,
         (to_jsonb(p)->>'optional_test')::boolean AS optional_test FROM chapter_plan_activities p
@@ -67,6 +67,13 @@ export async function GET(request: Request) {
           throw error;
         }) : [],
       rhythm && schema.tests ? passingChapters(sql, ids) : [],
+      rhythm ? sql`SELECT learner_id::text, chapter_ids, start_date::text FROM learning_planning_periods
+        WHERE learner_id::text = ANY(${ids}::text[]) AND kind = 'week'
+          AND start_date BETWEEN ${mondayOf(periodDates('year', day).startDate)}::date AND ${week}::date
+        ORDER BY start_date DESC`.catch(error => {
+          if ((error as {code?: string}).code === '42P01') return [];
+          throw error;
+        }) : [],
     ]);
     const key = (learnerId: unknown, chapterId: unknown) => `${learnerId}:${chapterId}`;
     const progressByChapter = new Map(progress.map(row => [key(row.learner_id, row.chapter_id), row]));
@@ -129,6 +136,42 @@ export async function GET(request: Request) {
         deduped.set(id, item);
       }
     }
+    const completedReadings = new Set(items.filter(item => item.activity === 'reading' && item.done)
+      .map(item => key(item.learnerId, item.chapterId)));
+    const readingProgress = learners.flatMap(learner => {
+      const learnerId = String(learner.id);
+      const chapters = new Map<string, boolean>();
+      for (const plan of weeklyPlans) {
+        if (plan.learner_id !== learnerId || !Array.isArray(plan.chapter_ids)) continue;
+        for (const chapterId of plan.chapter_ids.map(String)) {
+          if (catalogue.has(chapterId) && !chapters.has(chapterId)) chapters.set(chapterId, plan.start_date === week);
+        }
+      }
+      for (const item of items) {
+        if (item.learnerId === learnerId && item.activity === 'reading' && item.period === 'week' && item.startsOn === week) {
+          chapters.set(item.chapterId, true);
+        }
+      }
+      let total = 0, read = 0;
+      const remaining = [];
+      for (const [chapterId, current] of chapters) {
+        const id = key(learnerId, chapterId);
+        const saved = progressByChapter.get(id);
+        const readDates = [...(weeklyReadByChapter.get(id) ?? []), saved?.status !== 'pending' ? saved?.read_on : null];
+        const done = readDates.some(date => typeof date === 'string' && date <= day) ||
+          completedReadings.has(id);
+        if (current) {
+          total++;
+          if (done) read++;
+        }
+        if (done) continue;
+        const chapter = catalogue.get(chapterId)!;
+        remaining.push({chapterId, title: chapter.verifiedTitle ?? chapter.label, current,
+          inRhythm: deduped.has(`${id}:reading`)});
+      }
+      remaining.sort((a, b) => Number(a.current) - Number(b.current));
+      return total || remaining.length ? [{learnerId, name: String(learner.name), total, read, remaining}] : [];
+    });
     const weekendSuggestions = isTeachingDay(day) ? [] : learners.flatMap(learner =>
       progress.filter(row => row.learner_id === learner.id && typeof row.read_on === 'string' && row.read_on <= day)
         .flatMap(row => {
@@ -155,7 +198,7 @@ export async function GET(request: Request) {
         finished: chapters.filter(chapterId => passed.has(key(learnerId, chapterId))).length,
       };
     }) : null;
-    return json({ready: true, learners, canEdit, items: [...deduped.values()], readingWeek, weekendSuggestions, chapterCoverage});
+    return json({ready: true, learners, canEdit, items: [...deduped.values()].sort((a, b) => Number(b.carriedOver && !b.done) - Number(a.carriedOver && !a.done)), readingWeek, readingProgress, weekendSuggestions, chapterCoverage});
   } catch {
     return json({error: 'Unable to load planned chapter activities.'}, 503);
   }
@@ -182,10 +225,10 @@ async function scheduleReading(sql: ReturnType<typeof getSql>, familyId: string,
       WHERE a.activity = 'reading' AND a.period = 'week' AND a.starts_on = ${week}::date
         AND to_jsonb(a)->>'completed_on' IS NULL
       UNION ALL
-      SELECT p.learner_id, selected.chapter_id, CASE WHEN p.kind = 'week' THEN 1 ELSE 2 END, selected.position
+      SELECT p.learner_id, selected.chapter_id, CASE WHEN p.kind = 'year' THEN 3 WHEN p.start_date = ${week}::date THEN 2 ELSE 1 END, selected.position
       FROM learning_planning_periods p JOIN family_learners l ON l.id = p.learner_id
       CROSS JOIN LATERAL unnest(p.chapter_ids) WITH ORDINALITY AS selected(chapter_id, position)
-      WHERE ((p.kind = 'week' AND p.start_date = ${week}::date) OR
+      WHERE ((p.kind = 'week' AND p.start_date BETWEEN ${mondayOf(year)}::date AND ${week}::date) OR
         (p.kind = 'year' AND p.start_date = ${year}::date))
     ), candidate AS (
       SELECT DISTINCT ON (p.learner_id) p.learner_id, p.chapter_id
@@ -193,6 +236,9 @@ async function scheduleReading(sql: ReturnType<typeof getSql>, familyId: string,
       WHERE NOT EXISTS (SELECT 1 FROM read_dates r WHERE r.learner_id = p.learner_id
           AND r.chapter_id = p.chapter_id AND r.read_on <= ${day}::date
           AND (p.priority > 0 OR r.read_on >= ${week}::date))
+        AND NOT EXISTS (SELECT 1 FROM chapter_plan_activities a WHERE a.learner_id = p.learner_id
+          AND a.chapter_id = p.chapter_id AND a.activity = 'reading' AND a.starts_on <= ${day}::date
+          AND to_jsonb(a)->>'completed_on' <= ${day})
         AND NOT EXISTS (
           SELECT 1 FROM chapter_plan_activities a
           WHERE a.learner_id = p.learner_id AND a.activity = 'reading' AND a.starts_on <= ${day}::date

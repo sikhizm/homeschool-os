@@ -5,8 +5,8 @@ import {activityLabels} from '@/lib/planning/chapter-activities';
 
 type Learner = {id: string; name: string};
 
-export default function ChapterPlanMenu({chapterId, title, learnerId, inline = false, canRevise = true, initialDate}: {
-  chapterId: string; title: string; learnerId?: string; inline?: boolean; canRevise?: boolean; initialDate?: string;
+export default function ChapterPlanMenu({chapterId, title, learnerId, inline = false, inlineLabel = '+', canRevise = true, initialDate}: {
+  chapterId: string; title: string; learnerId?: string; inline?: boolean; inlineLabel?: string; canRevise?: boolean; initialDate?: string;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const [period, setPeriod] = useState<'day' | 'week'>('day');
@@ -59,7 +59,7 @@ export default function ChapterPlanMenu({chapterId, title, learnerId, inline = f
   }
 
   return <>
-    {inline ? <button type="button" className="btn-secondary chapter-plan-plus" aria-label={`Plan ${title}`} onClick={() => void open('day')}>+</button> : <>
+    {inline ? <button type="button" className={inlineLabel === '+' ? 'btn-secondary chapter-plan-plus' : 'btn-secondary'} aria-label={`Schedule ${title}`} onClick={() => void open('day')}>{inlineLabel}</button> : <>
       <button type="button" className="btn-secondary" onClick={() => void open('day')}>Use today</button>
       <button type="button" className="btn-secondary" onClick={() => void open('week')}>Add to plan</button>
     </>}
