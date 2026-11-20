@@ -2,19 +2,19 @@
 .learning-prompts h1 { margin-bottom: 8px; }
 .prompt-tracks, .prompt-actions, .prompt-favourites { display: flex; flex-wrap: wrap; gap: 10px; }
 .prompt-tracks { align-items: stretch; margin: 8px 0 24px; gap: 8px; }
-.prompt-tracks button { flex: 0 1 auto; max-width: 100%; padding: 11px 18px; border-radius: 12px; background: var(--surface, #fff); color: #194f42; border: 1px solid #b9cec5; font: inherit; font-weight: 700; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; text-align: center; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; }
-.prompt-tracks button:hover { background: #eaf3ed; border-color: #578979; }
-.prompt-tracks button:focus-visible { outline: 3px solid #6d9e8b; outline-offset: 2px; }
-.prompt-tracks button[aria-pressed="true"] { background: #194f42; border-color: #194f42; color: white; }
+.prompt-tracks button { flex: 0 1 auto; max-width: 100%; padding: 11px 18px; border-radius: 12px; background: var(--surface, #fff); color: #1a354e; border: 1px solid #b9c4ce; font: inherit; font-weight: 700; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; text-align: center; cursor: pointer; transition: background-color .15s ease, border-color .15s ease; }
+.prompt-tracks button:hover { background: #eaeff3; border-color: #587189; }
+.prompt-tracks button:focus-visible { outline: 3px solid #6d869e; outline-offset: 2px; }
+.prompt-tracks button[aria-pressed="true"] { background: #1a354e; border-color: #1a354e; color: white; }
 .prompt-layout { display: grid; grid-template-columns: minmax(260px, 0.8fr) minmax(0, 1.4fr); gap: 20px; align-items: start; }
 .prompt-controls { display: grid; gap: 16px; }
 .prompt-controls label { display: grid; gap: 6px; font-weight: 700; }
-.prompt-controls select { width: 100%; min-width: 0; padding: 11px; border: 1px solid #b9cec5; border-radius: 10px; background: white; color: #21382f; font: inherit; }
+.prompt-controls select { width: 100%; min-width: 0; padding: 11px; border: 1px solid #b9c4ce; border-radius: 10px; background: white; color: #212d38; font: inherit; }
 .prompt-controls p { margin: 0; }
 .prompt-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .prompt-preview { min-width: 0; }
 .prompt-preview h2 { margin-top: 0; }
-.prompt-preview textarea { width: 100%; min-height: 490px; padding: 16px; box-sizing: border-box; resize: vertical; font: inherit; font-size: 14px; line-height: 1.65; border: 1px solid #b9cec5; border-radius: 12px; background: #f8fbf9; color: #21382f; }
+.prompt-preview textarea { width: 100%; min-height: 490px; padding: 16px; box-sizing: border-box; resize: vertical; font: inherit; font-size: 14px; line-height: 1.65; border: 1px solid #b9c4ce; border-radius: 12px; background: #f8fbf9; color: #212d38; }
 .prompt-preview details { margin-top: 18px; }
 .prompt-preview summary { cursor: pointer; font-weight: 700; }
 .learning-prompts button, .prompt-actions a { min-height: 44px; }
