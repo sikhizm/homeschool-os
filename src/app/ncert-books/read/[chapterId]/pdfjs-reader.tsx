@@ -107,8 +107,11 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
           const pdfPage=await pdf.getPage(number);
           if(cancelled||revision!==renderRevision.current||doc.current!==pdf)return;
           const base=pdfPage.getViewport({scale:1});
-          const available=Math.max(1,canvas.parentElement?.clientWidth??800);
-          const scale=fit?Math.min(2.5,available/base.width):zoom;
+          const stage=reader.current?.querySelector<HTMLElement>('.pdfjs-stage');
+          const available=Math.max(1,(stage?.clientWidth??canvas.parentElement?.clientWidth??800)-8);
+          // Zoom is relative to fit-width so + and - make predictable small changes.
+          const fitScale=Math.min(2.5,available/base.width);
+          const scale=fit?fitScale:Math.min(3,fitScale*zoom);
           const viewport=pdfPage.getViewport({scale});
           const ratio=window.devicePixelRatio||1;
           canvas.width=Math.floor(viewport.width*ratio);canvas.height=Math.floor(viewport.height*ratio);
@@ -150,7 +153,7 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
     }catch{setError('Fullscreen view is unavailable in this browser.');}
   };
 
-  return <section ref={reader} className="pdfjs-reader" aria-label="PDF reader">
+  return <section ref={reader} className={`pdfjs-reader${!fit?' is-zoomed':''}`} aria-label="PDF reader">
     <Script src={`${CDN}/pdf.min.js`} strategy="afterInteractive" onLoad={()=>{setReady(true);void load();}} onError={()=>setError('The PDF reader library could not be loaded. Check your connection and retry.')}/>
     <header className="pdfjs-toolbar">
       <div className="pdfjs-toolbar-title"><strong>{title}</strong><span>{count?`Page ${page} of ${count}`:status||'PDF reader'}</span></div>
@@ -165,10 +168,11 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
         <span className="pdfjs-control-divider"/>
         <button type="button" className="pdfjs-zoom-out" aria-label="Zoom out" onClick={()=>changeZoom(-.1)} disabled={!fit&&zoom<=.5}>−</button>
         <button type="button" className="pdfjs-zoom-in" aria-label="Zoom in" onClick={()=>changeZoom(.1)} disabled={!fit&&zoom>=2.5}>+</button>
-        <button type="button" className={`pdfjs-fit-width${fit?' is-active':''}`} onClick={()=>{invalidateRenders();setFit(true);}}>Fit width</button>
+        <button type="button" className={`pdfjs-fit-width${fit?' is-active':''}`} onClick={()=>{invalidateRenders();setZoom(1);setFit(true);}}>Fit width</button>
         <button type="button" className="pdfjs-fullscreen-toggle" aria-label={isFullscreen?'Exit fullscreen PDF reader':'Fullscreen PDF reader'} onClick={()=>void toggleFullscreen()} aria-pressed={isFullscreen} ><span className="pdfjs-desktop-label">{isFullscreen?'Exit full screen':'Full screen'}</span><span className="pdfjs-mobile-label" aria-hidden="true">{isFullscreen?'✕':'⛶'}</span></button>
       </div>
     </header>
+    {isFullscreen&&<button type="button" className="pdfjs-fullscreen-exit" aria-label="Exit fullscreen PDF reader" onClick={()=>void toggleFullscreen()}>✕</button>}
     <div className={`pdfjs-stage${mode==='continuous'?' is-continuous':''}`}>
       {status&&<p className="pdfjs-status">{status}</p>}
       {error&&<div className="pdfjs-error" role="alert"><strong>Could not display this PDF.</strong><span>{error}</span><button type="button" onClick={()=>{if(ready)void load();}}>Retry</button></div>}
