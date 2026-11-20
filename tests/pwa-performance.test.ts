@@ -48,6 +48,11 @@ test('Planner and Dashboard are user-scoped and refresh after updates',()=>{
   assert.ok(dashboard.includes("readPrivateMemoryCache<HomeData>"));
   assert.ok(dashboard.includes("window.addEventListener('chapter-status-updated',changed)"));
   assert.ok(coach.includes("writePrivateMemoryCache(cacheScope,'dashboard:coach'"));
+  assert.ok(planner.includes('const fallback = readPrivateMemoryCache<WeeklyChapterPlan>'));
+  assert.ok(planner.includes('setChapterRequest({key: chapterKey, plan: null, error: false})'));
+  assert.ok(dashboard.includes('setChapterPlan([])'));
+  assert.ok(dashboard.includes('setChapterCoverage(null)'));
+  assert.ok(coach.includes("setNotice('Refreshing learner progress…')"));
   assert.match(planner,/fetch\(endpoint \+ '\?' \+ params\.toString\(\), \{ cache: 'no-store'/);
 });
 
