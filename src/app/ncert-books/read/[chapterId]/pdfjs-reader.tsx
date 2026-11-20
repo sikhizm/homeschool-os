@@ -128,14 +128,14 @@ export default function PdfJsReader({src,title}:{src:string;title:string}) {
           <button type="button" className={mode==='continuous'?'is-active':''} onClick={()=>setView('continuous')}>Continuous</button>
           <button type="button" className={mode==='single'?'is-active':''} onClick={()=>setView('single')}>Page by page</button>
         </div>
-        <button type="button" className="pdfjs-previous" onClick={()=>go(page-1)} disabled={page<=1}>Previous</button>
+        <button type="button" className="pdfjs-previous" aria-label="Previous page" onClick={()=>go(page-1)} disabled={page<=1}><span className="pdfjs-desktop-label">Previous</span><span className="pdfjs-mobile-label" aria-hidden="true">‹</span></button>
         <label className="pdfjs-page-input">Page <input aria-label="Page number" type="number" min={1} max={count||1} value={page} onChange={e=>go(Number(e.target.value)||1)}/> / {count||'—'}</label>
-        <button type="button" className="pdfjs-next" onClick={()=>go(page+1)} disabled={!count||page>=count}>Next</button>
+        <button type="button" className="pdfjs-next" aria-label="Next page" onClick={()=>go(page+1)} disabled={!count||page>=count}><span className="pdfjs-desktop-label">Next</span><span className="pdfjs-mobile-label" aria-hidden="true">›</span></button>
         <span className="pdfjs-control-divider"/>
         <button type="button" className="pdfjs-zoom-out" aria-label="Zoom out" onClick={()=>changeZoom(-.1)} disabled={!fit&&zoom<=.5}>−</button>
         <button type="button" className="pdfjs-zoom-in" aria-label="Zoom in" onClick={()=>changeZoom(.1)} disabled={!fit&&zoom>=2.5}>+</button>
         <button type="button" className={`pdfjs-fit-width${fit?' is-active':''}`} onClick={()=>{tasks.current.forEach(t=>t.cancel());rendered.current.clear();setFit(true);}}>Fit width</button>
-        <button type="button" className="pdfjs-fullscreen-toggle" aria-label={isFullscreen?'Exit fullscreen PDF reader':'Fullscreen PDF reader'} onClick={()=>void toggleFullscreen()} aria-pressed={isFullscreen}>{isFullscreen?'Exit full screen':'Full screen'}</button>
+        <button type="button" className="pdfjs-fullscreen-toggle" aria-label={isFullscreen?'Exit fullscreen PDF reader':'Fullscreen PDF reader'} onClick={()=>void toggleFullscreen()} aria-pressed={isFullscreen} ><span className="pdfjs-desktop-label">{isFullscreen?'Exit full screen':'Full screen'}</span><span className="pdfjs-mobile-label" aria-hidden="true">{isFullscreen?'✕':'⛶'}</span></button>
       </div>
     </header>
     <div className={`pdfjs-stage${mode==='continuous'?' is-continuous':''}`}>
