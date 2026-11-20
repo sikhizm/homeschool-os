@@ -69,12 +69,15 @@ self.addEventListener('fetch', (event) => {
 
   if (isCacheableAsset(url) && request.mode !== 'navigate') {
     event.respondWith((async () => {
-      const cache = await caches.open(CACHE_NAME);
-      const existing = await cache.match(request);
+      // Cache Storage is optional: quota/storage failures must never break page assets.
+      const cache = await caches.open(CACHE_NAME).catch(() => null);
+      const existing = cache ? await cache.match(request).catch(() => undefined) : undefined;
       // Hashed Next.js resources are immutable and can load entirely from disk.
       if (existing && url.pathname.startsWith('/_next/static/')) return existing;
       const update = fetch(request).then(async response => {
-        await remember(cache, request, response);
+        if (cache) {
+          try { await remember(cache, request, response); } catch { /* Network response stays usable. */ }
+        }
         return response;
       });
       // Stable-name public SVGs and icons refresh in the background.
