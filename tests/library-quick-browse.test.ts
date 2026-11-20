@@ -18,12 +18,16 @@ test('Quick Browse renders original artwork and preserves every catalogue-driven
  assert.ok(browse.includes('libraryGradeOptions.filter'));
  assert.ok(browse.includes('librarySubjectOptions.map'));
  assert.ok(browse.includes('libraryLearningOptions.map'));
- assert.equal((browse.match(/href=\{option\.href\}/g)??[]).length,4);
+ assert.equal((browse.match(/href=\{option\.href\}/g)??[]).length,3);
  assert.deepEqual(
   libraryGradeOptions.filter(x=>x.label.startsWith('Class ')).map(x=>x.label),
   Array.from({length:10},(_,index)=>`Class ${index+1}`),
  );
  assert.equal(libraryGradeOptions.filter(x=>!x.label.startsWith('Class ')).length,3);
+ assert.ok(!browse.includes('library-browse-foundations'),'Grade quick browse must exclude Early Years, Nursery and UKG');
+ assert.ok(!browse.includes('foundationOptions'));
+ assert.ok(!browse.includes("'Nursery'"));
+ assert.ok(!browse.includes("'UKG'"));
  assert.ok(librarySubjectOptions.length>=6);
  assert.ok(libraryLearningOptions.length>=4);
  assert.ok(browse.includes('href="/ncert-books"'),'All Grades should link to the existing catalogue');
@@ -35,12 +39,11 @@ test('Quick Browse provides readable grouped, icon-labelled and responsive short
  for(const section of ['Select Grade','Select Subject','Select Learning Type']){
   assert.ok(browse.includes(section));
  }
- for(const landmark of ['library-browse-banner','library-browse-foundations','library-browse-classes','library-browse-subjects','library-browse-types']){
+ for(const landmark of ['library-browse-banner','library-browse-classes','library-browse-subjects','library-browse-types']){
   assert.ok(browse.includes(landmark));
  }
  assert.ok(browse.includes('aria-labelledby="library-browse-title"'));
  assert.ok(browse.includes('aria-hidden="true" focusable="false"'));
- assert.match(css,/\.library-browse-foundations\s*\{\s*grid-template-columns:\s*repeat\(3,minmax\(0,1fr\)\)/);
  assert.match(css,/@media \(max-width: 780px\)/);
  assert.match(css,/\.library-browse-classes\s*\{\s*grid-template-columns:\s*repeat\(4,minmax\(0,1fr\)\)/);
  assert.match(css,/\.library-browse-subjects,\s*\.library-browse-types\s*\{\s*grid-template-columns:\s*repeat\(2,minmax\(0,1fr\)\)/);
