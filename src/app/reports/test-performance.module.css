@@ -5,7 +5,7 @@
 }
 
 .history th, .history td {
-  border-bottom: 1px solid #d9e5de;
+  border-bottom: 1px solid #d9dfe5;
   padding: 0.45rem;
   text-align: start;
   vertical-align: top;
@@ -30,7 +30,7 @@
   }
 
   .history tr {
-    border-bottom: 1px solid #d9e5de;
+    border-bottom: 1px solid #d9dfe5;
     padding: 0.5rem 0;
     break-inside: avoid;
   }
