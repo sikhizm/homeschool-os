@@ -4,9 +4,9 @@
   gap: 8px;
   justify-content: flex-start;
   min-height: 44px;
-  color: #185b47;
-  background: #edf5ee;
-  border: 1px solid #c9ded1;
+  color: #193b5a;
+  background: #edf1f5;
+  border: 1px solid #c9d4de;
   border-radius: 12px;
   padding: 0 10px;
   font: inherit;
@@ -29,13 +29,13 @@
   width: min(680px, calc(100vw - 28px));
   max-width: none;
   max-height: min(740px, calc(100dvh - min(10vh, 80px) - 16px));
-  border: 1px solid #c9ded1;
+  border: 1px solid #c9d4de;
   border-radius: 20px;
-  color: #202c28;
+  color: #20262c;
   background: #fffdf9;
-  box-shadow: 0 24px 80px #172f2960;
+  box-shadow: 0 24px 80px #17232f60;
 }
-.global-search-dialog::backdrop { background: #152d27a6; }
+.global-search-dialog::backdrop { background: #15212da6; }
 .global-search-panel {
   display: flex;
   flex-direction: column;
@@ -54,12 +54,12 @@
 .global-search-heading h2 { font-size: 19px; line-height: 1.3; margin: 0; font-weight: 800; }
 .global-search-field {
   padding: 0 10px;
-  border: 1px solid #9bbfac;
+  border: 1px solid #9baebf;
   border-radius: 12px;
   background: #fff;
-  color: #185b47;
+  color: #193b5a;
 }
-.global-search-field:focus-within { outline: 2px solid #185b47; outline-offset: 2px; }
+.global-search-field:focus-within { outline: 2px solid #193b5a; outline-offset: 2px; }
 .global-search-field svg { flex: none; }
 .global-search-field input {
   flex: 1;
@@ -68,7 +68,7 @@
   padding: 0;
   border: 0;
   background: transparent;
-  color: #202c28;
+  color: #20262c;
   outline: none;
   font: inherit;
   font-size: 16px;
@@ -80,16 +80,16 @@
   border: 1px solid transparent;
   padding: 0 10px;
   border-radius: 8px;
-  color: #185b47;
+  color: #193b5a;
   font-weight: 800;
 }
 .global-search-heading button { min-width: 44px; font-size: 22px; }
 .global-search-filters { display: flex; gap: 4px; flex-wrap: wrap; }
-.global-search-filters button { background: #f2f5ee; font-size: 12px; }
-.global-search-filters button[aria-pressed="true"] { background: #185b47; color: white; }
-.global-search-message, .global-search-help { font-size: 13px; color: #475b51; margin: 0; }
+.global-search-filters button { background: #eef2f5; font-size: 12px; }
+.global-search-filters button[aria-pressed="true"] { background: #193b5a; color: white; }
+.global-search-message, .global-search-help { font-size: 13px; color: #47515b; margin: 0; }
 .global-search-results { min-height: 0; overflow: auto; overscroll-behavior: contain; }
-.global-search-results h3 { font-size: 13px; font-weight: 800; color: #475b51; margin: 8px 4px; }
+.global-search-results h3 { font-size: 13px; font-weight: 800; color: #47515b; margin: 8px 4px; }
 .global-search-results ul { margin: 0; padding: 0; list-style: none; }
 .global-search-results a {
   display: grid;
@@ -99,20 +99,20 @@
   min-height: 54px;
   padding: 8px;
   border-radius: 10px;
-  color: #24382e;
+  color: #242e38;
   text-decoration: none;
 }
-.global-search-results a:hover, .global-search-results a:focus-visible { background: #e9f3eb; }
+.global-search-results a:hover, .global-search-results a:focus-visible { background: #e9eef3; }
 .global-search-results a:focus-visible { outline-offset: -2px; }
 .global-search-result-copy { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
 .global-search-result-copy strong { font-size: 15px; }
 .global-search-result-copy small, .global-search-result-copy > span { font-size: 13px; line-height: 1.45; }
-.global-search-result-copy small { color: #185b47; font-weight: 800; }
-.global-search-result-copy > span { color: #475b51; }
-.global-search-result-icon { color: #185b47; background: #eef5ee; border-radius: 8px; padding: 4px 8px; }
-.global-search-more { margin: 6px 0; background: #eef5ee; }
-.global-search-help { display: flex; gap: 12px; border-top: 1px solid #dce6df; padding-top: 8px; }
-.global-search-trigger:focus-visible, .global-search-panel :is(button, a):focus-visible { outline: 2px solid #185b47; }
+.global-search-result-copy small { color: #193b5a; font-weight: 800; }
+.global-search-result-copy > span { color: #47515b; }
+.global-search-result-icon { color: #193b5a; background: #eef2f5; border-radius: 8px; padding: 4px 8px; }
+.global-search-more { margin: 6px 0; background: #eef2f5; }
+.global-search-help { display: flex; gap: 12px; border-top: 1px solid #dce1e6; padding-top: 8px; }
+.global-search-trigger:focus-visible, .global-search-panel :is(button, a):focus-visible { outline: 2px solid #193b5a; }
 @media (max-width: 600px) {
   .global-search-dialog { margin-top: 8px; max-height: calc(100dvh - 16px); }
   .global-search-panel { padding: 12px; gap: 8px; }
