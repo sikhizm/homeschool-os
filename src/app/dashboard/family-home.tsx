@@ -58,16 +58,20 @@ export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|nu
   type RhythmSnapshot={ready:boolean;items:ChapterPlanItem[];chapterCoverage?:typeof chapterCoverage;
     readingWeek?:typeof readingWeek;readingProgress?:ReadingProgress[];weekendSuggestions?:typeof weekendSuggestions};
   const cachedAgenda=readPrivateMemoryCache<HomeData>(cacheScope,agendaKey);
-  if(cachedAgenda)setData(cachedAgenda);
   const cachedRhythm=readPrivateMemoryCache<RhythmSnapshot>(cacheScope,rhythmKey);
-  if(cachedRhythm){
-    setChapterCoverage(cachedRhythm.chapterCoverage??null);
-    setReadingProgress(cachedRhythm.readingProgress??[]);
-    setChapterPlan(cachedRhythm.items);
-    setReadingWeek(cachedRhythm.readingWeek??[]);
-    setWeekendSuggestions(cachedRhythm.weekendSuggestions??[]);
-    setRhythmReady(cachedRhythm.ready);
-  }
+  // Hydrate after the effect starts, rather than synchronously chaining React renders.
+  queueMicrotask(()=>{
+    if(!alive)return;
+    if(cachedAgenda)setData(cachedAgenda);
+    if(cachedRhythm){
+      setChapterCoverage(cachedRhythm.chapterCoverage??null);
+      setReadingProgress(cachedRhythm.readingProgress??[]);
+      setChapterPlan(cachedRhythm.items);
+      setReadingWeek(cachedRhythm.readingWeek??[]);
+      setWeekendSuggestions(cachedRhythm.weekendSuggestions??[]);
+      setRhythmReady(cachedRhythm.ready);
+    }
+  });
   const loadAgenda=()=>fetch('/api/auto-learning?agenda=1',{cache:'no-store'})
    .then(r=>{
     if(r.status===401||r.status===403){clearPrivateMemoryCache();setData(null);throw new Error('Sign in required');}
