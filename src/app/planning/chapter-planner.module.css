@@ -261,7 +261,16 @@ section.progressSection {
 .weekCarry { color: #754400; background: #fff0ca; }
 .weekPending { color: #404b55; background: #e9edf0; }
 
-.weekMenu { position: relative; }
+/* The global .learning-workspace details rule adds a divider, margin and top
+   padding to expandable sections. Compact row action menus must opt out. */
+.weekAction > .weekMenu {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.weekAction > .weekMenu > summary { margin: 0; }
+.weekAction > .weekMenu[open] > summary { margin-bottom: 0; }
 .weekMenu > summary {
   display: grid;
   width: 44px;
