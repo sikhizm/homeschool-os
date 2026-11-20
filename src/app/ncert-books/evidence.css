@@ -1,4 +1,4 @@
 .ncert-evidence-audit {overflow-wrap:anywhere}
 .ncert-evidence-table {overflow-x:auto}
 .ncert-evidence-table table {width:100%;border-collapse:collapse;font-size:13px}
-.ncert-evidence-table :is(th,td) {padding:8px;text-align:left;border-bottom:1px solid var(--line,#dce5df)}
+.ncert-evidence-table :is(th,td) {padding:8px;text-align:left;border-bottom:1px solid var(--line,#dce1e5)}
