@@ -36,6 +36,10 @@ export default function AutomaticLearning({cacheScope}:{cacheScope:string}){
   const handle=setTimeout(()=>{void load()},0);
   const changed=()=>{
    invalidatePrivateMemoryCache(cacheScope,'dashboard:');
+   setLearners([]);
+   setSelected('');
+   setNotice('Refreshing learner progress…');
+   setLoading(true);
    void load();
   };
   const restore=()=>{void load()};
