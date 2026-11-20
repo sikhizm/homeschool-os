@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 250 206" role="img" aria-labelledby="title">
+<title id="title">Open book with rising sun and leafy branches</title>
+<defs>
+ <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#edf8ff"/><stop offset="1" stop-color="#fffaf0"/></linearGradient>
+ <linearGradient id="leftpage" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#d5eaff"/></linearGradient>
+ <linearGradient id="rightpage" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#fff"/><stop offset="1" stop-color="#e5effb"/></linearGradient>
+ <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feDropShadow dx="0" dy="5" stdDeviation="4" flood-color="#235a7c" flood-opacity=".18"/></filter>
+</defs>
+<path d="M46 148a81 81 0 1 1 158 0" fill="url(#sky)" opacity=".92"/>
+<g fill="none" stroke="#f7c853" stroke-width="3" stroke-linecap="round">
+ <path d="M124 23v12M89 29l6 11M160 29l-6 11M65 51l11 8M183 51l-11 8M54 83l13 3M195 83l-13 3"/>
+</g>
+<circle cx="124" cy="86" r="37" fill="#ffdc70" stroke="#f5b83a" stroke-width="3"/>
+<path d="M91 101q33 8 66 0" fill="none" stroke="#f9bc35" stroke-width="2" opacity=".65"/>
+<path d="M20 153c34-14 71-18 105-6 42-13 79-9 105 7" fill="none" stroke="#b8d5a4" stroke-width="2"/>
+<g stroke="#3d994e" stroke-width="2.3" stroke-linecap="round" fill="none">
+ <path d="M47 166c-7-28-14-52-27-76"/><path d="M204 169c7-28 13-57 27-80"/>
+</g>
+<g fill="#77c666" stroke="#419d55" stroke-width="1.2">
+ <path d="M36 124C10 122 8 107 13 104c15-2 25 8 23 20z"/><path d="M38 136c21-12 19-26 13-28-16 4-18 15-13 28z"/><path d="M27 105c-24-6-27-19-20-21 14 1 21 8 20 21z"/>
+ <path d="M212 129c22-18 17-30 10-30-13 6-16 16-10 30z"/><path d="M213 147c25-5 27-18 21-22-18 0-24 7-21 22z"/><path d="M223 105c-1-22 8-27 15-25 4 13-2 22-15 25z"/>
+</g>
+<g filter="url(#shadow)" stroke-linejoin="round">
+ <path d="M22 144q45-19 102 6 50-25 104-6v43q-56-19-104 7-48-26-102-7z" fill="#146bb2" stroke="#0a4c84" stroke-width="3"/>
+ <path d="M29 138q44-18 95 7v42q-44-23-95-8z" fill="url(#leftpage)" stroke="#5197cf" stroke-width="2"/>
+ <path d="M124 145q48-24 97-7v41q-50-15-97 8z" fill="url(#rightpage)" stroke="#5197cf" stroke-width="2"/>
+ <path d="M124 145v43" stroke="#1b6daf" stroke-width="3" stroke-linecap="round"/>
+ <g fill="none" stroke="#9dc3e2" stroke-width="1.8" stroke-linecap="round">
+  <path d="M43 149q37-8 70 7M41 158q38-9 71 6M41 168q38-10 71 6"/>
+  <path d="M138 156q35-17 67-9M138 164q35-17 67-9M138 172q35-16 67-9"/>
+ </g>
+ <path d="M24 187q47-12 100 12 52-24 104-12" fill="none" stroke="#f9c449" stroke-width="6" stroke-linecap="round"/>
+</g>
+<g fill="#f8c64d"><circle cx="73" cy="22" r="3"/><circle cx="177" cy="18" r="4"/></g>
+</svg>
