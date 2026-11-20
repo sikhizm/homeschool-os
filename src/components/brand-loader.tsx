@@ -1,0 +1,2 @@
+import BrandLogo from '@/components/brand-logo';
+export default function BrandLoader({fullScreen=false}:{fullScreen?:boolean}) {return <div className={fullScreen?'hs-loader hs-loader-full':'hs-loader'} role="status" aria-label="Loading your workspace"><div className="hs-loader-ring"><BrandLogo compact/></div><p>Loading your workspace…</p><span className="hs-loader-dots" aria-hidden="true"><i/><i/><i/></span></div>}
