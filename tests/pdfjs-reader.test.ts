@@ -87,3 +87,21 @@ test('NCERT mobile chapter actions fit one row with accessible icon labels',()=>
  assert.match(css,/@media \(max-width: 359px\)/);
  assert.ok(css.includes('.ncert-reader-action-short { display: none; }'));
 });
+
+
+test('mobile fullscreen has zoom in, zoom out, independent exit and horizontal panning',()=>{
+ const source=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/pdfjs-reader.tsx'),'utf8');
+ const css=readFileSync(resolve(process.cwd(),'src/app/pdfjs-reader.css'),'utf8');
+ assert.ok(source.includes('className="pdfjs-zoom-out"'));
+ assert.ok(source.includes('className="pdfjs-zoom-in"'));
+ assert.ok(source.includes('className="pdfjs-fullscreen-exit"'));
+ assert.ok(source.includes('aria-label="Exit fullscreen PDF reader"'));
+ assert.ok(source.includes('fitScale*zoom'));
+ assert.ok(source.includes("!fit?' is-zoomed':''"));
+ assert.match(css,/\.pdfjs-reader:fullscreen \.pdfjs-controls\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*repeat\(4,/s);
+ assert.match(css,/\.pdfjs-reader:fullscreen \.pdfjs-controls \.pdfjs-zoom-in\s*\{\s*display:\s*inline-flex/s);
+ assert.match(css,/\.pdfjs-reader:fullscreen \.pdfjs-controls \.pdfjs-fullscreen-toggle\s*\{\s*display:\s*none;/s);
+ assert.match(css,/\.pdfjs-reader:fullscreen \.pdfjs-fullscreen-exit\s*\{\s*display:\s*inline-grid/s);
+ assert.ok(css.includes('.pdfjs-reader:fullscreen.is-zoomed .pdfjs-stage canvas'));
+ assert.ok(css.includes('max-width: none;'));
+});
