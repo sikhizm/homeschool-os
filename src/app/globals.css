@@ -3200,3 +3200,57 @@ button:active:not(:disabled){transform:translateY(1px)}
 .family-learner-activity-description > div { display: grid; min-width: 0; overflow-wrap: anywhere; }
 .family-learner-activity-description > div > span { color: #45515d; font-size: .8rem; }
 .family-learner-activity > a { min-height: 44px; padding: .4rem .75rem; }
+
+
+/* NCERT chapter detail: illustrated, responsive reading card. */
+.chapter-reading-card { display: block; }
+.chapter-reading-copy { width: 100%; min-width: 0; }
+.chapter-reading-overview { display: flex; align-items: center; justify-content: space-between; gap: 18px; }
+.chapter-reading-titlegroup { min-width: 0; flex: 1 1 auto; }
+.chapter-reading-titlegroup h1 { overflow-wrap: anywhere; }
+.chapter-reading-illustration { display: block; flex: 0 0 auto; width: clamp(115px, 18vw, 190px); height: auto; object-fit: contain; }
+.chapter-reading-evidence { display: flex; gap: 10px; align-items: flex-start; margin-top: 14px; padding: 12px 14px; border: 1px solid #d8e6f3; border-radius: 14px; background: linear-gradient(110deg,#eef7ff,#f8fbfe); color: #28435b; font-size: 13px; line-height: 1.55; }
+.chapter-reading-card .chapter-reading-evidence p { margin: 0; color: #314d65; }
+.chapter-reading-evidence-icon { flex: 0 0 22px; display: grid; place-items: center; font-size: 20px; line-height: 1; color: #126ca9; }
+.chapter-reading-actions { gap: 8px; margin-top: 14px; align-items: stretch; }
+.chapter-reading-actions .hero-action-primary { display: inline-flex; justify-content: center; align-items: center; gap: 11px; text-decoration: none; min-height: 46px; padding: 12px 16px; border-radius: 12px; font-size: 14px; font-weight: 800; }
+.chapter-reading-actions .hero-action-secondary { display: inline-flex; justify-content: center; text-align: center; min-height: 43px; padding: 10px 13px; }
+.chapter-reading-source-note { max-width: 850px; line-height: 1.45; }
+
+/* Chapter progress: clear two-column selections and a non-interactive auto-finished state. */
+.chapter-status-panel { display: grid; gap: 12px; }
+.chapter-status-heading { display: flex; align-items: center; gap: 12px; }
+.chapter-status-heading-icon { display: grid; place-items: center; flex: 0 0 48px; height: 48px; border-radius: 14px; background: #e5f1fc; color: #0969ad; }
+.chapter-status-panel .chapter-status-heading h2 { margin: 0; font-size: clamp(21px, 2.4vw, 27px); }
+.chapter-status-panel .chapter-status-heading p { margin: 2px 0 0; font-size: 13px; line-height: 1.4; }
+.chapter-status-panel .workspace-field { margin: 0; }
+.chapter-status-options { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 9px; margin: 3px 0; }
+.chapter-status-options button { min-width: 0; min-height: 94px; padding: 13px; border-radius: 13px; }
+.chapter-status-options button strong, .chapter-status-auto strong { display: flex; align-items: center; gap: 7px; font-size: 15px; line-height: 1.25; }
+.chapter-status-options button small, .chapter-status-auto small { display: block; font-size: 12px; line-height: 1.45; }
+.chapter-status-option-icon { display: inline-grid; flex: 0 0 24px; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: #ffffff9c; font-size: 17px; font-weight: 800; line-height: 1; }
+.chapter-status-auto { grid-column: 1 / -1; min-height: 67px; padding: 13px; border-radius: 13px; background: #e1f4ee; border-color: #c2dfd3; color: #1c5749; }
+.chapter-status-panel textarea { width: 100%; }
+@media (max-width: 700px) {
+  .studio-stack .chapter-reading-card { padding: 17px; }
+  .chapter-reading-overview { gap: 8px; }
+  .chapter-reading-illustration { width: clamp(78px, 23vw, 112px); }
+  .chapter-reading-titlegroup .eyebrow { font-size: 10px; line-height: 1.45; }
+  .chapter-reading-titlegroup h1 { font-size: clamp(26px, 6.8vw, 36px) !important; line-height: 1.2; }
+  .chapter-reading-bookline { font-size: 13px; line-height: 1.4; }
+  .chapter-reading-evidence { margin-top: 11px; padding: 10px; gap: 8px; font-size: 12px; line-height: 1.5; }
+  .chapter-reading-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; margin-top: 12px; }
+  .chapter-reading-actions .hero-action-primary { grid-column: 1 / -1; width: 100%; min-height: 44px; padding: 10px 12px; font-size: 13px; }
+  .chapter-reading-actions .hero-action-secondary { min-width: 0; min-height: 42px; padding: 8px 4px; font-size: 11px; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; }
+  .chapter-reading-source-note { font-size: 11px !important; line-height: 1.4; }
+  .chapter-status-sticky { position: static; top: auto; margin-bottom: 6px; z-index: 1; }
+  .chapter-status-panel { padding: 17px; gap: 10px; }
+  .chapter-status-options { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
+  .chapter-status-options button { min-height: 97px; padding: 11px; }
+  .chapter-status-auto { min-height: 72px; padding: 11px; }
+  .chapter-status-options button strong, .chapter-status-auto strong { font-size: 14px; }
+}
+@media (max-width: 360px) {
+  .chapter-reading-illustration { width: 73px; }
+  .chapter-status-option-icon { width: 20px; height: 20px; flex-basis: 20px; font-size: 15px; }
+}
