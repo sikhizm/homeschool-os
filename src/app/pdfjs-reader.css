@@ -1,26 +1,26 @@
 
 /* Focused PDF.js reader: only used by the single NCERT release pilot. */
-.pdfjs-reader { width: 100%; overflow: hidden; border: 1px solid #dce5dc; border-radius: 14px; background: #eef2ef; }
+.pdfjs-reader { width: 100%; overflow: hidden; border: 1px solid #dce1e5; border-radius: 14px; background: #eef2ef; }
 .pdfjs-reader:fullscreen { display: flex; flex-direction: column; width: 100vw; height: 100vh; max-height: 100vh; border: 0; border-radius: 0; }
 .pdfjs-reader:fullscreen .pdfjs-stage { flex: 1 1 auto; min-height: 0; max-height: none; }
-.pdfjs-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: #fff; border-bottom: 1px solid #dce5dc; }
+.pdfjs-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 14px; background: #fff; border-bottom: 1px solid #dce1e5; }
 .pdfjs-toolbar-title { display: grid; gap: 2px; min-width: 140px; }
 .pdfjs-toolbar-title strong { font-size: 14px; }
-.pdfjs-toolbar-title span { color: #60756a; font-size: 12px; }
+.pdfjs-toolbar-title span { color: #5e6b77; font-size: 12px; }
 .pdfjs-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-.pdfjs-controls button, .pdfjs-error button { min-height: 34px; padding: 6px 10px; border: 1px solid #cbd9cf; border-radius: 8px; background: #fff; color: #203b32; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.pdfjs-controls button, .pdfjs-error button { min-height: 34px; padding: 6px 10px; border: 1px solid #cbd2d9; border-radius: 8px; background: #fff; color: #202e3b; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
 .pdfjs-controls button:disabled { opacity: .4; cursor: not-allowed; }
-.pdfjs-controls button.is-active { border-color: #185b47; background: #e5f1e9; color: #185b47; }
-.pdfjs-page-input { display: flex; align-items: center; gap: 5px; color: #60756a; font-size: 12px; }
-.pdfjs-page-input input { width: 54px; min-height: 34px; border: 1px solid #cbd9cf; border-radius: 7px; padding: 4px 6px; font: inherit; }
-.pdfjs-control-divider { width: 1px; height: 24px; margin: 0 3px; background: #dce5dc; }
+.pdfjs-controls button.is-active { border-color: #193b5a; background: #e5ebf1; color: #193b5a; }
+.pdfjs-page-input { display: flex; align-items: center; gap: 5px; color: #5e6b77; font-size: 12px; }
+.pdfjs-page-input input { width: 54px; min-height: 34px; border: 1px solid #cbd2d9; border-radius: 7px; padding: 4px 6px; font: inherit; }
+.pdfjs-control-divider { width: 1px; height: 24px; margin: 0 3px; background: #dce1e5; }
 .pdfjs-stage { display: flex; justify-content: center; align-items: flex-start; min-height: 65vh; max-height: 78vh; overflow: auto; padding: 16px; background: #e9eeeb; container-type: inline-size; }
 .pdfjs-stage.is-continuous { flex-direction: column; align-items: stretch; justify-content: flex-start; scroll-behavior: smooth; }
-.pdfjs-stage canvas { display: block; max-width: none; height: auto; background: white; box-shadow: 0 3px 18px #203b3220; }
-.pdfjs-status { margin: 30px auto; color: #60756a; font-size: 14px; }
+.pdfjs-stage canvas { display: block; max-width: none; height: auto; background: white; box-shadow: 0 3px 18px #202e3b20; }
+.pdfjs-status { margin: 30px auto; color: #5e6b77; font-size: 14px; }
 .pdfjs-error { display: grid; align-content: center; justify-items: center; gap: 10px; max-width: 520px; margin: 50px auto; padding: 24px; border: 1px solid #e6c5b9; border-radius: 12px; background: #fff8f5; color: #743a2c; text-align: center; }
 .pdfjs-error span { overflow-wrap: anywhere; font-size: 13px; }
-.pdfjs-footer { display: flex; justify-content: space-between; gap: 12px; padding: 9px 13px; background: white; color: #60756a; font-size: 11px; }
+.pdfjs-footer { display: flex; justify-content: space-between; gap: 12px; padding: 9px 13px; background: white; color: #5e6b77; font-size: 11px; }
 .pdfjs-hidden-loader { display: none; }
 @media (max-width: 640px) {
   .pdfjs-toolbar { align-items: flex-start; }
@@ -31,12 +31,12 @@
   .pdfjs-footer { flex-direction: column; }
 }
 
-.pdfjs-mode-switch{display:inline-flex;gap:2px;padding:3px;border:1px solid #cbd9cf;border-radius:9px;background:#f3f6f3}
+.pdfjs-mode-switch{display:inline-flex;gap:2px;padding:3px;border:1px solid #cbd2d9;border-radius:9px;background:#f3f6f3}
 .pdfjs-mode-switch button{border:0;border-radius:6px;background:transparent}
 .pdfjs-page{box-sizing:border-box;display:flex;flex:0 0 auto;flex-direction:column;align-items:center;gap:6px;width:100%;padding:10px 0 22px;scroll-margin-top:12px}
 .pdfjs-stage.is-continuous .pdfjs-page{min-height:min(1200px,calc(100cqw * 1.414))}
-.pdfjs-page-label{align-self:center;color:#60756a;font-size:11px;font-weight:700}
-.pdfjs-page canvas{display:block;max-width:none;background:white;box-shadow:0 3px 18px #203b3220}
+.pdfjs-page-label{align-self:center;color:#5e6b77;font-size:11px;font-weight:700}
+.pdfjs-page canvas{display:block;max-width:none;background:white;box-shadow:0 3px 18px #202e3b20}
 
 @media (max-width: 640px) { .pdfjs-fullscreen-toggle { display: none; } }
 @media (min-width: 641px) { .pdfjs-fullscreen-toggle { white-space: nowrap; } }

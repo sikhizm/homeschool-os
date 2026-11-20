@@ -1,7 +1,7 @@
 .details { display: grid; gap: .75rem; margin-top: 1rem; }
 .group { min-width: 0; border: 1px solid var(--line); border-radius: 12px; background: #fafbf7; }
 .group h3, .group h4, .group p { margin: 0; padding: .55rem .8rem; }
-.group h3 { background: #eaf1e8; border-radius: 11px 11px 0 0; font-size: .95rem; }
+.group h3 { background: #e8edf1; border-radius: 11px 11px 0 0; font-size: .95rem; }
 .group h4 { font-size: .8rem; }
 .group ul { list-style: none; margin: 0; padding: 0; }
 .group li {
