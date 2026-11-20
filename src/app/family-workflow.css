@@ -29,11 +29,11 @@
   max-width: 100%;
   min-height: 44px;
   padding: 10px;
-  border: 1px solid #bacfc4;
+  border: 1px solid #bac5cf;
   border-radius: 10px;
   font: inherit;
   background: white;
-  color: #21382f;
+  color: #212d38;
 }
 .family-workflow textarea {
   width: 100%;
@@ -47,7 +47,7 @@
   min-height: auto;
 }
 .workflow-session {
-  border: 1px solid #d4e1da;
+  border: 1px solid #d4dbe1;
   border-radius: 16px;
   padding: 16px;
   margin: 14px 0;
@@ -79,7 +79,7 @@
   min-height: 44px;
 }
 .family-workflow [aria-pressed='true'] {
-  outline: 2px solid #0b7457;
+  outline: 2px solid #0e4171;
 }
 .family-workflow fieldset {
   min-width: 0;
