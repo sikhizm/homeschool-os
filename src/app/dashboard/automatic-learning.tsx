@@ -1,10 +1,12 @@
 'use client';
 import {useCallback,useEffect,useState} from 'react';
 import WeeklyLearnerLessons from './weekly-learner-lessons';
+import {clearPrivateMemoryCache,invalidatePrivateMemoryCache,readPrivateMemoryCache,writePrivateMemoryCache} from '@/lib/private-memory-cache';
 
 type Learner={id:string;name:string;grade:string;canEdit:boolean};
 const palette=['#F6E5D1','#DCEFE5','#EAE4F8','#DCEAF7','#F7E3E9'];
-export default function AutomaticLearning(){
+type CoachSnapshot={learners:Learner[];notice:string};
+export default function AutomaticLearning({cacheScope}:{cacheScope:string}){
  const [learners,setLearners]=useState<Learner[]>([]);
  const [selected,setSelected]=useState('');
  const [notice,setNotice]=useState('Loading learner progress…');
@@ -13,15 +15,42 @@ export default function AutomaticLearning(){
  const load=useCallback(async()=>{
   try{
    const res=await fetch('/api/auto-learning',{cache:'no-store'});
-   const data=await res.json();
+   if(res.status===401||res.status===403){clearPrivateMemoryCache();setLearners([]);throw new Error('Session expired. Sign in again.');}
+   const data=await res.json() as CoachSnapshot & {error?:string};
    if(!res.ok)throw new Error(data.error??'Unable to load learning plan');
+   writePrivateMemoryCache(cacheScope,'dashboard:coach',{learners:data.learners,notice:data.notice});
    setLearners(data.learners);
    setSelected(old=>data.learners.some((x:Learner)=>x.id===old)?old:(data.learners[0]?.id??''));
    setNotice(data.notice);setError(false);
   }catch(e){setNotice(e instanceof Error?e.message:'Unable to load');setError(true)}
   finally{setLoading(false)}
- },[]);
- useEffect(()=>{const handle=setTimeout(()=>{void load()},0);return ()=>clearTimeout(handle)},[load]);
+ },[cacheScope]);
+ useEffect(()=>{
+  const cached=readPrivateMemoryCache<CoachSnapshot>(cacheScope,'dashboard:coach');
+  if(cached){
+   setLearners(cached.learners);
+   setSelected(old=>cached.learners.some(x=>x.id===old)?old:(cached.learners[0]?.id??''));
+   setNotice(cached.notice);
+   setLoading(false);
+  }
+  const handle=setTimeout(()=>{void load()},0);
+  const changed=()=>{
+   invalidatePrivateMemoryCache(cacheScope,'dashboard:');
+   void load();
+  };
+  const restore=()=>{void load()};
+  window.addEventListener('daily-plan-updated',changed);
+  window.addEventListener('chapter-tests-updated',changed);
+  window.addEventListener('chapter-status-updated',changed);
+  window.addEventListener('pageshow',restore);
+  return ()=>{
+   clearTimeout(handle);
+   window.removeEventListener('daily-plan-updated',changed);
+   window.removeEventListener('chapter-tests-updated',changed);
+   window.removeEventListener('chapter-status-updated',changed);
+   window.removeEventListener('pageshow',restore);
+  };
+ },[load,cacheScope]);
  const current=learners.find(x=>x.id===selected);
  return <section className="coach-shell" aria-labelledby="coach-title">
   <div className="coach-top">
