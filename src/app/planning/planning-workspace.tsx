@@ -58,7 +58,10 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
     if (!learnerId) return;
     const key = `chapter-plan:${learnerId}:${date}`;
     const cached = readPrivateMemoryCache<WeeklyChapterPlan>(cacheScope, key);
-    if (cached) setChapterRequest({key: chapterKey, plan: cached, error: false});
+    let active = true;
+    queueMicrotask(() => {
+      if (active && cached) setChapterRequest({key: chapterKey, plan: cached, error: false});
+    });
     let request: AbortController | undefined;
     async function refresh() {
       request?.abort();
@@ -96,6 +99,7 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
     window.addEventListener('chapter-status-updated', changed);
     window.addEventListener('pageshow', refresh);
     return () => {
+      active = false;
       request?.abort();
       window.removeEventListener('daily-plan-updated', changed);
       window.removeEventListener('chapter-tests-updated', changed);
@@ -132,15 +136,18 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
     if (!learnerId) return;
     const key = `planning:${learnerId}:${date}`;
     const cached = readPrivateMemoryCache<PlanningData>(cacheScope, key);
-    if (cached) {
-      setData(cached);
-      setLoading(false);
-    } else {
-      setData(null);
-      setLoading(true);
-    }
-    setError('');
     const controller = new AbortController();
+    queueMicrotask(() => {
+      if (controller.signal.aborted) return;
+      if (cached) {
+        setData(cached);
+        setLoading(false);
+      } else {
+        setData(null);
+        setLoading(true);
+      }
+      setError('');
+    });
     load(controller.signal)
       .then((result) => {
         if (!controller.signal.aborted) {
