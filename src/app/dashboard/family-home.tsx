@@ -5,6 +5,8 @@ import MyBooks from '@/components/my-books';
 import {useEffect,useMemo,useState} from 'react';
 import {activityLabels, chapterActivityHref, type ChapterPlanItem} from '@/lib/planning/chapter-activities';
 
+type ReadingProgress = {learnerId:string;name:string;total:number;read:number;
+ remaining:{chapterId:string;title:string;current:boolean;inRhythm:boolean}[]};
 type Task={id:string;title:string;subject:string;minutes:number;mode?:string;href:string|null;status?:string};
 type Slot={learnerId:string;name:string;grade:string;task:Task;minutes:number;startMinute:number;mode:'guided'|'play'|'independent'};
 type Separate={learnerId:string;name:string;grade:string;task:Task};
@@ -40,6 +42,9 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
  const [chapterPlan,setChapterPlan]=useState<ChapterPlanItem[]>([]);
  const [chapterCoverage,setChapterCoverage]=useState<{learnerId:string;total:number;read:number;revised:number;finished:number}[] | null>(null);
  const [readingWeek,setReadingWeek]=useState<{id:string;name:string;planned:number;onTime:number;late:number}[]>([]);
+ const [readingProgress,setReadingProgress]=useState<ReadingProgress[]>([]);
+ const [addingReading,setAddingReading]=useState(false);
+ const [readingMessage,setReadingMessage]=useState('');
  const [weekendSuggestions,setWeekendSuggestions]=useState<(Pick<ChapterPlanItem,'chapterId'|'learnerId'|'learnerName'|'title'> & {activity:'test'|'revision'})[]>([]);
  const [rhythmReady,setRhythmReady]=useState(false);
  const [chapterPlanError,setChapterPlanError]=useState(false);
@@ -62,9 +67,10 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
     }
     const response=await fetch('/api/chapter-plan?rhythm=1',{cache:'no-store'});
     if(!response.ok)throw new Error();
-    const result=await response.json() as {ready:boolean;items:ChapterPlanItem[];chapterCoverage?:typeof chapterCoverage;readingWeek?:typeof readingWeek;weekendSuggestions?:typeof weekendSuggestions};
+    const result=await response.json() as {ready:boolean;items:ChapterPlanItem[];chapterCoverage?:typeof chapterCoverage;readingWeek?:typeof readingWeek;readingProgress?:ReadingProgress[];weekendSuggestions?:typeof weekendSuggestions};
     if(alive){
      setChapterCoverage(result.chapterCoverage??null);
+     setReadingProgress(result.readingProgress??[]);
      setChapterPlan(result.items);setReadingWeek(result.readingWeek??[]);setWeekendSuggestions(result.weekendSuggestions??[]);
      setRhythmReady(result.ready);setChapterPlanError(false);
     }
@@ -77,6 +83,24 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
   window.addEventListener('pageshow',restore);
   return()=>{alive=false;window.removeEventListener('daily-plan-updated',load);window.removeEventListener('pageshow',restore);};
  },[canEdit]);
+
+ async function addReading(learnerId:string, chapterId:string) {
+  setAddingReading(true);
+  setReadingMessage('');
+  try {
+   const response=await fetch('/api/chapter-plan',{
+    method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({learnerId,chapterId,period:'day',activity:'reading'}),
+   });
+   if(!response.ok)throw new Error();
+   window.dispatchEvent(new Event('daily-plan-updated'));
+   setReadingMessage('Reading added to Today’s rhythm.');
+  }catch{
+   setReadingMessage('Could not add reading. Try again.');
+  }finally{
+   setAddingReading(false);
+  }
+ }
 
  const now=new Date();
  const derived=useMemo(()=>{
@@ -184,7 +208,30 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       <span className={`family-agenda-status${row.done?' is-done':''}`}>{row.status}</span>
      </li>)}
     </ol>:<p className="muted family-agenda-message">{data?'Nothing scheduled yet.':'Loading today’s activities.'}</p>}
-    {readingWeek.map(item=><p className="muted family-agenda-message" key={item.id}>{item.name} · {item.onTime} of {item.planned} daily readings on time this week{item.late>0?` · ${item.late} read after the due date`:''}</p>)}
+    {readingProgress.map(item=>{
+     const next=item.remaining.find(chapter=>!chapter.inRhythm);
+     const hasPendingReading=chapterPlan.some(chapter=>chapter.learnerId===item.learnerId && chapter.activity==='reading' && !chapter.done);
+     return <section className="family-agenda-message" key={item.learnerId}>
+      <p><strong>{item.name}</strong>{item.total>0&&` · ${item.read} of ${item.total} weekly chapters read`}</p>
+      {canEdit && next && !hasPendingReading && <button type="button" className="hero-action-secondary"
+       disabled={addingReading} onClick={()=>void addReading(item.learnerId,next.chapterId)}>Add next chapter</button>}
+      {item.remaining.length>0&&<details open>
+       <summary>Still to read · {item.remaining.length}</summary>
+       <ul className="family-agenda-list">{item.remaining.map(chapter=><li className="family-agenda-row" key={chapter.chapterId}>
+        <p className="timeline-title"><Link href={chapterActivityHref(chapter.chapterId,item.learnerId,'reading')}>{chapter.title}</Link></p>
+        <span className="family-agenda-learner">{chapter.current?'This week':'From an earlier week'}</span>
+        <span className="family-agenda-phase">{chapter.inRhythm?'In Today’s rhythm':'Reading'}</span>
+        {canEdit && !chapter.inRhythm && <button type="button" className="hero-action-secondary"
+         disabled={addingReading} onClick={()=>void addReading(item.learnerId,chapter.chapterId)}>Add to today</button>}
+       </li>)}</ul>
+      </details>}
+     </section>;
+    })}
+    <p role="status" className={readingMessage?'family-agenda-message':undefined}>{readingMessage}</p>
+    {readingWeek.length>0&&<details className="muted family-agenda-message">
+     <summary>Reading schedule history</summary>
+     {readingWeek.map(item=><p className="muted family-agenda-message" key={item.id}>{item.name} · {item.onTime} of {item.planned} daily readings on time this week{item.late>0?` · ${item.late} read after the due date`:''}</p>)}
+    </details>}
     {sundayTests.length>0&&<div className="family-agenda-message">
      <strong>Optional Sunday tests</strong>
      <ul>{sundayTests.map(item=><li key={`${item.learnerId}:${item.chapterId}`}>
