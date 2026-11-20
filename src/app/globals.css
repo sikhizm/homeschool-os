@@ -3157,3 +3157,46 @@ button:active:not(:disabled){transform:translateY(1px)}
   .weekly-reading-next {grid-column:1/-1;}
   .weekly-reading-actions {grid-column:1/-1;grid-row:auto;justify-content:flex-start;}
 }
+
+/* Dashboard learner cards */
+.family-learner-card.card {
+  grid-template-rows: auto 1fr auto;
+  gap: .75rem;
+  padding: clamp(1rem, 2vw, 1.4rem);
+}
+.family-learner-progress {
+  display: grid;
+  align-content: start;
+  gap: .4rem;
+  padding: .75rem .9rem;
+  border-radius: .75rem;
+  background: #edf3e9;
+}
+.family-learner-progress-heading {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .2rem .75rem;
+  color: #164d3b;
+}
+.family-learner-progress-heading span {
+  color: #455d50;
+  font-size: .85rem;
+  font-weight: 700;
+}
+.family-learner-progress p, .family-learner-activity p { margin: 0; font-size: .85rem; }
+.family-learner-card .family-learner-activity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .45rem .75rem;
+  margin: 0;
+  padding: .45rem .7rem;
+  border: 1px solid #dce7dc;
+  border-radius: .75rem;
+}
+.family-learner-activity-description { display: flex; align-items: center; gap: .55rem; min-width: 0; }
+.family-learner-activity-description > div { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.family-learner-activity-description > div > span { color: #455d50; font-size: .8rem; }
+.family-learner-activity > a { min-height: 44px; padding: .4rem .75rem; }

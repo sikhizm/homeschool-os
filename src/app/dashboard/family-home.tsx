@@ -267,27 +267,28 @@ export function FamilyHome({familyName,canEdit}:{familyName:string|null;canEdit:
       <span className="learner-avatar" aria-hidden="true">{learner.name.slice(0,1).toUpperCase()}</span>
       <div><h3>{learner.name}</h3><p>{learner.grade}</p></div>
      </header>
-     <div>
-      <span className="learner-next-label">NCERT chapter progress</span>
+     <div className="family-learner-progress">
+      <div className="family-learner-progress-heading">
+       <strong>NCERT chapter progress</strong>
+       {coverage?.total ? <span>{coverage.read} of {coverage.total} read</span> : null}
+      </div>
       {coverage?.total ? <>
-       <div className="learner-progress-row">
-        <div className="progress-track" aria-hidden="true"><div className="progress-fill"
-          style={{width:`${coverage.read / coverage.total * 100}%`}}/></div>
-        <span>{coverage.read} of {coverage.total} read</span>
+       <div className="progress-track" role="progressbar" aria-label={`Chapters read by ${learner.name}`}
+        aria-valuenow={coverage.read} aria-valuemin={0} aria-valuemax={coverage.total}>
+        <div className="progress-fill" style={{width:`${coverage.read / coverage.total * 100}%`}}/>
        </div>
-       <p className="muted">{coverage.revised} revised · {coverage.finished} finished by test</p>
+       <p className="muted">{coverage.revised} revised · {coverage.finished} passed a test</p>
       </> : <p className="muted">{chapterPlanError?'Chapter progress unavailable.'
        : chapterCoverage?'No chapters in the yearly plan.':rhythmReady?'Chapter progress unavailable.':'Loading chapter progress…'}</p>}
      </div>
-     <p className="learner-next">
-      <span className="learner-next-label">Up next in Today’s rhythm</span>
-      {next?`${next.title} · ${next.phase}`:optionalTest?`${optionalTest.title} · Optional Sunday test`:
-       chapterPlanError?'Could not load the chapter plan.':'No unfinished activities in Today’s rhythm.'}
-     </p>
-     <footer>
+     <footer className="family-learner-activity" aria-label="Up next in Today’s rhythm">
+      {next||optionalTest ? <div className="family-learner-activity-description">
+       <span className={`timeline-dot tone-${next?.tone ?? 'saffron'}`} aria-hidden="true"/>
+       <div><strong>{next?.title ?? optionalTest?.title}</strong><span>{next?.phase ?? 'Optional Sunday test'}</span></div>
+      </div> : <p className="muted">{chapterPlanError?'Could not load the chapter plan.':'Nothing left for today'}</p>}
       {nextHref?<Link className="learner-continue" href={nextHref}>
         {next?.phase==='Reading'?'Read chapter':next?.phase==='Revision'?'Open revision':next?.phase==='Test'||optionalTest&&!next?'Open test records':'Open activity'} <span aria-hidden="true">→</span>
-      </Link>:<Link className="learner-continue" href={`/learn/path?learner=${encodeURIComponent(learner.id)}`}>Open Learning Path <span aria-hidden="true">→</span></Link>}
+      </Link>:<Link className="hero-action-secondary" href={`/learn/path?learner=${encodeURIComponent(learner.id)}`}>Open Learning Path <span aria-hidden="true">→</span></Link>}
      </footer>
     </article>;
    })}
