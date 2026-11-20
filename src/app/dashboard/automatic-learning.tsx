@@ -26,13 +26,15 @@ export default function AutomaticLearning({cacheScope}:{cacheScope:string}){
   finally{setLoading(false)}
  },[cacheScope]);
  useEffect(()=>{
+  let active=true;
   const cached=readPrivateMemoryCache<CoachSnapshot>(cacheScope,'dashboard:coach');
-  if(cached){
+  queueMicrotask(()=>{
+   if(!active||!cached)return;
    setLearners(cached.learners);
    setSelected(old=>cached.learners.some(x=>x.id===old)?old:(cached.learners[0]?.id??''));
    setNotice(cached.notice);
    setLoading(false);
-  }
+  });
   const handle=setTimeout(()=>{void load()},0);
   const changed=()=>{
    invalidatePrivateMemoryCache(cacheScope,'dashboard:');
@@ -48,6 +50,7 @@ export default function AutomaticLearning({cacheScope}:{cacheScope:string}){
   window.addEventListener('chapter-status-updated',changed);
   window.addEventListener('pageshow',restore);
   return ()=>{
+   active=false;
    clearTimeout(handle);
    window.removeEventListener('daily-plan-updated',changed);
    window.removeEventListener('chapter-tests-updated',changed);
