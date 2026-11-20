@@ -176,3 +176,39 @@
  .study-disclosure-meta { gap:6px; }
  .study-disclosure-meta .study-selected-count { white-space:nowrap; }
 }
+
+
+/* Approved study-material concept: original PDF/books SVG and reduced mobile density. */
+.study-studio { gap: 13px; }
+.study-studio-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 16px; padding: 15px 17px; border: 1px solid #e1ebf5; border-radius: 17px; background: linear-gradient(115deg,#f8fcff 0%,#eef7ff 66%,#f5faff 100%); }
+.study-studio-heading-copy { min-width: 0; }
+.study-studio-heading h2 { margin: 6px 0; font-size: clamp(19px,2vw,25px); line-height: 1.3; letter-spacing: -.02em; }
+.study-studio-heading p { margin: 0; max-width: 570px; font-size: 13px; line-height: 1.5; }
+.study-studio-illustration { display: block; width: clamp(105px,15vw,170px); height: auto; object-fit: contain; }
+.study-studio-context { display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 9px 12px; border-radius: 11px; background: #eff6fd; color: #355774; font-size: 12px; line-height: 1.5; }
+.study-studio-context span { color: #126ca9; font-size: 17px; line-height: 1; }
+.study-studio-quick-action { display: flex; gap: 12px; align-items: center; }
+.study-studio-quick-action .btn-primary { flex-shrink: 0; min-height: 44px; padding: 11px 17px; border-radius: 12px; }
+.study-studio-quick-action .btn-primary:disabled { opacity: .55; cursor: not-allowed; }
+.study-studio-quick-action .muted { font-size: 12px; line-height: 1.4; }
+.study-studio-controls .workspace-field > span { font-size: 12px; line-height: 1.4; }
+.study-studio-controls .workspace-field select { width: 100%; }
+@media (max-width: 760px) {
+  .study-studio { padding: 16px; gap: 12px; }
+  .study-studio-heading { gap: 8px; padding: 12px; border-radius: 15px; }
+  .study-studio-heading h2 { font-size: 20px; line-height: 1.27; }
+  .study-studio-heading p { font-size: 12px; line-height: 1.48; }
+  .study-studio-illustration { width: clamp(84px,23vw,128px); }
+  .study-studio-controls { gap: 9px; }
+  .study-studio-controls .workspace-field select { min-height: 44px; padding: 9px 11px; font-size: 14px; }
+  .study-studio-context { font-size: 12px; padding: 10px; }
+  .study-studio-quick-action { display: grid; gap: 5px; }
+  .study-studio-quick-action .btn-primary { width: 100%; min-height: 46px; }
+}
+@media (max-width: 375px) {
+  .study-studio-illustration { width: 72px; }
+  .study-studio-heading h2 { font-size: 18px; }
+}
+@media print {
+  .study-studio-heading .study-studio-illustration { display: none; }
+}
