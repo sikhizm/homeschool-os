@@ -47,3 +47,16 @@ test('mobile PDF reader has compact actions, toolbar and visible fullscreen cont
   assert.ok(css.includes('.pdfjs-reader:fullscreen .pdfjs-stage'));
   assert.ok(!css.includes('.pdfjs-fullscreen-toggle { display: none; }'));
 });
+
+
+test('immersive mobile reader uses icon fullscreen and minimal overlay controls',()=>{
+ const source=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/pdfjs-reader.tsx'),'utf8');
+ const css=readFileSync(resolve(process.cwd(),'src/app/pdfjs-reader.css'),'utf8');
+ assert.ok(source.includes('pdfjs-mobile-label'));
+ assert.ok(source.includes("isFullscreen?'✕':'⛶'"));
+ assert.ok(source.includes('aria-label="Next page"'));
+ assert.ok(css.includes('.pdfjs-reader:fullscreen .pdfjs-controls'));
+ assert.ok(css.includes('.pdfjs-reader:fullscreen .pdfjs-mode-switch'));
+ assert.ok(css.includes('.pdfjs-reader:fullscreen .pdfjs-stage'));
+ assert.ok(css.includes('env(safe-area-inset-bottom)'));
+});
