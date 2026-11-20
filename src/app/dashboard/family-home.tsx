@@ -105,6 +105,14 @@ export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|nu
    invalidatePrivateMemoryCache(cacheScope,'dashboard:');
    invalidatePrivateMemoryCache(cacheScope,'planning:');
    invalidatePrivateMemoryCache(cacheScope,'chapter-plan:');
+   // A mutation means the prior snapshot is no longer a safe progress display.
+   setData(null);
+   setChapterPlan([]);
+   setChapterCoverage(null);
+   setReadingProgress([]);
+   setReadingWeek([]);
+   setWeekendSuggestions([]);
+   setRhythmReady(false);
    void load();
   };
   load();
