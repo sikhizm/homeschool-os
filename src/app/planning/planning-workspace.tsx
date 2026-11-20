@@ -62,6 +62,8 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
     let request: AbortController | undefined;
     async function refresh() {
       request?.abort();
+      // The initial cached value is safe only until an explicit mutation invalidates it.
+      const fallback = readPrivateMemoryCache<WeeklyChapterPlan>(cacheScope, key);
       const controller = new AbortController();
       request = controller;
       try {
@@ -78,12 +80,13 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
           setChapterRequest({key: chapterKey, plan, error: false});
         }
       } catch {
-        if (!controller.signal.aborted) setChapterRequest({key: chapterKey, plan: cached ?? null, error: true});
+        if (!controller.signal.aborted) setChapterRequest({key: chapterKey, plan: fallback ?? null, error: true});
       }
     }
     const changed = () => {
       invalidatePrivateMemoryCache(cacheScope, `chapter-plan:${learnerId}:`);
       invalidatePrivateMemoryCache(cacheScope, `planning:${learnerId}:`);
+      setChapterRequest({key: chapterKey, plan: null, error: false});
       setRefreshVersion(value => value + 1);
       void refresh();
     };
