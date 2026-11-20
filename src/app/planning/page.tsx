@@ -42,9 +42,9 @@ export default async function PlanningPage({searchParams}:{searchParams:Promise<
   const initialDate = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
   return (
     <main className="family-dashboard studio-stack">
-      <div className="dashboard-welcome">
-        <div>
-          <span className="tag">YOUR LEARNING PLANNER</span>
+      <div className="dashboard-welcome planner-hero">
+        <span className="tag planner-hero-kicker">YOUR LEARNING PLANNER</span>
+        <div className="planner-hero-copy">
           <h1>Plan chapters and daily learning</h1>
           <p className="muted">
             Choose NCERT chapters for the year, schedule daily tasks and follow each learner’s progress.
