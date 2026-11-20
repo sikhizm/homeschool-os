@@ -156,3 +156,64 @@
   .ncert-reader-page .ncert-reader-actions .hero-action-secondary { min-height: 42px; }
   .ncert-reader-page .ncert-reader-actions .ncert-reader-action-icon { width: 19px; height: 19px; }
 }
+
+
+/* Fullscreen mobile PDF controls: keep both zoom keys visible and the exit key separate. */
+.pdfjs-fullscreen-exit { display: none; }
+@media (max-width: 640px) {
+  .pdfjs-reader:fullscreen .pdfjs-controls {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    width: min(252px, calc(100% - 24px));
+    max-width: calc(100% - 24px);
+    gap: 5px;
+  }
+  .pdfjs-reader:fullscreen .pdfjs-controls > button {
+    grid-column: auto;
+    grid-row: auto;
+    min-width: 0;
+    width: 100%;
+    min-height: 42px;
+    padding: 6px;
+    justify-content: center;
+  }
+  .pdfjs-reader:fullscreen .pdfjs-controls .pdfjs-zoom-out,
+  .pdfjs-reader:fullscreen .pdfjs-controls .pdfjs-zoom-in {
+    display: inline-flex;
+    align-items: center;
+  }
+  .pdfjs-reader:fullscreen .pdfjs-controls .pdfjs-fullscreen-toggle {
+    display: none;
+  }
+  .pdfjs-reader:fullscreen .pdfjs-fullscreen-exit {
+    display: inline-grid;
+    place-items: center;
+    position: absolute;
+    top: max(6px, env(safe-area-inset-top));
+    right: 7px;
+    z-index: 5;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid #4b5968;
+    border-radius: 10px;
+    background: #35414e;
+    color: white;
+    font: inherit;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .pdfjs-reader:fullscreen.is-zoomed .pdfjs-stage {
+    align-items: flex-start;
+    justify-content: flex-start;
+    overflow: auto;
+  }
+  .pdfjs-reader:fullscreen.is-zoomed .pdfjs-stage .pdfjs-page {
+    width: max-content;
+    min-width: 100%;
+  }
+  .pdfjs-reader:fullscreen.is-zoomed .pdfjs-stage canvas {
+    max-width: none;
+  }
+}
