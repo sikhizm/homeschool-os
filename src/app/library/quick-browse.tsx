@@ -2,7 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {libraryGradeOptions, librarySubjectOptions, libraryLearningOptions} from '@/lib/library/grade-options';
 
-type IconName = 'grade'|'subject'|'learning'|'grid'|'sprout'|'blocks'|'book'|
+type IconName = 'grade'|'subject'|'learning'|'grid'|'book'|
  'calculator'|'flask'|'globe'|'hindi'|'briefcase'|'trophy'|'puzzle'|'layers';
 
 function BrowseIcon({kind}:{kind:IconName}){
@@ -13,8 +13,6 @@ function BrowseIcon({kind}:{kind:IconName}){
   {kind==='subject'&&<><path d="M12 6c-3-2-6-2.5-10-2v15c4-.5 7 0 10 2M12 6c3-2 6-2.5 10-2v15c-4-.5-7 0-10 2M12 6v15"/></>}
   {kind==='learning'&&<><path d="m12 2 9 5-9 5-9-5 9-5ZM3 12l9 5 9-5M3 17l9 5 9-5"/></>}
   {kind==='grid'&&<><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></>}
-  {kind==='sprout'&&<><path d="M12 21v-9M12 16c-5 0-8-2-8-7 5 0 8 2 8 7ZM12 12c0-5 3-8 8-8 0 5-3 8-8 8Z"/></>}
-  {kind==='blocks'&&<><rect x="3" y="12" width="8" height="8" rx="1"/><rect x="13" y="12" width="8" height="8" rx="1"/><rect x="8" y="3" width="8" height="8" rx="1"/><path d="M12 5v4M10.5 7h3M7 15v2M17 15v2"/></>}
   {kind==='book'&&<><path d="M12 6c-3-2-6-2.5-10-2v15c4-.5 7 0 10 2M12 6c3-2 6-2.5 10-2v15c-4-.5-7 0-10 2M12 6v15"/></>}
   {kind==='calculator'&&<><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h2M14 19h2"/></>}
   {kind==='flask'&&<><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M7 16h10"/></>}
@@ -27,11 +25,6 @@ function BrowseIcon({kind}:{kind:IconName}){
  </svg>;
 }
 
-const foundations: Record<string,{icon:IconName;tone:string}>={
- 'Early Years':{icon:'sprout',tone:'sand'},
- 'Nursery':{icon:'blocks',tone:'rose'},
- 'UKG':{icon:'book',tone:'lilac'},
-};
 const subjects: Record<string,{icon:IconName;tone:string}>={
  'English':{icon:'book',tone:'sky'},
  'Mathematics':{icon:'calculator',tone:'sand'},
@@ -47,7 +40,6 @@ const learningTypes: Record<string,{icon:IconName;tone:string}>={
  'Create learning materials':{icon:'puzzle',tone:'mint'},
 };
 
-const foundationOptions=libraryGradeOptions.filter(option=>!option.label.startsWith('Class '));
 const classOptions=libraryGradeOptions.filter(option=>option.label.startsWith('Class '));
 
 export default function LibraryQuickBrowse(){
@@ -67,15 +59,6 @@ export default function LibraryQuickBrowse(){
     <span className="library-browse-heading-icon"><BrowseIcon kind="grade"/></span>
     <h3 id="library-browse-grade">Select Grade</h3>
     <Link className="library-browse-all" href="/ncert-books"><BrowseIcon kind="grid"/>All Grades</Link>
-   </div>
-   <div className="library-browse-foundations">
-    {foundationOptions.map(option=>{
-     const visual=foundations[option.label]??{icon:'sprout' as const,tone:'sky'};
-     return <Link key={option.label} href={option.href}
-      className={`library-browse-tile library-browse-foundation tone-${visual.tone}`}>
-      <BrowseIcon kind={visual.icon}/><span>{option.label}</span>
-     </Link>;
-    })}
    </div>
    <div className="library-browse-classes">
     {classOptions.map(option=><Link key={option.label} href={option.href}
