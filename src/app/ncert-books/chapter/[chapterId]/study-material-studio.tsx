@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 import {useEffect,useId,useMemo,useRef,useState} from 'react';
 import {buildStudyPrompt,MATERIALS,type Difficulty,type MaterialId,type StudyOutputFormat} from '@/lib/study-materials/prompt';
 import type {ChapterSlot,Textbook} from '@/lib/ncert/types';
@@ -41,9 +42,21 @@ export default function StudyMaterialStudio({chapter,book,grade,resourceUrl,init
  async function duplicateDoc(id:string){if(!learner)return;const d=docs.find(x=>x.id===id);try{const r=await fetch('/api/study-materials',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({learnerId:learner.learner_id,chapterId:d?.chapter_id,title:d?.title,documentType:d?.document_type,content:'<p>Copy</p>',format:'html',duplicateOf:id})});const b=await r.json();if(!r.ok)throw Error(b.error);await loadLibrary();setMessage('A private copy was created.');}catch(e){setMessage(e instanceof Error?e.message:'Could not duplicate document.');}}
  function print(){frame.current?.contentWindow?.focus();frame.current?.contentWindow?.print();}
  function goPage(next:number){const target=Math.max(1,next);const distance=(target-page)*1122;frame.current?.contentWindow?.scrollBy({top:distance,behavior:'smooth'});setPage(target);}
- return <section className="workspace-panel study-studio" id="study-material-studio"><div className="study-studio-heading"><div><span className="eyebrow">AI STUDY MATERIAL STUDIO</span><h2>Prepare a source-aware printable PDF</h2><p className="muted">Choose the material and copy a PDF-first prompt. Your AI assistant should return a downloadable PDF you can print directly. Import HTML or Markdown only when you want to edit and save an editable copy in the Study Library.</p></div><span className="study-studio-mark" aria-hidden="true">Aa</span></div>
+ return <section className="workspace-panel study-studio" id="study-material-studio">
+ <div className="study-studio-heading">
+  <div className="study-studio-heading-copy">
+   <span className="eyebrow">AI STUDY MATERIAL STUDIO</span>
+   <h2>Prepare a source-aware printable PDF</h2>
+   <p className="muted">Choose materials, copy a PDF-first prompt for your AI assistant, then print the resulting PDF. Import HTML or Markdown only for an editable Study Library copy.</p>
+  </div>
+  <Image className="study-studio-illustration" src="/illustrations/study-materials-books.svg" width={170} height={159} alt="" aria-hidden="true"/>
+ </div>
  <div className="study-studio-controls"><label className="workspace-field"><span>Learner · material level: Class {grade}</span><select value={learnerId} onChange={e=>setLearnerId(e.target.value)} disabled={loading||!learners.length}><option value="">{loading?'Loading family learners…':'Select learner'}</option>{learners.map(l=><option key={l.learner_id} value={l.learner_id}>{l.display_name} · {l.stage}</option>)}</select></label><label className="workspace-field"><span>Difficulty</span><select value={difficulty} onChange={e=>setDifficulty(e.target.value as Difficulty)}><option value="supportive">Supportive · smaller steps</option><option value="standard">Standard · grade level</option><option value="stretch">Stretch · deeper reasoning</option></select></label><label className="workspace-field"><span>Output language</span><select value={language} onChange={e=>setLanguage(e.target.value)}>{['English','Hindi','Punjabi'].map(x=><option key={x}>{x}</option>)}</select></label></div>
- <p className="muted">This material targets Class {grade}. Choose any active learner for revision or challenge work; their overall class stays unchanged.</p>
+ <p className="muted study-studio-context"><span aria-hidden="true">ⓘ</span> This material targets Class {grade}. Choose any active learner for revision or challenge work; their overall class stays unchanged.</p>
+ <div className="study-studio-quick-action">
+  <button className="btn-primary" type="button" disabled={!learner||!chosen.length} onClick={copy}>✦ Copy {outputFormat==='both'?'PDF + HTML':outputFormat.toUpperCase()} prompt</button>
+  <span className="muted">Paste the prompt into your preferred AI assistant.</span>
+ </div>
  {loading?<p role="status" className="muted">Loading learners…</p>:!learners.length?<p role="status" className="study-empty">{message||emptyMessage}</p>:<>
  <section className="study-pack-callout" aria-label="Complete chapter pack">
   <div className="study-pack-copy"><span className="study-pack-kicker">RECOMMENDED · ONE-STEP OPTION</span><strong>Complete Chapter Mastery Pack</strong><p>One coordinated PDF with original notes, practice at three levels, assessments, solutions and a parent guide.</p></div>
