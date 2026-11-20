@@ -59,3 +59,33 @@ test('progress selectors preserve saving and finished stays automatic',()=>{
  assert.match(css,/\.chapter-status-auto\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s);
  assert.ok(css.includes('.chapter-status-sticky { position: static;'));
 });
+
+
+test('approved mobile chapter view has compact artwork and actions before secondary planning',()=>{
+ const page=read('src/app/ncert-books/chapter/[chapterId]/page.tsx');
+ const css=read('src/app/globals.css');
+ assert.ok(page.includes('function ChapterLinkIcon('));
+ for(const name of ['read','official','release','all']){
+  assert.ok(page.includes('<ChapterLinkIcon kind="'+name+'"/>'));
+ }
+ assert.ok(page.includes('className="chapter-reading-evidence-details"'));
+ assert.ok(page.includes('className="resource-plan-actions chapter-plan-secondary"'));
+ assert.ok(page.indexOf('id="chapter-reading"') < page.indexOf('className="resource-plan-actions chapter-plan-secondary"'));
+ assert.ok(page.indexOf('</ChapterProgress>') < page.indexOf('<div id="chapter-tests">'));
+ assert.ok(css.includes('#chapter-reading img.chapter-reading-illustration'));
+ assert.ok(css.includes('grid-template-columns: minmax(0,1fr) 92px !important'));
+ assert.ok(css.includes('.chapter-reading-actions .hero-action-secondary'));
+});
+
+test('study material studio defaults to a compact guided workflow',()=>{
+ const studio=read('src/app/ncert-books/chapter/[chapterId]/study-material-studio.tsx');
+ const css=read('src/app/study-material-studio.css');
+ assert.ok(studio.includes('const [advancedOpen,setAdvancedOpen]=useState(revisionPreset)'));
+ assert.ok(studio.includes('className="study-studio-advanced" open={advancedOpen}'));
+ assert.ok(studio.includes('onToggle={e=>setAdvancedOpen(e.currentTarget.open)}'));
+ assert.ok(studio.includes('className="study-studio-library-actions"'));
+ assert.ok(studio.includes('study-studio-quick-action'));
+ assert.ok(css.includes('.studio-stack img.study-studio-illustration'));
+ assert.ok(css.includes('.study-studio-advanced-body'));
+ assert.ok(css.includes('.study-studio-advanced > summary'));
+});
