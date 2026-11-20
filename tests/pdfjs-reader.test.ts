@@ -60,3 +60,15 @@ test('immersive mobile reader uses icon fullscreen and minimal overlay controls'
  assert.ok(css.includes('.pdfjs-reader:fullscreen .pdfjs-stage'));
  assert.ok(css.includes('env(safe-area-inset-bottom)'));
 });
+
+
+test('PDF.js canvas rendering is serialized across fullscreen and zoom changes',()=>{
+ const source=readFileSync(resolve(process.cwd(),'src/app/ncert-books/read/[chapterId]/pdfjs-reader.tsx'),'utf8');
+ assert.ok(source.includes('WeakMap<HTMLCanvasElement,Promise<void>>'));
+ assert.ok(source.includes('if(previous)await previous.catch(()=>{})'));
+ assert.ok(source.includes('canvasJobs.current.set(canvas,job)'));
+ assert.ok(source.includes('revision!==renderRevision.current'));
+ assert.ok(source.includes('if(tasks.current.get(number)===task)tasks.current.delete(number)'));
+ assert.ok(source.includes("e.name==='RenderingCancelledException'"));
+ assert.ok(source.includes("e.message.includes('same canvas during multiple render')"));
+});
