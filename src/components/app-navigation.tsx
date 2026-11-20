@@ -1,5 +1,6 @@
-import BrandLogo from '@/components/brand-logo';
 'use client';
+
+import BrandLogo from '@/components/brand-logo';
 
 import Link from 'next/link';
 import {usePathname} from 'next/navigation';
