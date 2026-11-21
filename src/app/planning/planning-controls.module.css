@@ -1,0 +1,235 @@
+/* Scoped redesign of the Planner's learner and week controls. */
+.controlCard {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 22px 24px;
+  background: linear-gradient(114deg, #fffefd 0%, #fffefd 65%, #f2f9ff 100%);
+  border: 1px solid #dde8f0;
+  border-radius: 24px;
+  box-shadow: 0 10px 28px rgba(35, 83, 124, 0.07);
+}
+.controlCard::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 210px;
+  height: 115px;
+  right: -56px;
+  top: -60px;
+  background: radial-gradient(ellipse, #d8efff 0%, rgba(216, 239, 255, 0) 74%);
+  pointer-events: none;
+}
+.cardHeading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 7px 12px;
+  margin-bottom: 16px;
+}
+.headingLabel { display: flex; align-items: center; min-width: 0; gap: 10px; }
+.calendarTile, .shieldTile {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: #e7f4fc;
+  color: #08699f;
+}
+.eyebrow {
+  color: #285673;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: .085em;
+  line-height: 1.25;
+}
+.weekRange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  white-space: nowrap;
+  border-radius: 999px;
+  background: #e3f3fd;
+  color: #135478;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+.weekRange svg { width: 15px; height: 15px; }
+.controlCard .title {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #17334a;
+  font-size: clamp(19px, 2vw, 25px);
+  font-weight: 850;
+  line-height: 1.2;
+  letter-spacing: -.035em;
+}
+.learnerGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 16px;
+}
+:global(.learning-workspace) button.learnerChoice {
+  display: flex;
+  align-items: center;
+  text-align: left;
+  min-width: 0;
+  min-height: 66px;
+  gap: 11px;
+  padding: 10px 12px;
+  border: 1.5px solid #dce4eb;
+  border-radius: 16px;
+  background: #fff;
+  color: #1d3950;
+  box-shadow: 0 2px 6px rgba(18, 54, 81, .03);
+}
+:global(.learning-workspace) button.activeChoice {
+  border-color: #1688c2;
+  background: #eaf7ff;
+  box-shadow: 0 0 0 1px #1688c2, 0 6px 12px rgba(14, 119, 179, .08);
+}
+.avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 50%;
+  background: #e5ebf0;
+  color: #1b3a51;
+  font-size: 17px;
+  font-weight: 850;
+}
+.activeChoice .avatar { background: #d2edfd; color: #086fa8; }
+.learnerInfo { display: grid; min-width: 0; flex: 1; gap: 1px; }
+.learnerName {
+  font-size: 13.5px;
+  font-weight: 800;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+.learnerInfo small { color: #607183; font-size: 11.5px; font-weight: 650; }
+.checkmark {
+  flex: 0 0 23px;
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border-radius: 50%;
+  background: #087db9;
+  color: white;
+  font-size: 15px;
+  font-weight: 850;
+}
+.fieldGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, .8fr);
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #e5edf3;
+}
+.field { margin: 0; min-width: 0; gap: 6px; }
+.field .fieldLabel { color: #4c6477; font-size: 12px; font-weight: 750; }
+.controlCard .field select, .controlCard .field input {
+  min-width: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 11px;
+  border: 1px solid #d4e0e9;
+  border-radius: 12px;
+  background: #fff;
+  color: #203a51;
+  font-size: 14px;
+  text-overflow: ellipsis;
+}
+.weekNav {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: 9px;
+  margin-top: 15px;
+}
+:global(.learning-workspace) button.weekButton {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+  padding: 9px 10px;
+  border: 1px solid #d2dfe8;
+  border-radius: 13px;
+  background: #fff;
+  color: #2c4a61;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(23, 58, 86, .03);
+}
+:global(.learning-workspace) button.currentWeek {
+  border-color: #0878b7;
+  background: linear-gradient(135deg, #068fc6, #075b9f);
+  color: #fff;
+  box-shadow: 0 5px 12px rgba(5, 98, 157, .15);
+}
+.currentWeek svg { width: 17px; height: 17px; flex-shrink: 0; }
+.privacyNote {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #eef2f5;
+}
+.shieldTile { width: 31px; height: 31px; border-radius: 50%; }
+.controlCard .privacyNote p {
+  margin: 0;
+  color: #5c6c7a;
+  font-size: 11.5px;
+  line-height: 1.45;
+}
+.privacyNote strong { color: #344e65; }
+@media (max-width: 640px) {
+  .controlCard { padding: 17px 16px; border-radius: 20px; }
+  .cardHeading { gap: 8px 6px; margin-bottom: 14px; }
+  .headingLabel { gap: 7px; }
+  .calendarTile { width: 31px; height: 31px; border-radius: 10px; }
+  .eyebrow { font-size: 9.5px; letter-spacing: .055em; }
+  .weekRange { padding: 7px 8px; gap: 4px; font-size: 10.5px; }
+  .weekRange svg { width: 13px; height: 13px; }
+  .controlCard .title { font-size: 20px; }
+  .learnerGrid { gap: 7px; margin-bottom: 13px; }
+  :global(.learning-workspace) button.learnerChoice {
+    min-height: 62px; padding: 8px; gap: 7px; border-radius: 13px;
+  }
+  .avatar { flex-basis: 30px; width: 30px; height: 30px; font-size: 14px; }
+  .learnerName { font-size: 11.5px; }
+  .learnerInfo small { font-size: 10.5px; }
+  .checkmark { flex-basis: 18px; width: 18px; height: 18px; font-size: 12px; }
+  .fieldGrid { gap: 8px; padding-top: 12px; }
+  .field .fieldLabel { font-size: 11.5px; }
+  .controlCard .field select, .controlCard .field input {
+    min-height: 43px; padding: 8px; font-size: 13px;
+  }
+  .weekNav { gap: 6px; margin-top: 12px; }
+  :global(.learning-workspace) button.weekButton {
+    min-height: 43px; padding: 8px 5px; gap: 4px; border-radius: 11px; font-size: 11px;
+    white-space: normal;
+  }
+  .currentWeek svg { width: 15px; height: 15px; }
+  .privacyNote { margin-top: 12px; padding-top: 10px; }
+}
+@media (max-width: 370px) {
+  .eyebrow { font-size: 8.8px; }
+  .weekRange { font-size: 10px; }
+  .weekRange svg { display: none; }
+  .learnerChoice .checkmark { display: none; }
+  .weekNav { grid-template-columns: 1fr 1.08fr 1fr; }
+}

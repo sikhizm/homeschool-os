@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 
 import type {WeeklyChapterPlan} from './weekly-chapter-activities';
+import styles from './planning-controls.module.css';
 import WeeklyOverview from './weekly-overview';
 import { ChapterPlanner, type ChapterRecord } from './chapter-planner';
 import { academicYear, addDays, daysInWeek, mondayOf, yearDates } from '@/lib/planning/periods';
@@ -35,6 +36,24 @@ const display = (date: string) =>
   new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(
     new Date(date + 'T12:00:00Z'),
   );
+
+
+function PlannerCalendarIcon({className}: {className?: string}) {
+  return <svg className={className} viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+    strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <rect x="3" y="5" width="18" height="16" rx="2" />
+    <path d="M7.5 3v4M16.5 3v4M3 10h18" />
+  </svg>;
+}
+
+function PlannerShieldIcon({className}: {className?: string}) {
+  return <svg className={className} viewBox="0 0 24 24" width="18" height="18" fill="none"
+    stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"
+    aria-hidden="true" focusable="false">
+    <path d="M12 2.5 20 6v6.5c0 5-3.5 7.8-8 9-4.5-1.2-8-4-8-9V6l8-3.5Z" />
+    <path d="m8.5 12 2.2 2.2 4.8-5" />
+  </svg>;
+}
 
 export default function PlanningWorkspace({ learners, canEdit, initialDate, initialLearner, cacheScope }: Props) {
   const [learnerId, setLearnerId] = useState(learners.find(learner => learner.id === initialLearner)?.id ?? learners[0]?.id ?? '');
@@ -232,43 +251,50 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
 
   return (
     <div className="learning-workspace">
-      <section className="workspace-panel studio-control-bar">
-        <div className="panel-heading" style={{ marginBottom: 14 }}>
-          <div>
-            <span className="eyebrow">ACTIVE LEARNER &amp; WEEK</span>
-            <h2 style={{ margin: '4px 0 0' }}>Choose learner and week</h2>
+      <section className={['workspace-panel', 'studio-control-bar', styles.controlCard].join(' ')}
+        aria-labelledby="planner-learner-week-heading">
+        <div className={styles.cardHeading}>
+          <div className={styles.headingLabel}>
+            <span className={styles.calendarTile}><PlannerCalendarIcon /></span>
+            <span className={styles.eyebrow}>ACTIVE LEARNER &amp; WEEK</span>
           </div>
-          <span className="pill">{display(weekRange[0])} – {display(weekRange[6])}</span>
+          <span className={styles.weekRange}>
+            <PlannerCalendarIcon />
+            {display(weekRange[0])} – {display(weekRange[6])}
+          </span>
+          <h2 id="planner-learner-week-heading" className={styles.title}>Choose learner and week</h2>
         </div>
 
         {learners.length > 1 && (
-          <div className="learner-switcher" role="group" aria-label="Choose learner" style={{ marginBottom: 16 }}>
-            {learners.map((l) => (
+          <div className={styles.learnerGrid} role="group" aria-label="Choose learner">
+            {learners.map((learner) => (
               <button
-                key={l.id}
+                key={learner.id}
                 type="button"
-                className={l.id === learnerId ? 'learner-pill is-active' : 'learner-pill'}
-                aria-pressed={l.id === learnerId}
+                className={[styles.learnerChoice, learner.id === learnerId ? styles.activeChoice : ''].join(' ')}
+                aria-pressed={learner.id === learnerId}
                 onClick={() => {
-                  if (learnerId === l.id) return;
-                  setLearnerId(l.id);
+                  if (learnerId === learner.id) return;
+                  setLearnerId(learner.id);
                   setNotice('');
                   setError('');
                   setLoading(true);
                 }}
               >
-                <span className="learner-avatar" aria-hidden="true">
-                  {l.name.slice(0, 1).toUpperCase()}
+                <span className={styles.avatar} aria-hidden="true">{learner.name.slice(0, 1).toUpperCase()}</span>
+                <span className={styles.learnerInfo}>
+                  <strong className={styles.learnerName}>{learner.name}</strong>
+                  <small>{learner.stage}</small>
                 </span>
-                <span>{l.name} · <small style={{ fontWeight: 600, opacity: 0.8 }}>{l.stage}</small></span>
+                {learner.id === learnerId && <span className={styles.checkmark} aria-hidden="true">✓</span>}
               </button>
             ))}
           </div>
         )}
 
-        <div className="planning-bar-row">
-          <label className="workspace-field" style={{ marginBottom: 0 }}>
-            <span>Learner</span>
+        <div className={styles.fieldGrid}>
+          <label className={['workspace-field', styles.field].join(' ')}>
+            <span className={styles.fieldLabel}>Learner</span>
             <select
               value={learnerId}
               onChange={(event) => {
@@ -278,15 +304,15 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
                 setLoading(true);
               }}
             >
-              {learners.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.name} · {l.stage}
+              {learners.map((learner) => (
+                <option key={learner.id} value={learner.id}>
+                  {learner.name} · {learner.stage}
                 </option>
               ))}
             </select>
           </label>
-          <label className="workspace-field" style={{ marginBottom: 0 }}>
-            <span>Planning date</span>
+          <label className={['workspace-field', styles.field].join(' ')}>
+            <span className={styles.fieldLabel}>Planning date</span>
             <input
               type="date"
               min="2020-01-01"
@@ -301,48 +327,51 @@ export default function PlanningWorkspace({ learners, canEdit, initialDate, init
               }}
             />
           </label>
-          <div className="planning-week-nav">
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => {
-                setDate(addDays(date, -7));
-                setLoading(true);
-                setError('');
-              }}
-              disabled={date < '2020-01-08'}
-            >
-              ← Previous week
-            </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => {
-                setDate(initialDate);
-                setLoading(date !== initialDate);
-                setError('');
-              }}
-            >
-              Current week
-            </button>
-            <button
-              type="button"
-              className="btn-secondary"
-              onClick={() => {
-                setDate(addDays(date, 7));
-                setLoading(true);
-                setError('');
-              }}
-              disabled={date > '2099-12-24'}
-            >
-              Next week →
-            </button>
-          </div>
+        </div>
+
+        <div className={styles.weekNav} role="group" aria-label="Navigate planning weeks">
+          <button
+            type="button"
+            className={styles.weekButton}
+            onClick={() => {
+              setDate(addDays(date, -7));
+              setLoading(true);
+              setError('');
+            }}
+            disabled={date < '2020-01-08'}
+          >
+            <span aria-hidden="true">←</span><span>Previous week</span>
+          </button>
+          <button
+            type="button"
+            className={[styles.weekButton, styles.currentWeek].join(' ')}
+            onClick={() => {
+              setDate(initialDate);
+              setLoading(date !== initialDate);
+              setError('');
+            }}
+            aria-label="Jump to current week"
+          >
+            <PlannerCalendarIcon /><span>Current week</span>
+          </button>
+          <button
+            type="button"
+            className={styles.weekButton}
+            onClick={() => {
+              setDate(addDays(date, 7));
+              setLoading(true);
+              setError('');
+            }}
+            disabled={date > '2099-12-24'}
+          >
+            <span>Next week</span><span aria-hidden="true">→</span>
+          </button>
         </div>
         {selected && (
-          <p className="muted" style={{ margin: '14px 0 0', fontSize: 13 }}>
-            Planning for <strong>{selected.name}</strong> ({selected.stage}). All planning records stay private to your family.
-          </p>
+          <div className={styles.privacyNote}>
+            <span className={styles.shieldTile}><PlannerShieldIcon /></span>
+            <p>Planning for <strong>{selected.name}</strong> ({selected.stage}). All planning records stay private to your family.</p>
+          </div>
         )}
       </section>
 
