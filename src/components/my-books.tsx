@@ -17,6 +17,7 @@ export default function MyBooks({daily = false}: {daily?: boolean}) {
   const [notice, setNotice] = useState('');
   const [busy, setBusy] = useState(false);
   const [query, setQuery] = useState('');
+  const [addFormOpen, setAddFormOpen] = useState<boolean | null>(null);
   const load = useCallback(async (signal?: AbortSignal) => {
     const res = await fetch(endpoint + (daily ? '?today=1' : ''), {cache: 'no-store', signal});
     const body = await res.json();
@@ -103,7 +104,7 @@ export default function MyBooks({daily = false}: {daily?: boolean}) {
         </div>
       </div>
 
-      {data.canEdit && <details className="my-books-add" key={data.books.length === 0 ? 'empty' : 'populated'} defaultOpen={data.books.length === 0}>
+      {data.canEdit && <details className="my-books-add" open={addFormOpen ?? data.books.length === 0} onToggle={event => setAddFormOpen(event.currentTarget.open)}>
         <summary>
           <span className="my-books-add-title">
             <strong>Add a book</strong>
