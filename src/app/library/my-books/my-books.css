@@ -1,0 +1,148 @@
+/* My Books: independent personal collection, aligned with HomeSchool OS blue UI. */
+.my-books-page {
+  max-width: 1100px;
+  min-width: 0;
+  padding-top: 22px;
+  padding-bottom: 96px;
+}
+.my-books-hero {
+  padding: clamp(18px, 3.2vw, 30px);
+  border: 1px solid #d4e2ed;
+  border-radius: 22px;
+  background: linear-gradient(125deg, #e8f4fc 0%, #f4f9fe 68%, #fff 100%);
+}
+.my-books-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  color: #15557d;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.my-books-back:hover { text-decoration: underline; }
+.my-books-hero-content { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-top: 6px; }
+.my-books-eyebrow { font-size: 10px; font-weight: 900; letter-spacing: .12em; color: #126f9f; }
+.my-books-hero h1 { margin: 5px 0 6px; color: #173950; font-size: clamp(29px, 4vw, 39px); line-height: 1.15; letter-spacing: -.045em; }
+.my-books-hero p { margin: 0; color: #4c6474; max-width: 660px; font-size: 14px; line-height: 1.6; }
+.my-books-hero-tag { display: inline-flex; flex: 0 0 auto; border: 1px solid #cbdfee; border-radius: 999px; padding: 7px 12px; font-size: 11px; font-weight: 800; color: #165b83; background: #fff; white-space: nowrap; }
+.my-books-workspace { display: grid; gap: 17px; min-width: 0; }
+.my-books-workspace :is(button, input, select, summary):focus-visible,
+.my-books-back:focus-visible { outline: 3px solid #7caaca; outline-offset: 3px; }
+.my-books-status { border: 1px solid #bfdaec; border-radius: 12px; background: #edf7ff; color: #154f73; padding: 12px 15px; margin: 0; font-size: 13px; }
+.my-books-loading { color: #607381; font-size: 14px; margin: 14px 0; }
+.my-books-summary { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.my-books-count { display: flex; align-items: baseline; gap: 8px; border: 1px solid #dfe6ed; border-radius: 13px; background: #fff; padding: 9px 14px; }
+.my-books-count strong { color: #125d86; font-size: 19px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.my-books-count span { color: #607180; font-size: 12px; font-weight: 750; }
+.my-books-add { min-width: 0; background: #fff; border: 1px solid #dce6ee; border-radius: 17px; overflow: hidden; }
+.my-books-add > summary { cursor: pointer; display: flex; align-items: center; gap: 12px; padding: 15px 18px; list-style: none; }
+.my-books-add > summary::-webkit-details-marker,
+.my-books-learner > summary::-webkit-details-marker,
+.my-books-history > summary::-webkit-details-marker { display: none; }
+.my-books-add-title { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.my-books-add-title strong { color: #193d56; font-size: 15px; }
+.my-books-add-title small { font-size: 12px; font-weight: 500; color: #667987; line-height: 1.45; }
+.my-books-add-symbol { display: grid; place-items: center; flex: 0 0 auto; width: 32px; height: 32px; border-radius: 10px; color: #006d9e; background: #eaf5fd; font-weight: 700; font-size: 23px; line-height: 1; transition: transform .2s; }
+.my-books-add[open] .my-books-add-symbol { transform: rotate(45deg); }
+.my-books-add-form { border-top: 1px solid #e8edf2; padding: 16px 18px 18px; }
+.my-books-add-fields { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr) minmax(130px, .8fr); align-items: end; gap: 12px; }
+.my-books-field { display: grid; min-width: 0; gap: 6px; color: #394f60; font-size: 12px; font-weight: 800; }
+.my-books-field input,
+.my-books-field select,
+.my-books-search input {
+  display: block; width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px;
+  border: 1px solid #cad8e2; border-radius: 11px; background: #fff;
+  color: #203e53; font: inherit; font-size: 16px;
+}
+.my-books-field input::placeholder, .my-books-search input::placeholder { color: #8193a1; }
+.my-books-add-form > .my-books-button { margin-top: 14px; }
+.my-books-button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 43px; padding: 9px 16px; border-radius: 11px; cursor: pointer;
+  font: inherit; font-size: 13px; font-weight: 850; line-height: 1.3;
+  transition: background .15s, border-color .15s;
+}
+.my-books-button:disabled { opacity: .55; cursor: wait; }
+.my-books-button-primary { border: 1px solid #006d9e; background: #006d9e; color: #fff; }
+.my-books-button-primary:hover:not(:disabled) { background: #005884; }
+.my-books-button-secondary { border: 1px solid #cbd9e4; background: #fff; color: #185074; }
+.my-books-button-secondary:hover:not(:disabled) { background: #edf6fc; border-color: #93bfd9; }
+.my-books-collection { display: grid; gap: 12px; min-width: 0; }
+.my-books-collection-heading { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.my-books-collection-heading h2 { margin: 1px 0; font-size: 19px; line-height: 1.3; color: #233e51; }
+.my-books-search { display: block; width: min(100%, 280px); }
+.my-books-search input { min-height: 39px; font-size: 14px; }
+.my-books-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 390px), 1fr)); align-items: start; gap: 15px; }
+.my-books-card { min-width: 0; border: 1px solid #dce5ec; border-radius: 18px; background: #fff; overflow: hidden; box-shadow: 0 4px 18px rgba(16, 50, 79, .035); }
+.my-books-card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 17px 18px 14px; }
+.my-books-card-title { margin: 0 0 5px; color: #243e51; font-size: 17px; line-height: 1.36; font-weight: 850; overflow-wrap: anywhere; }
+.my-books-card-meta { margin: 0; color: #617686; font-size: 12px; line-height: 1.5; }
+.my-books-card-badge { flex: 0 0 auto; padding: 5px 9px; border: 1px solid #d9e7ef; border-radius: 99px; background: #f0f8fd; color: #246183; font-size: 11px; font-weight: 800; white-space: nowrap; }
+.my-books-unassigned { margin: 0 18px 14px; font-size: 12px; line-height: 1.5; color: #657786; }
+.my-books-assign { display: flex; align-items: end; gap: 9px; border-top: 1px solid #edf0f3; padding: 12px 18px; background: #fafcfe; }
+.my-books-assign .my-books-field { flex: 1; }
+.my-books-assign .my-books-field select { min-height: 41px; font-size: 14px; }
+.my-books-assign .my-books-button { flex: 0 0 auto; min-height: 41px; }
+.my-books-learner-list { border-top: 1px solid #ecf0f3; }
+.my-books-learner + .my-books-learner { border-top: 1px solid #edf0f3; }
+.my-books-learner > summary { display: flex; align-items: center; gap: 10px; padding: 13px 17px; cursor: pointer; list-style: none; }
+.my-books-avatar { display: grid; place-items: center; width: 34px; height: 34px; border-radius: 11px; flex: 0 0 auto; background: #e6f3fb; color: #116a96; font-size: 11px; font-weight: 900; text-transform: uppercase; }
+.my-books-learner-name { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.my-books-learner-name strong { font-size: 13px; color: #28465c; line-height: 1.35; overflow-wrap: anywhere; }
+.my-books-learner-name small { color: #647988; font-size: 11px; }
+.my-books-percent { font-size: 12px; font-weight: 900; color: #116a96; font-variant-numeric: tabular-nums; }
+.my-books-chevron { color: #688a9e; font-size: 24px; font-weight: 500; line-height: 1; transform: rotate(0deg); transition: transform .2s; }
+.my-books-learner[open] > summary .my-books-chevron { transform: rotate(90deg); }
+.my-books-learner-panel { padding: 0 18px 18px; }
+.my-books-progress { display: block; width: 100%; height: 8px; margin: 2px 0 8px; border: 0; border-radius: 99px; overflow: hidden; accent-color: #087fb1; background: #e4edf3; }
+.my-books-progress::-webkit-progress-bar { background: #e4edf3; border-radius: 99px; }
+.my-books-progress::-webkit-progress-value { background: #1184b7; border-radius: 99px; }
+.my-books-progress::-moz-progress-bar { background: #1184b7; border-radius: 99px; }
+.my-books-next { margin: 0 0 13px; font-size: 12px; color: #527287; }
+.my-books-pages-form { display: grid; gap: 12px; border-top: 1px solid #edf0f3; padding-top: 12px; }
+.my-books-page-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.my-books-page-fields input { min-height: 42px; }
+.my-books-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.my-books-actions .my-books-button { flex: 1 1 120px; }
+.my-books-history { margin-top: 12px; padding-top: 10px; border-top: 1px solid #edf0f3; }
+.my-books-history > summary { cursor: pointer; color: #265b7a; font-size: 12px; font-weight: 800; }
+.my-books-history ul { margin: 8px 0 0; padding-left: 18px; color: #627482; font-size: 12px; line-height: 1.8; }
+.my-books-empty { margin: 0; padding: 26px 18px; border: 1px dashed #c7dae7; border-radius: 16px; background: #f8fcff; text-align: center; color: #5c7080; font-size: 14px; }
+@media (max-width: 650px) {
+  .my-books-page { padding: 12px 12px 100px; }
+  .my-books-hero { border-radius: 17px; padding: 16px; }
+  .my-books-hero-content { align-items: flex-start; gap: 7px; flex-direction: column; }
+  .my-books-hero h1 { font-size: 29px; margin: 3px 0 4px; }
+  .my-books-hero p { font-size: 12px; }
+  .my-books-hero-tag { display: none; }
+  .my-books-workspace { gap: 12px; }
+  .my-books-summary { gap: 8px; }
+  .my-books-count { flex: 1 1 0; min-width: 0; padding: 9px 11px; }
+  .my-books-count strong { font-size: 18px; }
+  .my-books-count span { line-height: 1.25; }
+  .my-books-add > summary { padding: 13px 14px; }
+  .my-books-add-form { padding: 14px; }
+  .my-books-add-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 10px; }
+  .my-books-add-fields .my-books-field:first-child { grid-column: 1 / -1; }
+  .my-books-add-form > .my-books-button { width: 100%; }
+  .my-books-list { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .my-books-card-head { padding: 15px 14px 12px; }
+  .my-books-card-title { font-size: 16px; }
+  .my-books-card-badge { font-size: 10px; }
+  .my-books-assign { flex-wrap: wrap; padding: 11px 14px; }
+  .my-books-assign .my-books-field { min-width: min(100%, 165px); }
+  .my-books-learner > summary { padding: 12px 14px; gap: 8px; }
+  .my-books-learner-panel { padding: 0 14px 14px; }
+  .my-books-actions .my-books-button { padding: 9px 10px; font-size: 12px; }
+  .my-books-collection-heading { align-items: stretch; }
+  .my-books-search { width: 100%; }
+}
+@media (max-width: 350px) {
+  .my-books-assign .my-books-field, .my-books-assign .my-books-button { flex: 1 1 100%; }
+  .my-books-assign .my-books-button { width: 100%; }
+  .my-books-page-fields { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .my-books-chevron, .my-books-add-symbol, .my-books-button { transition: none; }
+}
