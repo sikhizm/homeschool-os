@@ -152,7 +152,7 @@ export default async function LearnersPage() {
         <div className="learners-tools-links">
           <Link href="/planning"><LearnerIcon name="calendar"/> Weekly planner</Link>
           <a href="#family-workflow"><LearnerIcon name="target"/> Subject levels</a>
-          <Link href="/ncert-books/my-books"><LearnerIcon name="book"/> My Books</Link>
+          <Link href="/library/my-books"><LearnerIcon name="book"/> My Books</Link>
           <Link href="/reports"><LearnerIcon name="chart"/> Family progress</Link>
         </div>
       </nav>
