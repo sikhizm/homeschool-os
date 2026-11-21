@@ -14,6 +14,7 @@ export function navigationForPath(pathname:string){
  ]};
  else if(within(pathname,'/library'))context={label:'Learning library',links:[
   {href:'/library',label:'Library'},
+  {href:'/library/my-books',label:'My Books'},
   {href:'/library/prompts',label:'Learning Prompts'},
   {href:'/library/olympiad',label:'Olympiad Resources'},
   {href:'/library/enrichment',label:'Supplementary resources'},
@@ -58,5 +59,6 @@ export function isPrivateRoute(pathname:string){
 }
 export function navigationLinkIsActive(pathname:string,href:string){
  if(href==='/dashboard')return within(pathname,'/dashboard');
+ if(href==='/library')return pathname==='/library';
  return within(pathname,href);
 }
