@@ -14,7 +14,6 @@ import {
   textbookById,
   chaptersFor,
 } from '@/lib/ncert/textbooks';
-import { mappingEvidence, mappingLabels, pdfLabels } from '@/lib/ncert/catalogue-evidence';
 import { familyMappingEvidence } from '@/lib/ncert/family-catalogue-evidence';
 import { class5ChapterAccountById } from '@/lib/curriculum/class5-mapping';
 import { chapterPdfSources, prefersOfficialNcert } from '@/lib/ncert/pdf-source';
@@ -44,7 +43,6 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
   );
   const officialPdf = hasOfficialPdf ? pdf.href : null;
   const mappingReview = book.grade === 5 ? await familyMappingEvidence(session.user.id) : null;
-  const mappingStatus = mappingEvidence(mappingReview?.revisions)(chapter);
   const siblings = chaptersFor(book.id);
   const index = siblings.findIndex((c) => c.id === chapter.id);
   const previous = siblings[index - 1];
@@ -83,14 +81,12 @@ export default async function ChapterLearningPage({ params, searchParams }: { pa
             </div>
             <Image className="chapter-reading-illustration" src="/illustrations/chapter-open-book.svg" width={190} height={157} alt="" aria-hidden="true"/>
           </div>
-          <div className="chapter-reading-evidence" role="note">
-            <span className="chapter-reading-evidence-icon" aria-hidden="true">ⓘ</span>
-            <div>
-              <strong>{chapter.verifiedTitle?'Chapter title checked against NCERT contents':'Chapter title awaiting verification'}</strong>
-              <p>{mappingLabels[mappingStatus]}. {pdfLabels[pdf.status]}.</p>
-              {chapter.selection==='choose-one'&&<details className="chapter-reading-evidence-details"><summary>Official selection notes</summary><p>{selectionNote} This alternative remains browseable but is excluded from the default learning path until a parent or school makes a selection.</p></details>}
-            </div>
-          </div>
+          {chapter.selection === 'choose-one' && (
+            <details className="chapter-reading-evidence-details">
+              <summary>Official selection notes</summary>
+              <p>{selectionNote} This alternative remains browseable but is excluded from the default learning path until a parent or school makes a selection.</p>
+            </details>
+          )}
           <div className="hero-actions chapter-reading-actions">
             {readerHref && releaseUrl ? (
               <>
