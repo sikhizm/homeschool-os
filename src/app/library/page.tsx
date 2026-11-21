@@ -1,12 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
-import { getSql } from '@/lib/db';
-import { readClass5ReviewOverview, type MappingSql } from '@/lib/curriculum/mapping-review-service';
 import SectionArtwork from '@/components/section-artwork';
 import { ContinueReading } from './continue-reading';
 import LibraryQuickBrowse from './quick-browse';
 import styles from './personal-books.module.css';
+import collections from './collections.module.css';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,12 +53,6 @@ const SECTIONS = [
 export default async function LibraryPage() {
   const { data: session } = await auth.getSession();
   if (!session?.user) redirect('/auth/sign-in');
-  let mappingOverview = null;
-  try {
-    mappingOverview = await readClass5ReviewOverview(getSql() as unknown as MappingSql, session.user.id);
-  } catch {
-    // The library stays available when owner access cannot be determined.
-  }
   return (
     <main className="library-page studio-stack">
       <div className="dashboard-welcome library-welcome library-hero">
@@ -72,6 +65,10 @@ export default async function LibraryPage() {
         </div>
         <SectionArtwork theme="explore" />
       </div>
+
+      <LibraryQuickBrowse />
+
+      <ContinueReading />
 
       <section className={styles.card} aria-labelledby="library-personal-books-title">
         <span className={styles.icon} aria-hidden="true">
@@ -87,11 +84,7 @@ export default async function LibraryPage() {
         <Link className={styles.action} href="/library/my-books">Open My Books <span aria-hidden="true">→</span></Link>
       </section>
 
-      <LibraryQuickBrowse />
-
-      <ContinueReading />
-
-      <section className="library-sections" aria-labelledby="library-sections-title">
+      <section className={`library-sections ${collections.section}`} aria-labelledby="library-sections-title">
         <div className="section-heading">
           <div>
             <p className="eyebrow" style={{ margin: 0 }}>DISCOVER</p>
@@ -99,18 +92,20 @@ export default async function LibraryPage() {
           </div>
           <p className="muted">{SECTIONS.length} curated spaces</p>
         </div>
-        <div className="library-grid">
+        <div className={`library-grid ${collections.grid}`}>
           {SECTIONS.map((section) => (
             <Link
               key={section.title}
               href={section.href}
-              className="library-card card"
+              className={`library-card card ${collections.card}`}
               style={{ borderTop: `4px solid ${section.tint}` }}
             >
-              <span className="library-card-glyph" aria-hidden="true" style={{ background: section.tint }}>
-                {section.glyph}
-              </span>
-              <strong>{section.title}</strong>
+              <div className={collections.heading}>
+                <span className="library-card-glyph" aria-hidden="true" style={{ background: section.tint }}>
+                  {section.glyph}
+                </span>
+                <strong>{section.title}</strong>
+              </div>
               <p>{section.description}</p>
               <span className="library-card-arrow" aria-hidden="true">
                 Open collection →
@@ -120,47 +115,6 @@ export default async function LibraryPage() {
         </div>
       </section>
 
-      {mappingOverview && (
-        <section className="workspace-panel" aria-labelledby="curriculum-admin-title">
-          <h2 id="curriculum-admin-title">Curriculum Administration &amp; Quality</h2>
-          <Link className="library-card card" href="/curriculum-mapping">
-            <strong>Curriculum Mapping Review</strong>
-            <p>Help check which skills a Class 5 chapter can teach. Family owners can review the evidence before approving a suggested link.</p>
-            <p>
-              {mappingOverview.pending === null
-                ? 'Review count unavailable'
-                : `${mappingOverview.pending} ${mappingOverview.pending === 1 ? 'proposal' : 'proposals'} awaiting review`}
-            </p>
-            <span className="library-card-arrow" aria-hidden="true">Open review queue →</span>
-          </Link>
-        </section>
-      )}
-
-      <section className="card library-legend" aria-labelledby="legend-title">
-        <p className="eyebrow" style={{ margin: 0 }}>EDITORIAL TRUST</p>
-        <h2 id="legend-title" style={{ margin: '4px 0 6px' }}>How to read verification badges</h2>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Nothing in the library claims accreditation or grade equivalence. Original Homeschool OS content is always labelled clearly.
-        </p>
-        <ul className="verify-legend-grid">
-          <li>
-            <span className="verify-badge verified">Verified</span>
-            <span>Chapter title or book identity checked against the official publisher source.</span>
-          </li>
-          <li>
-            <span className="verify-badge pending">Contents pending</span>
-            <span>The book is listed officially, but its chapter index has not been verified yet.</span>
-          </li>
-          <li>
-            <span className="verify-badge approved">Mapping approved</span>
-            <span>A human editor approved the link between a chapter and a skill.</span>
-          </li>
-          <li>
-            <span className="verify-badge mapping-pending">Mapping pending</span>
-            <span>A skill link is proposed but not yet approved — never applied automatically.</span>
-          </li>
-        </ul>
-      </section>
     </main>
   );
 }

@@ -1,0 +1,26 @@
+.section:global(.library-sections) {
+  gap: 12px;
+}
+
+.grid:global(.library-grid) {
+  gap: 12px;
+}
+
+.card:global(.library-card) {
+  gap: 8px;
+  padding: 16px 18px;
+}
+
+.heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.heading :global(.library-card-glyph) {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  font-size: 18px;
+}

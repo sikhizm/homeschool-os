@@ -48,3 +48,14 @@
     font-weight: 700;
   }
 }
+
+.panel:global(.workspace-panel) { padding: clamp(14px, 2vw, 22px); }
+.panel h2 { margin: 0 0 10px; }
+.overview, .empty { padding: 12px 14px; border: 1px solid #dce8f2; border-radius: 12px; background: #f5faff; }
+.empty { margin: 0; color: #4b6b81; }
+.scores { display: flex; flex-wrap: wrap; gap: 10px 24px; margin: 0; }
+.scores > div { flex: 1 0 115px; }
+.scores dt, .activity, .method { color: #4b6b81; font-size: 13px; }
+.scores dd { margin: 3px 0 0; color: #173a59; font-size: 22px; font-weight: 750; }
+.activity { margin: 10px 0 0; }
+.method { margin: 4px 0 0; }

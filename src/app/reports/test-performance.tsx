@@ -38,9 +38,8 @@ export default async function TestPerformance(props: Props) {
     bySubject.set(row.subject, records);
   }
 
-  return <section className="workspace-panel">
-    <h2>Test Performance</h2>
-    <p className="muted">The primary average uses the latest attempt in this window for each assessment. The comparison includes every attempt in the window.</p>
+  return <section className={`workspace-panel ${styles.panel}`} aria-labelledby="test-performance-title">
+    <h2 id="test-performance-title">Test Performance</h2>
     {rows.length > 0 && <form method="get" action="/reports" className="report-filters report-no-print">
       <input type="hidden" name="learner" value={props.learnerId} />
       <input type="hidden" name="days" value={props.period} />
@@ -58,14 +57,24 @@ export default async function TestPerformance(props: Props) {
       <button className="btn-secondary" type="submit">Filter tests</button>
     </form>}
     {(selectedSubject || selectedChapter) && <p className="muted">{[selectedSubject, chapters.get(selectedChapter)].filter(Boolean).join(' · ')}</p>}
-    <div className="metric-grid report-metrics">
-      {[
-        [summary.assessments.length, 'Assessments'], [summary.history.length, 'Attempts'], [summary.chapters, 'Chapters assessed'],
-        [percentLabel(summary.primaryAverage), 'Primary average'], [percentLabel(summary.allAttemptsAverage), 'All-attempt average'],
-        [percentLabel(summary.best), 'Best performance'],
-      ].map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
-    </div>
-    {!filtered.length ? <p className="muted">No tests match these filters in this reporting window.</p> : <>
+    {!filtered.length ? <p className={styles.empty}>
+      {rows.length ? 'No tests match these filters in this reporting window.' : 'No test attempts recorded in this reporting window.'}
+    </p> : <>
+      <div className={styles.overview}>
+        <dl className={styles.scores}>
+          {[
+            [percentLabel(summary.primaryAverage), 'Primary average'],
+            [percentLabel(summary.allAttemptsAverage), 'All-attempt average'],
+            [percentLabel(summary.best), 'Best performance'],
+          ].map(([value, label]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}
+        </dl>
+        <p className={styles.activity}>
+          {summary.assessments.length} {summary.assessments.length === 1 ? 'assessment' : 'assessments'} ·{' '}
+          {summary.history.length} {summary.history.length === 1 ? 'attempt' : 'attempts'} ·{' '}
+          {summary.chapters} {summary.chapters === 1 ? 'chapter' : 'chapters'} assessed
+        </p>
+        <p className={styles.method}>Primary average uses the latest attempt per assessment. All-attempt average includes every attempt in this window.</p>
+      </div>
       <h3>Subject averages</h3>
       <ul>{[...bySubject].map(([subject, entries]) =>
         <li key={subject}>{subject} · {percentLabel(summarizeTests(entries).primaryAverage)}</li>)}</ul>

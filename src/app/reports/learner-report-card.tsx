@@ -1,10 +1,12 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
+import styles from './reading-activity.module.css';
 import {getSql} from '@/lib/db';
 import {passingChapters} from '@/lib/ncert/passing-chapters';
 import {chapterDisplayStatuses, normalizeChapterStatus, type ChapterDisplayStatus} from '@/lib/ncert/chapter-status';
 import {ncertChapterSlots, textbookById} from '@/lib/ncert/textbooks';
 
-export default async function LearnerReportCard({learnerId, familyId, today}: {learnerId: string; familyId: string; today: string}) {
+export default async function LearnerReportCard({learnerId, familyId, today, readingActivity}: {learnerId: string; familyId: string; today: string; readingActivity?: ReactNode}) {
   const sql = getSql();
   const [schema] = await sql`SELECT to_regclass('public.ncert_chapter_progress') IS NOT NULL AS chapters,
     to_regclass('public.learning_challenges') IS NOT NULL AS challenges`;
@@ -37,21 +39,30 @@ export default async function LearnerReportCard({learnerId, familyId, today}: {l
   const rewardsDue = challenges.filter(item => item.reward_earned && !item.reward_given_at).length;
 
   return <>
-    <section className="workspace-panel report-card-section" aria-labelledby="report-chapters">
-      <h2 id="report-chapters">NCERT chapter progress</h2>
-      <p className="muted">{read} chapters read · {passes.length} finished</p>
-      {chapters.size ? <div className="report-card-table"><table>
-        <thead><tr><th scope="col">Chapter</th><th scope="col">Subject</th><th scope="col">Status</th></tr></thead>
-        <tbody>{Array.from(chapters, ([id, {status}]) => {
-          const chapter = catalogue.get(id);
-          const subject = chapter ? textbookById(chapter.bookId)?.subject : null;
-          return <tr key={id}><td>{chapter ? <Link href={`/ncert-books/chapter/${encodeURIComponent(id)}?learner=${encodeURIComponent(learnerId)}#chapter-status`}>
-            {chapter.verifiedTitle ?? chapter.label}</Link> : id}</td>
-            <td>{subject ?? '—'}</td><td><span className="chapter-status-badge" data-status={status}>{chapterDisplayStatuses.find(option => option.id === status)?.label}</span></td>
-          </tr>;
-        })}</tbody>
-      </table></div> : <p className="muted">No chapter status recorded yet.</p>}
-    </section>
+    <div className={styles.panels}>
+      <section className={`workspace-panel report-card-section ${styles.panel}`} aria-labelledby="report-chapters">
+        <h2 id="report-chapters">NCERT chapter progress</h2>
+        <p className="muted">{read} chapters read · {passes.length} finished</p>
+        {chapters.size ? <ul className={styles.chapters}>
+          {Array.from(chapters, ([id, {status}]) => {
+            const chapter = catalogue.get(id);
+            const subject = chapter ? textbookById(chapter.bookId)?.subject : null;
+            return <li key={id}>
+              <div>
+                {chapter ? <Link href={`/ncert-books/chapter/${encodeURIComponent(id)}?learner=${encodeURIComponent(learnerId)}#chapter-status`}>
+                  {chapter.verifiedTitle ?? chapter.label}
+                </Link> : <strong>{id}</strong>}
+                {subject && <span className={styles.subject}>{subject}</span>}
+              </div>
+              <span className="chapter-status-badge" data-status={status}>
+                {chapterDisplayStatuses.find(option => option.id === status)?.label}
+              </span>
+            </li>;
+          })}
+        </ul> : <p className="muted">No chapter status recorded yet.</p>}
+      </section>
+      {readingActivity}
+    </div>
     <section className="workspace-panel report-card-section" aria-labelledby="report-rewards">
       <h2 id="report-rewards">Challenges &amp; Rewards</h2>
       <p className="muted">{points} lifetime points · {challenges.filter(item => item.completed_on).length} completed · {rewardsDue} rewards to give</p>

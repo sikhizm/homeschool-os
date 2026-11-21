@@ -9,6 +9,7 @@ import {readingTiming} from '@/lib/planning/reading-rhythm';
 import PrintReport from './print-report';
 import LearnerReportCard from './learner-report-card';
 import TestPerformance from './test-performance';
+import ReadingActivity from './reading-activity';
 
 export const dynamic = 'force-dynamic';
 type Params = { learner?: string; days?: string; end?: string; testSubject?: string; testChapter?: string };
@@ -145,23 +146,9 @@ export default async function ReportsPage({ searchParams }: { searchParams: Prom
       <h2>No learners yet</h2>
       <Link className="btn-primary" href="/learners">Open Learners →</Link>
     </section> : <>
-      <section className="workspace-panel report-card-section">
-        <header className="report-timeline-heading">
-          <h2>Chapter reading timeline</h2>
-          {reading.length > 0 && <span className="pill">{reading.length} recorded</span>}
-        </header>
-        {scheduledReading && <p className="muted">{scheduledReading.onTime} of {scheduledReading.planned} daily readings on time
-          {scheduledReading.late > 0 ? ` · ${scheduledReading.late} read after the due date` : ''}</p>}
-        {readingUnavailable ? <p className="muted" role="status">Chapter reading records are unavailable.</p>
-          : reading.length ? <ol className="report-reading-timeline">
-            {reading.map(entry => <li key={`${entry.date}:${entry.id}`}>
-              <time dateTime={entry.date}>{formatDate(entry.date)}</time>
-              <Link href={`/ncert-books/chapter/${encodeURIComponent(entry.id)}?learner=${encodeURIComponent(learnerId)}#chapter-reading`}>{entry.title}</Link>
-              {entry.subject && <span className="muted">{entry.subject}</span>}
-            </li>)}
-          </ol> : <p className="muted">No chapters marked read in this reporting window.</p>}
-      </section>
-      <LearnerReportCard learnerId={learnerId} familyId={String(family.id)} today={today} />
+      <LearnerReportCard learnerId={learnerId} familyId={String(family.id)} today={today}
+        readingActivity={<ReadingActivity entries={reading} learnerId={learnerId}
+          unavailable={readingUnavailable} timing={scheduledReading} />} />
       <TestPerformance userId={session.user.id} learnerId={learnerId}
         learnerName={String(learner.display_name)} start={window.startDate} end={window.endDate}
         period={period} subject={params.testSubject} chapter={params.testChapter} />
