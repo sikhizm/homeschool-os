@@ -72,6 +72,20 @@ export default async function LibraryPage() {
         <SectionArtwork theme="explore" />
       </div>
 
+      <section className="library-personal-books" aria-labelledby="library-personal-books-title">
+        <span className="library-personal-books-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 6c-3-2-6-2.5-10-2v15c4-.5 7 0 10 2M12 6c3-2 6-2.5 10-2v15c-4-.5-7 0-10 2M12 6v15"/>
+          </svg>
+        </span>
+        <div className="library-personal-books-copy">
+          <span className="eyebrow">YOUR FAMILY LIBRARY</span>
+          <h2 id="library-personal-books-title">My Books</h2>
+          <p>Manage your own physical books, assign them to learners and track pages read — separate from NCERT and Global Curriculum.</p>
+        </div>
+        <Link className="library-personal-books-link" href="/library/my-books">Open My Books <span aria-hidden="true">→</span></Link>
+      </section>
+
       <LibraryQuickBrowse />
 
       <ContinueReading />
