@@ -3630,3 +3630,52 @@ button:active:not(:disabled){transform:translateY(1px)}
 @media (prefers-reduced-motion: reduce) {
   .library-browse-tile,.library-browse-all { transition: none; }
 }
+
+
+/* Personal family-owned books are separate from public curriculum catalogues. */
+.library-page .library-personal-books {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  border: 1px solid #cfe3f5;
+  border-radius: 18px;
+  background: linear-gradient(110deg, #f3f9ff, #fff);
+}
+.library-page .library-personal-books-icon {
+  display: grid;
+  flex: 0 0 52px;
+  height: 52px;
+  place-items: center;
+  border-radius: 14px;
+  background: #deefff;
+  color: #1268a6;
+}
+.library-page .library-personal-books-copy { flex: 1; min-width: 0; }
+.library-page .library-personal-books .eyebrow { color: #346a91; font-size: 10px; }
+.library-page .library-personal-books h2 { font-size: 19px; line-height: 1.25; margin: 3px 0 4px; color: #193b5b; }
+.library-page .library-personal-books p { margin: 0; color: #527087; font-size: 12px; line-height: 1.45; }
+.library-page .library-personal-books-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  gap: 6px;
+  min-height: 44px;
+  padding: 11px 15px;
+  border-radius: 11px;
+  background: #096ba9;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.library-page .library-personal-books-link:focus-visible { outline: 3px solid #74bcef; outline-offset: 3px; }
+@media (max-width: 620px) {
+  .library-page .library-personal-books { display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 10px; padding: 13px; }
+  .library-page .library-personal-books-icon { width: 42px; height: 42px; flex-basis: 42px; border-radius: 12px; }
+  .library-page .library-personal-books h2 { font-size: 17px; }
+  .library-page .library-personal-books p { font-size: 11px; }
+  .library-page .library-personal-books-link { grid-column: 1 / -1; width: 100%; min-height: 42px; }
+}
