@@ -278,6 +278,34 @@ export const ncertChapterSlots:ChapterSlot[]=ncertTextbooks.flatMap(book=>
  })
 );
 export const textbookGrades=Array.from({length:12},(_,index)=>index+1);
+/** Family-facing book index: keep official source metadata intact, but omit Urdu
+ * editions that this family doesn't use. Stored references are never deleted. */
+export const familyLibraryTextbooks = ncertTextbooks.filter(book => book.language.trim().toLowerCase() !== 'urdu');
+
+export function selectFamilyLibraryTextbooks(grade:number, subject = '') {
+ return familyLibraryTextbooks.filter(book => book.grade === grade && (!subject || book.subject === subject));
+}
+
+export function familyLibraryGradeCoverage() {
+ return textbookGrades.map(grade => ({
+  grade,
+  cataloguedBooks: familyLibraryTextbooks.filter(book => book.grade === grade).length,
+  contentsAudited: familyLibraryTextbooks.filter(book => book.grade === grade && book.chapterCount > 0).length,
+  status: (familyLibraryTextbooks.some(book => book.grade === grade) ? 'partial' : 'not-catalogued') as 'partial'|'not-catalogued',
+ }));
+}
+
+export function familyLibraryAudit() {
+ const bookIds = new Set(familyLibraryTextbooks.map(book => book.id));
+ const chapters = ncertChapterSlots.filter(chapter => bookIds.has(chapter.bookId));
+ return {
+  books: familyLibraryTextbooks.length,
+  chapterSlots: chapters.length,
+  verifiedChapterTitles: chapters.filter(ch => ch.verifiedTitle && (ch.status === 'source-verified' || ch.status === 'human-reviewed')).length,
+ };
+}
+
+
 export function gradeCoverage(){
  return textbookGrades.map(grade=>({
    grade,
