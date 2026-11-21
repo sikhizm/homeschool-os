@@ -78,7 +78,7 @@
 .olympiad-edition { display: flex; align-items: center; gap: 6px; margin: 0 0 15px; color: #758697; font-size: 11px; line-height: 1.4; }
 .olympiad-edition svg { width: 14px; height: 14px; flex: 0 0 14px; }
 .olympiad-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 3px; }
-.olympiad-actions a { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 43px; padding: 10px 15px; border-radius: 11px; font-size: 11.5px; font-weight: 800; text-align: center; text-decoration: none; }
+.olympiad-actions a { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 43px; padding: 10px 16px; border-radius: 11px; font-size: 11.5px; font-weight: 800; text-align: center; text-decoration: none; }
 .olympiad-actions .btn-primary { color: #fff; background: #0a6ca9; }
 .olympiad-actions .btn-secondary { background: #fff; color: #235e89; border: 1px solid #d0e0ec; }
 .olympiad-card .resource-plan-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin-top: 11px; }
@@ -121,7 +121,7 @@
  .olympiad-grid { grid-template-columns: minmax(0,1fr); gap: 11px; }
  .olympiad-page .olympiad-card { padding: 15px; border-radius: 16px; }
  .olympiad-card h3 { font-size: 17px; min-height: 0; }
- .olympiad-actions a { flex: 1 1 130px; padding: 9px 12px; }
+ .olympiad-actions a { flex: 1 1 130px; padding: 9px 16px; }
 }
 @media (max-width: 340px) {
  .olympiad-hero { grid-template-columns: minmax(0,1fr) 70px; }
