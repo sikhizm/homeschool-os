@@ -1,0 +1,267 @@
+.page {
+  --challenge-blue: #075f9b;
+  --challenge-tint: #edf6fc;
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.heading,
+.toolbar,
+.learners,
+.actions,
+.dates,
+.deadline,
+.points,
+.tabs {
+  display: flex;
+  align-items: center;
+}
+
+.heading,
+.toolbar,
+.learners,
+.actions,
+.dates {
+  flex-wrap: wrap;
+  gap: 10px 14px;
+}
+
+.heading,
+.toolbar {
+  justify-content: space-between;
+}
+
+.heading h1 {
+  margin: 0;
+  font-size: clamp(27px, 3.3vw, 40px);
+}
+
+.toolbar,
+.card,
+.formPanel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+.toolbar {
+  padding: 10px 14px;
+}
+
+.learners a,
+.tabs a,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 6px 12px;
+  font-size: .875rem;
+  font-weight: 750;
+  text-decoration: none;
+}
+
+.learners {
+  gap: 6px;
+}
+
+.learners a {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.learners a[aria-current],
+.learners a:hover {
+  color: var(--challenge-blue);
+  border-color: var(--challenge-blue);
+  background: var(--challenge-tint);
+}
+
+.points {
+  gap: 6px;
+  margin: 0;
+  font-size: .9rem;
+  font-weight: 800;
+}
+
+.points span {
+  color: #956000;
+  font-size: 1.2rem;
+}
+
+.tabs {
+  border-bottom: 1px solid var(--line);
+  gap: 4px;
+}
+
+.tabs a {
+  justify-content: center;
+  gap: 5px;
+  margin-bottom: -1px;
+  padding-inline: clamp(5px, 1.6vw, 18px);
+  border-bottom: 3px solid transparent;
+  color: var(--muted);
+}
+
+.tabs a[aria-current] {
+  border-color: var(--challenge-blue);
+  color: var(--challenge-blue);
+}
+
+.tabs a:hover,
+.secondary:hover {
+  background: var(--challenge-tint);
+}
+
+.tabs span {
+  font-variant-numeric: tabular-nums;
+}
+
+.card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr);
+  align-items: stretch;
+  padding: clamp(14px, 2vw, 22px);
+  gap: clamp(14px, 2vw, 22px);
+  overflow-wrap: anywhere;
+}
+
+.challenge {
+  min-width: 0;
+  align-self: center;
+  display: grid;
+  gap: 10px;
+}
+
+.challenge h2 {
+  margin: 0;
+  font-size: clamp(20px, 2.4vw, 27px);
+  font-weight: 800;
+  line-height: 1.22;
+}
+
+.criteria {
+  margin: 0;
+  color: var(--muted);
+  white-space: pre-line;
+}
+
+.dates {
+  color: var(--muted);
+  font-size: .875rem;
+  gap: 6px 12px;
+}
+
+.deadline {
+  gap: 5px;
+  padding: 4px 8px;
+  background: var(--challenge-tint);
+  color: var(--challenge-blue);
+  border-radius: 8px;
+  font-weight: 800;
+}
+
+.deadline[data-overdue] {
+  background: #fff1ec;
+  color: #9e3527;
+}
+
+.controls {
+  min-width: 0;
+}
+
+.actions {
+  gap: 6px 10px;
+  margin-top: 3px;
+}
+
+.heading button,
+.actions button {
+  min-height: 44px;
+}
+
+.secondary {
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--challenge-blue);
+  cursor: pointer;
+}
+
+.formPanel {
+  margin-top: 10px;
+  padding: 14px;
+  min-width: 0;
+}
+
+.formPanel :global(.challenge-form) {
+  margin-top: 0;
+}
+
+.learners a:focus-visible,
+.tabs a:focus-visible,
+.secondary:focus-visible {
+  outline: 2px solid var(--challenge-blue);
+  outline-offset: 2px;
+}
+
+.rewards {
+  padding: 14px;
+  border-radius: 12px;
+  background: var(--challenge-tint);
+  font-size: .875rem;
+}
+
+.rewards h3 {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.rewards dl {
+  margin: 0;
+}
+
+.rewards dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.rewards dl > div + div {
+  border-top: 1px solid var(--line);
+}
+
+.rewards dt {
+  flex: 0 0 auto;
+}
+
+.rewards dd {
+  margin: 0;
+  text-align: end;
+  font-weight: 750;
+  min-width: 0;
+}
+
+.rewards form {
+  margin-top: 6px;
+}
+
+.notice,
+.empty {
+  margin: 0;
+  color: var(--muted);
+}
+
+.notice {
+  padding: 9px 12px;
+  background: var(--challenge-tint);
+  border-radius: 10px;
+}
+
+@media (max-width: 760px) {
+  .card {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
