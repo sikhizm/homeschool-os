@@ -1,4 +1,4 @@
-import { gradeCoverage, ncertTextbooks } from '../ncert/textbooks';
+import { familyLibraryGradeCoverage, familyLibraryTextbooks } from '../ncert/textbooks';
 
 // These catalogue states explicitly confirm the book identity. Contents, edition
 // and PDF evidence are tracked separately on the corresponding records.
@@ -8,11 +8,11 @@ const reviewedBookStates = new Set([
   'book-confirmed-contents-pending',
 ]);
 
-const catalogueCoverage = gradeCoverage();
+const catalogueCoverage = familyLibraryGradeCoverage();
 export const textbookGradeOptions = catalogueCoverage
   .filter(({ cataloguedBooks }) => cataloguedBooks > 0)
   .map(({ grade }) => {
-    const reviewed = ncertTextbooks.filter(book => book.grade === grade && reviewedBookStates.has(book.status)).length;
+    const reviewed = familyLibraryTextbooks.filter(book => book.grade === grade && reviewedBookStates.has(book.status)).length;
     const reviewLabel = reviewed === 0
       ? 'Title review pending'
       : `${reviewed} book ${reviewed === 1 ? 'title' : 'titles'} reviewed`;
@@ -32,7 +32,7 @@ export const libraryGradeOptions: { label: string; href: string }[] = [
 
 /** Subject shortcuts always select a grade that actually has this subject. */
 export const librarySubjectOptions = ['English', 'Mathematics', 'Science', 'Social Science', 'Hindi', 'Vocational Education'].flatMap(label => {
-  const books = ncertTextbooks.filter(book => book.subject === label);
+  const books = familyLibraryTextbooks.filter(book => book.subject === label);
   const book = books.find(book => book.grade === 4) ?? books[0];
   return book ? [{ label, href: `/ncert-books?grade=${book.grade}&subject=${encodeURIComponent(label)}` }] : [];
 });
@@ -44,4 +44,4 @@ export const libraryLearningOptions = [
   { label: 'Create learning materials', href: '/library/prompts' },
 ];
 
-export const textbookCoverageDescription = `${ncertTextbooks.length} books are catalogued across ${catalogueCoverage.filter(row => row.cataloguedBooks > 0).length} classes. ${catalogueCoverage.reduce((total, row) => total + row.contentsAudited, 0)} books have checked contents; ${ncertTextbooks.filter(book => book.chapterCount === 0).length} await contents verification.`;
+export const textbookCoverageDescription = `${familyLibraryTextbooks.length} books are catalogued across ${catalogueCoverage.filter(row => row.cataloguedBooks > 0).length} classes. ${catalogueCoverage.reduce((total, row) => total + row.contentsAudited, 0)} books have checked contents; ${familyLibraryTextbooks.filter(book => book.chapterCount === 0).length} await contents verification.`;
