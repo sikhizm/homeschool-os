@@ -27,7 +27,8 @@ test('Compact mobile layout preserves book and learner workflow actions', () => 
   assert.ok(component.includes('aria-label={learner.display_name +'));
   assert.ok(component.includes('Next unfinished page:'));
   assert.ok(component.includes('Reading history ('));
-  assert.ok(component.includes('defaultOpen={data.books.length === 0}'));
+  assert.ok(component.includes('open={addFormOpen ?? data.books.length === 0}'));
+  assert.ok(component.includes('onToggle={event => setAddFormOpen(event.currentTarget.open)}'));
   assert.ok(component.includes('name="firstPage"'));
   assert.ok(component.includes('name="lastPage"'));
   assert.ok(component.includes('End page must be the same as or later'));
