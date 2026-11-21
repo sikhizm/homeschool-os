@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import EnrichmentView from './enrichment-view';
+import './enrichment.css';
 
 export const dynamic = 'force-dynamic';
 
