@@ -1,28 +1,134 @@
-.olympiad-page { max-width: 1440px; margin: 0 auto; }
-.olympiad-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; }
-.olympiad-heading h1 { margin: 0 0 8px; }
-.olympiad-heading p, .olympiad-summary { margin: 0; }
-.olympiad-filters { display: grid; grid-template-columns: 1fr 1fr 1.2fr 1.5fr auto; gap: 12px; align-items: end; }
-.olympiad-filters label { display: grid; gap: 6px; min-width: 0; font-weight: 700; }
-.olympiad-filters select, .olympiad-filters input { width: 100%; min-width: 0; min-height: 44px; padding: 10px; border: 1px solid #b9c4ce; border-radius: 10px; background: white; color: #212d38; font: inherit; }
-.olympiad-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.olympiad-card { display: flex; flex-direction: column; min-width: 0; padding: 20px; }
-.olympiad-provider { color: #254562; font-size: 13px; font-weight: 800; margin: 0 0 10px; }
-.olympiad-card h2 { font-size: 20px; line-height: 1.35; margin: 0 0 6px; }
-.olympiad-card > .muted { margin: 0; }
-.olympiad-details { margin: 14px 0; }
-.olympiad-details p { margin: 0 0 6px; }
-.olympiad-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: auto; }
-.olympiad-actions a { display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 11px 20px; border-radius: 14px; text-align: center; }
-.olympiad-filters button { min-height: 44px; }
-.olympiad-verification { margin-top: 16px; font-size: 12px; color: #525e69; }
-.olympiad-verification summary { cursor: pointer; }
-@media (max-width: 1100px) {
-  .olympiad-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .olympiad-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* Olympiad Resources — HomeSchool OS Library visual system */
+.olympiad-page { width: 100%; max-width: 1440px; min-width: 0; margin: 0 auto; gap: 19px; }
+.olympiad-page .global-crumbs { margin: 0; }
+.olympiad-hero {
+  display: grid;
+  grid-template-columns: minmax(0,1fr) 210px;
+  align-items: center;
+  gap: 20px;
+  position: relative;
+  overflow: hidden;
+  padding: 25px 30px;
+  border: 1px solid #d5e5f3;
+  border-radius: 23px;
+  background: linear-gradient(113deg,#e9f4ff 0%,#f5faff 57%,#fff7eb 100%);
 }
-@media (max-width: 600px) {
-  .olympiad-grid { grid-template-columns: minmax(0, 1fr); }
-  .olympiad-filters { grid-template-columns: minmax(0, 1fr); }
-  .olympiad-card { padding: 16px; }
+.olympiad-hero-copy { position: relative; z-index: 1; min-width: 0; }
+.olympiad-hero-copy .eyebrow { color: #1d6291; font-size: 11px; font-weight: 850; letter-spacing: .11em; }
+.olympiad-hero h1 { font-size: clamp(29px,3.5vw,43px); line-height: 1.13; letter-spacing: -.04em; color: #173a59; margin: 10px 0 9px; }
+.olympiad-hero p { max-width: 660px; margin: 0; color: #4b6b81; font-size: 14px; line-height: 1.6; }
+.olympiad-hero-links { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.olympiad-hero-action {
+ display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+ min-height: 40px; padding: 9px 14px; border-radius: 11px; background: #0a69a9; color: #fff;
+ font-size: 12px; font-weight: 800; text-decoration: none;
+}
+.olympiad-hero-action:hover { background: #07568b; }
+.olympiad-hero-note { color: #58768b; font-size: 11px; line-height: 1.3; }
+.olympiad-hero-art { width: 195px; height: 170px; max-width: 100%; position: relative; justify-self: center; }
+.olympiad-art-sun { position: absolute; width: 160px; height: 160px; top: 6px; left: 15px; background: #d9ecfb; border-radius: 50%; }
+.olympiad-art-paper {
+ position: absolute; top: 23px; left: 29px; width: 105px; height: 128px;
+ padding: 14px; border-radius: 12px; border: 1px solid #9bc9ea; background: #fff;
+ box-shadow: -8px 9px 0 #126fac, 0 8px 18px #16558217; transform: rotate(-8deg);
+ color: #5ba0cf; display: flex; flex-direction: column; align-items: flex-start; gap: 12px;
+}
+.olympiad-art-paper svg { width: 28px; height: 28px; }
+.olympiad-art-paper span { width: 100%; height: 6px; border-radius: 20px; background: #b4d9ef; }
+.olympiad-art-paper span:last-child { width: 62%; }
+.olympiad-art-medal { display: grid; place-items: center; position: absolute; right: 8px; bottom: 9px; width: 77px; height: 77px; border: 6px solid #f5c055; border-radius: 50%; background: #fff2bd; color: #db8c18; box-shadow: 0 7px 13px #8b681722; transform: rotate(12deg); }
+.olympiad-art-medal svg { width: 43px; height: 43px; }
+.olympiad-art-star { position: absolute; right: 4px; top: 2px; color: #e5a343; font-size: 27px; }
+.olympiad-filter-card { min-width: 0; padding: 18px 21px 21px; border: 1px solid #dbe7f0; border-radius: 19px; background: #fff; box-shadow: 0 5px 13px #1d59700b; }
+.olympiad-filter-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 15px; }
+.olympiad-filter-icon { display: grid; place-items: center; flex: 0 0 38px; height: 38px; border-radius: 11px; background: #e8f4ff; color: #1173b1; }
+.olympiad-filter-heading h2 { font-size: 17px; color: #173b5a; margin: 0 0 2px; }
+.olympiad-filter-heading p { color: #628095; margin: 0; font-size: 11px; }
+.olympiad-filters { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1.1fr) minmax(0,1.5fr) auto; align-items: end; gap: 11px; }
+.olympiad-filters label { display: grid; gap: 6px; min-width: 0; color: #38576d; font-size: 12px; font-weight: 750; }
+.olympiad-filters select, .olympiad-filters input {
+ box-sizing: border-box; width: 100%; min-width: 0; min-height: 43px; padding: 9px 11px;
+ border: 1px solid #cfdfeb; border-radius: 11px; background: #f9fcff; color: #1c405e; font: inherit; font-size: 12px;
+}
+.olympiad-filters select:focus-visible, .olympiad-filters input:focus-visible { outline: 3px solid #79b8ec; outline-offset: 1px; }
+.olympiad-filters button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 43px; padding: 10px 15px; border-radius: 11px; background: #086ca9; color: white; font-size: 12px; font-weight: 800; white-space: nowrap; }
+.olympiad-filters button:hover { background: #07598d; }
+.olympiad-results-heading { display: flex; align-items: end; justify-content: space-between; gap: 10px; }
+.olympiad-results-heading .eyebrow { color: #316e95; font-size: 10px; font-weight: 800; }
+.olympiad-results-heading h2 { color: #183e5e; font-size: 23px; margin: 3px 0; letter-spacing: -.03em; }
+.olympiad-count { display: inline-block; padding: 4px 10px; border-radius: 100px; color: #17689e; background: #e2f1ff; vertical-align: 3px; font-size: 13px; letter-spacing: 0; }
+.olympiad-page .olympiad-summary { margin: 0; font-size: 12px; }
+.olympiad-clear { color: #16699e; font-size: 12px; font-weight: 800; text-decoration: none; padding: 8px; }
+.olympiad-clear:hover { text-decoration: underline; }
+.olympiad-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.olympiad-page .olympiad-card { display: flex; flex-direction: column; min-width: 0; padding: 18px; border: 1px solid #dce8f2; border-radius: 18px; background: #fff; box-shadow: 0 5px 15px #1c58790b; }
+.olympiad-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.olympiad-card-icon { display: grid; place-items: center; flex: 0 0 41px; height: 41px; border-radius: 12px; background: #e7f3ff; color: #1473aa; }
+.olympiad-card-icon svg { width: 23px; height: 23px; }
+.olympiad-card-tags { display: flex; justify-content: flex-end; align-items: center; flex-wrap: wrap; gap: 5px; }
+.olympiad-provider, .olympiad-subject { display: inline-flex; align-items: center; margin: 0; padding: 5px 9px; border-radius: 100px; font-size: 10px; font-weight: 800; }
+.olympiad-provider { color: #1d6394; background: #e5f2fe; }
+.olympiad-subject { color: #8b6217; background: #fff3db; }
+.olympiad-card h3 { margin: 0 0 5px; color: #183c5c; font-size: 18px; line-height: 1.28; font-weight: 850; min-height: 44px; }
+.olympiad-grade { margin: 0 0 11px; color: #617c90; font-size: 12px; }
+.olympiad-details { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 9px; }
+.olympiad-details > span { display: inline-flex; align-items: center; gap: 5px; padding: 6px 9px; border: 1px solid #e2edf6; border-radius: 8px; color: #365f79; background: #f5f9fd; font-size: 11px; line-height: 1.4; }
+.olympiad-details svg { width: 14px; height: 14px; }
+.olympiad-collection-note { max-width: 100%; }
+.olympiad-edition { display: flex; align-items: center; gap: 6px; margin: 0 0 15px; color: #758697; font-size: 11px; line-height: 1.4; }
+.olympiad-edition svg { width: 14px; height: 14px; flex: 0 0 14px; }
+.olympiad-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 3px; }
+.olympiad-actions a { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; min-height: 43px; padding: 10px 15px; border-radius: 11px; font-size: 11.5px; font-weight: 800; text-align: center; text-decoration: none; }
+.olympiad-actions .btn-primary { color: #fff; background: #0a6ca9; }
+.olympiad-actions .btn-secondary { background: #fff; color: #235e89; border: 1px solid #d0e0ec; }
+.olympiad-card .resource-plan-actions { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 6px; margin-top: 11px; }
+.olympiad-card .resource-plan-actions a { box-sizing: border-box; min-width: 0; min-height: 38px; padding: 7px 4px; border: 1px solid #dbe8f3; border-radius: 9px; background: #f7faff; color: #336182; font-size: 10px; font-weight: 750; line-height: 1.25; text-align: center; text-decoration: none; }
+.olympiad-verification { margin-top: 13px; padding-top: 11px; border-top: 1px solid #edf1f6; font-size: 11px; color: #74899a; }
+.olympiad-verification summary { cursor: pointer; font-weight: 700; }
+.olympiad-verification p { color: #547188; line-height: 1.45; }
+.olympiad-source-note { color: #637b8e; font-size: 11px; line-height: 1.5; margin: 0; padding: 0 3px; }
+.olympiad-empty { padding: 24px; border-radius: 16px; }
+@media (max-width: 1120px) {
+ .olympiad-filters { grid-template-columns: repeat(2,minmax(0,1fr)); }
+ .olympiad-filters button { grid-column: 1/-1; }
+ .olympiad-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+}
+@media (max-width: 650px) {
+ .olympiad-page { gap: 13px; }
+ .olympiad-hero { grid-template-columns: minmax(0,1fr) 95px; gap: 5px; padding: 17px 14px; border-radius: 18px; }
+ .olympiad-hero .eyebrow { font-size: 9px; letter-spacing: .07em; }
+ .olympiad-hero h1 { font-size: clamp(22px,6vw,27px); margin: 6px 0; }
+ .olympiad-hero p { font-size: 11.5px; line-height: 1.45; }
+ .olympiad-hero-note { display: none; }
+ .olympiad-hero-links { margin-top: 10px; }
+ .olympiad-hero-action { min-height: 37px; padding: 8px 10px; font-size: 10.5px; }
+ .olympiad-hero-art { width: 95px; height: 105px; }
+ .olympiad-art-sun { width: 92px; height: 92px; left: 0; top: 7px; }
+ .olympiad-art-paper { width: 56px; height: 76px; top: 13px; left: 12px; padding: 8px; gap: 6px; border-radius: 8px; box-shadow: -4px 5px 0 #126fac; }
+ .olympiad-art-paper svg { width: 16px; height: 16px; }
+ .olympiad-art-paper span { height: 4px; }
+ .olympiad-art-medal { width: 43px; height: 43px; right: 0; bottom: 0; border-width: 4px; }
+ .olympiad-art-medal svg { width: 25px; height: 25px; }
+ .olympiad-art-star { font-size: 16px; }
+ .olympiad-filter-card { padding: 14px; border-radius: 16px; }
+ .olympiad-filter-heading { margin-bottom: 11px; }
+ .olympiad-filters { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+ .olympiad-filters label { font-size: 11px; }
+ .olympiad-filters select, .olympiad-filters input { min-height: 42px; padding: 8px; font-size: 11px; }
+ .olympiad-filters label:nth-child(4) { grid-column: 1/-1; }
+ .olympiad-filters button { grid-column: 1/-1; min-height: 42px; }
+ .olympiad-results-heading h2 { font-size: 20px; }
+ .olympiad-grid { grid-template-columns: minmax(0,1fr); gap: 11px; }
+ .olympiad-page .olympiad-card { padding: 15px; border-radius: 16px; }
+ .olympiad-card h3 { font-size: 17px; min-height: 0; }
+ .olympiad-actions a { flex: 1 1 130px; padding: 9px 12px; }
+}
+@media (max-width: 340px) {
+ .olympiad-hero { grid-template-columns: minmax(0,1fr) 70px; }
+ .olympiad-hero-art { transform: scale(.73); transform-origin: center; }
+ .olympiad-page .olympiad-card { padding: 12px; }
+ .olympiad-card .resource-plan-actions a { font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .olympiad-hero-action, .olympiad-actions a { transition: none; }
 }
