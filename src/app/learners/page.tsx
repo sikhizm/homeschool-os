@@ -50,7 +50,7 @@ export default async function LearnersPage() {
           <p className="eyebrow">FAMILY LEARNERS · {String(family.name || 'Family').toUpperCase()}</p>
           <h1>Everyone learning here</h1>
           <p className="muted">
-            Every learner has their own learning path, portfolio, progress and private records.
+            Every learner has their own learning path, progress review, study library and private records.
           </p>
         </div>
         <Image
@@ -118,7 +118,6 @@ export default async function LearnersPage() {
 
                 <div className="learner-quick-links" aria-label={`${name} spaces`}>
                   <Link href={`/learn/path?learner=${encodeURIComponent(id)}`}><LearnerIcon name="book"/><span>Learning path</span></Link>
-                  <Link href="/portfolio"><LearnerIcon name="folder"/><span>Portfolio</span></Link>
                   <Link href={`/reports?learner=${encodeURIComponent(id)}`}><LearnerIcon name="chart"/><span>Progress review</span></Link>
                   <Link href={`/learners/${encodeURIComponent(id)}/study-library`}><LearnerIcon name="layers"/><span>Study library</span></Link>
                 </div>
