@@ -34,6 +34,13 @@ test('curriculum pages keep book filters, owner review and framework cards usabl
     plugins: [{
       name: 'isolated-curriculum-fixture',
       setup(api) {
+        // CSS modules are compiled by Next.js in production; provide stable class
+        // names here so the browser fixture can bundle the page as JavaScript.
+        api.onResolve({ filter: /\.module\.css$/ }, args => ({ path: args.path, namespace: 'css-module-fixture' }));
+        api.onLoad({ filter: /.*/, namespace: 'css-module-fixture' }, () => ({
+          contents: 'export default {card:"card",icon:"icon",copy:"copy",kicker:"kicker",title:"title",description:"description",action:"action"};',
+          loader: 'js',
+        }));
         api.onResolve({ filter: /^@\/lib\/(auth\/server|db)$/ }, args => ({ path: args.path, namespace: 'fixture' }));
         api.onLoad({ filter: /.*/, namespace: 'fixture' }, ({ path }) => ({
           contents: path.endsWith('/db') ? `
