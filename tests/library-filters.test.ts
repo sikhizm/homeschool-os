@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {ncertTextbooks} from '../src/lib/ncert/textbooks';
+import {familyLibraryTextbooks,ncertTextbooks} from '../src/lib/ncert/textbooks';
 import {libraryGradeOptions} from '../src/lib/library/grade-options';
 
 test('Curriculum Library exposes every grade with an actual NCERT book record',()=>{
@@ -49,8 +49,8 @@ test('early years shortcuts select matching enrichment and learning types have d
 
 test('shared coverage description reflects actual catalogue counts',async()=>{
  const {textbookCoverageDescription}=await import('../src/lib/library/grade-options');
- const grades=new Set(ncertTextbooks.map(book=>book.grade));
- assert.ok(textbookCoverageDescription.includes(`${ncertTextbooks.length} books`));
+ const grades=new Set(familyLibraryTextbooks.map(book=>book.grade));
+ assert.ok(textbookCoverageDescription.includes(`${familyLibraryTextbooks.length} books`));
  assert.ok(textbookCoverageDescription.includes(`${grades.size} classes`));
- assert.ok(textbookCoverageDescription.includes(`${ncertTextbooks.filter(book=>book.chapterCount>0).length} books have checked contents`));
+ assert.ok(textbookCoverageDescription.includes(`${familyLibraryTextbooks.filter(book=>book.chapterCount>0).length} books have checked contents`));
 });
