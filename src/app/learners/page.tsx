@@ -1,5 +1,9 @@
 import FamilyWorkflow from '@/components/family-workflow';
 import Link from 'next/link';
+import Image from 'next/image';
+import LearnerIcon from '@/components/learner-ui-icon';
+import { subjects } from '@/lib/family-workflow/model';
+import './learners.css';
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth/server';
 import { getSql } from '@/lib/db';
@@ -40,38 +44,54 @@ export default async function LearnersPage() {
   `;
 
   return (
-    <main className="learners-page studio-stack">
-      <FamilyWorkflow initialView="levels" />
-      <header className="studio-page-head">
-        <div>
+    <main className="learners-page studio-stack learners-redesign">
+      <header className="studio-page-head learners-hero">
+        <div className="learners-hero-copy">
           <p className="eyebrow">FAMILY LEARNERS · {String(family.name || 'Family').toUpperCase()}</p>
           <h1>Everyone learning here</h1>
-          <p className="muted" style={{ margin: '6px 0 0' }}>
-            Each learner keeps their own age-adapted space, learning path, portfolio and private records.
+          <p className="muted">
+            Every learner has their own learning path, portfolio, progress and private records.
           </p>
         </div>
-        <div className="family-home-head-right">
-          <span className="mode-chip">
-            {learners.length} active {learners.length === 1 ? 'learner' : 'learners'}
-          </span>
-          {isOwner && (
-            <a className="mode-switch" href="#add-learner">
-              + Add learner
-            </a>
-          )}
+        <Image
+          src="/illustrations/family-learners.svg"
+          alt=""
+          aria-hidden="true"
+          width={440}
+          height={220}
+          className="learners-hero-art"
+          priority
+        />
+        <div className="learners-hero-actions">
+          <span className="mode-chip"><LearnerIcon name="users"/> {learners.length} active {learners.length === 1 ? 'learner' : 'learners'}</span>
+          {isOwner && <a className="mode-switch" href="#add-learner"><span aria-hidden="true">＋</span> Add learner</a>}
         </div>
       </header>
+      <div className="learners-summary-strip" aria-label="Family learning overview">
+        <div className="learners-summary-item">
+          <span className="learners-summary-icon is-blue"><LearnerIcon name="users"/></span>
+          <div><strong>{learners.length}</strong><small>Active {learners.length === 1 ? 'learner' : 'learners'}</small></div>
+        </div>
+        <div className="learners-summary-item">
+          <span className="learners-summary-icon is-violet"><LearnerIcon name="book"/></span>
+          <div><strong>{subjects.length}</strong><small>Subjects available for level selection</small></div>
+        </div>
+        <div className="learners-summary-item">
+          <span className="learners-summary-icon is-mint"><LearnerIcon name="path"/></span>
+          <div><strong>Personal learning paths</strong><small>Separate for every learner</small></div>
+        </div>
+      </div>
 
       {learners.length > 0 ? (
-        <div className="family-learner-grid">
+        <div className="family-learner-grid learners-profile-grid">
           {learners.map((learner, index) => {
             const id = String(learner.id);
             const name = String(learner.display_name);
             const stage = String(learner.stage || 'Early Years');
             const tier = learnerTier(stage);
             return (
-              <article className="family-learner-card card learner-studio-card" key={id}>
-                <header>
+              <article className="family-learner-card card learner-studio-card learner-profile-card" key={id}>
+                <header className="learner-profile-header">
                   <span
                     className="learner-avatar"
                     style={{ background: AVATAR_TINTS[index % AVATAR_TINTS.length] }}
@@ -79,29 +99,33 @@ export default async function LearnersPage() {
                   >
                     {name.slice(0, 1).toUpperCase()}
                   </span>
-                  <div>
+                  <div className="learner-profile-title">
                     <h3>{name}</h3>
-                    <p>{stage}</p>
+                    <span className="learner-stage-pill">{stage}</span>
                   </div>
-                  <span className="pill">{stage}</span>
+                  <span className="learner-profile-decor" aria-hidden="true">
+                    <LearnerIcon name={tier === 'independent' ? 'cap' : 'sprout'}/>
+                  </span>
                 </header>
 
-                <p className="revision-state state-practising">
-                  <span aria-hidden="true">◐</span>
-                  <strong>{tierLabel(tier)}</strong>
-                  <span className="revision-hint">{TIER_GUIDANCE[tier]}</span>
-                </p>
+                <div className="learner-tier-band">
+                  <span className="learner-tier-icon"><LearnerIcon name={tier === 'independent' ? 'cap' : 'sprout'}/></span>
+                  <div>
+                    <strong>{tierLabel(tier)}</strong>
+                    <p>{TIER_GUIDANCE[tier]}</p>
+                  </div>
+                </div>
 
                 <div className="learner-quick-links" aria-label={`${name} spaces`}>
-                  <Link href={`/learn/path?learner=${encodeURIComponent(id)}`}>Learning path →</Link>
-                  <Link href="/portfolio">Portfolio →</Link>
-                  <Link href={`/reports?learner=${encodeURIComponent(id)}`}>Progress review →</Link>
-                  <Link href={`/learners/${encodeURIComponent(id)}/study-library`}>Study library →</Link>
+                  <Link href={`/learn/path?learner=${encodeURIComponent(id)}`}><LearnerIcon name="book"/><span>Learning path</span></Link>
+                  <Link href="/portfolio"><LearnerIcon name="folder"/><span>Portfolio</span></Link>
+                  <Link href={`/reports?learner=${encodeURIComponent(id)}`}><LearnerIcon name="chart"/><span>Progress review</span></Link>
+                  <Link href={`/learners/${encodeURIComponent(id)}/study-library`}><LearnerIcon name="layers"/><span>Study library</span></Link>
                 </div>
 
                 <footer className="learner-card-footer">
                   <Link className="learner-continue" href={`/learn?learner=${encodeURIComponent(id)}`}>
-                    Learner home <span aria-hidden="true">→</span>
+                    <LearnerIcon name="home"/> Learner home <span aria-hidden="true">→</span>
                   </Link>
                   {isOwner && (
                     <div className="learner-card-actions">
@@ -120,6 +144,22 @@ export default async function LearnersPage() {
           <p>Add your first learner below to prepare age-appropriate lessons, paths and observations.</p>
         </section>
       )}
+
+      <nav className="learners-tools" aria-label="Family learning tools">
+        <div className="learners-tools-heading">
+          <span className="learners-tools-icon"><LearnerIcon name="layers"/></span>
+          <div><h2>Family learning tools</h2><p className="muted">Plan and review learning across your family.</p></div>
+        </div>
+        <div className="learners-tools-links">
+          <Link href="/planning"><LearnerIcon name="calendar"/> Weekly planner</Link>
+          <a href="#family-workflow"><LearnerIcon name="target"/> Subject levels</a>
+          <Link href="/ncert-books/my-books"><LearnerIcon name="book"/> My Books</Link>
+          <Link href="/reports"><LearnerIcon name="chart"/> Family progress</Link>
+        </div>
+      </nav>
+      <div className="learners-subject-section">
+        <FamilyWorkflow initialView="levels" />
+      </div>
 
       {isOwner && (
         <section id="add-learner" className="workspace-panel learner-add-studio" aria-labelledby="add-learner-title">
