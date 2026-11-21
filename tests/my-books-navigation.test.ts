@@ -34,8 +34,8 @@ test('Curriculum Library has a standalone personal bookshelf link and navigation
  assert.ok(library.includes('separate from NCERT and Global Curriculum'));
  assert.ok(menu.includes("{href:'/library/my-books',label:'My Books'}"));
  assert.ok(learners.includes('href="/library/my-books"'));
- assert.match(css,/\\.card\\s*\\{[^}]*display:\\s*grid;[^}]*grid-template-columns:\\s*58px minmax\\(0, 1fr\\) auto;/s);
+ assert.match(css,/\.card\s*\{[^}]*display:\s*grid;[^}]*grid-template-columns:\s*58px minmax\(0, 1fr\) auto;/s);
  assert.ok(css.includes('.action:focus-visible'));
  assert.ok(css.includes('@media (max-width: 780px)'));
- assert.match(css,/\\.action\\s*\\{[^}]*grid-column:\\s*1 \\/ -1;/s);
+ assert.match(css,/\.action\s*\{[^}]*grid-column:\s*1 \/ -1;/s);
 });
