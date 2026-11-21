@@ -26,7 +26,8 @@ test('Learners landing shows real profiles first and Subject Levels afterwards',
  assert.ok(page.includes('tierLabel(tier)'));
  assert.ok(style.includes('.learners-redesign .learners-profile-grid'));
  assert.ok(style.includes('@media(max-width:640px)'));
- assert.match(style,/\.learners-redesign \.learner-quick-links\s*\{[^}]*grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/s);
+ assert.ok(!style.includes('.learner-quick-links a:nth-child(4)'), 'Exactly three shortcut colors');
+ assert.match(style,/\.learners-redesign \.learner-quick-links\s*\{[^}]*grid-template-columns:repeat\(3,minmax\(0,1fr\)\)/s);
 });
 
 test('All learner actions keep their existing per-learner URLs and owner safeguards',()=>{
@@ -36,8 +37,9 @@ test('All learner actions keep their existing per-learner URLs and owner safegua
   '/reports?learner=',
   '/learners/',
   '/learn?learner=',
-  '/portfolio',
  ]) assert.ok(page.includes(path),path);
+ assert.ok(!page.includes('href="/portfolio"'), 'Legacy Portfolio shortcut should not return');
+ assert.ok(!page.includes('learning path, portfolio'), 'Intro should not advertise the legacy page');
  assert.ok(page.includes('{isOwner &&'));
  assert.ok(page.includes("String(family.role) === 'owner'"));
  assert.ok(page.includes('subjects.length'),'Subject count comes from real configured subject options');
