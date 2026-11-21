@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 440 220" role="img" aria-labelledby="family-art-title">
+<title id="family-art-title">Two learners reading and writing alongside books, pencils and a plant</title>
+<defs>
+<linearGradient id="back" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#dcefff"/><stop offset="1" stop-color="#f4f9ff"/></linearGradient>
+<linearGradient id="sweater" x1="0" x2="1" y1="0" y2="1"><stop stop-color="#156db1"/><stop offset="1" stop-color="#064e89"/></linearGradient>
+<filter id="shadow" x="-25%" y="-25%" width="150%" height="160%"><feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#386d9e" flood-opacity=".16"/></filter>
+</defs>
+<path d="M18 182c-8-67 27-131 95-138 36-4 55 20 81 15 43-9 70-55 132-44 60 11 95 66 88 150" fill="url(#back)"/>
+<g fill="#9ac5e6" opacity=".55"><circle cx="390" cy="48" r="19"/><circle cx="39" cy="94" r="10"/><path d="M20 164c68-18 122-13 182 11" stroke="#b9dbef" fill="none" stroke-width="4"/></g>
+<ellipse cx="217" cy="195" rx="203" ry="9" fill="#bed7ea" opacity=".45"/>
+<g stroke="#399d65" stroke-width="3" fill="none" stroke-linecap="round"><path d="M54 176c-9-38-6-64-20-100"/><path d="M54 140c19-13 25-27 28-42"/><path d="M49 129c-16-9-26-22-30-35"/></g>
+<g fill="#6acb83" stroke="#3eac6b" stroke-width="1.8"><path d="M36 97C15 93 11 80 18 67c20 2 26 14 18 30Z"/><path d="M52 126C75 118 87 105 84 89c-21 3-34 17-32 37Z"/><path d="M44 113C25 112 12 100 12 86c21-2 31 8 32 27Z"/><path d="M53 152C73 145 86 134 83 120c-19-1-32 11-30 32Z"/></g>
+<g filter="url(#shadow)" stroke-linejoin="round">
+<path d="M25 176h65v10H25z" fill="#f1a833" stroke="#d89021" stroke-width="2"/><path d="M31 172h65v8H31z" fill="#f5faff" stroke="#4a8ebd" stroke-width="2"/>
+<path d="M20 163h79v10H20z" fill="#0d7abb" stroke="#075b92" stroke-width="2"/><path d="M25 157h80v8H25z" fill="#fff8e7" stroke="#e2ab52" stroke-width="2"/>
+<path d="M337 175h77v11h-77z" fill="#f2aa37" stroke="#d89021" stroke-width="2"/><path d="M341 171h71v7h-71z" fill="#f7fbff" stroke="#90b5d2" stroke-width="2"/>
+</g>
+<!-- left learner with book -->
+<g stroke-linejoin="round" stroke-linecap="round">
+<path d="M111 177c-11-35-7-59 29-65l40 2c33 7 36 30 26 63" fill="#ffd151" stroke="#e4ad31" stroke-width="2"/>
+<path d="M134 122c-5-12-11-21-13-33-3-26 15-45 39-45 26 0 43 22 36 50-4 17-14 32-31 38Z" fill="#3b2a34"/>
+<path d="M133 89c-4 24 7 43 27 43s34-19 34-42c0-24-14-36-33-36-20 0-28 14-28 35Z" fill="#f6ba90" stroke="#b67a5c" stroke-width="1.7"/>
+<path d="M127 89c0-32 18-48 39-48 23 0 37 17 37 39-9-15-16-20-24-21-11 16-30 18-52 17Z" fill="#3b2832"/>
+<circle cx="150" cy="91" r="2.6" fill="#342b30"/><circle cx="177" cy="91" r="2.6" fill="#342b30"/>
+<path d="M158 107q8 7 16 0" stroke="#ae5a59" fill="none" stroke-width="2.4"/>
+<ellipse cx="140" cy="103" rx="7" ry="4" fill="#ef9696" opacity=".6"/><ellipse cx="187" cy="103" rx="7" ry="4" fill="#ef9696" opacity=".6"/>
+<path d="M114 148c-11 0-18 5-17 13s9 12 20 10l22-10" fill="#f6ba90" stroke="#b67a5c" stroke-width="1.7"/>
+<path d="M196 149c13 0 21 8 19 16-2 9-11 11-23 7l-18-11" fill="#f6ba90" stroke="#b67a5c" stroke-width="1.7"/>
+<path d="M116 148q26-9 43 3 20-12 44-3v40q-28-10-44 3-17-13-43-3Z" fill="#ffffff" stroke="#2674af" stroke-width="2.7"/>
+<path d="M159 151v40" stroke="#2674af" stroke-width="2"/>
+<path d="M127 162q12-2 24 4M127 171q13-1 24 4M168 165q13-5 24-4M169 175q12-5 23-4" stroke="#bfdced" stroke-width="2" fill="none"/>
+</g>
+<!-- right learner writing -->
+<g stroke-linejoin="round" stroke-linecap="round">
+<path d="M249 178c-10-37 1-65 38-71l34 1c33 5 43 28 36 70" fill="url(#sweater)" stroke="#07538f" stroke-width="2"/>
+<path d="M260 73c-7-20 4-37 27-42 22-5 45 3 52 22 6 17-2 34-12 42l-64 4Z" fill="#2d2d39"/>
+<ellipse cx="301" cy="86" rx="36" ry="41" fill="#f3bb92" stroke="#b9795d" stroke-width="1.7"/>
+<path d="M260 72c6-23 18-37 37-37 24-3 43 12 45 31-11-4-16-9-22-17-15 16-38 24-60 23Z" fill="#2c2b34"/>
+<circle cx="287" cy="88" r="2.8" fill="#323039"/><circle cx="316" cy="88" r="2.8" fill="#323039"/>
+<path d="M293 105q9 7 17 0" stroke="#a85758" stroke-width="2.5" fill="none"/>
+<ellipse cx="278" cy="99" rx="6" ry="3.7" fill="#ef9696" opacity=".65"/><ellipse cx="324" cy="99" rx="6" ry="3.7" fill="#ef9696" opacity=".65"/>
+<path d="M265 155c-14 1-20 13-13 19 5 5 13 4 29-1l12-4" fill="#f3bb92" stroke="#b9795d" stroke-width="2"/>
+<path d="M347 155c15 2 21 11 16 18-5 7-17 4-28 0l-9-7" fill="#f3bb92" stroke="#b9795d" stroke-width="2"/>
+<path d="M271 160q24-10 35-2 18-10 40-2v30q-22-7-40 3-15-10-35-3Z" fill="#fff" stroke="#4a8fbc" stroke-width="2"/>
+<path d="M307 158v31" stroke="#4a8fbc" stroke-width="2"/><path d="M317 165l13 2M317 172l13 2M283 168l14 3" stroke="#abcde5" stroke-width="2"/>
+<path d="M339 145l15-32" stroke="#f3a42e" stroke-width="5"/><path d="M354 113l2-6-5 4" fill="#614735"/>
+</g>
+<g transform="translate(386 40)" stroke="#267cbb" stroke-width="2"><circle cx="0" cy="0" r="19" fill="#a5e1ff"/><path d="M-14-2q16-5 28 3M-2-18q-10 16 0 36M0-19q10 16 0 37" fill="none"/><path d="M-4 19v9h-12M-16 28h30" fill="none"/></g>
+<path d="M416 77l2 8 8 2-8 3-2 8-3-8-7-3 7-2Z" fill="#f4be45"/>
+</svg>
