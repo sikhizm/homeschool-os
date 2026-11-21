@@ -11,7 +11,7 @@ type ReadingProgress = {learnerId:string;name:string;total:number;read:number;
 type Task={id:string;title:string;subject:string;minutes:number;mode?:string;href:string|null;status?:string};
 type Slot={learnerId:string;name:string;grade:string;task:Task;minutes:number;startMinute:number;mode:'guided'|'play'|'independent'};
 type Separate={learnerId:string;name:string;grade:string;task:Task};
-type Attention={id:string;tone:'revision'|'check'|'plan';text:string;href:string};
+export type Attention={id:string;tone:'revision'|'check'|'plan'|'test';text:string;href:string};
 type LearnerCard={
  id:string;name:string;grade:string;canEdit:boolean;
  tasks:Task[];completedToday?:string[];
@@ -38,7 +38,7 @@ function formatFamilyGreetingName(familyName:string|null):string{
  * Parent Home: greeting, today's family plan hero, per-learner cards,
  * the day's timeline and an "only urgent" attention list.
  */
-export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|null;canEdit:boolean;cacheScope:string}){
+export function FamilyHome({familyName,canEdit,cacheScope,testReminders=[]}:{familyName:string|null;canEdit:boolean;cacheScope:string;testReminders?:Attention[]}){
  const [data,setData]=useState<HomeData|null>(null);
  const [chapterPlan,setChapterPlan]=useState<ChapterPlanItem[]>([]);
  const [chapterCoverage,setChapterCoverage]=useState<{learnerId:string;total:number;read:number;revised:number;finished:number}[] | null>(null);
@@ -170,6 +170,7 @@ export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|nu
    attention:attention.slice(0,4),
   };
  },[data]);
+ const attention = [...testReminders, ...(derived?.attention ?? [])];
 
  const timeline=useMemo(()=>{
   if(!data)return [];
@@ -239,9 +240,9 @@ export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|nu
     <span className="family-avatar" aria-hidden="true">{(familyName??'F').trim().slice(0,1).toUpperCase()||'F'}</span>
    </header>
 
-   {(Boolean(derived?.attention.length)||!canEdit)&&<div className="family-agenda-notices">
-    {derived&&derived.attention.length>0&&<a className="attention-pill" href="#parent-attention">
-     <span aria-hidden="true">●</span> {derived.attention.length} {derived.attention.length===1?'item needs':'items need'} you
+   {(attention.length > 0||!canEdit)&&<div className="family-agenda-notices">
+    {attention.length > 0 && <a className="attention-pill" href="#parent-attention">
+     <span aria-hidden="true">●</span> {attention.length} {attention.length===1?'item needs':'items need'} you
     </a>}
     {!canEdit&&<span className="mode-chip">Read-only view</span>}
    </div>}
@@ -346,20 +347,19 @@ export function FamilyHome({familyName,canEdit,cacheScope}:{familyName:string|nu
    {!data&&!error&&<p className="muted">Loading learners…</p>}
   </div>
 
-  <section className="family-attention card" id="parent-attention" aria-labelledby="attention-title">
+  {attention.length > 0 && <section className="family-attention card" id="parent-attention" aria-labelledby="attention-title">
    <header className="section-heading">
     <div>
-     <p className="tag">Parent attention</p>
-     <h2 id="attention-title">Only what actually needs you</h2>
+     <h2 id="attention-title">Parent attention</h2>
     </div>
    </header>
-   {derived&&derived.attention.length>0?<ul className="attention-list">
-    {derived.attention.map(item=><li key={item.id} className={`attention-item tone-${item.tone}`}>
-     <span className="attention-icon" aria-hidden="true">{item.tone==='revision'?'↻':item.tone==='check'?'✓':'✎'}</span>
+   <ul className="attention-list">
+    {attention.map(item=><li key={item.id} className={`attention-item tone-${item.tone}`}>
+     <span className="attention-icon" aria-hidden="true">{item.tone==='revision'?'↻':item.tone==='check'?'✓':item.tone==='test'?'▦':'✎'}</span>
      <span>{item.text}</span>
-     <a href={item.href}>Open <span aria-hidden="true">→</span></a>
+     <Link href={item.href}>{item.tone === 'test' ? 'Open test' : 'Open'} <span aria-hidden="true">→</span></Link>
     </li>)}
-   </ul>:data?<p className="attention-clear" role="status">All clear — nothing needs your attention right now.</p>:<p className="muted">Checking for anything that needs you…</p>}
-  </section>
+   </ul>
+  </section>}
  </section>;
 }

@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth/server';
 import { redirect } from 'next/navigation';
 import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
-import { FamilyHome } from './family-home';
+import { FamilyHome, type Attention } from './family-home';
 import { chapterTestDate, readScheduledTests } from '@/lib/chapter-tests/store';
 import { ncertChapterSlots } from '@/lib/ncert/textbooks';
 import AutomaticLearning from './automatic-learning';
@@ -42,25 +42,21 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const today = chapterTestDate();
   const tomorrow = chapterTestDate(1);
   const tests = await readScheduledTests(session.user.id, '', String(family.id), tomorrow).catch(() => null);
+  const testReminders: Attention[] = (tests ?? []).map(test => {
+    const chapter = ncertChapterSlots.find(item => item.id === test.chapterId);
+    const title = chapter?.verifiedTitle ?? chapter?.label ?? test.title;
+    const customTitle = test.title !== 'Chapter test' && test.title !== title ? ` · ${test.title}` : '';
+    const timing = test.date === today ? 'Test today' : test.date === tomorrow ? 'Test tomorrow' : 'Overdue test';
+    return {
+      id: `test-${test.id}`,
+      tone: 'test',
+      text: `${timing} · ${test.learnerName} · ${title}${customTitle} · ${test.date}`,
+      href: `/ncert-books/chapter/${encodeURIComponent(test.chapterId)}?learner=${encodeURIComponent(test.learnerId)}#scheduled-test-${test.id}`,
+    };
+  });
   return (
     <main className="family-dashboard studio-stack">
-      <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} cacheScope={session.user.id} />
-
-      {tests && tests.length > 0 && <section className="workspace-panel" aria-labelledby="upcoming-chapter-tests">
-        <h2 id="upcoming-chapter-tests">Chapter test reminders</h2>
-        <ul>
-          {tests.map(test => {
-            const chapter = ncertChapterSlots.find(item => item.id === test.chapterId);
-            const timing = test.date === today ? 'Test today' : test.date === tomorrow ? 'Test tomorrow' : 'Overdue test';
-            return <li key={test.id}>
-              <strong>{timing}</strong>{' · '}
-              <Link href={`/ncert-books/chapter/${encodeURIComponent(test.chapterId)}?learner=${encodeURIComponent(test.learnerId)}#scheduled-test-${test.id}`}>
-                {test.learnerName} · {chapter?.verifiedTitle ?? chapter?.label ?? test.title}
-              </Link>{chapter && test.title !== 'Chapter test' && test.title !== (chapter.verifiedTitle ?? chapter.label) && ` · ${test.title}`}{' · '}<time dateTime={test.date}>{test.date}</time>
-            </li>;
-          })}
-        </ul>
-      </section>}
+      <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} cacheScope={session.user.id} testReminders={testReminders} />
 
       <section id="today-plan" aria-label="Detailed learning coach">
         <AutomaticLearning cacheScope={session.user.id} />
