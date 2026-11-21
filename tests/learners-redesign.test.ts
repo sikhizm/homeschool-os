@@ -56,6 +56,8 @@ test('Subject Level editor renders aligned and accessible forms without changing
  assert.ok(workflow.includes('subject-level-workspace'));
  assert.ok(workflow.includes('version={version}'));
  assert.ok(workflow.includes('defaultOpen={index === 0}'));
+ assert.ok(workflow.includes('const [isOpen, setIsOpen] = useState(defaultOpen)'));
+ assert.ok(workflow.includes('onToggle={(event) => setIsOpen(event.currentTarget.open)}'));
  assert.ok(workflow.includes("action: 'level'"));
  assert.ok(workflow.includes('learnerId: l.id'));
  assert.ok(workflow.includes('level: f.get(\'level\') ? Number(f.get(\'level\')) : null'));
