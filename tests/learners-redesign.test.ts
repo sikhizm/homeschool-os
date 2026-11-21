@@ -39,7 +39,7 @@ test('All learner actions keep their existing per-learner URLs and owner safegua
   '/portfolio',
  ]) assert.ok(page.includes(path),path);
  assert.ok(page.includes('{isOwner &&'));
- assert.ok(page.includes('role === \'owner\''));
+ assert.ok(page.includes("String(family.role) === 'owner'"));
  assert.ok(page.includes('subjects.length'),'Subject count comes from real configured subject options');
  assert.equal(subjects.length,6);
  assert.ok(!page.includes('73%'),'Do not invent learner completion percentages');
