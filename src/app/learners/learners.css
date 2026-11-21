@@ -104,7 +104,7 @@
 .learners-redesign .learner-tier-band > div { min-width: 0; }
 .learners-redesign .learner-tier-band strong { display: block; margin-bottom: 3px; font-size: 13px; font-weight: 850; }
 .learners-redesign .learner-tier-band p { margin: 0; font-size: 12px; line-height: 1.45; color: inherit; }
-.learners-redesign .learner-quick-links { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 8px; }
+.learners-redesign .learner-quick-links { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
 .learners-redesign .learner-quick-links a {
   min-height: 86px;
   padding: 10px 6px;
@@ -124,9 +124,8 @@
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
-.learners-redesign .learner-quick-links a:nth-child(2) { color: #aa6b04; background: #fff5df; border-color: #f6e3bb; }
-.learners-redesign .learner-quick-links a:nth-child(3) { color: #138159; background: #e7f8ef; border-color: #ccedda; }
-.learners-redesign .learner-quick-links a:nth-child(4) { color: #6847b4; background: #f1ebff; border-color: #e2d7fb; }
+.learners-redesign .learner-quick-links a:nth-child(2) { color: #138159; background: #e7f8ef; border-color: #ccedda; }
+.learners-redesign .learner-quick-links a:nth-child(3) { color: #6847b4; background: #f1ebff; border-color: #e2d7fb; }
 .learners-redesign .learner-quick-links svg { width: 26px; height: 26px; }
 .learners-redesign .learner-card-footer { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-top: auto; border-top: 1px solid #e8eff5; padding-top: 15px; }
 .learners-redesign .learner-card-footer .learner-continue { display: inline-flex; align-items: center; gap: 8px; background: #0866a8; box-shadow: 0 5px 12px #0a6da829; border-radius: 11px; padding: 10px 14px; min-height: 44px; color: #fff; font-size: 12.5px; }
@@ -233,9 +232,9 @@
  .learners-redesign .learners-summary-item small {font-size:10px}
  .learners-redesign .family-learner-card.learner-profile-card {padding:14px;border-radius:18px;gap:11px}
  .learners-redesign .learner-profile-title h3 {font-size:19px}
- .learners-redesign .learner-quick-links {grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
- .learners-redesign .learner-quick-links a {min-height:66px;flex-direction:row;gap:8px;font-size:12px;text-align:left;justify-content:flex-start;padding:10px}
- .learners-redesign .learner-quick-links svg {width:24px;height:24px;flex:0 0 24px}
+ .learners-redesign .learner-quick-links {grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+ .learners-redesign .learner-quick-links a {min-height:76px;flex-direction:column;gap:6px;font-size:11px;text-align:center;justify-content:center;padding:9px 5px}
+ .learners-redesign .learner-quick-links svg {width:23px;height:23px;flex:0 0 23px}
  .learners-redesign .learner-card-footer {gap:8px}
  .learners-redesign .learner-card-actions {width:auto;justify-content:flex-start}
  .learners-redesign .learners-tools {padding:14px;gap:10px;border-radius:17px}
