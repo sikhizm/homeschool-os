@@ -2,7 +2,7 @@ import type {SVGProps} from 'react';
 
 export type LearnerIconName =
   'users'|'book'|'path'|'folder'|'chart'|'layers'|'home'|'calendar'|
-  'target'|'cap'|'sprout'|'settings'|'edit'|'archive'|'check'|'chevron';
+  'target'|'cap'|'sprout'|'settings'|'edit'|'archive'|'check'|'chevron'|'calculator'|'flask'|'globe'|'hindi'|'reasoning';
 
 export default function LearnerIcon({name,...props}:{name:LearnerIconName}&SVGProps<SVGSVGElement>){
  return <svg viewBox="0 0 24 24" width="22" height="22" fill="none"
@@ -22,6 +22,11 @@ export default function LearnerIcon({name,...props}:{name:LearnerIconName}&SVGPr
   {name==='settings'&&<><circle cx="12" cy="12" r="3.2"/><path d="M19 12a7 7 0 0 0-.2-1.7l2-1.5-2-3.5-2.3 1a7 7 0 0 0-2.7-1.6L13.5 2h-4L9 4.7a7 7 0 0 0-2.7 1.6l-2.3-1-2 3.5 2 1.5a7 7 0 0 0 0 3.4l-2 1.5 2 3.5 2.3-1A7 7 0 0 0 9 19.3l.5 2.7h4l.3-2.7a7 7 0 0 0 2.7-1.6l2.3 1 2-3.5-2-1.5A7 7 0 0 0 19 12Z"/></>}
   {name==='edit'&&<><path d="m4 16 11-11a2 2 0 0 1 3 3L7 19l-4 1Z M13 7l4 4"/></>}
   {name==='archive'&&<><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9M10 14h4"/></>}
+  {name==='calculator'&&<><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h2M14 19h2"/></>}
+  {name==='flask'&&<><path d="M9 3h6M10 3v7L4 20h16l-6-10V3M7 16h10"/></>}
+  {name==='globe'&&<><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c-5 5-5 13 0 18M12 3c5 5 5 13 0 18"/></>}
+  {name==='hindi'&&<text x="12" y="18" textAnchor="middle" fontSize="21" fontWeight="750" stroke="none" fill="currentColor">अ</text>}
+  {name==='reasoning'&&<><circle cx="7" cy="6" r="2"/><circle cx="17" cy="6" r="2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/><path d="M9 6h6M7 8v8M9 18h6M17 8v8"/></>}
   {name==='check'&&<><path d="m4 12 5 5L20 6"/></>}
   {name==='chevron'&&<><path d="m8 10 4 4 4-4"/></>}
  </svg>;
