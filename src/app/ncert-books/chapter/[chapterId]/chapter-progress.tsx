@@ -1,5 +1,6 @@
 'use client';
 
+import styles from './chapter-status.module.css';
 import {useEffect, useState, type ReactNode} from 'react';
 import {chapterDisplayStatuses, chapterStatuses, finishedChapterStatus, normalizeChapterStatus, type ChapterStatus} from '@/lib/ncert/chapter-status';
 
@@ -81,47 +82,43 @@ export default function ChapterProgress({chapterId, initialLearnerId, children}:
       </a>
     </div>}
     {children}
-    <section className="workspace-panel chapter-status-panel" id="chapter-status" aria-labelledby="chapter-status-heading">
-      <div className="chapter-status-heading">
-        <span className="chapter-status-heading-icon" aria-hidden="true">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6M8 10l1.3 1.3 2-2M13 10h3M8 16l1.3 1.3 2-2M13 16h3"/></svg>
-        </span>
-        <div>
-          <h2 id="chapter-status-heading">Chapter status</h2>
-          <p className="muted">Track reading and learning progress for this chapter.</p>
-        </div>
-      </div>
+    <section className={`workspace-panel ${styles.panel}`} id="chapter-status" aria-labelledby="chapter-status-heading">
+      <h2 id="chapter-status-heading">Chapter status</h2>
       {learners.length > 0 && <>
-        <label className="workspace-field">
-          <span>Learner</span>
-          <select value={selected} disabled={busy} onChange={event => {
-            const next = learners.find(item => item.learner_id === event.target.value);
-            setSelected(event.target.value);
-            setNote(next?.parent_note ?? '');
-            setMessage('');
-          }}>
-            {learners.map(item => <option key={item.learner_id} value={item.learner_id}>{item.display_name} · {item.stage}</option>)}
-          </select>
-        </label>
-        <div className="chapter-status-options" role="group" aria-label="Choose one chapter status">
-          {chapterStatuses.map(item => <button key={item.id} type="button" data-status={item.id}
-            disabled={busy || !canEdit || learner?.finished} aria-pressed={status === item.id} onClick={() => void save(item.id)}>
-            <strong><span className="chapter-status-option-icon" aria-hidden="true">{item.id==='read'?'✓':item.id==='revised'?'↻':item.id==='needs_practice'?'◎':'○'}</span>{status === item.id && <span aria-hidden="true">✓ </span>}{item.label}</strong>
-            <small>{item.detail}</small>
-          </button>)}
-          <div className="chapter-status-auto" data-status="finished" aria-current={learner?.finished ? 'true' : undefined}>
-            <strong><span className="chapter-status-option-icon" aria-hidden="true">★</span>{learner?.finished && <span aria-hidden="true">✓ </span>}{finishedChapterStatus.label}</strong>
-            <small>{finishedChapterStatus.detail}</small>
-          </div>
+        <div className={styles.selectors}>
+          <label className="workspace-field">
+            <span>Learner</span>
+            <select value={selected} disabled={busy} onChange={event => {
+              const next = learners.find(item => item.learner_id === event.target.value);
+              setSelected(event.target.value);
+              setNote(next?.parent_note ?? '');
+              setMessage('');
+            }}>
+              {learners.map(item => <option key={item.learner_id} value={item.learner_id}>{item.display_name} · {item.stage}</option>)}
+            </select>
+          </label>
+          <label className="workspace-field">
+            <span>Status</span>
+            <select value={status} disabled={busy || !canEdit || learner?.finished}
+              onChange={event => void save(normalizeChapterStatus(event.target.value))}>
+              {chapterStatuses.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}
+              {learner?.finished && <option value={finishedChapterStatus.id}>{finishedChapterStatus.label}</option>}
+            </select>
+          </label>
         </div>
-        <label className="workspace-field">
-          <span>Parent note</span>
-          <textarea value={note} maxLength={1000} disabled={busy || !canEdit} onChange={event => setNote(event.target.value)} />
-        </label>
-        {canEdit && <button className="btn-secondary" type="button" disabled={busy || note === (learner?.parent_note ?? '')}
-          onClick={() => void save(manualStatus, true)}>Save note</button>}
+        <p className={styles.hint}>{learner?.finished && (
+          <span className="chapter-status-badge" data-status="finished">{finishedChapterStatus.label}</span>
+        )} Finished is awarded for a chapter test score of 60% or higher.</p>
+        <div className={styles.note}>
+          <label className="workspace-field">
+            <span>Parent note</span>
+            <textarea rows={2} value={note} maxLength={1000} disabled={busy || !canEdit} onChange={event => setNote(event.target.value)} />
+          </label>
+          {canEdit && <button className="btn-secondary" type="button" disabled={busy || note === (learner?.parent_note ?? '')}
+            onClick={() => void save(manualStatus, true)}>Save note</button>}
+        </div>
       </>}
-      <p role="status" className="muted">{message}</p>
+      <div role="status" className={styles.feedback}>{message}</div>
     </section>
   </>;
 }

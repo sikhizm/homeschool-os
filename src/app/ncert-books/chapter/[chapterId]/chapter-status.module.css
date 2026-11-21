@@ -1,0 +1,13 @@
+.panel:global(.workspace-panel) { display: grid; gap: 10px; padding: clamp(14px, 2vw, 22px); }
+.panel h2 { margin: 0; }
+.selectors, .note { display: grid; gap: 10px; }
+.selectors { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.note { grid-template-columns: minmax(0, 1fr) auto; align-items: end; }
+.note textarea { min-height: 0; resize: vertical; }
+.hint, .feedback { margin: 0; font-size: 0.875rem; color: var(--muted); }
+.hint span { margin-inline-end: 6px; }
+.feedback:empty { margin-top: -10px; }
+@media (max-width: 600px) {
+  .selectors, .note { grid-template-columns: minmax(0, 1fr); }
+  .note button { justify-self: start; }
+}

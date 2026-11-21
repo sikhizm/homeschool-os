@@ -3,7 +3,7 @@ import { auth } from '@/lib/auth/server';
 import { getSql } from '@/lib/db';
 import { ncertChapterSlots } from '@/lib/ncert/textbooks';
 import { parseTestMutation } from '@/lib/chapter-tests/model';
-import { readChapterTests } from '@/lib/chapter-tests/store';
+import { readChapterTests, readScheduledTests, chapterTestDate } from '@/lib/chapter-tests/store';
 
 type Context = { params: Promise<{ chapterId: string }> };
 const respond = (body: unknown, status = 200) =>
@@ -23,14 +23,15 @@ export async function GET(_request: Request, context: Context) {
   if (access instanceof Response) return access;
   try {
     const sql = getSql();
-    const [learners, attempts] = await Promise.all([
+    const [learners, attempts, scheduled] = await Promise.all([
       sql`SELECT l.id::text AS id, l.display_name AS name, m.role
           FROM learners l JOIN family_members m ON m.family_id = l.family_id
           WHERE m.auth_user_id = ${access.userId} AND l.archived_at IS NULL
           ORDER BY l.created_at, l.id`,
       readChapterTests(access.userId, '', access.chapterId),
+      readScheduledTests(access.userId, access.chapterId),
     ]);
-    return respond({ learners, attempts });
+    return respond({ learners, attempts, scheduled, today: chapterTestDate() });
   } catch {
     return respond({ error: 'Chapter Tests are unavailable. Check the database migration.' }, 503);
   }

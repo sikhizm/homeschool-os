@@ -2,6 +2,18 @@ import { validDate } from '../learning/model';
 
 export const NEEDS_PRACTICE_PERCENT = 60;
 
+export const scheduledTestOperations = ['schedule', 'reschedule', 'cancel_schedule', 'complete_schedule'] as const;
+
+export type ScheduledTest = {
+  id: string;
+  learnerId: string;
+  chapterId: string;
+  learnerName: string;
+  title: string;
+  date: string;
+  total: number | null;
+};
+
 export type Attempt = {
   id: string;
   assessmentId: string;
@@ -59,19 +71,23 @@ export function parseTestMutation(payload: unknown) {
     payload as Record<string, unknown>;
   if (typeof learnerId !== 'string' || !learnerId || learnerId.length > 100)
     throw new Error('Choose a learner.');
-  if (typeof operation !== 'string' || !['first', 'new', 'retest', 'edit', 'delete', 'delete_group'].includes(operation))
+  if (typeof operation !== 'string' || !['first', 'new', 'retest', 'edit', 'delete', 'delete_group', ...scheduledTestOperations].includes(operation))
     throw new Error('Choose an assessment type.');
-  const needsTarget = operation !== 'first' && operation !== 'new';
+  const needsTarget = operation !== 'first' && operation !== 'new' && operation !== 'schedule';
   if (needsTarget && (typeof target !== 'string' || !/^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(target)))
     throw new Error('Choose an existing assessment or attempt.');
   const targetId = needsTarget ? target as string : null;
-  if (operation === 'delete' || operation === 'delete_group')
+  if (operation === 'delete' || operation === 'delete_group' || operation === 'cancel_schedule')
     return { learnerId, operation, targetId, title: null, date: null, total: null, obtained: null, remarks: null };
   if (typeof title !== 'string' || !title.trim() || title.trim().length > 160)
     throw new Error('Enter a test title of up to 160 characters.');
   if (!validDate(date)) throw new Error('Enter a valid test date.');
   const validMarks = (value: unknown): value is number => typeof value === 'number'
     && value >= 0 && value <= 99_999_999.99 && Number(value.toFixed(2)) === value;
+  if (operation === 'schedule' || operation === 'reschedule') {
+    if (total != null && (!validMarks(total) || total === 0)) throw new Error('Enter positive total marks or leave them blank.');
+    return { learnerId, operation, targetId, title: title.trim(), date, total: total ?? null, obtained: null, remarks: null };
+  }
   if (!validMarks(total) || total === 0) throw new Error('Enter positive total marks with up to two decimal places.');
   if (!validMarks(obtained) || obtained > total) throw new Error('Enter marks from zero up to the total, with up to two decimal places.');
   if (typeof remarks !== 'string' || remarks.length > 2000) throw new Error('Keep remarks within 2,000 characters.');

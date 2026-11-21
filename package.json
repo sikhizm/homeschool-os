@@ -32,6 +32,7 @@
     "db:migrate:year-plan-tracking": "node scripts/year-plan-tracking-migration.mjs",
     "db:migrate:family-workflow": "node scripts/family-workflow-migration.mjs",
     "db:migrate:chapter-tests": "node scripts/chapter-tests-migration.mjs",
+    "db:migrate:scheduled-chapter-tests": "node scripts/scheduled-chapter-tests-migration.mjs",
     "db:migrate:chapter-plan-activities": "node scripts/chapter-plan-activities-migration.mjs",
     "db:migrate:learning-challenges": "node scripts/learning-challenges-migration.mjs",
     "db:migrate:ncert-chapter-status": "node scripts/ncert-chapter-status-migration.mjs",

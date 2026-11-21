@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { getSql } from '@/lib/db';
 import LearnerForm from './learner-form';
 import { FamilyHome } from './family-home';
+import { chapterTestDate, readScheduledTests } from '@/lib/chapter-tests/store';
+import { ncertChapterSlots } from '@/lib/ncert/textbooks';
 import AutomaticLearning from './automatic-learning';
 
 export const dynamic = 'force-dynamic';
@@ -19,7 +21,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   if (!session?.user) redirect('/auth/sign-in');
   const sql = getSql();
   const families = await sql`
-    SELECT f.name, fm.role
+    SELECT f.id::text AS id, f.name, fm.role
     FROM families f JOIN family_members fm ON fm.family_id = f.id
     WHERE fm.auth_user_id = ${session.user.id}
     ORDER BY fm.created_at, fm.family_id LIMIT 1
@@ -37,9 +39,28 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </main>
     );
   const family = families[0];
+  const today = chapterTestDate();
+  const tomorrow = chapterTestDate(1);
+  const tests = await readScheduledTests(session.user.id, '', String(family.id), tomorrow).catch(() => null);
   return (
     <main className="family-dashboard studio-stack">
       <FamilyHome familyName={String(family.name)} canEdit={family.role === 'owner'} cacheScope={session.user.id} />
+
+      {tests && tests.length > 0 && <section className="workspace-panel" aria-labelledby="upcoming-chapter-tests">
+        <h2 id="upcoming-chapter-tests">Chapter test reminders</h2>
+        <ul>
+          {tests.map(test => {
+            const chapter = ncertChapterSlots.find(item => item.id === test.chapterId);
+            const timing = test.date === today ? 'Test today' : test.date === tomorrow ? 'Test tomorrow' : 'Overdue test';
+            return <li key={test.id}>
+              <strong>{timing}</strong>{' · '}
+              <Link href={`/ncert-books/chapter/${encodeURIComponent(test.chapterId)}?learner=${encodeURIComponent(test.learnerId)}#scheduled-test-${test.id}`}>
+                {test.learnerName} · {chapter?.verifiedTitle ?? chapter?.label ?? test.title}
+              </Link>{chapter && test.title !== 'Chapter test' && test.title !== (chapter.verifiedTitle ?? chapter.label) && ` · ${test.title}`}{' · '}<time dateTime={test.date}>{test.date}</time>
+            </li>;
+          })}
+        </ul>
+      </section>}
 
       <section id="today-plan" aria-label="Detailed learning coach">
         <AutomaticLearning cacheScope={session.user.id} />
