@@ -25,7 +25,7 @@ test('global search works in the desktop and mobile shell', async () => {
           contents: path === 'next/link'
             ? 'export default function Link({href,children,prefetch,...props}){return <a href={href} {...props}>{children}</a>}'
             : path === 'next/navigation'
-              ? "export const usePathname=()=>window.location.pathname;"
+              ? "export const usePathname=()=>window.location.pathname;export const useRouter=()=>({prefetch:()=>{}});"
               : 'export const PwaInstallButton=()=>null;',
           loader: 'jsx', resolveDir: process.cwd(),
         }));
