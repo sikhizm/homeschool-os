@@ -35,9 +35,12 @@ test('Olympiad library filters and official links work on mobile and desktop', a
       await page.goto('https://olympiad.test/library/olympiad');
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'fits ' + width);
       assert.equal(await page.locator('select[name="grade"] option').count(), 11);
-      await page.getByLabel('Class', { exact: true }).selectOption('10');
-      await page.getByLabel('Subject', { exact: true }).selectOption('Science');
-      await page.getByLabel('Organiser', { exact: true }).selectOption('CREST');
+      for (const name of ['grade','subject','provider','q']) {
+        assert.equal(await page.locator(`[name="${name}"]`).count(),1,'filter present: '+name);
+      }
+      await page.locator('select[name="grade"]').selectOption('10');
+      await page.locator('select[name="subject"]').selectOption('Science');
+      await page.locator('select[name="provider"]').selectOption('CREST');
       await page.getByRole('button', { name: 'Show resources' }).click();
       await page.waitForURL('**grade=10**');
       assert.equal(await page.locator('.olympiad-card').count(), 1);
@@ -50,11 +53,11 @@ test('Olympiad library filters and official links work on mobile and desktop', a
       assert.ok(buttonStyle.padding >= 16);
       assert.ok(buttonStyle.radius >= 10);
       assert.equal(buttonStyle.display, 'inline-flex');
-      await page.getByLabel('Organiser', { exact: true }).selectOption('SOF');
+      await page.locator('select[name="provider"]').selectOption('SOF');
       await page.getByRole('button', { name: 'Show resources' }).click();
       await page.waitForURL('**provider=SOF**');
       assert.equal(await page.getByRole('link', { name: 'Open PDF' }).getAttribute('href'), '/api/olympiad-pdf/sof-science-10');
-      await page.getByLabel('Organiser', { exact: true }).selectOption('SilverZone');
+      await page.locator('select[name="provider"]').selectOption('SilverZone');
       await page.getByRole('button', { name: 'Show resources' }).click();
       await page.waitForURL('**provider=SilverZone**');
       assert.equal(await page.getByRole('heading', { name: 'No matching resources' }).count(), 1);
