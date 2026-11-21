@@ -844,8 +844,10 @@ function LevelEditor({
   version: number;
   defaultOpen: boolean;
 }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
-    <details className="workflow-session subject-level-learner" defaultOpen={defaultOpen}>
+    <details className="workflow-session subject-level-learner" open={isOpen}
+      onToggle={(event) => setIsOpen(event.currentTarget.open)}>
       <summary>
         <span className="subject-level-learner-avatar" aria-hidden="true">{l.display_name.slice(0, 1).toUpperCase()}</span>
         <strong>{l.display_name}</strong>
