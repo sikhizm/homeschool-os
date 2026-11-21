@@ -1,5 +1,6 @@
 'use client';
 import Link from 'next/link';
+import LearnerIcon, { type LearnerIconName } from '@/components/learner-ui-icon';
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
 import {
   dayModes,
@@ -127,19 +128,25 @@ export default function FamilyWorkflow({
   return (
     <section
       id="family-workflow"
-      className="workspace-panel family-workflow no-print"
+      className={`workspace-panel family-workflow no-print${view === 'levels' ? ' subject-level-workspace' : ''}`}
       aria-label="Family learning workflow"
     >
-      <h2>
-        {initialView === 'levels'
-          ? 'Subject learning levels'
-          : 'Your family learning rhythm'}
-      </h2>
-      <p>
-        Choose a resource, make a manageable plan, then record what helped.
-        Nothing moves to another day without your decision.
-      </p>
-      <div className="workflow-controls">
+      {view === 'levels' ? (
+        <header className="subject-workspace-heading">
+          <span className="subject-workspace-heading-icon"><LearnerIcon name="layers"/></span>
+          <div>
+            <span className="eyebrow">LEARNER PERSONALIZATION</span>
+            <h2>Subject levels</h2>
+            <p>Choose a class level per subject without changing a learner’s overall class.</p>
+          </div>
+        </header>
+      ) : (
+        <>
+          <h2>Your family learning rhythm</h2>
+          <p>Choose a resource, make a manageable plan, then record what helped. Nothing moves to another day without your decision.</p>
+        </>
+      )}
+      <div className={`workflow-controls${view === 'levels' ? ' subject-level-toolbar' : ''}`}>
         <label>
           Day / review week
           <input
@@ -175,9 +182,9 @@ export default function FamilyWorkflow({
           ))}
         </div>
       </div>
-      <p role="status" aria-live="polite">
-        {message || (!data ? 'Loading your family plan…' : '')}
-      </p>
+      {(message || !data) && <p className="workflow-message" role="status" aria-live="polite">
+        {message || 'Loading your family plan…'}
+      </p>}
       {data && (
         <fieldset disabled={busy} className="workflow-fieldset">
           <legend className="sr-only">Family plan controls</legend>
@@ -351,22 +358,22 @@ export default function FamilyWorkflow({
             </>
           )}
           {view === 'levels' && (
-            <>
-              <h3>Levels by subject</h3>
-              <p>
-                Parent-selected levels guide resource links and Maths Olympiad
-                prompts. They do not change the overall class or infer
-                attainment. You can choose another class in any catalogue.
+            <div className="subject-levels-content">
+              <p className="subject-levels-guidance">
+                Parent-selected levels guide resource links and Maths Olympiad prompts.
+                They do not infer attainment. You can browse any other class in the catalogue.
               </p>
-              {data.learners.map((l) => (
+              {data.learners.map((l, index) => (
                 <LevelEditor
-                  key={l.id + version}
+                  key={l.id}
                   learner={l}
                   data={data}
                   save={save}
+                  version={version}
+                  defaultOpen={index === 0}
                 />
               ))}
-            </>
+            </div>
           )}
         </fieldset>
       )}
@@ -815,70 +822,92 @@ function Session({
     </article>
   );
 }
+const SUBJECT_LEVEL_ICONS: Record<(typeof subjects)[number], LearnerIconName> = {
+  Mathematics: 'calculator',
+  English: 'book',
+  Science: 'flask',
+  'Social Science': 'globe',
+  Hindi: 'hindi',
+  Reasoning: 'reasoning',
+};
+
 function LevelEditor({
   learner: l,
   data,
   save,
+  version,
+  defaultOpen,
 }: {
   learner: Learner;
   data: Data;
   save: Save;
+  version: number;
+  defaultOpen: boolean;
 }) {
   return (
-    <details className="workflow-session">
+    <details className="workflow-session subject-level-learner" defaultOpen={defaultOpen}>
       <summary>
-        {l.display_name} · Overall class: {l.stage}
+        <span className="subject-level-learner-avatar" aria-hidden="true">{l.display_name.slice(0, 1).toUpperCase()}</span>
+        <strong>{l.display_name}</strong>
+        <span className="subject-level-learner-stage">Overall class: {l.stage}</span>
+        <LearnerIcon name="chevron" className="subject-level-chevron"/>
       </summary>
-      {subjects.map((subject) => {
-        const level = data.levels.find(
-          (s) => s.learner_id === l.id && s.subject === subject,
-        )?.level;
-        const recommendation = data.recommendations.find(
-          (r) => r.learner_id === l.id && r.subject === subject,
-        );
-        return (
-          <form
-            key={subject}
-            className="workflow-controls"
-            onSubmit={(e) => {
-              const f = fields(e);
-              void save({
-                action: 'level',
-                learnerId: l.id,
-                subject,
-                level: f.get('level') ? Number(f.get('level')) : null,
-              });
-            }}
-          >
-            <label>
-              {subject}
-              <select
-                name="level"
-                defaultValue={level ?? ''}
-                disabled={!data.canEdit}
-              >
-                <option value="">Use overall class</option>
-                {Array.from({ length: 10 }, (_, i) => (
-                  <option key={i} value={i + 1}>
-                    Class {i + 1}
-                  </option>
-                ))}
-              </select>
-            </label>
-            {data.canEdit && <button>Save level</button>}
-            {recommendation?.href ? (
-              <Link href={recommendation.href}>
-                Browse at Class {recommendation.grade}
-              </Link>
-            ) : (
-              <span>
-                No matching textbook collection at this level.{' '}
-                <Link href="/library">Explore resources</Link>
-              </span>
-            )}
-          </form>
-        );
-      })}
+      <div className="subject-level-rows">
+        {subjects.map((subject) => {
+          const level = data.levels.find(
+            (entry) => entry.learner_id === l.id && entry.subject === subject,
+          )?.level;
+          const recommendation = data.recommendations.find(
+            (entry) => entry.learner_id === l.id && entry.subject === subject,
+          );
+          return (
+            <form
+              key={subject + version}
+              className="subject-level-row"
+              onSubmit={(e) => {
+                const f = fields(e);
+                void save({
+                  action: 'level',
+                  learnerId: l.id,
+                  subject,
+                  level: f.get('level') ? Number(f.get('level')) : null,
+                });
+              }}
+            >
+              <div className="subject-level-name">
+                <span className={`subject-level-icon subject-${subject.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <LearnerIcon name={SUBJECT_LEVEL_ICONS[subject]}/>
+                </span>
+                <strong>{subject}</strong>
+              </div>
+              <label className="subject-level-picker">
+                <span className="sr-only">{subject} level for {l.display_name}</span>
+                <select name="level" defaultValue={level ?? ''} disabled={!data.canEdit}>
+                  <option value="">Use overall class</option>
+                  {Array.from({length: 10}, (_, i) => (
+                    <option key={i} value={i + 1}>Class {i + 1}</option>
+                  ))}
+                </select>
+              </label>
+              {data.canEdit ? (
+                <button className="subject-level-save" type="submit">
+                  <LearnerIcon name="check"/>Save level
+                </button>
+              ) : <span className="subject-level-readonly">View only</span>}
+              <div className="subject-level-destination">
+                {recommendation?.href ? (
+                  <Link href={recommendation.href}>Browse at Class {recommendation.grade} <span aria-hidden="true">→</span></Link>
+                ) : (
+                  <span>No matching textbook at this level. <Link href="/library">Explore resources</Link></span>
+                )}
+                <small className={level !== undefined ? 'is-custom' : ''}>
+                  {level !== undefined ? 'Custom level saved' : 'Using overall class'}
+                </small>
+              </div>
+            </form>
+          );
+        })}
+      </div>
     </details>
   );
 }
