@@ -26,3 +26,16 @@ test('reports remain separate from challenges and the retired portfolio',()=>{
 test('the dashboard has no redundant secondary navigation',()=>{
  assert.equal(navigationForPath('/dashboard').context,null);
 });
+
+
+test('personal books have their own Library tab, not NCERT navigation',()=>{
+ const current=navigationForPath('/library/my-books');
+ assert.equal(current.context?.label,'Learning library');
+ assert.ok(current.context.links.some(link=>link.href==='/library/my-books'&&link.label==='My Books'));
+ assert.equal(navigationLinkIsActive('/library/my-books','/library/my-books'),true);
+ assert.equal(navigationLinkIsActive('/library/my-books','/library'),false);
+ assert.equal(navigationLinkIsActive('/library','/library'),true);
+ const ncert=navigationForPath('/ncert-books');
+ assert.equal(ncert.context?.label,'Explore learning');
+ assert.ok(!ncert.context?.links.some(link=>link.href==='/library/my-books'));
+});
