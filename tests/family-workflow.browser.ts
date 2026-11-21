@@ -113,13 +113,14 @@ test('family resource assignment, review, day budget and subject level persist o
     await page
       .getByRole('button', { name: 'Subject levels', exact: true })
       .click();
-    await page
-      .getByText('Fixture 1 · Overall class: UKG', { exact: true })
-      .click();
-    const level = page
-      .locator('form')
-      .filter({ has: page.getByLabel('Mathematics', { exact: true }) });
-    await level.getByLabel('Mathematics', { exact: true }).selectOption('2');
+    const learnerLevels = page.locator('details.subject-level-learner')
+      .filter({ has: page.getByText('Fixture 1', { exact: true }) });
+    if (!(await learnerLevels.evaluate((element) => (element as HTMLDetailsElement).open))) {
+      await learnerLevels.locator('summary').click();
+    }
+    const level = learnerLevels.locator('form.subject-level-row')
+      .filter({ has: page.getByLabel('Mathematics level for Fixture 1', { exact: true }) });
+    await level.getByLabel('Mathematics level for Fixture 1', { exact: true }).selectOption('2');
     await level.getByRole('button', { name: 'Save level' }).click();
     await page.getByRole('status').filter({ hasText: 'Saved.' }).waitFor();
     await page.reload();
